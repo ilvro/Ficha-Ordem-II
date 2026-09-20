@@ -199,16 +199,19 @@
 .cinematic-die.cinematic-skill-die text{font-size:43px}
 
 .cinematic-attribute-die{flex:0 0 52px;width:52px;height:52px;margin-left:3px;padding:2px;display:grid;place-items:center;background:transparent;border:0;box-shadow:none}
-.cinematic-attributes{height:174px;flex-basis:174px;padding:0}
-.cinematic-attributes>div{width:76%;height:48px;margin-left:24%;display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:center;justify-content:normal;gap:2px}
-.cinematic-attributes>div>span{width:auto;text-align:right;font-size:clamp(27px,2.25vw,39px)}
+.cinematic-attributes{height:174px;flex-basis:174px;padding:0;position:relative}
+.cinematic-attributes>div{position:relative;width:78%;height:48px;margin-left:22%;display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:center;justify-content:normal;gap:4px;transition:transform .2s ease}
+.cinematic-attributes>div:nth-of-type(1){transform:translateX(22px)!important}
+.cinematic-attributes>div:nth-of-type(2){transform:translateX(0)!important}
+.cinematic-attributes>div:nth-of-type(3){transform:translateX(-22px)!important}
+.cinematic-attributes>div>span{width:auto;text-align:right;font:700 clamp(26px,2.2vw,38px)/1 Georgia,"Times New Roman",serif;white-space:nowrap;letter-spacing:.015em;text-shadow:0 3px 8px #000}
 .cinematic-attributes>div:nth-of-type(1)>span{transform:translate(1px,-1px) rotate(-1.2deg) skewX(-2deg) scaleX(.98)}
-.cinematic-attributes>div:nth-of-type(2)>span{transform:translate(-5px,0) rotate(.5deg) skewX(1deg) scaleX(1.01)}
-.cinematic-attributes>div:nth-of-type(3)>span{transform:translate(-11px,1px) rotate(-1.1deg) skewX(-1.5deg) scaleX(.99)}
+.cinematic-attributes>div:nth-of-type(2)>span{transform:translate(-2px,0) rotate(.5deg) skewX(1deg) scaleX(1.01)}
+.cinematic-attributes>div:nth-of-type(3)>span{transform:translate(-3px,1px) rotate(-1.1deg) skewX(-1.5deg) scaleX(.99)}
 .cinematic-attributes>h2{top:35px}
-.cinematic-attributes:before{left:28%;top:30px;width:48px}
-.cinematic-attributes:after{left:34%;top:30px;height:138px;transform:rotate(14deg)}
-.cinematic-attributes .attribute-stepper{left:calc(76% + 54px);top:8px}
+.cinematic-attributes:before{left:22%;top:30px;width:48px}
+.cinematic-attributes:after{left:31%;top:28px;height:144px;transform:rotate(-8deg);transform-origin:top center}
+.cinematic-attributes .attribute-stepper{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);z-index:10}
 
 /* A identidade usa alinhamento à esquerda em sincronia com os recursos (PV/PD) */
 .cinematic-identity{display:flex;align-items:center;justify-content:flex-start;gap:10px;min-width:0}
@@ -218,8 +221,8 @@
 .cinematic-identity>.cinematic-occupation{color:#f4f0eb;font:700 clamp(12px,1vw,16px) Georgia,"Times New Roman",serif}
 .cinematic-identity>.cinematic-level-label{color:#f4f0eb;font:700 clamp(12px,1vw,16px) Georgia,"Times New Roman",serif}
 
-@media(max-width:1250px){.cinematic-die.cinematic-attribute{width:45px;height:45px}.cinematic-attribute-die{width:49px;height:49px;flex-basis:49px}.cinematic-attributes>div{grid-template-columns:minmax(0,1fr) 49px}.editing .cinematic-identity .cinematic-profile-select{width:125px}.editing .cinematic-identity .cinematic-occupation-input{width:155px}}
-@media(max-height:760px){.cinematic-attributes{height:145px;flex-basis:145px}.cinematic-attributes>div{height:38px}.cinematic-attributes>h2{top:29px}.cinematic-attributes:before{top:25px}.cinematic-attributes:after{top:25px;height:116px}.cinematic-die.cinematic-attribute{width:39px;height:39px}.cinematic-attribute-die{width:43px;height:43px}.cinematic-attributes .attribute-stepper{top:4px}}
+@media(max-width:1250px){.cinematic-die.cinematic-attribute{width:45px;height:45px}.cinematic-attribute-die{width:49px;height:49px;flex-basis:49px}.cinematic-attributes>div{grid-template-columns:minmax(0,1fr) 49px}.cinematic-attributes>div:nth-of-type(1){transform:translateX(16px)!important}.cinematic-attributes>div:nth-of-type(2){transform:translateX(0)!important}.cinematic-attributes>div:nth-of-type(3){transform:translateX(-16px)!important}.cinematic-attributes:after{left:28%;transform:rotate(-7deg)}.editing .cinematic-identity .cinematic-profile-select{width:125px}.editing .cinematic-identity .cinematic-occupation-input{width:155px}}
+@media(max-height:760px){.cinematic-attributes{height:145px;flex-basis:145px}.cinematic-attributes>div{height:38px}.cinematic-attributes>div:nth-of-type(1){transform:translateX(15px)!important}.cinematic-attributes>div:nth-of-type(2){transform:translateX(0)!important}.cinematic-attributes>div:nth-of-type(3){transform:translateX(-15px)!important}.cinematic-attributes>h2{top:29px}.cinematic-attributes:before{top:25px}.cinematic-attributes:after{top:22px;height:124px;transform:rotate(-7deg)}.cinematic-die.cinematic-attribute{width:39px;height:39px}.cinematic-attribute-die{width:43px;height:43px}.cinematic-attributes .attribute-stepper{top:50%;transform:translateY(-50%)}}
 
 /* Camadas: o retrato mascara naturalmente linhas e molduras pela transparência */
 .cinematic-frame{z-index:3}
