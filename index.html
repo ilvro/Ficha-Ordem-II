@@ -18,11 +18,12 @@
           <feFlood flood-color="#000000" flood-opacity="0.8" result="shadowColor" />
           <feComposite in="shadowColor" in2="ambientOffset" operator="in" result="ambientShadow" />
 
-          <!-- Controlled outline with subtle fade -->
-          <feMorphology id="token-outline-morph" in="SourceAlpha" operator="dilate" radius="2" result="dilated" />
-          <feGaussianBlur id="token-outline-blur" in="dilated" stdDeviation="1.2" result="fadedOutline" />
+          <!-- Directional rim lighting with subtle fade -->
+          <feMorphology id="token-outline-morph" in="SourceAlpha" operator="dilate" radius="1.8" result="dilated" />
+          <feOffset id="token-outline-offset" in="dilated" dx="-2.5" dy="0" result="shiftedDilated" />
+          <feGaussianBlur id="token-outline-blur" in="shiftedDilated" stdDeviation="1.5" result="fadedOutline" />
           <feComposite in="fadedOutline" in2="SourceAlpha" operator="out" result="outerRim" />
-          <feFlood id="token-outline-flood" flood-color="#e0150d" flood-opacity="0.95" result="outlineColor" />
+          <feFlood id="token-outline-flood" flood-color="#e0150d" flood-opacity="0.5" result="outlineColor" />
           <feComposite in="outlineColor" in2="outerRim" operator="in" result="coloredRim" />
 
           <!-- Merge: Ambient Shadow + Controlled Outer Outline + Original Sharp Graphic on Top -->
