@@ -9,7 +9,9 @@ const icon=(name,size=19)=>{const paths={
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-5 4 4 2-2 5 4"/>',
   trash:'<path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/>',
   film:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/>',
-  grid:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>'};
+  grid:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>'};
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
 
 const DICE_STEPS=[4,6,8,10,12,20];
@@ -85,12 +87,79 @@ function normalizeSheet(raw={}){
  sheet.cinematicCollapsed={...defaults.cinematicCollapsed,...sheet.cinematicCollapsed};
  return sheet;
 }
+const DB_NAME='ordem-ii-db',DB_STORE='sheets-store';
+function openDb(){
+ return new Promise(resolve=>{
+  if(!window.indexedDB)return resolve(null);
+  const req=indexedDB.open(DB_NAME,1);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(DB_STORE))db.createObjectStore(DB_STORE)};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>resolve(null);
+ });
+}
+async function idbGet(key){
+ try{
+  const db=await openDb();
+  if(!db)return null;
+  return new Promise(resolve=>{
+   const tx=db.transaction(DB_STORE,'readonly'),store=tx.objectStore(DB_STORE),req=store.get(key);
+   req.onsuccess=()=>resolve(req.result??null);
+   req.onerror=()=>resolve(null);
+  });
+ }catch{return null}
+}
+async function idbSet(key,value){
+ try{
+  const db=await openDb();
+  if(!db)return false;
+  return new Promise(resolve=>{
+   const tx=db.transaction(DB_STORE,'readwrite'),store=tx.objectStore(DB_STORE);
+   store.put(value,key);
+   tx.oncomplete=()=>resolve(true);
+   tx.onerror=()=>resolve(false);
+  });
+ }catch{return false}
+}
 const SHEETS_KEY='ordem-ii-sheets-v1';
 let sheets=[];
-try{sheets=(JSON.parse(localStorage.getItem(SHEETS_KEY)||'[]')||[]).map(normalizeSheet)}catch{sheets=[]}
-if(!sheets.length){let legacy={};try{legacy=JSON.parse(localStorage.getItem('ordem-ii-alpha-sheet-v2')||'{}')}catch{}sheets=[normalizeSheet(legacy)]}
-let activeSheetId=localStorage.getItem('ordem-ii-active-sheet')||sheets[0].id;
-let state=sheets.find(sheet=>sheet.id===activeSheetId)||sheets[0]; activeSheetId=state.id;
+let state=normalizeSheet();
+let activeSheetId=state.id;
+
+async function loadInitialSheets(){
+ let loaded=null;
+ try{
+  const res=await fetch('/api/sheets',{cache:'no-store'});
+  if(res.ok){
+   const data=await res.json();
+   if(Array.isArray(data)&&data.length>0)loaded=data.map(normalizeSheet);
+  }
+ }catch{}
+ if(!loaded||!loaded.length){
+  try{
+   const idbSheets=await idbGet('sheets');
+   if(Array.isArray(idbSheets)&&idbSheets.length>0)loaded=idbSheets.map(normalizeSheet);
+  }catch{}
+ }
+ if(!loaded||!loaded.length){
+  try{
+   const local=JSON.parse(localStorage.getItem(SHEETS_KEY)||'[]');
+   if(Array.isArray(local)&&local.length>0)loaded=local.map(normalizeSheet);
+  }catch{}
+ }
+ if(!loaded||!loaded.length){
+  let legacy={};
+  try{legacy=JSON.parse(localStorage.getItem('ordem-ii-alpha-sheet-v2')||'{}')}catch{}
+  loaded=[normalizeSheet(legacy)];
+ }
+ sheets=loaded;
+ let storedActiveId=null;
+ try{storedActiveId=await idbGet('activeSheetId')||localStorage.getItem('ordem-ii-active-sheet')}catch{}
+ state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
+ activeSheetId=state.id;
+ idbSet('sheets',sheets);
+ idbSet('activeSheetId',activeSheetId);
+ try{localStorage.setItem(SHEETS_KEY,JSON.stringify(sheets));localStorage.setItem('ordem-ii-active-sheet',activeSheetId)}catch{}
+}
 let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120;
 const getDiceApi=()=>diceApiPromise??=import('./dice3d.js');
 const app=document.querySelector('#app');
@@ -128,7 +197,7 @@ function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_C
 
 function readMedia(file,key){if(!file)return;const type=file.type;if(type.startsWith('video/')||type==='image/gif'){if(state[key]?.startsWith('blob:'))URL.revokeObjectURL(state[key]);blobBgType=type.startsWith('video/')?'video':'gif';state[key]=URL.createObjectURL(file);render()}else{blobBgType='';readImage(file,key,1920)}}
 function render(){const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`}));app.innerHTML=`
- <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-save-sheet title="Salvar ficha">${icon('save')}</button></aside>
+ <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
   ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
   ${tornTitle('STATUS')}<section class="resources">${resourceEditor('pv','PV')}${resourceEditor('pd','PD')}</section>
@@ -148,7 +217,112 @@ function render(){const previousScroll={sheet:app.querySelector('.sheet-main')?.
  <section class="span-2 builder-section"><header><div><b>MARCADORES</b><small>Contador, barra, cargas ou liga/desliga. Fórmulas aceitam @{level}, @{pv} e atributos.</small></div><button type="button" data-add-marker>+ ADICIONAR</button></header><div id="marker-builder"></div></section>
  <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>`;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;modeJustChanged=false}
 
-function save(showToast=true){const index=sheets.findIndex(sheet=>sheet.id===state.id);if(index>=0)sheets[index]=state;localStorage.setItem(SHEETS_KEY,JSON.stringify(sheets));localStorage.setItem('ordem-ii-active-sheet',state.id);if(showToast){const toast=document.querySelector('#save-toast');if(toast){toast.textContent='SALVO';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),900)}}}
+function collectActiveInputs(){
+ document.querySelectorAll('[data-field]').forEach(el=>{
+  const key=el.dataset.field;
+  if(key&&el.value!==undefined){
+   state[key]=key==='level'?Math.max(0,Number(el.value)||0):el.value;
+  }
+ });
+ document.querySelectorAll('[data-skill-extra]').forEach(el=>{
+  const idx=Number(el.dataset.skillExtra);
+  if(!isNaN(idx)&&state.skills[idx]){
+   state.skills[idx].extra=Number(el.value)||0;
+  }
+ });
+}
+
+function save(showToast=true,toastMsg='SALVO'){
+ collectActiveInputs();
+ const index=sheets.findIndex(sheet=>sheet.id===state.id);
+ if(index>=0)sheets[index]=state; else sheets.push(state);
+
+ try{
+  fetch('/api/sheets',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify(sheets)
+  }).catch(()=>{});
+ }catch{}
+
+ try{
+  idbSet('sheets',sheets);
+  idbSet('activeSheetId',state.id);
+ }catch{}
+
+ try{
+  localStorage.setItem('ordem-ii-active-sheet',state.id);
+  localStorage.setItem(SHEETS_KEY,JSON.stringify(sheets));
+ }catch{
+  try{
+   const light=sheets.map(s=>({
+    ...s,
+    tokenImage:(s.tokenImage&&s.tokenImage.length>20000)?'':s.tokenImage,
+    backgroundImage:(s.backgroundImage&&s.backgroundImage.length>20000)?'':s.backgroundImage
+   }));
+   localStorage.setItem(SHEETS_KEY,JSON.stringify(light));
+  }catch{}
+ }
+
+ if(showToast){
+  const toast=document.querySelector('#save-toast');
+  if(toast){
+   toast.textContent=toastMsg;
+   toast.classList.add('show');
+   setTimeout(()=>toast.classList.remove('show'),1100);
+  }
+ }
+}
+
+function exportJsonSheet(){
+ collectActiveInputs();
+ const index=sheets.findIndex(sheet=>sheet.id===state.id);
+ if(index>=0)sheets[index]=state;
+ const dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(state,null,2));
+ const a=document.createElement('a');
+ const safeName=(state.name||'agente').trim().toLowerCase().replace(/[^\w\d\-_]+/g,'_')||'agente';
+ a.setAttribute('href',dataStr);
+ a.setAttribute('download',`${safeName}_ficha.json`);
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ const toast=document.querySelector('#save-toast');
+ if(toast){
+  toast.textContent='FICHA EXPORTADA';
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),1100);
+ }
+}
+
+function importJsonSheet(file){
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const parsed=JSON.parse(reader.result);
+   if(Array.isArray(parsed)){
+    if(!parsed.length)throw new Error('Arquivo vazio');
+    const imported=parsed.map(normalizeSheet);
+    sheets.push(...imported);
+    state=imported[imported.length-1];
+    activeSheetId=state.id;
+   }else if(parsed&&typeof parsed==='object'){
+    const imported=normalizeSheet(parsed);
+    if(sheets.some(s=>s.id===imported.id))imported.id=makeId('sheet');
+    sheets.push(imported);
+    state=imported;
+    activeSheetId=state.id;
+   }else{
+    throw new Error('Formato inválido');
+   }
+   save(true,'FICHA IMPORTADA!');
+   render();
+  }catch(err){
+   alert('Erro ao importar JSON: '+(err.message||'formato inválido'));
+  }
+ };
+ reader.readAsText(file);
+}
 function parseRollExpression(expression){const vars=formulaVariables();let expanded=String(expression||'').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));const dice=[];expanded=expanded.replace(/(\d*)d(4|6|8|10|12|20)/gi,(_,count,sides)=>{for(let i=0;i<Math.min(12,Number(count)||1);i++)dice.push(Number(sides));return '0'});let modifier=0;try{if(/^[\d+\-*/().\s]+$/.test(expanded))modifier=Math.floor(Function(`"use strict";return (${expanded||0})`)())}catch{}return{dice,modifier}}
 async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext)}
 async function rollExpression(name,expression){const parsed=parseRollExpression(expression);return roll(name,parsed.dice,parsed.modifier)}
@@ -196,6 +370,8 @@ function bind(){
  document.querySelector('.delete-card').onclick=()=>{const id=document.querySelector('#card-form').dataset.cardId;if(id){state.cards=state.cards.filter(c=>c.id!==id);save();closeCardEditor();render()}};
  document.querySelectorAll('#token-upload,#token-upload-secondary,#token-upload-cinematic').forEach(input=>input.onchange=()=>readImage(input.files[0],'tokenImage',1024));const backgroundUpload=document.querySelector('#background-upload');if(backgroundUpload)backgroundUpload.onchange=()=>readMedia(backgroundUpload.files[0],'backgroundImage');document.querySelector('[data-reset-background]')?.addEventListener('click',()=>{state.backgroundImage='';save();render()});const diceColor=document.querySelector('#dice-color');if(diceColor)diceColor.onchange=()=>{state.diceColor=diceColor.value;save();render()};document.querySelector('[data-reset-dice-color]')?.addEventListener('click',()=>{state.diceColor='';save();render()});
  document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{save(false);state=sheets.find(sheet=>sheet.id===el.dataset.sheetId);activeSheetId=state.id;localStorage.setItem('ordem-ii-active-sheet',state.id);render()});
- document.querySelector('[data-new-sheet]').onclick=()=>{save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;save();render()};document.querySelector('[data-save-sheet]').onclick=()=>save();document.querySelector('[data-compendium]').onclick=()=>{const toast=document.querySelector('#save-toast');toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)};document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;modeJustChanged=true;save(false);render()});bindCinematicToken();
+  document.querySelector('[data-new-sheet]').onclick=()=> {save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;save();render()};document.querySelector('[data-save-sheet]').onclick=()=>save(true,'SALVO');document.querySelector('[data-export-json]')?.addEventListener('click',()=>exportJsonSheet());const jsonFileInput=document.querySelector('#json-file-input');document.querySelector('[data-import-json]')?.addEventListener('click',()=>jsonFileInput?.click());if(jsonFileInput)jsonFileInput.onchange=()=>{if(jsonFileInput.files[0])importJsonSheet(jsonFileInput.files[0]);jsonFileInput.value=''};document.querySelector('[data-compendium]').onclick=()=>{const toast=document.querySelector('#save-toast');toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)};document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;modeJustChanged=true;save(false);render()});bindCinematicToken();
 }
+window.addEventListener('beforeunload',()=>save(false));
+await loadInitialSheets();
 render();
