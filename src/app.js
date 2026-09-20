@@ -156,9 +156,6 @@ async function loadInitialSheets(){
  try{storedActiveId=await idbGet('activeSheetId')||localStorage.getItem('ordem-ii-active-sheet')}catch{}
  state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
  activeSheetId=state.id;
- idbSet('sheets',sheets);
- idbSet('activeSheetId',activeSheetId);
- try{localStorage.setItem(SHEETS_KEY,JSON.stringify(sheets));localStorage.setItem('ordem-ii-active-sheet',activeSheetId)}catch{}
 }
 let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120;
 const getDiceApi=()=>diceApiPromise??=import('./dice3d.js');
@@ -197,7 +194,7 @@ function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_C
 
 function readMedia(file,key){if(!file)return;const type=file.type;if(type.startsWith('video/')||type==='image/gif'){if(state[key]?.startsWith('blob:'))URL.revokeObjectURL(state[key]);blobBgType=type.startsWith('video/')?'video':'gif';state[key]=URL.createObjectURL(file);render()}else{blobBgType='';readImage(file,key,1920)}}
 function render(){const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`}));app.innerHTML=`
- <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
+  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
   ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
   ${tornTitle('STATUS')}<section class="resources">${resourceEditor('pv','PV')}${resourceEditor('pd','PD')}</section>
@@ -236,6 +233,7 @@ function save(showToast=true,toastMsg='SALVO'){
  collectActiveInputs();
  const index=sheets.findIndex(sheet=>sheet.id===state.id);
  if(index>=0)sheets[index]=state; else sheets.push(state);
+ if(!showToast) return;
 
  try{
   fetch('/api/sheets',{
@@ -323,6 +321,121 @@ function importJsonSheet(file){
  };
  reader.readAsText(file);
 }
+
+let activeContextMenuSheetId = null;
+function showSheetContextMenu(e, sheetId) {
+ e.preventDefault();
+ e.stopPropagation();
+ activeContextMenuSheetId = sheetId;
+ let menu = document.querySelector('#sheet-context-menu');
+ if (!menu) {
+  menu = document.createElement('div');
+  menu.id = 'sheet-context-menu';
+  menu.className = 'custom-context-menu';
+  document.body.appendChild(menu);
+ }
+ const target = sheets.find(s => s.id === sheetId);
+ const name = target?.name || 'esta ficha';
+ menu.innerHTML = `<button type="button" data-action="delete-sheet">${icon('trash', 14)} <span>Deletar ficha (${safe(name)})</span></button>`;
+ menu.hidden = false;
+ const x = Math.min(window.innerWidth - 185, Math.max(10, e.clientX + 4));
+ const y = Math.min(window.innerHeight - 70, Math.max(10, e.clientY + 4));
+ menu.style.left = `${x}px`;
+ menu.style.top = `${y}px`;
+
+ menu.querySelector('[data-action="delete-sheet"]').onclick = (ev) => {
+  ev.stopPropagation();
+  closeSheetContextMenu();
+  deleteSheet(sheetId);
+ };
+}
+
+function closeSheetContextMenu() {
+ const menu = document.querySelector('#sheet-context-menu');
+ if (menu) menu.hidden = true;
+ activeContextMenuSheetId = null;
+}
+
+function deleteSheet(sheetId) {
+ if (sheets.length <= 1) {
+  const toast = document.querySelector('#save-toast');
+  if (toast) {
+   toast.textContent = 'NÃO É POSSÍVEL EXCLUIR A ÚNICA FICHA';
+   toast.classList.add('show');
+   setTimeout(() => toast.classList.remove('show'), 1500);
+  }
+  return;
+ }
+ const target = sheets.find(s => s.id === sheetId);
+ const name = target?.name || 'esta ficha';
+ if (!confirm(`Deseja realmente excluir a ficha "${name}"?`)) return;
+
+ const wasActive = (state.id === sheetId);
+ sheets = sheets.filter(s => s.id !== sheetId);
+ if (wasActive) {
+  state = sheets[0];
+  activeSheetId = state.id;
+ }
+ render();
+ const toast = document.querySelector('#save-toast');
+ if (toast) {
+  toast.textContent = 'FICHA EXCLUÍDA (CLIQUE EM SALVAR PARA GRAVAR)';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1600);
+ }
+}
+
+function bindSheetInteractions() {
+ const avatars = document.querySelectorAll('.sheet-avatar');
+ avatars.forEach(avatar => {
+  avatar.oncontextmenu = (e) => showSheetContextMenu(e, avatar.dataset.sheetId);
+
+  avatar.ondragstart = (e) => {
+   e.dataTransfer.setData('text/sheet-id', avatar.dataset.sheetId);
+   e.dataTransfer.effectAllowed = 'move';
+   avatar.classList.add('dragging');
+  };
+
+  avatar.ondragend = () => {
+   avatar.classList.remove('dragging');
+   avatars.forEach(a => a.classList.remove('drag-over-top', 'drag-over-bottom'));
+  };
+
+  avatar.ondragover = (e) => {
+   e.preventDefault();
+   e.dataTransfer.dropEffect = 'move';
+   const rect = avatar.getBoundingClientRect();
+   const isTop = e.clientY < (rect.top + rect.height / 2);
+   avatar.classList.toggle('drag-over-top', isTop);
+   avatar.classList.toggle('drag-over-bottom', !isTop);
+  };
+
+  avatar.ondragleave = () => {
+   avatar.classList.remove('drag-over-top', 'drag-over-bottom');
+  };
+
+  avatar.ondrop = (e) => {
+   e.preventDefault();
+   avatar.classList.remove('drag-over-top', 'drag-over-bottom');
+   const fromId = e.dataTransfer.getData('text/sheet-id');
+   const toId = avatar.dataset.sheetId;
+   if (!fromId || !toId || fromId === toId) return;
+
+   const fromIndex = sheets.findIndex(s => s.id === fromId);
+   const toIndex = sheets.findIndex(s => s.id === toId);
+   if (fromIndex < 0 || toIndex < 0) return;
+
+   const rect = avatar.getBoundingClientRect();
+   const isTop = e.clientY < (rect.top + rect.height / 2);
+
+   const [moved] = sheets.splice(fromIndex, 1);
+   let targetIndex = sheets.findIndex(s => s.id === toId);
+   if (!isTop) targetIndex += 1;
+   sheets.splice(targetIndex, 0, moved);
+   render();
+  };
+ });
+}
 function parseRollExpression(expression){const vars=formulaVariables();let expanded=String(expression||'').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));const dice=[];expanded=expanded.replace(/(\d*)d(4|6|8|10|12|20)/gi,(_,count,sides)=>{for(let i=0;i<Math.min(12,Number(count)||1);i++)dice.push(Number(sides));return '0'});let modifier=0;try{if(/^[\d+\-*/().\s]+$/.test(expanded))modifier=Math.floor(Function(`"use strict";return (${expanded||0})`)())}catch{}return{dice,modifier}}
 async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext)}
 async function rollExpression(name,expression){const parsed=parseRollExpression(expression);return roll(name,parsed.dice,parsed.modifier)}
@@ -369,9 +482,11 @@ function bind(){
  document.querySelector('#card-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget,data=Object.fromEntries(new FormData(form)),existing=state.cards.find(c=>c.id===form.dataset.cardId),card=existing||{id:makeId('card')};Object.assign(card,{schema:data.schema,title:data.title.trim()||'SEM TÍTULO',type:data.type.trim()||'Habilidade',icon:data.icon.trim()||'◆',accent:data.accent,themeLinked:data.colorMode==='profile',layout:data.layout,collapsed:data.collapsed==='true',imageUrl:data.imageUrl.trim(),content:data.content.trim(),markers:clone(editorMarkers),actions:clone(editorActions)});card.markers.forEach(marker=>marker.current=Math.min(Number(marker.current)||0,marker.type==='toggle'?1:markerMax(marker)||999));if(!existing)state.cards.push(card);currentRight=card.schema;save();closeCardEditor();render()};
  document.querySelector('.delete-card').onclick=()=>{const id=document.querySelector('#card-form').dataset.cardId;if(id){state.cards=state.cards.filter(c=>c.id!==id);save();closeCardEditor();render()}};
  document.querySelectorAll('#token-upload,#token-upload-secondary,#token-upload-cinematic').forEach(input=>input.onchange=()=>readImage(input.files[0],'tokenImage',1024));const backgroundUpload=document.querySelector('#background-upload');if(backgroundUpload)backgroundUpload.onchange=()=>readMedia(backgroundUpload.files[0],'backgroundImage');document.querySelector('[data-reset-background]')?.addEventListener('click',()=>{state.backgroundImage='';save();render()});const diceColor=document.querySelector('#dice-color');if(diceColor)diceColor.onchange=()=>{state.diceColor=diceColor.value;save();render()};document.querySelector('[data-reset-dice-color]')?.addEventListener('click',()=>{state.diceColor='';save();render()});
- document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{save(false);state=sheets.find(sheet=>sheet.id===el.dataset.sheetId);activeSheetId=state.id;localStorage.setItem('ordem-ii-active-sheet',state.id);render()});
-  document.querySelector('[data-new-sheet]').onclick=()=> {save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;save();render()};document.querySelector('[data-save-sheet]').onclick=()=>save(true,'SALVO');document.querySelector('[data-export-json]')?.addEventListener('click',()=>exportJsonSheet());const jsonFileInput=document.querySelector('#json-file-input');document.querySelector('[data-import-json]')?.addEventListener('click',()=>jsonFileInput?.click());if(jsonFileInput)jsonFileInput.onchange=()=>{if(jsonFileInput.files[0])importJsonSheet(jsonFileInput.files[0]);jsonFileInput.value=''};document.querySelector('[data-compendium]').onclick=()=>{const toast=document.querySelector('#save-toast');toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)};document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;modeJustChanged=true;save(false);render()});bindCinematicToken();
+  document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{save(false);state=sheets.find(sheet=>sheet.id===el.dataset.sheetId);activeSheetId=state.id;render()});
+  document.querySelector('[data-new-sheet]').onclick=()=> {save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render()};document.querySelector('[data-save-sheet]').onclick=()=>save(true,'SALVO');document.querySelector('[data-export-json]')?.addEventListener('click',()=>exportJsonSheet());const jsonFileInput=document.querySelector('#json-file-input');document.querySelector('[data-import-json]')?.addEventListener('click',()=>jsonFileInput?.click());if(jsonFileInput)jsonFileInput.onchange=()=>{if(jsonFileInput.files[0])importJsonSheet(jsonFileInput.files[0]);jsonFileInput.value=''};document.querySelector('[data-compendium]').onclick=()=>{const toast=document.querySelector('#save-toast');toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)};document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;modeJustChanged=true;render()});bindCinematicToken();bindSheetInteractions();
 }
-window.addEventListener('beforeunload',()=>save(false));
+document.addEventListener('click',closeSheetContextMenu);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheetContextMenu()});
+window.addEventListener('resize',closeSheetContextMenu);
 await loadInitialSheets();
 render();
