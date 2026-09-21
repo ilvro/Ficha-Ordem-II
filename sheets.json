@@ -4,7 +4,7 @@
     "occupation": "Cientista",
     "profile": "Executor",
     "level": 2,
-    "pv": 10,
+    "pv": 6,
     "maxPv": 10,
     "pvTemp": 0,
     "pd": 16,
@@ -1520,7 +1520,7 @@
     "pv": 14,
     "maxPv": 14,
     "pvTemp": 0,
-    "pd": 12,
+    "pd": 8,
     "maxPd": 14,
     "pdTemp": 0,
     "history": "É réveillon, um novo começo, a virada de 1877 para 1878.\n\nVocê é um professor de literatura e passou boa parte da vida cercado de histórias sobre pessoas que enfrentam aquilo que parece inevitável. Últimamente, essas histórias têm ficado mais difíceis de ler.\nVocê descobriu recentemente que está gravemente doente. Não sabe exatamente quanto tempo possui, mas os especialistas e estudantes já deixaram claro que não existe tratamento capaz de devolver sua vida. Pelo menos, não por agora. \nPara a virada do ano, você foi sozinho a uma festa em um bar, porque não suportava passar a noite em casa pensando no seu diagnóstico. Lá, acabou conversando por horas com um homem rico chamado Gustav, que estava com sua família para comemorar \"seu último ano novo\", tentando conhecer novas pessoas fora do seu círculo usual e aproveitando o tempo que ainda resta, apesar de deprimido. Vocês conversaram durante horas, não apenas sobre a doença, mas sobre literatura, religião, histórias antigas, mortes e sobre a maneira poética de como pessoas diferentes conseguem encontrar algum sentido quando sabem que estão perdendo o próprio futuro.\n\nVocês se identificaram um com o outro e se tornaram amigos. Conversar com alguém na mesma situação que você aliviou um pouco o peso do seu coração... mesmo sabendo que, daqui a alguns meses, nenhum de vocês dois estará aqui para lembrar disso.\n\nEle recomendou a você participar de um grupo de apoio com outras pessoas em fase terminal, dizendo que isso o está ajudando a lidar com tudo.\nOs fogos de artifício estouraram enquanto vocês conversavam e festejavam com novas pessoas ao redor, todos se apoiando com bebidas na mão em uma mureta com vista para o horizonte e a cidade logo abaixo.\nA contagem regressiva chegou ao zero. \nE então... vermelho.",
@@ -1724,12 +1724,12 @@
             "id": "prontidao-m",
             "type": "slots",
             "label": "Prontidão",
-            "current": 0,
+            "current": 3,
             "maxFormula": "3",
             "slots": [
-              null,
-              null,
-              null
+              6,
+              4,
+              6
             ],
             "fillCostResource": "pd",
             "fillCostAmount": 2,
@@ -1748,6 +1748,21 @@
         "collapsed": false,
         "imageUrl": "",
         "profileAbility": "Vigilante"
+      },
+      {
+        "id": "card-1789953737390-6hpho",
+        "schema": "abilities",
+        "title": "MENTORIA",
+        "type": "Habilidade",
+        "icon": "◆",
+        "accent": "#63bd42",
+        "themeLinked": true,
+        "layout": "standard",
+        "collapsed": false,
+        "imageUrl": "",
+        "content": "Quando **[color=#63bd42]ajuda[/color]** outro personagem, você pode fazer um teste da perícia que usou para ajudar contra **[color=#63bd42]DT 7[/color]**. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua rolagem alta.",
+        "markers": [],
+        "actions": []
       }
     ],
     "id": "sheet-1789934661352-pwiz0"
