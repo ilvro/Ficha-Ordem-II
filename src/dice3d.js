@@ -184,74 +184,86 @@ export function rollDice3d(configs, title = 'Rolagem', modifier = 0, sharedAudio
   const stage = document.querySelector('#dice-stage');
   const canvas = document.querySelector('#dice-canvas');
   const resultNode = document.querySelector('#dice-stage-result');
-  if (!stage || !canvas) return;
+  if (!stage || !canvas) return Promise.resolve(null);
   if (sharedAudioContext) audioContext = sharedAudioContext;
   getAudioContext();
   cancelAnimationFrame(animationFrame); clearTimeout(cleanupTimer);
   stage.classList.add('active'); resultNode.classList.remove('visible');
 
-  renderer?.dispose();
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setClearColor(0x000000, 0); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  const width = innerWidth, height = innerHeight;
-  renderer.setSize(width, height, false);
+  return new Promise(resolve => {
+    let resolved = false;
+    const finishResolve = res => {
+      if (!resolved) {
+        resolved = true;
+        resolve(res);
+      }
+    };
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, width / height, .1, 100);
-  camera.position.set(0, 3.3, 9); camera.lookAt(0, .7, 0);
-  scene.add(new THREE.HemisphereLight(0xcce1ff, 0x210006, 2.4));
-  const key = new THREE.DirectionalLight(0xffffff, 4.5); key.position.set(-4, 8, 5); key.castShadow = true; scene.add(key);
-  const accent = new THREE.PointLight(0xff1f47, 15, 10); accent.position.set(4, 2, 4); scene.add(accent);
+    renderer?.dispose();
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const width = innerWidth, height = innerHeight;
+    renderer.setSize(width, height, false);
 
-  const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -25, 0) });
-  world.allowSleep = true; world.broadphase = new CANNON.SAPBroadphase(world);
-  world.boundsX = Math.min(5.15, 2.9 * width / height);
-  world.boundsZ = 2.7;
-  world.launch = Math.floor(Math.random() * 4);
-  world.diceMaterial = new CANNON.Material('dice');
-  const floorMaterial = new CANNON.Material('floor');
-  world.addContactMaterial(new CANNON.ContactMaterial(world.diceMaterial, floorMaterial, { friction: .25, restitution: .57 }));
-  world.addContactMaterial(new CANNON.ContactMaterial(world.diceMaterial, world.diceMaterial, { friction: .15, restitution: .42 }));
-  const floorBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material: floorMaterial });
-  floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); floorBody.position.y = -1.15; world.addBody(floorBody);
-  const wallMaterial = floorMaterial;
-  const wallSpecs = [
-    [new CANNON.Vec3(.08, 3.4, world.boundsZ), new CANNON.Vec3(-world.boundsX, 1.8, 0)],
-    [new CANNON.Vec3(.08, 3.4, world.boundsZ), new CANNON.Vec3(world.boundsX, 1.8, 0)],
-    [new CANNON.Vec3(world.boundsX, 3.4, .08), new CANNON.Vec3(0, 1.8, -world.boundsZ)],
-    [new CANNON.Vec3(world.boundsX, 3.4, .08), new CANNON.Vec3(0, 1.8, world.boundsZ)],
-    [new CANNON.Vec3(world.boundsX, .08, world.boundsZ), new CANNON.Vec3(0, 4.15, 0)]
-  ];
-  wallSpecs.forEach(([halfExtents, position]) => {
-    const wall = new CANNON.Body({ mass: 0, shape: new CANNON.Box(halfExtents), material: wallMaterial });
-    wall.position.copy(position); world.addBody(wall);
-  });
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.boundsX * 2, world.boundsZ * 2), new THREE.ShadowMaterial({ color: 0x000000, opacity: .25 }));
-  floor.rotation.x = -Math.PI / 2; floor.position.y = -1.14; floor.receiveShadow = true; scene.add(floor);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(34, width / height, .1, 100);
+    camera.position.set(0, 3.3, 9); camera.lookAt(0, .7, 0);
+    scene.add(new THREE.HemisphereLight(0xcce1ff, 0x210006, 2.4));
+    const key = new THREE.DirectionalLight(0xffffff, 4.5); key.position.set(-4, 8, 5); key.castShadow = true; scene.add(key);
+    const accent = new THREE.PointLight(0xff1f47, 15, 10); accent.position.set(4, 2, 4); scene.add(accent);
 
-  const dice = list.map((config, index) => createDie(scene, world, config, index, list.length));
-  const start = performance.now(); let last = start; let settledAt = 0; let finishedAt = 0; let finished = false;
-  function animate(now) {
-    const delta = Math.min(.033, (now - last) / 1000); last = now;
-    world.step(1 / 60, delta, 3);
-    dice.forEach(die => {
-      die.mesh.position.copy(die.body.position);
-      die.mesh.quaternion.copy(die.body.quaternion);
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -25, 0) });
+    world.allowSleep = true; world.broadphase = new CANNON.SAPBroadphase(world);
+    world.boundsX = Math.min(5.15, 2.9 * width / height);
+    world.boundsZ = 2.7;
+    world.launch = Math.floor(Math.random() * 4);
+    world.diceMaterial = new CANNON.Material('dice');
+    const floorMaterial = new CANNON.Material('floor');
+    world.addContactMaterial(new CANNON.ContactMaterial(world.diceMaterial, floorMaterial, { friction: .25, restitution: .57 }));
+    world.addContactMaterial(new CANNON.ContactMaterial(world.diceMaterial, world.diceMaterial, { friction: .15, restitution: .42 }));
+    const floorBody = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(), material: floorMaterial });
+    floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); floorBody.position.y = -1.15; world.addBody(floorBody);
+    const wallMaterial = floorMaterial;
+    const wallSpecs = [
+      [new CANNON.Vec3(.08, 3.4, world.boundsZ), new CANNON.Vec3(-world.boundsX, 1.8, 0)],
+      [new CANNON.Vec3(.08, 3.4, world.boundsZ), new CANNON.Vec3(world.boundsX, 1.8, 0)],
+      [new CANNON.Vec3(world.boundsX, 3.4, .08), new CANNON.Vec3(0, 1.8, -world.boundsZ)],
+      [new CANNON.Vec3(world.boundsX, 3.4, .08), new CANNON.Vec3(0, 1.8, world.boundsZ)],
+      [new CANNON.Vec3(world.boundsX, .08, world.boundsZ), new CANNON.Vec3(0, 4.15, 0)]
+    ];
+    wallSpecs.forEach(([halfExtents, position]) => {
+      const wall = new CANNON.Body({ mass: 0, shape: new CANNON.Box(halfExtents), material: wallMaterial });
+      wall.position.copy(position); world.addBody(wall);
     });
-    renderer.render(scene, camera);
-    const slow = dice.every(die => die.body.velocity.length() < .25 && die.body.angularVelocity.length() < .32);
-    if (slow) settledAt ||= now; else settledAt = 0;
-    if (!finished && ((settledAt && now - settledAt > 260) || now - start > 4200)) {
-      finished = true;
-      finishedAt = now;
-      dice.forEach(die => { die.body.velocity.setZero(); die.body.angularVelocity.setZero(); });
-      showResult(resultNode, dice, dice.map(topFace), title, modifier);
-      cleanupTimer = setTimeout(closeDice3d, 4200);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(world.boundsX * 2, world.boundsZ * 2), new THREE.ShadowMaterial({ color: 0x000000, opacity: .25 }));
+    floor.rotation.x = -Math.PI / 2; floor.position.y = -1.14; floor.receiveShadow = true; scene.add(floor);
+
+    const dice = list.map((config, index) => createDie(scene, world, config, index, list.length));
+    const start = performance.now(); let last = start; let settledAt = 0; let finishedAt = 0; let finished = false;
+    function animate(now) {
+      const delta = Math.min(.033, (now - last) / 1000); last = now;
+      world.step(1 / 60, delta, 3);
+      dice.forEach(die => {
+        die.mesh.position.copy(die.body.position);
+        die.mesh.quaternion.copy(die.body.quaternion);
+      });
+      renderer.render(scene, camera);
+      const slow = dice.every(die => die.body.velocity.length() < .25 && die.body.angularVelocity.length() < .32);
+      if (slow) settledAt ||= now; else settledAt = 0;
+      if (!finished && ((settledAt && now - settledAt > 260) || now - start > 4200)) {
+        finished = true;
+        finishedAt = now;
+        dice.forEach(die => { die.body.velocity.setZero(); die.body.angularVelocity.setZero(); });
+        const values = dice.map(topFace);
+        showResult(resultNode, dice, values, title, modifier);
+        cleanupTimer = setTimeout(closeDice3d, 4200);
+        finishResolve({ values, total: values.reduce((s, v) => s + v, 0) + modifier, dice: values });
+      }
+      if (!finished || now - finishedAt < 900) animationFrame = requestAnimationFrame(animate);
     }
-    if (!finished || now - finishedAt < 900) animationFrame = requestAnimationFrame(animate);
-  }
-  animationFrame = requestAnimationFrame(animate);
+    animationFrame = requestAnimationFrame(animate);
+  });
 }
 
 export function closeDice3d() {

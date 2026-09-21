@@ -182,7 +182,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de **[color=#ef0635]Ímpeto[/color]** com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -408,7 +408,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de Ímpeto com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -430,7 +430,7 @@
         "schema": "abilities",
         "title": "AVALIAÇÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você pode gastar uma ação e **[color=#67a2ff]2 PD[/color]** para observar um ser ou ambiente. Você recebe **[color=#67a2ff]2d4[/color]** que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo **[color=#67a2ff]+2d4[/color]** em um teste ou **[color=#67a2ff]+1d4[/color]** em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
+        "content": "Você pode gastar uma ação e [color=#2162ff]**2 PD**[/color] para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
         "accent": "#2162ff",
         "icon": "◈",
         "markers": [
@@ -476,11 +476,34 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "No início de qualquer conflito, você pode gastar **3 PD**. Se fizer isso, **ganha uma rodada** na qual pode agir antes dos demais personagens e NPCs.",
+        "content": "Você possui uma [color=#63bd42]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#63bd42]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#63bd42]**agir antes de todos**[/color].",
         "accent": "#63bd42",
         "icon": "◆",
-        "markers": [],
-        "actions": []
+        "markers": [
+          {
+            "id": "prontidao-m",
+            "type": "slots",
+            "label": "Prontidão",
+            "current": 0,
+            "maxFormula": "3",
+            "slots": [
+              null,
+              null,
+              null
+            ],
+            "fillCostResource": "pd",
+            "fillCostAmount": 2,
+            "displayStyle": "rectangles"
+          }
+        ],
+        "actions": [
+          {
+            "id": "prontidao-a",
+            "name": "Rolar Prontidão",
+            "expression": "3d6",
+            "targetMarker": "prontidao-m"
+          }
+        ]
       }
     ],
     "id": "sheet-1789935686382-iplu3"
@@ -668,7 +691,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de Ímpeto com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -891,7 +914,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de Ímpeto com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -913,7 +936,7 @@
         "schema": "abilities",
         "title": "AVALIAÇÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você pode gastar uma ação e **[color=#67a2ff]2 PD[/color]** para observar um ser ou ambiente. Você recebe **[color=#67a2ff]2d4[/color]** que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo **[color=#67a2ff]+2d4[/color]** em um teste ou **[color=#67a2ff]+1d4[/color]** em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
+        "content": "Você pode gastar uma ação e [color=#2162ff]**2 PD**[/color] para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
         "accent": "#2162ff",
         "icon": "◈",
         "markers": [
@@ -989,9 +1012,9 @@
     "cinematicTokenX": 49.19083971486218,
     "cinematicTokenY": 62.308577467423945,
     "cinematicTokenScale": 103,
-    "cinematicOutlineSide": "left",
+    "cinematicOutlineSide": "right",
     "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 0,
+    "cinematicOutlineWidth": 1.1,
     "cinematicOutlineFade": 1.5,
     "cinematicCollapsed": {
       "abilities": false,
@@ -1153,7 +1176,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de Ímpeto com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -1175,7 +1198,7 @@
         "schema": "abilities",
         "title": "AVALIAÇÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você pode gastar uma ação e **2 PD** para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
+        "content": "Você pode gastar uma ação e [color=#2162ff]**2 PD**[/color] para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
         "accent": "#2162ff",
         "icon": "◈",
         "markers": [
@@ -1409,8 +1432,8 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de **[color=#ef0635]Ímpeto[/color]** com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
-        "accent": "#e91d25",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "accent": "#e0150d",
         "icon": "◆",
         "markerLabel": "Ímpeto",
         "markerCurrent": 1,
@@ -1469,7 +1492,7 @@
         "schema": "abilities",
         "title": "AVALIAÇÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você pode gastar uma ação e **2 PD** para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
+        "content": "Você pode gastar uma ação e [color=#2162ff]**2 PD**[/color] para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.",
         "accent": "#2162ff",
         "icon": "◈",
         "markers": [
@@ -1672,7 +1695,7 @@
         "schema": "abilities",
         "title": "ÍMPETO",
         "type": "Recurso",
-        "content": "Você possui uma barra de Ímpeto com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
+        "content": "Você possui uma barra de [color=#e0150d]**Ímpeto**[/color] com três espaços. Sempre que falha em um teste, você preenche um espaço nessa barra.\n\nVocê pode apagar espaços preenchidos para:\n- 1 Receber +4 em um teste\n- 3 Aumentar um atributo em um passo até o final da cena",
         "accent": "#e0150d",
         "icon": "◆",
         "markers": [
@@ -1688,36 +1711,43 @@
         "actions": []
       },
       {
-        "id": "foco-mental",
+        "id": "prontidao",
         "themeLinked": true,
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "No início de qualquer conflito, você pode gastar **[color=#008002]3 PD[/color]**. Se fizer isso, **[color=#008002]ganha uma rodada[/color]** na qual pode agir antes dos demais personagens e NPCs.",
-        "accent": "#e91d25",
-        "icon": "◈",
-        "markers": [],
-        "actions": [],
+        "content": "Você possui uma [color=#63bd42]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#63bd42]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#63bd42]**agir antes de todos**[/color].",
+        "accent": "#63bd42",
+        "icon": "◆",
+        "markers": [
+          {
+            "id": "prontidao-m",
+            "type": "slots",
+            "label": "Prontidão",
+            "current": 0,
+            "maxFormula": "3",
+            "slots": [
+              null,
+              null,
+              null
+            ],
+            "fillCostResource": "pd",
+            "fillCostAmount": 2,
+            "displayStyle": "rectangles"
+          }
+        ],
+        "actions": [
+          {
+            "id": "prontidao-a",
+            "name": "Rolar Prontidão",
+            "expression": "3d6",
+            "targetMarker": "prontidao-m"
+          }
+        ],
         "layout": "standard",
         "collapsed": false,
         "imageUrl": "",
         "profileAbility": "Vigilante"
-      },
-      {
-        "id": "prontidao",
-        "profileAbility": "Vigilante",
-        "themeLinked": true,
-        "schema": "abilities",
-        "title": "PRONTIDÃO",
-        "type": "Habilidade de Perfil",
-        "content": "Quando **[color=#00701c]ajuda[/color]** outro personagem, você pode fazer um teste da perícia que usou para ajudar contra **[color=#00701c]DT 7[/color]**. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua rolagem alta.",
-        "accent": "#63bd42",
-        "icon": "◆",
-        "markers": [],
-        "actions": [],
-        "layout": "standard",
-        "collapsed": false,
-        "imageUrl": ""
       }
     ],
     "id": "sheet-1789934661352-pwiz0"
