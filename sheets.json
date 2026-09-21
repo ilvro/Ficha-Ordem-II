@@ -25,7 +25,7 @@
     "cinematicCollapsed": {
       "abilities": false,
       "items": true,
-      "history": false
+      "history": true
     },
     "attributes": {
       "Físico": 6,
@@ -243,8 +243,8 @@
     "cinematicOutlineFade": 0.2,
     "cinematicCollapsed": {
       "abilities": false,
-      "items": false,
-      "history": false
+      "items": true,
+      "history": true
     },
     "attributes": {
       "Físico": 4,
@@ -533,8 +533,8 @@
     "cinematicOutlineFade": 0.2,
     "cinematicCollapsed": {
       "abilities": false,
-      "items": false,
-      "history": false
+      "items": true,
+      "history": true
     },
     "attributes": {
       "Físico": 4,
@@ -1039,8 +1039,8 @@
     "cinematicOutlineFade": 1.2,
     "cinematicCollapsed": {
       "abilities": false,
-      "items": false,
-      "history": false
+      "items": true,
+      "history": true
     },
     "attributes": {
       "Físico": 6,
@@ -1827,8 +1827,8 @@
     "cinematicOutlineFade": 1.2,
     "cinematicCollapsed": {
       "abilities": false,
-      "items": false,
-      "history": false
+      "items": true,
+      "history": true
     },
     "attributes": {
       "Físico": 8,
