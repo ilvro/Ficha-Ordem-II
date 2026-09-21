@@ -289,10 +289,11 @@
 
 /* ─── Transição Glitch / VHS Horror ─────────────────────────────────────── */
 .cinematic-contents{position:absolute;inset:0;pointer-events:none}.cinematic-contents>*{pointer-events:auto}
-@keyframes glitch-shake{0%{transform:translate(0,0)}7%{transform:translate(-7px,3px) skewX(-2.5deg)}14%{transform:translate(9px,-4px) skewX(3deg)}21%{transform:translate(-6px,5px) skewX(-1.5deg)}28%{transform:translate(8px,-3px) skewX(2deg)}35%{transform:translate(-4px,4px)}45%{transform:translate(5px,-3px)}57%{transform:translate(-3px,2px)}70%{transform:translate(2px,-2px)}85%{transform:translate(-1px,1px)}100%{transform:translate(0,0)}}
-@keyframes glitch-blackout{0%{opacity:0}20%{opacity:.5}60%{opacity:.5}100%{opacity:0}}
-.cinematic-contents.glitch-enter{animation:glitch-shake .4s cubic-bezier(.22,.68,0,1.2) both}
-.glitch-blackout-overlay{position:fixed;inset:0;z-index:9999;background:#000;pointer-events:none;animation:glitch-blackout 240ms ease-in-out both}
+@keyframes cinematic-exit{0%{opacity:1}100%{opacity:0}}
+@keyframes cinematic-enter{0%{opacity:0;transform:translate(0,0)}8%{opacity:.7;transform:translate(-7px,3px) skewX(-2.5deg)}16%{opacity:.85;transform:translate(9px,-4px) skewX(3deg)}25%{opacity:.92;transform:translate(-6px,5px) skewX(-1.5deg)}35%{opacity:1;transform:translate(8px,-3px) skewX(2deg)}45%{opacity:1;transform:translate(-4px,4px)}57%{opacity:1;transform:translate(5px,-3px)}70%{opacity:1;transform:translate(-3px,2px)}85%{opacity:1;transform:translate(2px,-2px)}100%{opacity:1;transform:translate(0,0)}}
+.cinematic-contents.glitch-exit{animation:cinematic-exit 110ms ease-out forwards;pointer-events:none}
+.cinematic-contents.glitch-enter{animation:cinematic-enter 420ms cubic-bezier(.22,.68,0,1.1) both}
+
 
 
 
