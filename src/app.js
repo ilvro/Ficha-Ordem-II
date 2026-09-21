@@ -12,6 +12,7 @@ const icon=(name,size=19)=>{const paths={
   grid:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
   sparkles:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+  copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
   upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>'};
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
 
@@ -348,12 +349,23 @@ function showSheetContextMenu(e, sheetId) {
  }
  const target = sheets.find(s => s.id === sheetId);
  const name = target?.name || 'esta ficha';
- menu.innerHTML = `<button type="button" data-action="delete-sheet">${icon('trash', 14)} <span>Deletar ficha (${safe(name)})</span></button>`;
+ menu.innerHTML = `
+  <div class="custom-context-menu-header">${safe(name)}</div>
+  <button type="button" data-action="clone-sheet">${icon('copy', 14)} <span>Clonar ficha</span></button>
+  <div class="custom-context-menu-separator"></div>
+  <button type="button" data-action="delete-sheet" class="menu-danger">${icon('trash', 14)} <span>Deletar ficha</span></button>
+ `;
  menu.hidden = false;
- const x = Math.min(window.innerWidth - 185, Math.max(10, e.clientX + 4));
- const y = Math.min(window.innerHeight - 70, Math.max(10, e.clientY + 4));
+ const x = Math.min(window.innerWidth - 180, Math.max(10, e.clientX + 4));
+ const y = Math.min(window.innerHeight - 110, Math.max(10, e.clientY + 4));
  menu.style.left = `${x}px`;
  menu.style.top = `${y}px`;
+
+ menu.querySelector('[data-action="clone-sheet"]').onclick = (ev) => {
+  ev.stopPropagation();
+  closeSheetContextMenu();
+  cloneSheet(sheetId);
+ };
 
  menu.querySelector('[data-action="delete-sheet"]').onclick = (ev) => {
   ev.stopPropagation();
@@ -366,6 +378,60 @@ function closeSheetContextMenu() {
  const menu = document.querySelector('#sheet-context-menu');
  if (menu) menu.hidden = true;
  activeContextMenuSheetId = null;
+}
+
+function cloneSheet(sheetId) {
+ const target = sheets.find(s => s.id === sheetId);
+ if (!target) return;
+ save(false);
+ const cloned = clone(target);
+ cloned.id = makeId('sheet');
+ cloned.name = `${target.name || 'AGENTE'} (Cópia)`;
+
+ if (Array.isArray(cloned.cards)) {
+  cloned.cards = cloned.cards.map(card => {
+   const c = clone(card);
+   c.id = makeId('card');
+   const markerIdMap = new Map();
+   if (Array.isArray(c.markers)) {
+    c.markers.forEach(m => {
+     const oldId = m.id;
+     m.id = makeId('marker');
+     if (oldId) markerIdMap.set(oldId, m.id);
+    });
+   }
+   if (Array.isArray(c.actions)) {
+    c.actions.forEach(a => {
+     a.id = makeId('action');
+     if (a.targetMarker && markerIdMap.has(a.targetMarker)) {
+      a.targetMarker = markerIdMap.get(a.targetMarker);
+     }
+    });
+   }
+   return c;
+  });
+ }
+
+ const targetIndex = sheets.findIndex(s => s.id === sheetId);
+ if (targetIndex >= 0) {
+  sheets.splice(targetIndex + 1, 0, cloned);
+ } else {
+  sheets.push(cloned);
+ }
+
+ const doSwitch = () => {
+  state = cloned;
+  activeSheetId = cloned.id;
+  render();
+ };
+
+ if (state.viewMode === 'cinematic') {
+  triggerGlitchTransition(doSwitch);
+ } else {
+  doSwitch();
+ }
+
+ save(true, `FICHA CLONADA: ${cloned.name.toUpperCase()}`);
 }
 
 function deleteSheet(sheetId) {
@@ -389,12 +455,7 @@ function deleteSheet(sheetId) {
   activeSheetId = state.id;
  }
  render();
- const toast = document.querySelector('#save-toast');
- if (toast) {
-  toast.textContent = 'FICHA EXCLUÍDA (CLIQUE EM SALVAR PARA GRAVAR)';
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1600);
- }
+ save(true, 'FICHA EXCLUÍDA');
 }
 
 function bindSheetInteractions() {

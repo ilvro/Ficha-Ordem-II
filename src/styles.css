@@ -25,9 +25,13 @@
 .sheet-avatar.dragging{opacity:.35;cursor:grabbing}
 .sheet-avatar.drag-over-top{border-top:3px solid var(--red);transform:translateY(2px)}
 .sheet-avatar.drag-over-bottom{border-bottom:3px solid var(--red);transform:translateY(-2px)}
-.custom-context-menu{position:fixed;z-index:2000;background:#161725;border:1px solid #3c3e52;border-radius:7px;padding:5px;box-shadow:0 12px 36px #000000d4;min-width:145px;animation:menu-pop .12s ease}
-.custom-context-menu button{width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:transparent;border:0;border-radius:4px;color:#ff525b;font-size:11px;font-weight:700;font-family:"Hanken Grotesk",sans-serif;text-align:left;cursor:pointer;transition:.15s}
-.custom-context-menu button:hover{background:#38151b;color:#ff7d84}
+.custom-context-menu{position:fixed;z-index:2000;background:#161725;border:1px solid #3c3e52;border-radius:7px;padding:5px;box-shadow:0 12px 36px #000000d4;min-width:155px;animation:menu-pop .12s ease}
+.custom-context-menu-header{padding:5px 9px 4px;font-size:9px;font-weight:800;letter-spacing:.08em;color:#7e8194;text-transform:uppercase;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.custom-context-menu button{width:100%;display:flex;align-items:center;gap:8px;padding:7px 9px;background:transparent;border:0;border-radius:4px;color:#d5d7e2;font-size:11px;font-weight:700;font-family:"Hanken Grotesk",sans-serif;text-align:left;cursor:pointer;transition:.15s}
+.custom-context-menu button:hover{background:#25273b;color:#fff}
+.custom-context-menu button.menu-danger{color:#ff525b}
+.custom-context-menu button.menu-danger:hover{background:#38151b;color:#ff7d84}
+.custom-context-menu-separator{height:1px;background:#282a3c;margin:4px 0}
 @keyframes menu-pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .character-card.has-token .silhouette{background-size:cover;background-position:center}.character-card.has-token .silhouette:before,.character-card.has-token .silhouette:after{display:none}.token-upload{position:absolute;inset:auto 7px 7px;z-index:3;height:29px;border:1px solid #ffffff36;border-radius:5px;background:#090a10c9;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;font-size:8px;font-weight:800;cursor:pointer}.token-upload input,.token-banner input{display:none}.token-banner.editable{cursor:pointer;display:flex;align-items:center;justify-content:center}.token-banner.editable:hover{filter:brightness(1.17)}
 .resource-row{position:relative}.resource-row>b em,.cinematic-resources b em{color:#55aaff;font-style:normal;font-size:11px}
