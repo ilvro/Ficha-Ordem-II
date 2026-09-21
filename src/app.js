@@ -169,7 +169,7 @@ async function loadInitialSheets(){
  state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
  activeSheetId=state.id;
 }
-let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120;
+let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120,mobileTab='agent',sheetDrawerOpen=false;
 const getDiceApi=()=>diceApiPromise??=import('./dice3d.js');
 const app=document.querySelector('#app');
 const diceGeometry={
@@ -208,9 +208,43 @@ function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_C
 
 
 function readMedia(file,key){if(!file)return;const type=file.type;if(type.startsWith('video/')||type==='image/gif'){if(state[key]?.startsWith('blob:'))URL.revokeObjectURL(state[key]);blobBgType=type.startsWith('video/')?'video':'gif';state[key]=URL.createObjectURL(file);render()}else{blobBgType='';readImage(file,key,1920)}}
+
+function renderBottomNav(){
+ const tabs=[
+  {id:'agent',label:'AGENTE',svg:'<path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/><path d="M3 21a9 9 0 0 1 18 0"/>'},
+  {id:'stats',label:'STATS',svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h7m-3.5-3.5v7"/>'},
+  {id:'cards',label:'CARTAS',svg:'<rect x="2" y="3" width="13" height="18" rx="2"/><path d="M16 8h4m-2-2v4M16 16h4"/>'},
+  {id:'history',label:'HISTÓRIA',svg:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'},
+ ];
+ return `<nav class="mobile-bottom-nav">
+  <button class="mobile-drawer-btn" data-sheet-drawer aria-label="Fichas">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" class="mobile-avatar-thumb">`:icon('sheet',20)}</button>
+  ${tabs.map(t=>`<button class="mobile-tab-btn ${mobileTab===t.id?'active':''}" data-mobile-tab="${t.id}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${t.svg}</svg><span>${t.label}</span></button>`).join('')}
+  <button class="mobile-tab-btn ${editMode?'active edit-active':''}" data-toggle-edit aria-label="Editar">${editMode?icon('close',20):icon('edit',20)}<span>${editMode?'FECHAR':'EDITAR'}</span></button>
+ </nav>`;
+}
+
+function renderSheetDrawer(){
+ if(!sheetDrawerOpen)return'';
+ return `<div class="sheet-drawer-backdrop" data-close-drawer></div>
+ <aside class="sheet-drawer">
+  <div class="sheet-drawer-header"><span>FICHAS</span><button data-close-drawer>${icon('close',16)}</button></div>
+  <div class="sheet-drawer-list">
+   ${sheets.map(sheet=>`<button class="sheet-drawer-item ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="">`:''}<span>${safe(sheet.name||'AGENTE')}</span></button>`).join('')}
+   <button class="sheet-drawer-item new" data-new-sheet>${icon('plus',16)}<span>NOVA FICHA</span></button>
+  </div>
+  <div class="sheet-drawer-footer">
+   <button data-export-json>${icon('download',15)} EXPORTAR</button>
+   <button data-import-json>${icon('upload',15)} IMPORTAR</button>
+   <button data-save-sheet>${icon('save',15)} SALVAR</button>
+   <input type="file" id="json-file-input" accept=".json,application/json" style="display:none">
+  </div>
+ </aside>`;
+}
+
 function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
+
   <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
-  ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
+  ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
   ${tornTitle('STATUS')}<section class="resources">${resourceEditor('pv','PV')}${resourceEditor('pd','PD')}</section>
   <label class="token-banner ${editMode?'editable':''}">TOKEN${editMode?'<input id="token-upload-secondary" type="file" accept="image/*">':''}</label>
@@ -228,7 +262,12 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
  <div class="modal slot-fill-modal" id="slot-fill-modal"><div class="backdrop slot-fill-backdrop"></div><section><button type="button" class="slot-fill-close">${icon('close')}</button><small id="slot-fill-subtitle">PREENCHER ESPAÇO</small><h2 id="slot-fill-title">VALOR DO DADO</h2><p id="slot-fill-info"></p><div class="slot-fill-actions"><button type="button" class="btn-slot-roll" id="btn-slot-roll-die">${icon('d20',15)} ROLAR 1d6</button><div class="slot-quick-numbers"><button type="button" data-pick-val="1">1</button><button type="button" data-pick-val="2">2</button><button type="button" data-pick-val="3">3</button><button type="button" data-pick-val="4">4</button><button type="button" data-pick-val="5">5</button><button type="button" data-pick-val="6">6</button></div><div class="slot-manual-entry"><label>OUTRO VALOR<input type="number" id="slot-manual-val" min="1" max="99" placeholder="Ex: 4"></label><button type="button" id="btn-slot-confirm-manual">CONFIRMAR</button></div></div></section></div>
  <div class="modal card-editor" id="card-editor"><div class="backdrop editor-backdrop"></div><form id="card-form"><header><div><small>EDITOR DE CARD</small><h2 id="editor-title">NOVA HABILIDADE</h2></div><button type="button" class="editor-close">${icon('close')}</button></header><div class="editor-grid"><label class="span-2">TÍTULO<input name="title" maxlength="64" required></label><label>COLEÇÃO${customSelect({value:'abilities',options:[{value:'abilities',label:'Habilidades'},{value:'items',label:'Itens'}],id:'editor-schema',formName:'schema',className:'editor-select'})}</label><label>TIPO<input name="type" placeholder="Habilidade"></label><label>ÍCONE<input name="icon" maxlength="3" placeholder="◆"></label><label>COR<input name="accent" type="color" value="#e91d25"></label><label>USAR COR${customSelect({value:'profile',options:[{value:'profile',label:'Do perfil'},{value:'custom',label:'Personalizada'}],id:'editor-color-mode',formName:'colorMode',className:'editor-select'})}</label><label>APRESENTAÇÃO${customSelect({value:'standard',options:[{value:'standard',label:'Padrão'},{value:'compact',label:'Compacto'},{value:'featured',label:'Destaque'}],id:'editor-layout',formName:'layout',className:'editor-select'})}</label><label>INICIAR${customSelect({value:'false',options:[{value:'false',label:'Expandido'},{value:'true',label:'Recolhido'}],id:'editor-collapsed',formName:'collapsed',className:'editor-select'})}</label><label class="span-2">URL DA IMAGEM<input name="imageUrl" type="url" placeholder="https://..."></label><label class="span-2 content-editor-label">CONTEÚDO<div class="rich-toolbar"><button type="button" data-format="bold"><b>B</b></button><button type="button" data-format="italic"><i>I</i></button><button type="button" data-format="underline"><u>U</u></button><span class="color-picker" title="Cor do texto"><input id="content-color" type="color" value="#67a2ff"><span>A</span></span><button type="button" data-format="color">APLICAR COR</button></div><textarea name="content" rows="5" placeholder="Descrição e regras do card..."></textarea></label>
  <section class="span-2 builder-section"><header><div><b>MARCADORES</b><small>Contador, barra, cargas ou liga/desliga. Fórmulas aceitam @{level}, @{pv} e atributos.</small></div><button type="button" data-add-marker>+ ADICIONAR</button></header><div id="marker-builder"></div></section>
- <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>`;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;modeJustChanged=false}
+  <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>
+ ${renderBottomNav()}
+ ${renderSheetDrawer()}
+ ${state.viewMode==='cinematic'?`<div class="rotate-prompt"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg><p>GIRE O CELULAR</p><small>O modo cinematográfico funciona melhor em paisagem</small></div>`:''}
+ `;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;modeJustChanged=false}
+
 
 function collectActiveInputs(){
  document.querySelectorAll('[data-field]').forEach(el=>{
@@ -581,6 +620,14 @@ function bind(){
     document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{const targetId=el.dataset.sheetId;if(targetId===state.id)return;save(false);const doSwitch=()=>{state=sheets.find(sheet=>sheet.id===targetId)||state;activeSheetId=state.id;render()};if(state.viewMode==='cinematic'){triggerGlitchTransition(doSwitch)}else{doSwitch()}});
 
    document.querySelector('[data-new-sheet]').onclick=()=> {save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render()};document.querySelector('[data-save-sheet]').onclick=()=>save(true,'SALVO');document.querySelector('[data-export-json]')?.addEventListener('click',()=>exportJsonSheet());const jsonFileInput=document.querySelector('#json-file-input');document.querySelector('[data-import-json]')?.addEventListener('click',()=>jsonFileInput?.click());if(jsonFileInput)jsonFileInput.onchange=()=>{if(jsonFileInput.files[0])importJsonSheet(jsonFileInput.files[0]);jsonFileInput.value=''};document.querySelector('[data-compendium]').onclick=()=>{const toast=document.querySelector('#save-toast');toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)};document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;modeJustChanged=true;render()});bindCinematicToken();bindSheetInteractions();
+ // ── Mobile bottom nav ──────────────────────────────────────────────────────
+ document.querySelectorAll('[data-mobile-tab]').forEach(el=>el.onclick=()=>{mobileTab=el.dataset.mobileTab;render()});
+ document.querySelectorAll('[data-sheet-drawer]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=!sheetDrawerOpen;render()});
+ document.querySelectorAll('[data-close-drawer]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=false;render()});
+ // Fecha drawer ao selecionar ficha
+ document.querySelectorAll('.sheet-drawer-item[data-sheet-id]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=false});
+ // Fecha dice stage com tap no canvas em mobile
+ document.querySelector('#dice-stage')?.addEventListener('click',e=>{if(e.target===document.querySelector('#dice-canvas'))document.querySelector('#dice-stage')?.classList.remove('active')});
 }
 document.addEventListener('click',closeSheetContextMenu);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo()}});
