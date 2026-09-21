@@ -175,7 +175,8 @@ function topFace(die) {
 function showResult(resultNode, dice, results, title, modifier = 0) {
   const total = results.reduce((sum, value) => sum + value, 0) + modifier;
   const modifierLabel = modifier ? `<i>${modifier > 0 ? '+' : '−'}</i><span class="modifier">${Math.abs(modifier)}</span>` : '';
-  resultNode.innerHTML = `<small>${title}</small><div>${results.map((value, index) => `<span><b>${value}</b> d${dice[index].sides}</span>`).join('<i>+</i>')}${modifierLabel}</div><strong>${total}</strong>`;
+  resultNode.innerHTML = `<small>${title}</small><div>${results.map((value, index) => `<span><b>${value}</b> d${dice[index].sides}</span>`).join('<i>+</i>')}${modifierLabel}</div><strong>${total}</strong><button type="button" class="btn-dice-open-log" data-open-roll-log title="Ver histórico de rolagens">HISTÓRICO ▾</button>`;
+
   resultNode.classList.add('visible');
 }
 
@@ -258,7 +259,8 @@ export function rollDice3d(configs, title = 'Rolagem', modifier = 0, sharedAudio
         const values = dice.map(topFace);
         showResult(resultNode, dice, values, title, modifier);
         cleanupTimer = setTimeout(closeDice3d, 4200);
-        finishResolve({ values, total: values.reduce((s, v) => s + v, 0) + modifier, dice: values });
+        finishResolve({ values, total: values.reduce((s, v) => s + v, 0) + modifier, dice: values, breakdown: dice.map((d, i) => ({ sides: d.sides, value: values[i] })) });
+
       }
       if (!finished || now - finishedAt < 900) animationFrame = requestAnimationFrame(animate);
     }

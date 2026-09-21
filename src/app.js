@@ -14,7 +14,10 @@ const icon=(name,size=19)=>{const paths={
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
   sparkles:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
   copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>'};
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+  history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  d20:'<path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z"/><path d="M12 22V12M12 2v10M20 6.5 12 12 4 6.5M20 17.5 12 12 4 17.5"/>'};
+
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
 
 const DICE_STEPS=[4,6,8,10,12,20];
@@ -235,6 +238,7 @@ function renderSheetDrawer(){
    <button class="sheet-drawer-item new" data-new-sheet>${icon('plus',16)}<span>NOVA FICHA</span></button>
   </div>
   <div class="sheet-drawer-footer">
+   <button type="button" data-open-roll-log>${icon('history',15)} LOG (${rollLog.length})</button>
    <button data-export-json>${icon('download',15)} EXPORTAR</button>
    <button data-import-json>${icon('upload',15)} IMPORTAR</button>
    <button data-save-sheet>${icon('save',15)} SALVAR</button>
@@ -243,9 +247,135 @@ function renderSheetDrawer(){
  </aside>`;
 }
 
+let rollLog = [];
+try {
+ const saved = sessionStorage.getItem('ordem-ii-roll-log');
+ if (saved) rollLog = JSON.parse(saved);
+} catch {}
+let rollLogOpen = false;
+
+function addRollLogEntry(entry) {
+ const d = new Date();
+ const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+ rollLog.unshift({
+  id: makeId('roll'),
+  characterName: state.name || 'Agente',
+  profile: state.profile || 'Executor',
+  title: entry.title || 'Rolagem',
+  dice: entry.dice || [],
+  modifier: Number(entry.modifier) || 0,
+  total: entry.total,
+  timestamp: timeStr
+ });
+ if (rollLog.length > 50) rollLog.length = 50;
+ try { sessionStorage.setItem('ordem-ii-roll-log', JSON.stringify(rollLog)); } catch {}
+ updateRollLogUi();
+}
+
+function updateRollLogUi() {
+ document.querySelectorAll('.roll-log-badge').forEach(badge => {
+  badge.textContent = rollLog.length ? String(rollLog.length) : '';
+  badge.classList.toggle('visible', rollLog.length > 0);
+ });
+ const body = document.querySelector('#roll-log-body');
+ if (body) {
+  body.innerHTML = renderRollLogItemsHtml();
+  bindRollLogItemEvents(body);
+ }
+ const countEl = document.querySelector('#roll-log-count');
+ if (countEl) {
+  countEl.textContent = `${rollLog.length} ${rollLog.length === 1 ? 'rolagem' : 'rolagens'} registradas`;
+ }
+}
+
+function renderRollLogItemsHtml() {
+ if (!rollLog.length) {
+  return `<div class="roll-log-empty">
+   <div class="roll-log-empty-icon">${icon('d20', 36)}</div>
+   <h4>NENHUMA ROLAGEM AINDA</h4>
+   <p>Role atributos, perícias ou ações para registrar o histórico nesta sessão.</p>
+  </div>`;
+ }
+ return rollLog.map(entry => {
+  const modStr = entry.modifier ? ` ${entry.modifier > 0 ? '+' : '−'} ${Math.abs(entry.modifier)}` : '';
+  const diceStr = (entry.dice || []).map(d => `<span class="roll-die-pill" data-sides="${d.sides}"><b>${d.value}</b><small>d${d.sides}</small></span>`).join('<i class="roll-plus">+</i>');
+  const accentColor = PROFILE_COLORS[entry.profile] || '#e0150d';
+  const copyText = `🎲 [${entry.characterName}] ${entry.title}: ${entry.total} (${(entry.dice || []).map(d => `d${d.sides}:${d.value}`).join(', ')}${modStr})`;
+  return `<article class="roll-log-item" style="--item-accent:${accentColor}">
+   <div class="roll-log-item-top">
+    <div class="roll-log-agent">
+     <span class="roll-log-char-name">${safe(entry.characterName)}</span>
+     <span class="roll-log-time">${entry.timestamp}</span>
+    </div>
+    <button type="button" class="btn-copy-single-roll" data-copy-roll="${safe(copyText)}" title="Copiar para Discord/WhatsApp">${icon('copy', 13)}</button>
+   </div>
+   <div class="roll-log-item-middle">
+    <h4 class="roll-log-item-title">${safe(entry.title)}</h4>
+    <div class="roll-log-total"><b>${entry.total}</b></div>
+   </div>
+   <div class="roll-log-item-breakdown">
+    ${diceStr}
+    ${entry.modifier ? `<span class="roll-mod-pill">${entry.modifier > 0 ? '+' : '−'}${Math.abs(entry.modifier)}</span>` : ''}
+   </div>
+  </article>`;
+ }).join('');
+}
+
+function renderRollLogDrawer() {
+ return `
+ <div class="roll-log-backdrop ${rollLogOpen ? 'open' : ''}" data-close-roll-log></div>
+ <aside class="roll-log-drawer ${rollLogOpen ? 'open' : ''}">
+  <header class="roll-log-header">
+   <div class="roll-log-header-title">
+    <span class="roll-log-icon">${icon('d20', 18)}</span>
+    <div>
+     <h3>HISTÓRICO DE ROLAGENS</h3>
+     <small id="roll-log-count">${rollLog.length} ${rollLog.length === 1 ? 'rolagem' : 'rolagens'} registradas</small>
+    </div>
+   </div>
+   <div class="roll-log-header-actions">
+    ${rollLog.length ? `<button type="button" class="btn-log-action" data-copy-all-rolls title="Copiar todo o histórico">${icon('copy', 13)}<span>COPIAR</span></button><button type="button" class="btn-log-action" data-clear-roll-log title="Limpar histórico">${icon('trash', 13)}</button>` : ''}
+    <button type="button" class="btn-close-roll-log" data-close-roll-log title="Fechar">${icon('close', 16)}</button>
+   </div>
+  </header>
+  <div class="roll-log-body" id="roll-log-body">
+   ${renderRollLogItemsHtml()}
+  </div>
+ </aside>`;
+}
+
+function toggleRollLog(force) {
+ rollLogOpen = (typeof force === 'boolean') ? force : !rollLogOpen;
+ const drawer = document.querySelector('.roll-log-drawer');
+ const backdrop = document.querySelector('.roll-log-backdrop');
+ if (drawer && backdrop) {
+  drawer.classList.toggle('open', rollLogOpen);
+  backdrop.classList.toggle('open', rollLogOpen);
+ }
+}
+
+function bindRollLogItemEvents(container = document) {
+ container.querySelectorAll('[data-copy-roll]').forEach(btn => {
+  btn.onclick = e => {
+   e.stopPropagation();
+   const text = btn.dataset.copyRoll;
+   if (text) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    const toast = document.querySelector('#save-toast');
+    if (toast) {
+     toast.textContent = 'ROLAGEM COPIADA!';
+     toast.classList.add('show');
+     setTimeout(() => { toast.classList.remove('show'); toast.textContent = 'SALVO'; }, 1300);
+    }
+   }
+  };
+ });
+}
+
 function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
 
-  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
+  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button></aside>
+
   ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
   ${tornTitle('STATUS')}<section class="resources">${resourceEditor('pv','PV')}${resourceEditor('pd','PD')}</section>
@@ -268,6 +398,7 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
   <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>
  ${renderBottomNav()}
  ${renderSheetDrawer()}
+ ${renderRollLogDrawer()}
  ${state.viewMode==='cinematic'?`<div class="rotate-prompt"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg><p>GIRE O CELULAR</p><small>O modo cinematográfico funciona melhor em paisagem</small></div>`:''}
  `;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;modeJustChanged=false}
 
@@ -555,7 +686,8 @@ function bindSheetInteractions() {
  });
 }
 function parseRollExpression(expression){const vars=formulaVariables();let expanded=String(expression||'').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));const dice=[];expanded=expanded.replace(/(\d*)d(4|6|8|10|12|20)/gi,(_,count,sides)=>{for(let i=0;i<Math.min(12,Number(count)||1);i++)dice.push(Number(sides));return '0'});let modifier=0;try{if(/^[\d+\-*/().\s]+$/.test(expanded))modifier=Math.floor(Function(`"use strict";return (${expanded||0})`)())}catch{}return{dice,modifier}}
-async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return null;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;return rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext)}
+async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return null;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;const res=await rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext);if(res&&Array.isArray(res.values)){addRollLogEntry({title:name,dice:res.breakdown||res.values.map((v,i)=>({sides:list[i]||20,value:v})),modifier:Number(modifier)||0,total:res.total})}return res}
+
 async function rollExpression(name,expression){const parsed=parseRollExpression(expression);return roll(name,parsed.dice,parsed.modifier)}
 function setSelectVisual(id,value){const select=document.querySelector(`[data-select-id="${id}"]`);if(!select)return;const option=[...select.querySelectorAll('.select-option')].find(item=>String(item.dataset.selectValue)===String(value));select.querySelector('.select-display').textContent=option?.dataset.triggerLabel||value;select.querySelectorAll('.select-option').forEach(item=>{item.classList.toggle('selected',item===option);item.querySelector('b').textContent=item===option?'✓':''});if(select.dataset.formName)select.previousElementSibling.value=value}
 function renderCardBuilders(){const markerBuilder=document.querySelector('#marker-builder'),actionBuilder=document.querySelector('#action-builder');if(!markerBuilder||!actionBuilder)return;markerBuilder.innerHTML=editorMarkers.map((marker,index)=>`<article class="builder-row"><div class="builder-row-head"><b>MARCADOR ${index+1}</b><button type="button" data-remove-marker="${index}">${icon('trash',15)}</button></div><div class="marker-types">${[['counter','CONTADOR'],['bar','BARRA'],['pips','CARGAS'],['slots','SLOTS'],['toggle','LIGA/DESLIGA']].map(([type,label])=>`<button type="button" class="${marker.type===type?'active':''}" data-marker-type="${index}:${type}">${label}</button>`).join('')}</div>${marker.type==='pips'||marker.type==='bar'||marker.type==='slots'?`<div class="marker-display-styles"><span>ESTILO VISUAL</span><button type="button" class="${(marker.displayStyle||'default')==='default'?'active':''}" data-marker-style="${index}:default">ATUAL</button><button type="button" class="${marker.displayStyle==='rectangles'?'active':''}" data-marker-style="${index}:rectangles">RETANGULAR</button></div>`:''}<div class="builder-fields"><label>LABEL<input data-marker-field="${index}:label" value="${safe(marker.label)}"></label><label>ATUAL<input type="number" min="0" data-marker-field="${index}:current" value="${Number(marker.current)||0}"></label>${marker.type!=='toggle'?`<label>MÁXIMO / FÓRMULA<input data-marker-field="${index}:maxFormula" value="${safe(marker.maxFormula||'0')}" placeholder="@{level} + 2"></label>`:''}${marker.type==='slots'?`<label>RECURSO PREENCHER<select data-marker-field="${index}:fillCostResource"><option value="none" ${(!marker.fillCostResource||marker.fillCostResource==='none')?'selected':''}>Nenhum</option><option value="pd" ${marker.fillCostResource==='pd'?'selected':''}>PD</option><option value="pv" ${marker.fillCostResource==='pv'?'selected':''}>PV</option></select></label><label>CUSTO RECURSO<input type="number" min="0" data-marker-field="${index}:fillCostAmount" value="${Number(marker.fillCostAmount)||0}"></label>`:''}</div></article>`).join('')||'<p class="builder-empty">Nenhum marcador neste card.</p>';actionBuilder.innerHTML=editorActions.map((action,index)=>{const slotsMarkers=editorMarkers.filter(m=>m.type==='slots');return `<article class="builder-row action-row"><div class="builder-fields"><label>NOME<input data-action-field="${index}:name" value="${safe(action.name)}" placeholder="Ataque"></label><label>EXPRESSÃO<input data-action-field="${index}:expression" value="${safe(action.expression)}" placeholder="3d6"></label>${slotsMarkers.length?`<label>PREENCHER MARCADOR<select data-action-field="${index}:targetMarker"><option value="">Nenhum</option>${slotsMarkers.map((m,i)=>`<option value="${safe(m.id||`marker-${i}`)}" ${action.targetMarker===(m.id||`marker-${i}`)?'selected':''}>${safe(m.label||`Slots ${i+1}`)}</option>`).join('')}</select></label>`:''}<button type="button" data-remove-action="${index}">${icon('trash',16)}</button></div></article>`}).join('')||'<p class="builder-empty">Nenhuma ação de rolagem neste card.</p>';bindBuilderEvents()}
@@ -631,12 +763,37 @@ function bind(){
  document.querySelectorAll('[data-close-drawer]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=false;render()});
  // Fecha drawer ao selecionar ficha
  document.querySelectorAll('.sheet-drawer-item[data-sheet-id]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=false});
- // Fecha dice stage com tap no canvas em mobile
- document.querySelector('#dice-stage')?.addEventListener('click',e=>{if(e.target===document.querySelector('#dice-canvas'))document.querySelector('#dice-stage')?.classList.remove('active')});
+ // ── Histórico de rolagens ──────────────────────────────────────────────────
+ document.querySelectorAll('[data-open-roll-log]').forEach(el=>el.onclick=()=>toggleRollLog(true));
+ document.querySelectorAll('[data-close-roll-log]').forEach(el=>el.onclick=()=>toggleRollLog(false));
+ document.querySelectorAll('[data-clear-roll-log]').forEach(el=>el.onclick=()=>{
+  rollLog=[];
+  try{sessionStorage.removeItem('ordem-ii-roll-log')}catch{}
+  updateRollLogUi();
+  const toast=document.querySelector('#save-toast');
+  if(toast){toast.textContent='HISTÓRICO LIMPO';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)}
+  render();
+ });
+ document.querySelectorAll('[data-copy-all-rolls]').forEach(el=>el.onclick=()=>{
+  if(!rollLog.length)return;
+  const text='🎲 **Histórico de Rolagens (Ordem Paranormal II)**\n'+rollLog.map(r=>{
+   const modStr=r.modifier?` ${r.modifier>0?'+':'−'} ${Math.abs(r.modifier)}`:'';
+   const diceStr=(r.dice||[]).map(d=>`d${d.sides}:${d.value}`).join(', ');
+   return `• [${r.timestamp}] **${r.characterName}** | ${r.title}: **${r.total}** (${diceStr}${modStr})`;
+  }).join('\n');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const toast=document.querySelector('#save-toast');
+  if(toast){toast.textContent='HISTÓRICO COMPLETO COPIADO!';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}
+ });
+ bindRollLogItemEvents();
 }
 document.addEventListener('click',e=>{closeSheetContextMenu();if(!viewSwitchCollapsed&&!e.target.closest('.view-mode-switch')){viewSwitchCollapsed=true;render()}});
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo()}});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false)}
+ if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}
+});
+
 window.addEventListener('resize',closeSheetContextMenu);
 await loadInitialSheets();
 render();
