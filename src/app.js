@@ -1,3 +1,4 @@
+import { DEFAULT_SHEETS } from './default-sheets.js';
 const icon=(name,size=19)=>{const paths={
   sheet:'<path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
   book:'<path d="M4 5a4 4 0 0 1 4-2h4v17H8a4 4 0 0 0-4 2Z"/><path d="M20 5a4 4 0 0 0-4-2h-4v17h4a4 4 0 0 1 4 2Z"/>',
@@ -136,29 +137,31 @@ let activeSheetId=state.id;
 
 async function loadInitialSheets(){
  let loaded=null;
+ // Tenta carregar do servidor local (só funciona no dev / self-hosted)
  try{
-  const res=await fetch('/api/sheets',{cache:'no-store'});
+  const res=await fetch('./api/sheets',{cache:'no-store'});
   if(res.ok){
    const data=await res.json();
    if(Array.isArray(data)&&data.length>0)loaded=data.map(normalizeSheet);
   }
  }catch{}
+ // Fallback: IndexedDB (dados salvos localmente no navegador)
  if(!loaded||!loaded.length){
   try{
    const idbSheets=await idbGet('sheets');
    if(Array.isArray(idbSheets)&&idbSheets.length>0)loaded=idbSheets.map(normalizeSheet);
   }catch{}
  }
+ // Fallback: localStorage
  if(!loaded||!loaded.length){
   try{
    const local=JSON.parse(localStorage.getItem(SHEETS_KEY)||'[]');
    if(Array.isArray(local)&&local.length>0)loaded=local.map(normalizeSheet);
   }catch{}
  }
+ // Fallback: fichas padrão embutidas no bundle (primeira visita ao site estático)
  if(!loaded||!loaded.length){
-  let legacy={};
-  try{legacy=JSON.parse(localStorage.getItem('ordem-ii-alpha-sheet-v2')||'{}')}catch{}
-  loaded=[normalizeSheet(legacy)];
+  loaded=DEFAULT_SHEETS.map(normalizeSheet);
  }
  sheets=loaded;
  let storedActiveId=null;

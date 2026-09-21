@@ -2,15 +2,24 @@ import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 export default defineConfig({
+  // './' garante que assets usem caminhos relativos,
+  // funcionando tanto em GitHub Pages (/<repo>/) quanto na raiz.
+  base: './',
+
   server: {
     host: '0.0.0.0',
     watch: {
       ignored: ['**/sheets.json']
     }
   },
+
   plugins: [
-    {
+    // Plugin de API local: só ativo em dev (npm run dev).
+    // Em produção (GitHub Pages) o front usa IndexedDB/localStorage.
+    isDev && {
       name: 'sheets-json-storage',
       configureServer(server) {
         const filePath = path.resolve(process.cwd(), 'sheets.json');
@@ -33,9 +42,7 @@ export default defineConfig({
             }
           } else if (req.method === 'POST') {
             let body = '';
-            req.on('data', chunk => {
-              body += chunk;
-            });
+            req.on('data', chunk => { body += chunk; });
             req.on('end', () => {
               try {
                 const parsed = JSON.parse(body);
@@ -54,6 +61,5 @@ export default defineConfig({
         });
       }
     }
-  ]
+  ].filter(Boolean)
 });
-

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+
+# Arquivo gerado automaticamente antes de cada build
+# (contém as fichas padrão com imagens base64 — pode ser pesado)
+src/default-sheets.js
+
+# Dados locais do servidor de dev — NÃO publicar (dados dos players)
+# sheets.json é a "fonte da verdade" local; o GitHub Actions o usa para gerar o default-sheets.js
+# Comente a linha abaixo se quiser versionar as fichas padrão junto ao repo
+# sheets.json
+
