@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "cannon-es": "^0.20.0",
+    "html-to-image": "^1.11.13",
     "three": "^0.186.0"
   }
 }

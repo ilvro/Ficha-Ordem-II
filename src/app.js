@@ -17,6 +17,7 @@ const icon=(name,size=19)=>{const paths={
   upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
   settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.37.37.7.67.96.3.26.68.4 1.08.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>',
   history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/>',
   d20:'<path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z"/><path d="M12 22V12M12 2v10M20 6.5 12 12 4 6.5M20 17.5 12 12 4 17.5"/>'};
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
@@ -174,11 +175,23 @@ async function loadInitialSheets(){
  state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
  activeSheetId=state.id;
 }
-let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120,mobileTab='agent',sheetDrawerOpen=false,viewSwitchCollapsed=true;
+let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editTransitionMode=null,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120,mobileTab='agent',sheetDrawerOpen=false,viewSwitchCollapsed=true;
 const CRITICAL_EFFECTS_KEY='ordem-ii-critical-effects-v1';
 let criticalEffects={pv:true,pd:true};
 try{criticalEffects={...criticalEffects,...JSON.parse(localStorage.getItem(CRITICAL_EFFECTS_KEY)||'{}')}}catch{}
 function saveCriticalEffects(){try{localStorage.setItem(CRITICAL_EFFECTS_KEY,JSON.stringify(criticalEffects))}catch{}}
+function playModeToggleSound(enteringEdit){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type=enteringEdit?'sawtooth':'sine';
+ osc.frequency.setValueAtTime(enteringEdit?290:520,now);
+ osc.frequency.exponentialRampToValueAtTime(enteringEdit?540:330,now+0.12);
+ gain.gain.setValueAtTime(0.0001,now);
+ gain.gain.exponentialRampToValueAtTime(0.045,now+0.01);
+ gain.gain.exponentialRampToValueAtTime(0.0001,now+0.15);
+ osc.connect(gain).connect(ctx.destination);
+ osc.start(now);osc.stop(now+0.16);
+}
 
 const getDiceApi=()=>diceApiPromise??=import('./dice3d.js');
 const app=document.querySelector('#app');
@@ -218,7 +231,7 @@ function renderCriticalSettings(){const row=(key,title,copy)=>`<div class="criti
 
 function renderCinematicCard(card){const inlineMarkers=(card.markers||[]).filter(marker=>marker.displayStyle==='rectangles'&&(marker.type==='pips'||marker.type==='bar'||marker.type==='slots')),bodyMarkers=(card.markers||[]).filter(marker=>!inlineMarkers.includes(marker)),actions=(card.actions||[]).map(action=>`<button class="card-roll" data-expression="${safe(action.expression)}" data-roll-title="${safe(action.name||card.title)}" data-card-id="${card.id}" data-action-id="${action.id}">${die((String(action.expression).match(/d(4|6|8|10|12|20)/i)||[])[1]||20,'micro',true)}<span>${safe(action.name||'Rolar')}</span></button>`).join('');return `<article class="cinematic-card ${inlineMarkers.length?'has-inline-marker':''}" data-card-id="${card.id}" style="--card-accent:${safe(cardAccent(card))}"><header><h3>${safe(card.title)}</h3>${inlineMarkers.length?`<div class="cinematic-inline-markers">${inlineMarkers.map(marker=>renderMarker(card,marker)).join('')}</div>`:''}${editMode?`<button class="cinematic-card-edit" data-edit-card="${card.id}" title="Editar">${icon('edit',14)}</button>`:''}</header>${bodyMarkers.map(marker=>renderMarker(card,marker)).join('')}<div class="cinematic-card-copy">${formatCardText(card.content)}</div>${actions?`<div class="card-rolls">${actions}</div>`:''}</article>`}
 function cinematicSection(key,title,content,addSchema=''){const collapsed=!!state.cinematicCollapsed?.[key];return `<section class="cinematic-section-group ${collapsed?'collapsed':''}"><div class="cinematic-section-heading"><button class="cinematic-section-toggle" data-cinematic-section-toggle="${key}" aria-expanded="${!collapsed}"><span>${title}</span>${icon('chevron',18)}</button>${editMode&&addSchema?`<button class="cinematic-section-add" data-cinematic-add="${addSchema}" title="Adicionar">${icon('plus',15)}</button>`:''}</div><div class="cinematic-section-body"><div>${content}</div></div></section>`}
-function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor,profileOptions=['Executor','Analista','Vigilante'].map(value=>({value,label:value})),abilities=visibleCards('abilities').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhuma habilidade.</p>',items=visibleCards('items').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhum item.</p>',history=editMode?`<textarea class="cinematic-history" data-field="history" placeholder="História do personagem...">${safe(state.history||'')}</textarea>`:`<p class="cinematic-history-copy">${formatCardText(state.history||'Nenhuma história registrada.')}</p>`,identity=editMode?`<div class="cinematic-identity cinematic-identity-edit">${customSelect({value:state.profile,options:profileOptions,id:'profile',className:'cinematic-profile-select'})}<i></i><input class="cinematic-occupation-input" data-field="occupation" value="${safe(state.occupation)}"><i></i><span class="cinematic-level-label">NÍVEL</span><input class="cinematic-level-input" data-field="level" value="${state.level}" inputmode="numeric"></div>`:`<div class="cinematic-identity-read"><strong>${safe(state.profile)}</strong><i></i><span>${safe(state.occupation)}</span><i></i><em>NÍVEL</em><b>${state.level}</b></div>`,aptidaoOptions=APTIDAO_FIELDS.map(v=>({value:v,label:v})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;return `<main class="cinematic-page ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--cinematic-accent:${accent};--resource-shift:${currentResourceShift}px">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<div class="cinematic-frame"><i class="cinematic-frame-line top"><b></b><b></b></i><i class="cinematic-frame-line bottom"><b></b><b></b></i></div><div class="cinematic-contents"><header class="cinematic-header"><div class="cinematic-name">${editMode?`<input data-field="name" value="${safe(state.name)}">`:`<h1>${safe(state.name)}</h1>`}</div>${identity}</header>
+function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor,profileOptions=['Executor','Analista','Vigilante'].map(value=>({value,label:value})),abilities=visibleCards('abilities').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhuma habilidade.</p>',items=visibleCards('items').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhum item.</p>',history=editMode?`<textarea class="cinematic-history" data-field="history" placeholder="História do personagem...">${safe(state.history||'')}</textarea>`:`<p class="cinematic-history-copy">${formatCardText(state.history||'Nenhuma história registrada.')}</p>`,identity=editMode?`<div class="cinematic-identity cinematic-identity-edit">${customSelect({value:state.profile,options:profileOptions,id:'profile',className:'cinematic-profile-select'})}<i></i><input class="cinematic-occupation-input" data-field="occupation" value="${safe(state.occupation)}"><i></i><span class="cinematic-level-label">NÍVEL</span><input class="cinematic-level-input" data-field="level" value="${state.level}" inputmode="numeric"></div>`:`<div class="cinematic-identity-read"><strong>${safe(state.profile)}</strong><i></i><span>${safe(state.occupation)}</span><i></i><em>NÍVEL</em><b>${state.level}</b></div>`,aptidaoOptions=APTIDAO_FIELDS.map(v=>({value:v,label:v})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;return `<main class="cinematic-page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--cinematic-accent:${accent};--resource-shift:${currentResourceShift}px">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<div class="cinematic-frame"><i class="cinematic-frame-line top"><b></b><b></b></i><i class="cinematic-frame-line bottom"><b></b><b></b></i></div><div class="cinematic-contents"><header class="cinematic-header"><div class="cinematic-name">${editMode?`<input data-field="name" value="${safe(state.name)}">`:`<h1>${safe(state.name)}</h1>`}</div>${identity}</header>
 
  <section class="cinematic-left"><div class="cinematic-attributes"><h2>ATRIBUTOS</h2>${Object.entries(state.attributes).map(([name,value])=>`<div><span>${name}</span><button class="cinematic-attribute-die" data-roll="${name}|${value}">${die(value,'cinematic-attribute')}</button>${editMode?attributeStepper(name,value):''}</div>`).join('')}</div><div class="cinematic-skills"><h2><span>PERÍCIAS</span>${editMode?`<button type="button" class="cinematic-add-aptidao" data-add-aptidao title="Adicionar outra Aptidão">+ APTIDÃO</button>`:''}</h2><div>${state.skills.map((skill,index)=>{const attrDie=state.attributes[skill.attribute]||4,trained=skill.skillDie>4,isAptidao=skill.name.startsWith('APTIDÃO'),aptidaoField=isAptidao?(skill.name.match(/\(([^)]+)\)/)?.[1]||'HUMANAS'):'',nameHtml=editMode&&isAptidao?`<span class="skill-name-aptidao"><span>APTIDÃO</span>${customSelect({value:aptidaoField,options:aptidaoOptions,id:`aptidao-field:${index}`,className:'cinematic-aptidao-select'})}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i>${aptidaoCount>1?`<button type="button" class="btn-remove-aptidao" data-remove-aptidao="${index}" title="Remover">${icon('trash',11)}</button>`:''}</span>`:`<span>${safe(skill.name)}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i></span>`;return `<div class="cinematic-skill grade-d${skill.skillDie}" data-roll="${safe(skill.name)}|${skill.skillDie},${attrDie}|${skill.extra||0}" role="button" tabindex="0">${nameHtml}<span class="cinematic-skill-dice">${die(skill.skillDie,'cinematic-skill-die',trained)}<b>+</b>${die(attrDie,'cinematic-skill-die attribute',trained)}<em>${safe(skill.attribute)}</em>${skill.extra?`<strong>${Number(skill.extra)>0?'+':''}${skill.extra}</strong>`:''}</span>${editMode?`<span class="cinematic-skill-edit">${customSelect({value:skill.training,options:trainingOptions,id:`skill-training:${index}`,className:'skill-select training-select'})}${customSelect({value:skill.attribute,options:['Físico','Mente','Emoção'].map(value=>({value,label:value})),id:`skill-attribute:${index}`,className:'skill-select attribute-select'})}<input data-skill-extra="${index}" type="number" value="${skill.extra||0}" title="Bônus extra"></span>`:''}</div>`}).join('')}</div></div></section>
   <section class="cinematic-character" data-cinematic-character>${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="${safe(state.name)}" draggable="false" data-cinematic-token style="left:${state.cinematicTokenX}%;top:${state.cinematicTokenY}%;--token-scale:${state.cinematicTokenScale/100}" class="${(state.cinematicOutlineSide==='none'||(state.cinematicOutlineIntensity??0.5)<=0||(state.cinematicOutlineWidth??1.8)<=0)?'no-outline':''}">`:`<div class="cinematic-token-empty"><span>${icon('user',54)}</span><p>ADICIONE A IMAGEM DO PERSONAGEM</p></div>`}${editMode?`<div class="cinematic-token-tools"><label>${icon('image',15)} PERSONAGEM<input id="token-upload-cinematic" type="file" accept="image/*"></label>${state.tokenImage?`<button type="button" class="btn-upscale-token" data-upscale-token title="Super-resolução e nitidez avançada">${icon('sparkles',14)} UPSCALE 2X (HD)</button>`:''}<div class="token-side-group" title="Lado da iluminação de recorte"><span>ILUMINAÇÃO</span><button type="button" class="${(state.cinematicOutlineSide||'left')==='left'?'active':''}" data-outline-side="left">ESQ</button><button type="button" class="${state.cinematicOutlineSide==='right'?'active':''}" data-outline-side="right">DIR</button><button type="button" class="${state.cinematicOutlineSide==='both'?'active':''}" data-outline-side="both">360°</button><button type="button" class="${state.cinematicOutlineSide==='none'?'active':''}" data-outline-side="none">OFF</button></div><label title="Intensidade da iluminação">FORÇA <input type="range" min="10" max="95" step="5" value="${Math.round((state.cinematicOutlineIntensity??0.5)*100)}" data-cinematic-outline-intensity></label><label title="Espessura da linha">CONTORNO <input type="range" min="0.5" max="5" step="0.2" value="${state.cinematicOutlineWidth??1.8}" data-cinematic-outline-width></label><label title="Fade / suavidade da borda">FADE <input type="range" min="0.5" max="3.5" step="0.2" value="${state.cinematicOutlineFade??1.5}" data-cinematic-outline-fade></label><label>ESCALA <input type="range" min="45" max="220" value="${state.cinematicTokenScale}" data-cinematic-scale></label><button data-reset-cinematic-token>RECENTRALIZAR</button><label>${icon('image',15)} FUNDO<input id="background-upload" type="file" accept="image/*,video/mp4,video/webm"></label>${state.backgroundImage?'<button data-reset-background>FUNDO PADRÃO</button>':''}<label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor||PROFILE_COLORS[state.profile])}"></label>${state.diceColor?'<button data-reset-dice-color>COR DO PERFIL</button>':''}<small>Arraste o personagem para reposicionar · Iluminação lateral com fade suave</small></div>`:''}</section>
@@ -251,6 +264,7 @@ function renderSheetDrawer(){
    <button class="sheet-drawer-item new" data-new-sheet>${icon('plus',16)}<span>NOVA FICHA</span></button>
   </div>
   <div class="sheet-drawer-footer">
+   <button type="button" data-export-cinematic-image>${icon('camera',15)} FOTO HD</button>
    <button type="button" data-open-roll-log>${icon('history',15)} LOG (${rollLog.length})</button>
    <button data-export-json>${icon('download',15)} EXPORTAR</button>
    <button data-import-json>${icon('upload',15)} IMPORTAR</button>
@@ -385,11 +399,11 @@ function bindRollLogItemEvents(container = document) {
  });
 }
 
-function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
+function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
-  ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
+  ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
   ${tornTitle('STATUS')}<section class="resources">${resourceEditor('pv','PV')}${resourceEditor('pd','PD')}</section>
   <label class="token-banner ${editMode?'editable':''}">TOKEN${editMode?'<input id="token-upload-secondary" type="file" accept="image/*">':''}</label>
@@ -402,7 +416,7 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
  <aside class="right-panel"><nav class="right-tabs"><button class="${currentRight==='items'?'active':''}" data-right="items">ITENS</button><button class="${currentRight==='abilities'?'active':''}" data-right="abilities">HABILIDADES</button></nav><div class="right-tools"><div>${icon('search',15)}<input id="filter" placeholder="Filtrar cards..."></div><button title="Filtrar">${icon('filter',17)}</button><button class="add" title="Criar card">${icon('plus',17)}<span>CRIAR CARD</span></button></div><section id="abilities" class="right-content ${currentRight==='abilities'?'active':''}">${visibleCards('abilities').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhuma habilidade. Use + para criar.</p>'}</section><section id="items" class="right-content ${currentRight==='items'?'active':''}">${visibleCards('items').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhum item. Use + para criar.</p>'}</section></aside></main>`}
 	 ${state.viewMode==='cinematic'?renderCriticalAtmosphere():''}
 	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${state.viewMode==='traditional'?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${state.viewMode==='cinematic'?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
- <div class="edit-status ${editMode?'active':''}"><span></span>${editMode?'MODO DE EDIÇÃO — TEMA ÂMBAR':'MODO DE VISUALIZAÇÃO'}</div><div class="floating"><button class="${editMode?'active':''}" data-toggle-edit title="${editMode?'Fechar edição':'Editar ficha'}">${editMode?icon('close'):icon('edit')}</button></div><div class="save-toast" id="save-toast">SALVO</div>
+ ${editMode?`<div class="edit-status active"><span></span>MODO DE EDIÇÃO — TEMA ÂMBAR</div>`:''}<div class="floating"><button class="${editMode?'active':''}" data-toggle-edit title="${editMode?'Fechar edição':'Editar ficha'}">${editMode?icon('close'):icon('edit')}</button></div><div class="save-toast" id="save-toast">SALVO</div>
 
  <div id="dice-stage"><canvas id="dice-canvas"></canvas><div id="dice-stage-result"></div></div>
 	 <div class="modal skill-info-modal" id="skill-info-modal"><div class="backdrop skill-info-backdrop"></div><section><button class="skill-info-close">${icon('close')}</button><small>PERÍCIA</small><h2 id="skill-info-title"></h2><p id="skill-info-copy"></p><footer id="skill-info-attribute"></footer></section></div>
@@ -415,7 +429,7 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
  ${renderSheetDrawer()}
  ${renderRollLogDrawer()}
  ${state.viewMode==='cinematic'?`<div class="rotate-prompt"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg><p>GIRE O CELULAR</p><small>O modo cinematográfico funciona melhor em paisagem</small></div>`:''}
-	 `;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;modeJustChanged=false}
+	 `;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
 
 
 function collectActiveInputs(){
@@ -851,6 +865,113 @@ window.addEventListener('resize',syncCinematicLineMask);
 function bindCinematicToken(){syncTokenOutlineFilter();const area=document.querySelector('[data-cinematic-character]'),token=document.querySelector('[data-cinematic-token]'),scale=document.querySelector('[data-cinematic-scale]');if(token){token.addEventListener('load',syncCinematicLineMask,{once:true});syncCinematicLineMask()}if(scale)scale.oninput=()=>{state.cinematicTokenScale=Number(scale.value);if(token)token.style.setProperty('--token-scale',state.cinematicTokenScale/100);syncCinematicLineMask()};if(scale)scale.onchange=()=>save(false);document.querySelectorAll('[data-outline-side]').forEach(btn=>{btn.onclick=()=>{state.cinematicOutlineSide=btn.dataset.outlineSide;document.querySelectorAll('[data-outline-side]').forEach(b=>b.classList.toggle('active',b===btn));syncTokenOutlineFilter();save(false)}});const outlineIntensity=document.querySelector('[data-cinematic-outline-intensity]');if(outlineIntensity){outlineIntensity.oninput=()=>{state.cinematicOutlineIntensity=Number(outlineIntensity.value)/100;syncTokenOutlineFilter()};outlineIntensity.onchange=()=>save(false)}const outlineWidth=document.querySelector('[data-cinematic-outline-width]');if(outlineWidth){outlineWidth.oninput=()=>{state.cinematicOutlineWidth=Number(outlineWidth.value);syncTokenOutlineFilter()};outlineWidth.onchange=()=>save(false)}const outlineFade=document.querySelector('[data-cinematic-outline-fade]');if(outlineFade){outlineFade.oninput=()=>{state.cinematicOutlineFade=Number(outlineFade.value);syncTokenOutlineFilter()};outlineFade.onchange=()=>save(false)}const btnUpscale=document.querySelector('[data-upscale-token]');if(btnUpscale){btnUpscale.onclick=async()=>{if(!state.tokenImage)return;const orig=btnUpscale.innerHTML;btnUpscale.disabled=true;btnUpscale.innerHTML=`${icon('sparkles',14)} PROCESSANDO...`;try{const enhanced=await upscaleAndEnhanceImage(state.tokenImage,{scale:2,sharpness:1.1});if(enhanced){state.tokenImage=enhanced;save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent='TOKEN EM ALTA DEFINIÇÃO (2X HD)!';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500)}}}catch(e){console.error(e);alert('Erro ao processar upscaling.')}finally{if(btnUpscale){btnUpscale.disabled=false;btnUpscale.innerHTML=orig}}}}document.querySelector('[data-reset-cinematic-token]')?.addEventListener('click',()=>{state.cinematicTokenX=50;state.cinematicTokenY=52;state.cinematicTokenScale=100;save();render()});if(!editMode||!area||!token)return;token.onpointerdown=event=>{event.preventDefault();const rect=area.getBoundingClientRect(),startX=event.clientX,startY=event.clientY,originX=state.cinematicTokenX,originY=state.cinematicTokenY;token.setPointerCapture(event.pointerId);token.classList.add('dragging');token.onpointermove=move=>{state.cinematicTokenX=Math.max(0,Math.min(100,originX+(move.clientX-startX)/rect.width*100));state.cinematicTokenY=Math.max(0,Math.min(100,originY+(move.clientY-startY)/rect.height*100));token.style.left=`${state.cinematicTokenX}%`;token.style.top=`${state.cinematicTokenY}%`;syncCinematicLineMask()};token.onpointerup=()=>{token.classList.remove('dragging');token.onpointermove=null;syncCinematicLineMask();save(false)}}}
 function updateResourceUi(key){const current=state[key],temp=state[`${key}Temp`]||0,isPv=key.toLowerCase()==='pv',cinDiv=document.querySelectorAll('.cinematic-resources>div')[isPv?0:1],tempBadge=temp?`<button type="button" class="temp-badge-btn" data-consume-temp="${key}:1" title="Clique para extinguir 1 ${key.toUpperCase()} temporário (Botão direito para extinguir todos)"><em>+${temp}</em></button>`:'';if(cinDiv){const b=cinDiv.querySelector('b');if(b)b.innerHTML=`${current}${tempBadge}`;const pips=cinDiv.querySelectorAll('.pip:not(.temporary)');pips.forEach((pip,i)=>pip.classList.toggle('filled',i<current))}document.querySelectorAll(`.resource-row [data-set-resource^="${key}:"]`).forEach(pip=>{const val=Number(pip.dataset.setResource.split(':')[1]);pip.classList.toggle('filled',val<=current)});document.querySelectorAll('.resource-row').forEach(row=>{if(row.querySelector(`[data-set-resource^="${key}:"]`)){const b=row.querySelector('b');if(b)b.innerHTML=`${current}${tempBadge}`}});syncCriticalAtmosphere()}
 function updateMarkerUi(cardId,markerId){const card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!marker)return;const max=markerMax(marker),current=Math.min(Number(marker.current)||0,max||999),id=`${cardId}:${markerId}`;document.querySelectorAll(`[data-card-marker^="${id}:"],[data-card-marker-set^="${id}:"]`).forEach(el=>{const container=el.closest('.card-marker');if(!container)return;const toggle=container.querySelector('.toggle-switch');if(toggle){toggle.classList.toggle('on',!!current);toggle.innerHTML=`<i></i>${current?'LIGADO':'DESLIGADO'}`}const track=container.querySelector('.progress-track i');if(track)track.style.width=`${max?current/max*100:0}%`;const charges=container.querySelectorAll('.charge');charges.forEach((btn,i)=>btn.classList.toggle('on',i<current));const strong=container.querySelector('strong');if(strong){if(container.classList.contains('marker-bar')||container.classList.contains('marker-pips')){strong.textContent=`${current}/${max}`}else if(!container.classList.contains('marker-toggle')){strong.textContent=`${current}${max?`/${max}`:''}`}}})}
+let isExportingCinematicImage=false;
+async function exportCinematicImage(){
+ if(isExportingCinematicImage)return;
+ isExportingCinematicImage=true;
+ const toast=document.querySelector('#save-toast');
+ const showToastMsg=(msg,duration=2200)=>{
+  if(toast){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},duration)}
+ };
+ showToastMsg('RENDERIZANDO IMAGEM HD...',4500);
+ const prevViewMode=state.viewMode,prevEditMode=editMode;
+ let switched=false;
+ try{
+  if(state.viewMode!=='cinematic'){state.viewMode='cinematic';switched=true}
+  if(editMode){editMode=false;switched=true}
+  if(switched){render();await new Promise(r=>setTimeout(r,120))}
+  const cinematicPage=document.querySelector('.cinematic-page');
+  if(!cinematicPage){showToastMsg('ERRO: FICHA NÃO ENCONTRADA',2200);return}
+  document.body.classList.add('exporting-cinematic');
+  cinematicPage.classList.add('is-exporting');
+  const svgDefs=document.querySelector('#token-svg-defs');
+  let clonedDefs=null;
+  if(svgDefs){
+   clonedDefs=svgDefs.cloneNode(true);
+   clonedDefs.id='token-svg-defs-capture';
+   cinematicPage.appendChild(clonedDefs);
+  }
+  const videoEl=cinematicPage.querySelector('.bg-video');
+  let videoCanvas=null;
+  if(videoEl&&videoEl.videoWidth>0){
+   try{
+    videoCanvas=document.createElement('canvas');
+    videoCanvas.width=videoEl.videoWidth;
+    videoCanvas.height=videoEl.videoHeight;
+    videoCanvas.className='bg-video bg-video-snapshot';
+    const vCtx=videoCanvas.getContext('2d');
+    vCtx.drawImage(videoEl,0,0,videoCanvas.width,videoCanvas.height);
+    videoEl.style.display='none';
+    videoEl.parentNode.insertBefore(videoCanvas,videoEl);
+   }catch(e){console.warn('Snapshot video bg error:',e)}
+  }
+  const {toPng}=await import('html-to-image');
+  const filter=(node)=>{
+   if(node.nodeType!==1)return true;
+   const cl=node.classList;
+   if(!cl)return true;
+   return !(
+    cl.contains('btn-export-image-cinematic')||
+    cl.contains('floating')||
+    cl.contains('view-mode-switch')||
+    cl.contains('edit-status')||
+    cl.contains('mobile-bottom-nav')||
+    cl.contains('sheet-drawer')||
+    cl.contains('sheet-drawer-backdrop')||
+    cl.contains('roll-log-drawer')||
+    cl.contains('roll-log-backdrop')||
+    cl.contains('save-toast')||
+    cl.contains('rotate-prompt')||
+    cl.contains('cinematic-token-tools')||
+    cl.contains('cinematic-card-edit')||
+    cl.contains('cinematic-section-add')||
+    cl.contains('cinematic-add-aptidao')||
+    cl.contains('btn-remove-aptidao')||
+    cl.contains('skill-info-button')
+   );
+  };
+  await new Promise(r=>setTimeout(r,80));
+  const dataUrl=await toPng(cinematicPage,{
+   pixelRatio:2,
+   quality:0.98,
+   filter,
+   style:{margin:'0',marginLeft:'0'}
+  });
+  const cleanName=(state.name||'Agente').trim().replace(/[/\\?%*:|"<>]/g,'-');
+  const filename=`${cleanName} - Ficha Cinematográfica.png`;
+  const link=document.createElement('a');
+  link.href=dataUrl;
+  link.download=filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  showToastMsg('FOTO HD EXPORTADA COM SUCESSO!',2500);
+ }catch(error){
+  console.error('Erro ao exportar imagem:',error);
+  showToastMsg('ERRO AO EXPORTAR IMAGEM',2500);
+ }finally{
+  const cinematicPage=document.querySelector('.cinematic-page');
+  if(cinematicPage){
+   cinematicPage.classList.remove('is-exporting');
+   const clonedDefs=cinematicPage.querySelector('#token-svg-defs-capture');
+   if(clonedDefs)clonedDefs.remove();
+   const videoCanvas=cinematicPage.querySelector('.bg-video-snapshot');
+   if(videoCanvas){
+    videoCanvas.remove();
+    const videoEl=cinematicPage.querySelector('.bg-video');
+    if(videoEl)videoEl.style.display='';
+   }
+  }
+  document.body.classList.remove('exporting-cinematic');
+  if(state.viewMode!==prevViewMode||editMode!==prevEditMode){
+   state.viewMode=prevViewMode;
+   editMode=prevEditMode;
+   render();
+  }
+  isExportingCinematicImage=false;
+ }
+}
+
 function bind(){
  document.querySelector('[data-critical-settings]')?.addEventListener('click',()=>document.querySelector('#critical-settings-modal')?.classList.add('open'));
  document.querySelectorAll('.critical-settings-close,.critical-settings-backdrop').forEach(el=>el.onclick=()=>document.querySelector('#critical-settings-modal')?.classList.remove('open'));
@@ -876,7 +997,18 @@ function bind(){
   document.querySelectorAll('[data-add-aptidao]').forEach(el=>el.onclick=()=>{const usedFields=new Set();state.skills.forEach(s=>{if(s.name.startsWith('APTIDÃO')){const m=s.name.match(/\(([^)]+)\)/);if(m)usedFields.add(m[1].toUpperCase())}});const nextField=APTIDAO_FIELDS.find(f=>!usedFields.has(f))||'ARTES';const newSkill={name:`APTIDÃO (${nextField})`,training:'DESTREINADO',skillDie:4,attribute:'Mente',extra:0};let lastIdx=-1;state.skills.forEach((s,idx)=>{if(s.name.startsWith('APTIDÃO'))lastIdx=idx});if(lastIdx>=0)state.skills.splice(lastIdx+1,0,newSkill);else state.skills.push(newSkill);save(false);render()});
   document.querySelectorAll('[data-remove-aptidao]').forEach(el=>el.onclick=e=>{e.stopPropagation();const idx=Number(el.dataset.removeAptidao);const count=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;if(count>1&&!isNaN(idx)&&state.skills[idx]){state.skills.splice(idx,1);save(false);render()}});
   document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>{if(el.dataset.view===currentView)return;const old=document.querySelector(`#${currentView}-view`),next=document.querySelector(`#${el.dataset.view}-view`);document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===el));old.classList.add('leaving');setTimeout(()=>{old.classList.remove('active','leaving');next.classList.add('active','entering');setTimeout(()=>next.classList.remove('entering'),300);currentView=el.dataset.view},180)});
-  document.querySelector('[data-toggle-edit]').onclick=()=>{editMode=!editMode;save(false);render()};
+  document.querySelectorAll('[data-toggle-edit]').forEach(el=>{
+   el.onclick=()=>{
+    editTransitionMode=editMode?'into-view':'into-edit';
+    editMode=!editMode;
+    playModeToggleSound(editMode);
+    save(false);
+    render();
+   };
+  });
+  document.querySelectorAll('[data-export-cinematic-image]').forEach(el=>{
+   el.onclick=()=>exportCinematicImage();
+  });
   document.querySelectorAll('[data-right]').forEach(el=>el.onclick=()=>{const nextRight=el.dataset.right;if(nextRight===currentRight)return;const oldPanel=document.querySelector(`#${currentRight}`),newPanel=document.querySelector(`#${nextRight}`);document.querySelectorAll('[data-right]').forEach(button=>button.classList.toggle('active',button===el));oldPanel.classList.add('leaving');setTimeout(()=>{oldPanel.classList.remove('active','leaving');newPanel.classList.add('active','entering');setTimeout(()=>newPanel.classList.remove('entering'),280);currentRight=nextRight},180)});
   const filter=document.querySelector('#filter');if(filter)filter.oninput=e=>document.querySelectorAll('.right-content.active [data-filter]').forEach(x=>x.hidden=!x.dataset.filter.includes(e.target.value.toLowerCase()));const traditionalAdd=document.querySelector('.right-tools .add');if(traditionalAdd)traditionalAdd.onclick=()=>openCardEditor();document.querySelectorAll('[data-cinematic-add]').forEach(el=>el.onclick=()=>{currentRight=el.dataset.cinematicAdd;openCardEditor()});document.querySelectorAll('[data-cinematic-section-toggle]').forEach(el=>el.onclick=()=>{const key=el.dataset.cinematicSectionToggle,group=el.closest('.cinematic-section-group');state.cinematicCollapsed[key]=!state.cinematicCollapsed[key];group.classList.toggle('collapsed',state.cinematicCollapsed[key]);el.setAttribute('aria-expanded',String(!state.cinematicCollapsed[key]));save(false)});
   document.querySelectorAll('[data-edit-card]').forEach(el=>el.onclick=()=>openCardEditor(el.dataset.editCard));document.querySelectorAll('[data-toggle-card]').forEach(el=>el.onclick=()=>{const c=state.cards.find(x=>x.id===el.dataset.toggleCard);c.collapsed=!c.collapsed;save(false);render()});
@@ -888,6 +1020,12 @@ function bind(){
   document.querySelector('.delete-card').onclick=()=>{const id=document.querySelector('#card-form').dataset.cardId;if(id){state.cards=state.cards.filter(c=>c.id!==id);save(false);closeCardEditor();render()}};
   document.querySelectorAll('#token-upload,#token-upload-secondary,#token-upload-cinematic').forEach(input=>input.onchange=()=>readImage(input.files[0],'tokenImage',2048));const backgroundUpload=document.querySelector('#background-upload');if(backgroundUpload)backgroundUpload.onchange=()=>readMedia(backgroundUpload.files[0],'backgroundImage');document.querySelector('[data-reset-background]')?.addEventListener('click',()=>{state.backgroundImage='';save(false);render()});const diceColor=document.querySelector('#dice-color');if(diceColor)diceColor.onchange=()=>{state.diceColor=diceColor.value;save(false);render()};document.querySelector('[data-reset-dice-color]')?.addEventListener('click',()=>{state.diceColor='';save(false);render()});
     document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{const targetId=el.dataset.sheetId;if(targetId===state.id)return;save(false);const doSwitch=()=>{state=sheets.find(sheet=>sheet.id===targetId)||state;activeSheetId=state.id;render()};if(state.viewMode==='cinematic'){triggerGlitchTransition(doSwitch)}else{doSwitch()}});
+    document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render();const switcher=document.querySelector('.sheet-switcher');if(switcher)switcher.scrollTop=switcher.scrollHeight});
+    document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO'));
+    document.querySelectorAll('[data-export-json]').forEach(el=>el.onclick=()=>exportJsonSheet());
+    document.querySelectorAll('[data-import-json]').forEach(el=>el.onclick=()=>{document.querySelector('#json-file-input')?.click()});
+    document.querySelectorAll('#json-file-input').forEach(input=>{input.onchange=()=>{if(input.files[0])importJsonSheet(input.files[0]);input.value=''}});
+    document.querySelectorAll('[data-compendium]').forEach(el=>el.onclick=()=>{const toast=document.querySelector('#save-toast');if(toast){toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)}});
 
  document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;if(state.viewMode==='cinematic')viewSwitchCollapsed=true;modeJustChanged=true;render()});
  document.querySelectorAll('[data-toggle-view-switch]').forEach(el=>el.onclick=e=>{e.stopPropagation();viewSwitchCollapsed=!viewSwitchCollapsed;render()});
