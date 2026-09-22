@@ -476,8 +476,8 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2d863f]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2d863f]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2d863f]**agir antes de todos**[/color].",
-        "accent": "#2d863f",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
           {
@@ -745,8 +745,8 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2d863f]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2d863f]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2d863f]**agir antes de todos**[/color].",
-        "accent": "#2d863f",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
           {
@@ -2006,8 +2006,8 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2d863f]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2d863f]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2d863f]**agir antes de todos**[/color].",
-        "accent": "#2d863f",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
           {
@@ -2045,12 +2045,12 @@
         "title": "MENTORIA",
         "type": "Habilidade",
         "icon": "◆",
-        "accent": "#2d863f",
+        "accent": "#2e7d32",
         "themeLinked": true,
         "layout": "standard",
         "collapsed": false,
         "imageUrl": "",
-        "content": "Quando **[color=#2d863f]ajuda[/color]** outro personagem, você pode fazer um teste da perícia que usou para ajudar contra **[color=#2d863f]DT 7[/color]**. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua rolagem alta.",
+        "content": "Quando **[color=#2e7d32]ajuda[/color]** outro personagem, você pode fazer um teste da perícia que usou para ajudar contra **[color=#2e7d32]DT 7[/color]**. Se passar, o personagem ajudado pode substituir um dos dados rolados por ele pela sua rolagem alta.",
         "markers": [],
         "actions": []
       }

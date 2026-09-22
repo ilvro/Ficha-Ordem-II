@@ -104,7 +104,8 @@
 
 /* Ficha cinematográfica */
 .cinematic-page{--cinematic-accent:var(--red);position:relative;width:calc(100vw - 80px);height:100vh;margin-left:80px;overflow:hidden;background:linear-gradient(#06080dcc,#050609f2),url('/assets/ordem2-bg.webp') center/cover fixed;color:#f3f1ed;isolation:isolate}.cinematic-page:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--cinematic-accent),transparent 88%),transparent 42%),linear-gradient(90deg,#000b,transparent 28% 67%,#000b);pointer-events:none}.cinematic-page:after{display:none}.cinematic-frame{position:absolute;inset:38px 38px 27px;z-index:9;pointer-events:none;border:2px solid var(--cinematic-accent);clip-path:polygon(0 0,48% 0,50% 1%,73% 0,100% 0,100% 18%,99.3% 20%,100% 40%,100% 100%,73% 100%,70% 99%,48% 100%,0 100%,0 76%,.6% 72%,0 48%)}.cinematic-frame:before,.cinematic-frame:after{content:"";position:absolute;width:105px;height:105px}.cinematic-frame:before{left:9px;top:9px;border-left:1px solid var(--cinematic-accent);border-top:1px solid var(--cinematic-accent)}.cinematic-frame:after{right:9px;bottom:9px;border-right:1px solid var(--cinematic-accent);border-bottom:1px solid var(--cinematic-accent)}
-.cinematic-header{position:absolute;left:22%;right:6%;top:48px;height:105px;z-index:6;border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 20%);display:flex;align-items:flex-end;justify-content:space-between;padding:0 14px 12px}.cinematic-name{min-width:290px}.cinematic-name h1,.cinematic-name input{margin:0;border:0;background:transparent;color:var(--cinematic-accent);font:700 clamp(42px,4.4vw,73px)/.9 Georgia,serif;text-transform:uppercase;text-shadow:0 4px 25px #000;outline:0;max-width:430px}.cinematic-name input{width:100%;border-bottom:1px dashed var(--cinematic-accent)}.cinematic-identity{display:flex;align-items:center;justify-content:flex-end;gap:11px;padding-bottom:3px;text-transform:uppercase;font:700 16px Georgia,serif;white-space:nowrap}.cinematic-identity>strong{padding:10px 17px;background:var(--cinematic-accent);clip-path:polygon(4% 7%,94% 0,100% 16%,96% 49%,100% 88%,8% 100%,0 75%,4% 43%,0 16%)}.cinematic-identity>i{width:6px;height:6px;border-radius:50%;background:var(--cinematic-accent)}.cinematic-identity>b{display:grid;place-items:center;width:47px;height:47px;background:var(--cinematic-accent);font-size:27px;clip-path:polygon(9% 5%,88% 0,100% 14%,94% 89%,17% 100%,0 88%,5% 18%)}.cinematic-identity>input{width:190px;height:37px;border:1px solid #ffffff24;background:#0f1119cc;padding:0 9px;outline:0;text-transform:uppercase}.cinematic-level-input{width:45px!important;text-align:center;font-size:20px!important}.cinematic-profile-select{width:145px}.cinematic-profile-select .select-trigger{border-color:var(--cinematic-accent);background:color-mix(in srgb,var(--cinematic-accent),#11121b 75%);text-transform:uppercase;font-weight:800}
+.cinematic-header{position:absolute;left:21%;right:5%;top:50px;height:100px;z-index:6;border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 20%);display:flex;align-items:flex-end;justify-content:space-between;padding:0 14px 12px}.cinematic-name{min-width:290px}.cinematic-name h1,.cinematic-name input{margin:0;border:0;background:transparent;color:var(--cinematic-accent);font:700 clamp(42px,4.4vw,73px)/.9 Georgia,serif;text-transform:uppercase;text-shadow:0 4px 25px #000;outline:0;max-width:430px}.cinematic-name input{width:100%;border-bottom:1px dashed var(--cinematic-accent)}.cinematic-identity{display:flex;align-items:center;justify-content:flex-end;gap:11px;padding-bottom:3px;text-transform:uppercase;font:700 16px Georgia,serif;white-space:nowrap}.cinematic-identity>strong{padding:10px 17px;background:var(--cinematic-accent);clip-path:polygon(4% 7%,94% 0,100% 16%,96% 49%,100% 88%,8% 100%,0 75%,4% 43%,0 16%)}.cinematic-identity>i{width:6px;height:6px;border-radius:50%;background:var(--cinematic-accent)}.cinematic-identity>b{display:grid;place-items:center;width:47px;height:47px;background:var(--cinematic-accent);font-size:27px;clip-path:polygon(9% 5%,88% 0,100% 14%,94% 89%,17% 100%,0 88%,5% 18%)}.cinematic-identity>input{width:190px;height:37px;border:1px solid #ffffff24;background:#0f1119cc;padding:0 9px;outline:0;text-transform:uppercase}.cinematic-level-input{width:45px!important;text-align:center;font-size:20px!important}.cinematic-profile-select{width:145px}.cinematic-profile-select .select-trigger{border-color:var(--cinematic-accent);background:color-mix(in srgb,var(--cinematic-accent),#11121b 75%);text-transform:uppercase;font-weight:800}
+
 .cinematic-left{position:absolute;z-index:5;left:4.8%;top:18%;bottom:5%;width:29%;display:flex;flex-direction:column;pointer-events:auto}.cinematic-left h2,.cinematic-section-heading span{display:inline-block;width:max-content;margin:0;background:var(--cinematic-accent);color:#fff;font:700 20px Georgia,serif;padding:7px 19px;clip-path:polygon(2% 6%,93% 0,100% 11%,95% 48%,100% 91%,8% 100%,0 90%,3% 54%,0 17%)}.cinematic-attributes{position:relative;padding-left:37%;height:190px;flex:0 0 190px}.cinematic-attributes>h2{position:absolute;left:0;top:33px;transform:rotate(3deg)}.cinematic-attributes:after{content:"";position:absolute;left:34%;top:23px;width:1px;height:145px;background:var(--cinematic-accent);transform:rotate(13deg)}.cinematic-attributes>div{height:52px;display:flex;align-items:center;justify-content:flex-end;gap:8px;position:relative}.cinematic-attributes>div>span{font:700 clamp(25px,2.25vw,38px) Georgia,serif;text-transform:uppercase}.die-svg.cinematic-attribute{width:39px;height:42px;color:color-mix(in srgb,var(--cinematic-accent),white 35%)}.die-svg.cinematic-attribute .die-face{fill:var(--cinematic-accent);stroke:currentColor}.die-svg.cinematic-attribute text{font-size:33px}.cinematic-attributes .attribute-stepper{left:100%;bottom:auto;top:12px;z-index:7}.cinematic-skills{flex:1;min-height:0;padding-top:4px}.cinematic-skills>h2{margin-bottom:12px;transform:rotate(-1deg)}.cinematic-skills>div{height:calc(100% - 48px);overflow-y:auto;padding:0 8px 5px 10px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 35%) transparent}.cinematic-skill{--grade:#aaa;min-height:25px;display:grid;grid-template-columns:minmax(125px,1.15fr) 1fr;align-items:center;gap:8px;color:var(--grade);cursor:pointer;position:relative;font-family:Georgia,serif}.cinematic-skill:hover{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--grade),transparent 91%),transparent)}.cinematic-skill>span:first-child{text-align:right;color:#f0eeeb;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}.cinematic-skill .skill-info-button{display:inline-grid;vertical-align:middle;margin-left:3px}.cinematic-skill-dice{display:flex;align-items:center;gap:3px}.cinematic-skill-dice b{font-size:18px;font-weight:400}.cinematic-skill-dice em{font:700 9px "Hanken Grotesk";font-style:normal;text-transform:uppercase;margin-left:3px}.die-svg.cinematic-skill-die{width:23px;height:24px;color:color-mix(in srgb,var(--grade),white 35%)}.die-svg.cinematic-skill-die .die-face{fill:var(--grade);stroke:currentColor}.die-svg.cinematic-skill-die .die-facets{stroke:color-mix(in srgb,var(--grade),white 52%)}.die-svg.cinematic-skill-die text{font-size:35px;fill:#11131a}.cinematic-skill-edit{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px 0 7px}.cinematic-skill-edit .select-trigger{height:27px;background:#141620d9;border:1px solid #393b49;font-size:9px}.cinematic-skill-edit .select-menu{min-width:180px}.cinematic-skill.grade-d4{--grade:#8d919c}.cinematic-skill.grade-d6{--grade:#18d370}.cinematic-skill.grade-d8{--grade:#3187ff}.cinematic-skill.grade-d10{--grade:#a567f2}.cinematic-skill.grade-d12{--grade:#f39a38}
 .cinematic-character{position:absolute;z-index:2;left:31%;top:2%;bottom:0;width:38%;pointer-events:none;overflow:hidden}.cinematic-character>img{position:absolute;z-index:2;max-width:118%;max-height:116%;width:auto;height:auto;transform:translate(-50%,-50%) scale(var(--token-scale));transform-origin:center;image-rendering:-webkit-optimize-contrast;image-rendering:high-quality;will-change:transform;filter:url(#token-controlled-outline);user-select:none;touch-action:none;pointer-events:none}.editing .cinematic-character>img{pointer-events:auto;cursor:grab;outline:1px dashed color-mix(in srgb,var(--cinematic-accent),transparent 55%);outline-offset:7px}.editing .cinematic-character>img.dragging{cursor:grabbing}.cinematic-token-empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:260px;height:380px;border:1px dashed #ffffff35;background:#0c0e15a8;display:grid;place-content:center;justify-items:center;color:#6f7280;text-align:center}.cinematic-token-empty p{font-size:9px;letter-spacing:.13em}.cinematic-token-tools{position:absolute;z-index:8;left:50%;bottom:20px;transform:translateX(-50%);width:min(580px,96%);display:flex;flex-wrap:wrap;justify-content:center;gap:5px;padding:7px;border:1px solid #454756;border-radius:7px;background:#0e1019e8;pointer-events:auto;backdrop-filter:blur(10px)}.cinematic-token-tools>label,.cinematic-token-tools>button{min-height:29px;padding:0 9px;border:1px solid #3d3f4e;border-radius:4px;background:#20222e;color:#bbbcc5;display:flex;align-items:center;gap:6px;font-size:8px;font-weight:800;cursor:pointer}.cinematic-token-tools input[type=file]{display:none}.cinematic-token-tools input[type=range]{width:85px;accent-color:var(--cinematic-accent)}.cinematic-token-tools input[type=color]{width:26px;height:21px;border:0;padding:0;background:transparent}.cinematic-token-tools small{flex-basis:100%;text-align:center;color:#747783;font-size:7px;letter-spacing:.08em}
 .cinematic-right{position:absolute;z-index:5;right:5%;top:19%;bottom:5%;width:31%;overflow:visible;display:flex;flex-direction:column;padding:0}.cinematic-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:visible;padding:0 10px 20px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 35%) transparent}.cinematic-resources{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:35px}.cinematic-resources>div{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px}.cinematic-resources strong{background:var(--cinematic-accent);font:700 22px Georgia,serif;padding:6px 13px;clip-path:polygon(4% 5%,95% 0,100% 18%,94% 89%,8% 100%,0 87%,5% 19%)}.cinematic-resources b{font:700 18px Georgia,serif}.cinematic-resources b em{font:700 10px "Hanken Grotesk";font-style:normal;color:#54aaff}.cinematic-resources>div>span{display:flex;flex-wrap:wrap;gap:5px}.cinematic-resources .pip{width:17px;height:14px}.cinematic-section-heading{height:42px;border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 35%);display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}.cinematic-section-heading.items{margin-top:28px}.cinematic-section-heading button{width:31px;height:31px;background:#191b25;color:var(--cinematic-accent);border:1px solid #3b3d49;border-radius:4px}.cinematic-card{--card-accent:var(--cinematic-accent);margin-bottom:24px}.cinematic-card>header{height:35px;border-bottom:1px solid color-mix(in srgb,var(--card-accent),transparent 35%);display:flex;align-items:flex-start}.cinematic-card h3{margin:0;background:var(--card-accent);padding:5px 14px;font:700 17px Georgia,serif;clip-path:polygon(3% 5%,94% 0,100% 16%,95% 50%,100% 90%,8% 100%,0 88%,4% 50%,0 13%)}.cinematic-card>header button{margin-left:auto;width:29px;height:29px;border-radius:4px;background:#1c1e29;color:var(--card-accent)}.cinematic-card-copy{padding:9px 9px 4px;font:400 13px/1.45 "Hanken Grotesk";color:#e3e1df}.cinematic-card .card-marker{background:#11131dcc;border-color:#373946}.cinematic-card .card-roll{background:#12141dcc}.cinematic-empty{color:#747681;font-size:10px;text-align:center;border:1px dashed #343642;padding:15px}
@@ -321,7 +322,7 @@
 @media(max-width:900px){.cinematic-identity,.cinematic-identity-read{width:calc(46.7% + var(--resource-shift,120px));gap:6px}}
 
 /* ─── Transição Glitch / VHS Horror ─────────────────────────────────────── */
-.cinematic-contents{position:absolute;inset:0;pointer-events:none}.cinematic-contents>*{pointer-events:auto}
+.cinematic-contents{position:absolute;inset:0;pointer-events:none;transform-origin:center 38%;scale:1;translate:0 0;transition:scale .45s cubic-bezier(.16,1,.3,1),translate .45s cubic-bezier(.16,1,.3,1),filter .45s ease}.cinematic-contents>*{pointer-events:auto}
 @keyframes ghost-fade-out{0%{opacity:1}100%{opacity:0}}
 @keyframes glitch-shake{0%{transform:translate(0,0)}7%{transform:translate(-7px,3px) skewX(-2.5deg)}14%{transform:translate(9px,-4px) skewX(3deg)}21%{transform:translate(-6px,5px) skewX(-1.5deg)}28%{transform:translate(8px,-3px) skewX(2deg)}35%{transform:translate(-4px,4px)}45%{transform:translate(5px,-3px)}57%{transform:translate(-3px,2px)}70%{transform:translate(2px,-2px)}85%{transform:translate(-1px,1px)}100%{transform:translate(0,0)}}
 .cinematic-contents.cinematic-ghost-exit{position:absolute;inset:0;pointer-events:none!important;z-index:10;animation:ghost-fade-out 220ms ease-out forwards,glitch-shake 380ms cubic-bezier(.22,.68,0,1.2) both}
@@ -456,17 +457,6 @@
 .sheet-drawer-footer button{flex:1;height:38px;border:1px solid #303243;border-radius:6px;background:#1c1d2b;color:#c0c2cc;font-size:9px;font-weight:800;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:5px}
 .sheet-drawer-footer button:active{background:#282938}
 
-/* ── Aviso de Rotação (Cinematográfico em Portrait) ──────────────────────── */
-.rotate-prompt{display:none}
-
-@media(max-width:700px) and (orientation:portrait){
- .rotate-prompt{display:flex;position:fixed;inset:0;z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#05060abd;backdrop-filter:blur(8px);color:#fff;pointer-events:none}
- .rotate-prompt p{font:700 15px/1 "Hanken Grotesk",sans-serif;letter-spacing:.2em;margin:0;text-transform:uppercase}
- .rotate-prompt small{font-size:11px;color:#9fa1ac;text-align:center;padding:0 30px}
- .rotate-prompt svg{opacity:.7;animation:rotate-hint 2.5s ease-in-out infinite}
- @keyframes rotate-hint{0%,100%{transform:rotate(0deg)}45%{transform:rotate(90deg)}55%{transform:rotate(90deg)}}
-}
-
 /* ── Cinematográfico em Landscape Mobile ─────────────────────────────────── */
 @media(max-width:700px) and (orientation:landscape){
  .cinematic-page{margin-left:0;width:100vw;height:100vh;min-height:0;overflow:hidden}
@@ -501,8 +491,673 @@
  .mobile-bottom-nav{display:none}
  .view-mode-switch{left:8px;bottom:8px;top:auto;right:auto}
  .edit-status{display:none}
- .rotate-prompt{display:none!important}
  .floating{display:flex}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODO DE APRESENTAÇÃO (SELEÇÃO DE AGENTES NA FICHA CINEMATOGRÁFICA)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Bloqueio de testes, dados, rolagens e alteração de PV/PD no modo apresentação */
+.cinematic-page.presentation-active [data-roll],
+.cinematic-page.presentation-active .pip,
+.cinematic-page.presentation-active [data-set-resource],
+.cinematic-page.presentation-active [data-consume-temp],
+.cinematic-page.presentation-active .card-roll,
+.cinematic-page.presentation-active .cinematic-attribute-die,
+.cinematic-page.presentation-active .cinematic-skill {
+  cursor: not-allowed !important;
+}
+
+.cinematic-page.presentation-active .cinematic-token-tools,
+.cinematic-page.presentation-active ~ .floating {
+  display: none !important;
+}
+
+/* Modo Apresentação: Zoom out tático na ficha em segundo plano */
+.cinematic-page.presentation-active .cinematic-contents {
+  scale: 0.90;
+  translate: 0 -22px;
+  filter: brightness(0.82) contrast(1.05);
+}
+
+/* Transição de Lock-in: Zoom in cinematográfico suave ao confirmar receptáculo */
+.cinematic-page.presentation-locking-in .cinematic-contents {
+  scale: 1.0;
+  translate: 0 0;
+  filter: brightness(1) contrast(1);
+  transition: scale 0.54s cubic-bezier(0.16, 1, 0.3, 1), translate 0.54s cubic-bezier(0.16, 1, 0.3, 1), filter 0.54s ease !important;
+}
+
+/* Transição de Entrada no Modo Apresentação: Zoom out suave e sincronizado da ficha */
+.cinematic-page.presentation-entering .cinematic-contents {
+  animation: presentationEnterContents 0.54s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes presentationEnterContents {
+  0% {
+    scale: 1.0;
+    translate: 0 0;
+    filter: brightness(1) contrast(1);
+  }
+  100% {
+    scale: 0.90;
+    translate: 0 -22px;
+    filter: brightness(0.82) contrast(1.05);
+  }
+}
+
+/* Transição do Dock ao travar: Desliza para baixo e dissolve */
+.cinematic-page.presentation-locking-in .cinematic-presentation-dock {
+  opacity: 0;
+  transform: translate(-50%, 70px) scale(0.92);
+  filter: blur(4px);
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.44s ease, filter 0.48s ease;
+}
+.cinematic-page.presentation-locking-in .card-side {
+  opacity: 0 !important;
+  transform: scale(0.65) !important;
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+/* Transição do Dock ao entrar: Emerge de baixo com foco e expansão */
+.cinematic-page.presentation-entering .cinematic-presentation-dock {
+  animation: presentationEnterDock 0.52s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes presentationEnterDock {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 70px) scale(0.92);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.cinematic-page.presentation-entering .card-side {
+  animation: presentationEnterCardSide 0.48s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes presentationEnterCardSide {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  100% {
+    opacity: 0.52;
+    transform: scale(1);
+  }
+}
+
+.cinematic-page.presentation-entering .card-curr {
+  animation: presentationEnterCardCurr 0.52s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes presentationEnterCardCurr {
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+    box-shadow: 0 0 45px var(--agent-accent, #e0150d);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--agent-accent, #e0150d), transparent 70%), 0 12px 35px rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* Dock de Apresentação (3 Cards ancorados na ficha cinematográfica) */
+.cinematic-presentation-dock {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.cp-dock-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 10px;
+  background: rgba(8, 10, 16, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.cp-dock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--agent-accent, #e0150d);
+  font: 800 8.5px/1 "Hanken Grotesk", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cp-dock-hint {
+  font: 500 8.5px/1 "Hanken Grotesk", sans-serif;
+  color: #8c8f9f;
+  letter-spacing: 0.02em;
+}
+.cp-dock-hint kbd {
+  display: inline-block;
+  padding: 1px 3px;
+  background: #1c1e2c;
+  border: 1px solid #383c50;
+  border-radius: 3px;
+  color: #e0e2ec;
+  font-family: monospace;
+  font-size: 8px;
+}
+
+.cp-dock-counter {
+  font: 700 8.5px/1 Georgia, serif;
+  color: #a4a8b8;
+  letter-spacing: 0.04em;
+}
+
+.cp-dock-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  --card-slide-step: clamp(135px, 12vw, 155px);
+}
+
+/* Setas de navegação */
+.cp-arrow {
+  width: 24px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: rgba(14, 16, 26, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
+  color: #c9ccd8;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+.cp-arrow:hover {
+  background: #25283e;
+  border-color: #fff;
+  color: #fff;
+  transform: scale(1.06);
+}
+.cp-arrow:active {
+  transform: scale(0.95);
+}
+
+/* Cards de Apresentação — Rigorosamente Quadrados */
+.cp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #131522fa 0%, #0b0d16fc 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+  box-sizing: border-box;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease, filter 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
+}
+
+/* Cards Laterais (Quadrados Menores) */
+.cp-card.card-side {
+  width: clamp(96px, 8vw, 112px);
+  height: clamp(96px, 8vw, 112px);
+  aspect-ratio: 1 / 1;
+  opacity: 0.52;
+  filter: brightness(0.75) grayscale(20%);
+  cursor: pointer;
+  z-index: 2;
+}
+.cp-card.card-side:hover {
+  opacity: 0.85;
+  filter: none;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Card Central (Quadrado Maior, em destaque) */
+.cp-card.card-curr {
+  width: clamp(175px, 15vw, 195px);
+  height: clamp(175px, 15vw, 195px);
+  aspect-ratio: 1 / 1;
+  opacity: 1;
+  border: 1.5px solid var(--agent-accent, #e0150d);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--agent-accent, #e0150d), transparent 70%), 0 12px 35px rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  z-index: 5;
+}
+.cp-card.card-curr::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--agent-accent, #e0150d), transparent 80%);
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+/* ── Animação de Troca de Card: Slide e Escala Direcional ────────────────────── */
+/* Avançar (dir-next): Card central entra deslizando da direita e expande; card anterior encolhe para esquerda */
+.cp-dock-carousel.dir-next .card-curr {
+  animation: cardSlideFromRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cp-dock-carousel.dir-next .card-prev {
+  animation: cardShrinkToLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cp-dock-carousel.dir-next .card-next {
+  animation: cardFadeFromRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardSlideFromRight {
+  from {
+    transform: translateX(clamp(80px, 9vw, 120px)) scale(0.65);
+    opacity: 0.6;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    border-color: var(--agent-accent, #e0150d);
+  }
+}
+
+@keyframes cardShrinkToLeft {
+  from {
+    transform: translateX(clamp(80px, 9vw, 120px)) scale(1.45);
+    opacity: 0.9;
+    border-color: var(--prev-accent, #e0150d);
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 0.52;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+@keyframes cardFadeFromRight {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 0.52;
+  }
+}
+
+/* Retroceder (dir-prev): Card central entra deslizando da esquerda e expande; card próximo encolhe para direita */
+.cp-dock-carousel.dir-prev .card-curr {
+  animation: cardSlideFromLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cp-dock-carousel.dir-prev .card-next {
+  animation: cardShrinkToRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cp-dock-carousel.dir-prev .card-prev {
+  animation: cardFadeFromLeft 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardSlideFromLeft {
+  from {
+    transform: translateX(calc(-1 * clamp(80px, 9vw, 120px))) scale(0.65);
+    opacity: 0.6;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    border-color: var(--agent-accent, #e0150d);
+  }
+}
+
+@keyframes cardShrinkToRight {
+  from {
+    transform: translateX(calc(-1 * clamp(80px, 9vw, 120px))) scale(1.45);
+    opacity: 0.9;
+    border-color: var(--next-accent, #e0150d);
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 0.52;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+@keyframes cardFadeFromLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 0.52;
+  }
+}
+
+/* Barra Superior do Card */
+.cp-card-topbar {
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  gap: 4px;
+  height: 16px;
+  box-sizing: border-box;
+}
+.cp-card-tag {
+  font: 800 6.8px/1 "Hanken Grotesk", sans-serif;
+  letter-spacing: 0.06em;
+  color: #8c90a2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cp-card-profile {
+  font: 800 6.8px/1 "Hanken Grotesk", sans-serif;
+  padding: 1px 3px;
+  border-radius: 2px;
+  background: var(--agent-accent, #e0150d);
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* Thumbnail do Card */
+.cp-card-thumb {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--agent-accent, #e0150d), transparent 88%), transparent 70%);
+}
+.cp-card-thumb img {
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--agent-accent, #e0150d), transparent 55%));
+  transition: transform 0.22s ease;
+}
+.cp-card.card-curr:hover .cp-card-thumb img {
+  transform: scale(1.05);
+}
+.cp-avatar-ph {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #181a28;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  color: #8c8f9f;
+}
+
+/* Sumário do Card */
+.cp-card-summary {
+  padding: 3px 6px 4px;
+  background: rgba(8, 10, 16, 0.94);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  flex-shrink: 0;
+}
+.cp-card.card-side .cp-card-summary {
+  padding: 2px 4px;
+  gap: 1px;
+}
+.cp-card-summary strong {
+  font: 700 clamp(10.5px, 1vw, 12px)/1.1 Georgia, serif;
+  color: #fff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cp-card.card-side .cp-card-summary strong {
+  font-size: 8.5px;
+}
+.cp-card-summary small {
+  font: 600 7.5px/1 "Hanken Grotesk", sans-serif;
+  color: #9296a8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cp-card.card-side .cp-card-summary small {
+  font-size: 6.8px;
+}
+.cp-summary-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+.cp-level-badge {
+  font: 800 7px/1 "Hanken Grotesk", sans-serif;
+  color: var(--agent-accent, #e0150d);
+  letter-spacing: 0.05em;
+}
+
+/* Pílulas de stats rápidos */
+.cp-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  padding-top: 1px;
+}
+.cp-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  background: #171926;
+  border: 1px solid #2d3044;
+  font: 700 6.5px/1 "Hanken Grotesk", sans-serif;
+  color: #b5b8c6;
+}
+.cp-stat-pill b {
+  color: var(--agent-accent, #e0150d);
+}
+.cp-res-pill {
+  font: 700 6.5px/1 Georgia, serif;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+.cp-res-pill.pv { background: #8f0010; color: #fff; }
+.cp-res-pill.pd { background: #2a3e82; color: #fff; }
+
+/* Botão Selecionar Receptáculo no Card Central */
+.btn-select-cp-agent {
+  width: 100%;
+  height: 18px;
+  margin-top: 1.5px;
+  background: color-mix(in srgb, var(--agent-accent, #e0150d), #10121b 80%);
+  border: 1px solid var(--agent-accent, #e0150d);
+  border-radius: 3px;
+  color: #fff;
+  font: 800 7px/1 "Hanken Grotesk", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.btn-select-cp-agent:hover {
+  background: var(--agent-accent, #e0150d);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--agent-accent, #e0150d), transparent 45%);
+}
+.btn-select-cp-agent:active {
+  transform: translateY(1px);
+}
+
+/* Animação de Lock-in */
+.cp-card.card-curr.locking-in {
+  animation: cpCardLockIn 0.42s cubic-bezier(0.12, 0.8, 0.32, 1) forwards !important;
+}
+@keyframes cpCardLockIn {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 25px var(--agent-accent, #e0150d);
+  }
+  40% {
+    transform: scale(1.04);
+    filter: brightness(1.3) contrast(1.1);
+    box-shadow: 0 0 45px var(--agent-accent, #e0150d), inset 0 0 25px var(--agent-accent, #e0150d);
+  }
+  100% {
+    transform: scale(1.01);
+    box-shadow: 0 0 60px var(--agent-accent, #e0150d);
+    filter: none;
+  }
+}
+.pcard-lockin-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 20;
+  animation: pcardOverlayIn 0.2s ease forwards;
+}
+@keyframes pcardOverlayIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pcard-lockin-stamp {
+  padding: 4px 10px;
+  border: 1.5px solid var(--agent-accent, #e0150d);
+  background: color-mix(in srgb, var(--agent-accent, #e0150d), #0a0b12 75%);
+  border-radius: 5px;
+  text-align: center;
+  box-shadow: 0 0 25px var(--agent-accent, #e0150d);
+}
+.pcard-lockin-stamp strong {
+  display: block;
+  font: 800 9.5px/1 "Hanken Grotesk", sans-serif;
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.pcard-lockin-stamp small {
+  display: block;
+  margin-top: 2px;
+  font: 600 7px/1 "Hanken Grotesk", sans-serif;
+  color: color-mix(in srgb, var(--agent-accent, #e0150d), #fff 65%);
+  letter-spacing: 0.08em;
+}
+
+/* Responsividade Mobile para o Dock */
+@media(max-width: 700px) {
+  .cinematic-page.presentation-active .cinematic-contents {
+    scale: 0.86;
+    translate: 0 -34px;
+    filter: brightness(0.82) contrast(1.05);
+  }
+  .cinematic-page.presentation-locking-in .cinematic-contents {
+    scale: 1.0;
+    translate: 0 0;
+    filter: brightness(1) contrast(1);
+    transition: scale 0.54s cubic-bezier(0.16, 1, 0.3, 1), translate 0.54s cubic-bezier(0.16, 1, 0.3, 1), filter 0.54s ease !important;
+  }
+  .cinematic-page.presentation-entering .cinematic-contents {
+    animation-name: presentationEnterContentsMobile !important;
+  }
+  @keyframes presentationEnterContentsMobile {
+    0% {
+      scale: 1.0;
+      translate: 0 0;
+      filter: brightness(1) contrast(1);
+    }
+    100% {
+      scale: 0.86;
+      translate: 0 -34px;
+      filter: brightness(0.82) contrast(1.05);
+    }
+  }
+  .cinematic-presentation-dock {
+    bottom: 6px;
+    width: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+    gap: 3px;
+  }
+  .cp-dock-top {
+    padding: 2px 8px;
+    gap: 6px;
+  }
+  .cp-dock-hint {
+    display: none;
+  }
+  .cp-dock-carousel {
+    gap: 4px;
+    width: 100%;
+    justify-content: center;
+    --card-slide-step: clamp(96px, 26vw, 120px);
+  }
+  .cp-arrow {
+    width: 20px;
+    height: 30px;
+  }
+  .cp-card.card-side {
+    width: clamp(56px, 15vw, 68px);
+    height: clamp(56px, 15vw, 68px);
+    aspect-ratio: 1 / 1;
+    opacity: 0.45;
+  }
+  .cp-card.card-side .cp-card-summary,
+  .cp-card.card-side .cp-card-topbar {
+    display: none;
+  }
+  .cp-card.card-curr {
+    width: clamp(140px, 42vw, 158px);
+    height: clamp(140px, 42vw, 158px);
+    aspect-ratio: 1 / 1;
+  }
+  .btn-select-cp-agent {
+    height: 18px;
+    font-size: 7px;
+  }
+  .cinematic-page.presentation-active ~ .mobile-bottom-nav {
+    display: none !important;
+  }
+  .cinematic-page.presentation-active ~ .view-mode-switch {
+    display: none !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

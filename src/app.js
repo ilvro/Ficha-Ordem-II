@@ -5,7 +5,7 @@ const icon=(name,size=19)=>{const paths={
   plus:'<path d="M12 5v14M5 12h14"/>',save:'<path d="M5 3h12l3 3v15H4V3Z"/><path d="M8 3v6h8V3M8 21v-8h8v8"/>',
   user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',filter:'<path d="M4 5h16l-6 7v6l-4 2v-8Z"/>',
-  chevron:'<path d="m8 10 4 4 4-4"/>',info:'<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/>',
+  chevron:'<path d="m8 10 4 4 4-4"/>','chevron-left':'<path d="m15 18-6-6 6-6"/>','chevron-right':'<path d="m9 18 6-6-6-6"/>',info:'<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/>',
   edit:'<path d="m14 5 5 5L8 21H3v-5Z"/>',chat:'<path d="M4 5h16v12H9l-5 4Z"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-5 4 4 2-2 5 4"/>',
   trash:'<path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/>',
@@ -18,6 +18,8 @@ const icon=(name,size=19)=>{const paths={
   settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.37.37.7.67.96.3.26.68.4 1.08.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>',
   history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
   camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/>',
+  presentation:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8l5 4 5-4"/>',
+  dossier:'<path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>',
   d20:'<path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z"/><path d="M12 22V12M12 2v10M20 6.5 12 12 4 6.5M20 17.5 12 12 4 17.5"/>'};
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
@@ -175,7 +177,7 @@ async function loadInitialSheets(){
  state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
  activeSheetId=state.id;
 }
-let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editTransitionMode=null,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120,mobileTab='agent',sheetDrawerOpen=false,viewSwitchCollapsed=true;
+let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=false,editTransitionMode=null,editorMarkers=[],editorActions=[],diceApiPromise,blobBgType='',currentResourceShift=120,mobileTab='agent',sheetDrawerOpen=false,viewSwitchCollapsed=true,presentationMode=true,presentationIndex=0,presentationLockingIn=false,presentationEntering=false;
 const CRITICAL_EFFECTS_KEY='ordem-ii-critical-effects-v1';
 let criticalEffects={pv:true,pd:true};
 try{criticalEffects={...criticalEffects,...JSON.parse(localStorage.getItem(CRITICAL_EFFECTS_KEY)||'{}')}}catch{}
@@ -231,11 +233,247 @@ function renderCriticalSettings(){const row=(key,title,copy)=>`<div class="criti
 
 function renderCinematicCard(card){const inlineMarkers=(card.markers||[]).filter(marker=>marker.displayStyle==='rectangles'&&(marker.type==='pips'||marker.type==='bar'||marker.type==='slots')),bodyMarkers=(card.markers||[]).filter(marker=>!inlineMarkers.includes(marker)),actions=(card.actions||[]).map(action=>`<button class="card-roll" data-expression="${safe(action.expression)}" data-roll-title="${safe(action.name||card.title)}" data-card-id="${card.id}" data-action-id="${action.id}">${die((String(action.expression).match(/d(4|6|8|10|12|20)/i)||[])[1]||20,'micro',true)}<span>${safe(action.name||'Rolar')}</span></button>`).join('');return `<article class="cinematic-card ${inlineMarkers.length?'has-inline-marker':''}" data-card-id="${card.id}" style="--card-accent:${safe(cardAccent(card))}"><header><h3>${safe(card.title)}</h3>${inlineMarkers.length?`<div class="cinematic-inline-markers">${inlineMarkers.map(marker=>renderMarker(card,marker)).join('')}</div>`:''}${editMode?`<button class="cinematic-card-edit" data-edit-card="${card.id}" title="Editar">${icon('edit',14)}</button>`:''}</header>${bodyMarkers.map(marker=>renderMarker(card,marker)).join('')}<div class="cinematic-card-copy">${formatCardText(card.content)}</div>${actions?`<div class="card-rolls">${actions}</div>`:''}</article>`}
 function cinematicSection(key,title,content,addSchema=''){const collapsed=!!state.cinematicCollapsed?.[key];return `<section class="cinematic-section-group ${collapsed?'collapsed':''}"><div class="cinematic-section-heading"><button class="cinematic-section-toggle" data-cinematic-section-toggle="${key}" aria-expanded="${!collapsed}"><span>${title}</span>${icon('chevron',18)}</button>${editMode&&addSchema?`<button class="cinematic-section-add" data-cinematic-add="${addSchema}" title="Adicionar">${icon('plus',15)}</button>`:''}</div><div class="cinematic-section-body"><div>${content}</div></div></section>`}
-function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor,profileOptions=['Executor','Analista','Vigilante'].map(value=>({value,label:value})),abilities=visibleCards('abilities').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhuma habilidade.</p>',items=visibleCards('items').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhum item.</p>',history=editMode?`<textarea class="cinematic-history" data-field="history" placeholder="História do personagem...">${safe(state.history||'')}</textarea>`:`<p class="cinematic-history-copy">${formatCardText(state.history||'Nenhuma história registrada.')}</p>`,identity=editMode?`<div class="cinematic-identity cinematic-identity-edit">${customSelect({value:state.profile,options:profileOptions,id:'profile',className:'cinematic-profile-select'})}<i></i><input class="cinematic-occupation-input" data-field="occupation" value="${safe(state.occupation)}"><i></i><span class="cinematic-level-label">NÍVEL</span><input class="cinematic-level-input" data-field="level" value="${state.level}" inputmode="numeric"></div>`:`<div class="cinematic-identity-read"><strong>${safe(state.profile)}</strong><i></i><span>${safe(state.occupation)}</span><i></i><em>NÍVEL</em><b>${state.level}</b></div>`,aptidaoOptions=APTIDAO_FIELDS.map(v=>({value:v,label:v})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;return `<main class="cinematic-page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--cinematic-accent:${accent};--resource-shift:${currentResourceShift}px">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<div class="cinematic-frame"><i class="cinematic-frame-line top"><b></b><b></b></i><i class="cinematic-frame-line bottom"><b></b><b></b></i></div><div class="cinematic-contents"><header class="cinematic-header"><div class="cinematic-name">${editMode?`<input data-field="name" value="${safe(state.name)}">`:`<h1>${safe(state.name)}</h1>`}</div>${identity}</header>
+function renderCinematic(trainingOptions,bgIsVideo=false){const accent=PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor,profileOptions=['Executor','Analista','Vigilante'].map(value=>({value,label:value})),abilities=visibleCards('abilities').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhuma habilidade.</p>',items=visibleCards('items').map(renderCinematicCard).join('')||'<p class="cinematic-empty">Nenhum item.</p>',history=editMode?`<textarea class="cinematic-history" data-field="history" placeholder="História do personagem...">${safe(state.history||'')}</textarea>`:`<p class="cinematic-history-copy">${formatCardText(state.history||'Nenhuma história registrada.')}</p>`,identity=editMode?`<div class="cinematic-identity cinematic-identity-edit">${customSelect({value:state.profile,options:profileOptions,id:'profile',className:'cinematic-profile-select'})}<i></i><input class="cinematic-occupation-input" data-field="occupation" value="${safe(state.occupation)}"><i></i><span class="cinematic-level-label">NÍVEL</span><input class="cinematic-level-input" data-field="level" value="${state.level}" inputmode="numeric"></div>`:`<div class="cinematic-identity-read"><strong>${safe(state.profile)}</strong><i></i><span>${safe(state.occupation)}</span><i></i><em>NÍVEL</em><b>${state.level}</b></div>`,aptidaoOptions=APTIDAO_FIELDS.map(v=>({value:v,label:v})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;return `<main class="cinematic-page ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--cinematic-accent:${accent};--resource-shift:${currentResourceShift}px">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<div class="cinematic-frame"><i class="cinematic-frame-line top"><b></b><b></b></i><i class="cinematic-frame-line bottom"><b></b><b></b></i></div><div class="cinematic-contents"><header class="cinematic-header"><div class="cinematic-name">${editMode?`<input data-field="name" value="${safe(state.name)}">`:`<h1>${safe(state.name)}</h1>`}</div>${identity}</header><section class="cinematic-left"><div class="cinematic-attributes"><h2>ATRIBUTOS</h2>${Object.entries(state.attributes).map(([name,value])=>`<div><span>${name}</span><button class="cinematic-attribute-die" data-roll="${name}|${value}">${die(value,'cinematic-attribute')}</button>${editMode?attributeStepper(name,value):''}</div>`).join('')}</div><div class="cinematic-skills"><h2><span>PERÍCIAS</span>${editMode?`<button type="button" class="cinematic-add-aptidao" data-add-aptidao title="Adicionar outra Aptidão">+ APTIDÃO</button>`:''}</h2><div>${state.skills.map((skill,index)=>{const attrDie=state.attributes[skill.attribute]||4,trained=skill.skillDie>4,isAptidao=skill.name.startsWith('APTIDÃO'),aptidaoField=isAptidao?(skill.name.match(/\(([^)]+)\)/)?.[1]||'HUMANAS'):'',nameHtml=editMode&&isAptidao?`<span class="skill-name-aptidao"><span>APTIDÃO</span>${customSelect({value:aptidaoField,options:aptidaoOptions,id:`aptidao-field:${index}`,className:'cinematic-aptidao-select'})}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i>${aptidaoCount>1?`<button type="button" class="btn-remove-aptidao" data-remove-aptidao="${index}" title="Remover">${icon('trash',11)}</button>`:''}</span>`:`<span>${safe(skill.name)}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i></span>`;return `<div class="cinematic-skill grade-d${skill.skillDie}" data-roll="${safe(skill.name)}|${skill.skillDie},${attrDie}|${skill.extra||0}" role="button" tabindex="0">${nameHtml}<span class="cinematic-skill-dice">${die(skill.skillDie,'cinematic-skill-die',trained)}<b>+</b>${die(attrDie,'cinematic-skill-die attribute',trained)}<em>${safe(skill.attribute)}</em>${skill.extra?`<strong>${Number(skill.extra)>0?'+':''}${skill.extra}</strong>`:''}</span>${editMode?`<span class="cinematic-skill-edit">${customSelect({value:skill.training,options:trainingOptions,id:`skill-training:${index}`,className:'skill-select training-select'})}${customSelect({value:skill.attribute,options:['Físico','Mente','Emoção'].map(value=>({value,label:value})),id:`skill-attribute:${index}`,className:'skill-select attribute-select'})}<input data-skill-extra="${index}" type="number" value="${skill.extra||0}" title="Bônus extra"></span>`:''}</div>`}).join('')}</div></div></section><section class="cinematic-character" data-cinematic-character>${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="${safe(state.name)}" draggable="false" data-cinematic-token style="left:${state.cinematicTokenX}%;top:${state.cinematicTokenY}%;--token-scale:${state.cinematicTokenScale/100}" class="${(state.cinematicOutlineSide==='none'||(state.cinematicOutlineIntensity??0.5)<=0||(state.cinematicOutlineWidth??1.8)<=0)?'no-outline':''}">`:`<div class="cinematic-token-empty"><span>${icon('user',54)}</span><p>ADICIONE A IMAGEM DO PERSONAGEM</p></div>`}${editMode?`<div class="cinematic-token-tools"><label>${icon('image',15)} PERSONAGEM<input id="token-upload-cinematic" type="file" accept="image/*"></label>${state.tokenImage?`<button type="button" class="btn-upscale-token" data-upscale-token title="Super-resolução e nitidez avançada">${icon('sparkles',14)} UPSCALE 2X (HD)</button>`:''}<div class="token-side-group" title="Lado da iluminação de recorte"><span>ILUMINAÇÃO</span><button type="button" class="${(state.cinematicOutlineSide||'left')==='left'?'active':''}" data-outline-side="left">ESQ</button><button type="button" class="${state.cinematicOutlineSide==='right'?'active':''}" data-outline-side="right">DIR</button><button type="button" class="${state.cinematicOutlineSide==='both'?'active':''}" data-outline-side="both">360°</button><button type="button" class="${state.cinematicOutlineSide==='none'?'active':''}" data-outline-side="none">OFF</button></div><label title="Intensidade da iluminação">FORÇA <input type="range" min="10" max="95" step="5" value="${Math.round((state.cinematicOutlineIntensity??0.5)*100)}" data-cinematic-outline-intensity></label><label title="Espessura da linha">CONTORNO <input type="range" min="0.5" max="5" step="0.2" value="${state.cinematicOutlineWidth??1.8}" data-cinematic-outline-width></label><label title="Fade / suavidade da borda">FADE <input type="range" min="0.5" max="3.5" step="0.2" value="${state.cinematicOutlineFade??1.5}" data-cinematic-outline-fade></label><label>ESCALA <input type="range" min="45" max="220" value="${state.cinematicTokenScale}" data-cinematic-scale></label><button data-reset-cinematic-token>RECENTRALIZAR</button><label>${icon('image',15)} FUNDO<input id="background-upload" type="file" accept="image/*,video/mp4,video/webm"></label>${state.backgroundImage?'<button data-reset-background>FUNDO PADRÃO</button>':''}<label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor||PROFILE_COLORS[state.profile])}"></label>${state.diceColor?'<button data-reset-dice-color>COR DO PERFIL</button>':''}<small>Arraste o personagem para reposicionar · Iluminação lateral com fade suave</small></div>`:''}</section><section class="cinematic-right"><div class="cinematic-resources"><div class="cinematic-resource-item resource-pv" data-resource-key="pv"><strong>PV</strong><b>${state.pv}${state.pvTemp?`<button type="button" class="temp-badge-btn" data-consume-temp="pv:1" title="Clique para extinguir 1 PV temporário (Botão direito para extinguir todos)"><em>+${state.pvTemp}</em></button>`:''}</b><span>${pips(state.pv,state.maxPv,'pv',state.pvTemp)}</span>${editMode?`<small class="cinematic-resource-edit">MÁX <button data-resource-adjust="maxPv:-1">−</button>${state.maxPv}<button data-resource-adjust="maxPv:1">+</button> TEMP <button data-resource-adjust="pvTemp:-1">−</button>${state.pvTemp}<button data-resource-adjust="pvTemp:1">+</button></small>`:''}</div><div class="cinematic-resource-item resource-pd" data-resource-key="pd"><strong>PD</strong><b>${state.pd}${state.pdTemp?`<button type="button" class="temp-badge-btn" data-consume-temp="pd:1" title="Clique para extinguir 1 PD temporário (Botão direito para extinguir todos)"><em>+${state.pdTemp}</em></button>`:''}</b><span>${pips(state.pd,state.maxPd,'pd',state.pdTemp)}</span>${editMode?`<small class="cinematic-resource-edit">MÁX <button data-resource-adjust="maxPd:-1">−</button>${state.maxPd}<button data-resource-adjust="maxPd:1">+</button> TEMP <button data-resource-adjust="pdTemp:-1">−</button>${state.pdTemp}<button data-resource-adjust="pdTemp:1">+</button></small>`:''}</div></div><div class="cinematic-scroll"><div class="cinematic-card-column">${cinematicSection('abilities','HABILIDADES',abilities,'abilities')}${cinematicSection('items','ITENS',items,'items')}${cinematicSection('history','HISTÓRIA',history)}</div></div></section></div>${presentationMode?renderPresentationDock():''}</main>`}
 
- <section class="cinematic-left"><div class="cinematic-attributes"><h2>ATRIBUTOS</h2>${Object.entries(state.attributes).map(([name,value])=>`<div><span>${name}</span><button class="cinematic-attribute-die" data-roll="${name}|${value}">${die(value,'cinematic-attribute')}</button>${editMode?attributeStepper(name,value):''}</div>`).join('')}</div><div class="cinematic-skills"><h2><span>PERÍCIAS</span>${editMode?`<button type="button" class="cinematic-add-aptidao" data-add-aptidao title="Adicionar outra Aptidão">+ APTIDÃO</button>`:''}</h2><div>${state.skills.map((skill,index)=>{const attrDie=state.attributes[skill.attribute]||4,trained=skill.skillDie>4,isAptidao=skill.name.startsWith('APTIDÃO'),aptidaoField=isAptidao?(skill.name.match(/\(([^)]+)\)/)?.[1]||'HUMANAS'):'',nameHtml=editMode&&isAptidao?`<span class="skill-name-aptidao"><span>APTIDÃO</span>${customSelect({value:aptidaoField,options:aptidaoOptions,id:`aptidao-field:${index}`,className:'cinematic-aptidao-select'})}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i>${aptidaoCount>1?`<button type="button" class="btn-remove-aptidao" data-remove-aptidao="${index}" title="Remover">${icon('trash',11)}</button>`:''}</span>`:`<span>${safe(skill.name)}<i class="skill-info-button" data-skill-info="${index}">${icon('info',11)}</i></span>`;return `<div class="cinematic-skill grade-d${skill.skillDie}" data-roll="${safe(skill.name)}|${skill.skillDie},${attrDie}|${skill.extra||0}" role="button" tabindex="0">${nameHtml}<span class="cinematic-skill-dice">${die(skill.skillDie,'cinematic-skill-die',trained)}<b>+</b>${die(attrDie,'cinematic-skill-die attribute',trained)}<em>${safe(skill.attribute)}</em>${skill.extra?`<strong>${Number(skill.extra)>0?'+':''}${skill.extra}</strong>`:''}</span>${editMode?`<span class="cinematic-skill-edit">${customSelect({value:skill.training,options:trainingOptions,id:`skill-training:${index}`,className:'skill-select training-select'})}${customSelect({value:skill.attribute,options:['Físico','Mente','Emoção'].map(value=>({value,label:value})),id:`skill-attribute:${index}`,className:'skill-select attribute-select'})}<input data-skill-extra="${index}" type="number" value="${skill.extra||0}" title="Bônus extra"></span>`:''}</div>`}).join('')}</div></div></section>
-  <section class="cinematic-character" data-cinematic-character>${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="${safe(state.name)}" draggable="false" data-cinematic-token style="left:${state.cinematicTokenX}%;top:${state.cinematicTokenY}%;--token-scale:${state.cinematicTokenScale/100}" class="${(state.cinematicOutlineSide==='none'||(state.cinematicOutlineIntensity??0.5)<=0||(state.cinematicOutlineWidth??1.8)<=0)?'no-outline':''}">`:`<div class="cinematic-token-empty"><span>${icon('user',54)}</span><p>ADICIONE A IMAGEM DO PERSONAGEM</p></div>`}${editMode?`<div class="cinematic-token-tools"><label>${icon('image',15)} PERSONAGEM<input id="token-upload-cinematic" type="file" accept="image/*"></label>${state.tokenImage?`<button type="button" class="btn-upscale-token" data-upscale-token title="Super-resolução e nitidez avançada">${icon('sparkles',14)} UPSCALE 2X (HD)</button>`:''}<div class="token-side-group" title="Lado da iluminação de recorte"><span>ILUMINAÇÃO</span><button type="button" class="${(state.cinematicOutlineSide||'left')==='left'?'active':''}" data-outline-side="left">ESQ</button><button type="button" class="${state.cinematicOutlineSide==='right'?'active':''}" data-outline-side="right">DIR</button><button type="button" class="${state.cinematicOutlineSide==='both'?'active':''}" data-outline-side="both">360°</button><button type="button" class="${state.cinematicOutlineSide==='none'?'active':''}" data-outline-side="none">OFF</button></div><label title="Intensidade da iluminação">FORÇA <input type="range" min="10" max="95" step="5" value="${Math.round((state.cinematicOutlineIntensity??0.5)*100)}" data-cinematic-outline-intensity></label><label title="Espessura da linha">CONTORNO <input type="range" min="0.5" max="5" step="0.2" value="${state.cinematicOutlineWidth??1.8}" data-cinematic-outline-width></label><label title="Fade / suavidade da borda">FADE <input type="range" min="0.5" max="3.5" step="0.2" value="${state.cinematicOutlineFade??1.5}" data-cinematic-outline-fade></label><label>ESCALA <input type="range" min="45" max="220" value="${state.cinematicTokenScale}" data-cinematic-scale></label><button data-reset-cinematic-token>RECENTRALIZAR</button><label>${icon('image',15)} FUNDO<input id="background-upload" type="file" accept="image/*,video/mp4,video/webm"></label>${state.backgroundImage?'<button data-reset-background>FUNDO PADRÃO</button>':''}<label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor||PROFILE_COLORS[state.profile])}"></label>${state.diceColor?'<button data-reset-dice-color>COR DO PERFIL</button>':''}<small>Arraste o personagem para reposicionar · Iluminação lateral com fade suave</small></div>`:''}</section>
-  <section class="cinematic-right"><div class="cinematic-resources"><div class="cinematic-resource-item resource-pv" data-resource-key="pv"><strong>PV</strong><b>${state.pv}${state.pvTemp?`<button type="button" class="temp-badge-btn" data-consume-temp="pv:1" title="Clique para extinguir 1 PV temporário (Botão direito para extinguir todos)"><em>+${state.pvTemp}</em></button>`:''}</b><span>${pips(state.pv,state.maxPv,'pv',state.pvTemp)}</span>${editMode?`<small class="cinematic-resource-edit">MÁX <button data-resource-adjust="maxPv:-1">−</button>${state.maxPv}<button data-resource-adjust="maxPv:1">+</button> TEMP <button data-resource-adjust="pvTemp:-1">−</button>${state.pvTemp}<button data-resource-adjust="pvTemp:1">+</button></small>`:''}</div><div class="cinematic-resource-item resource-pd" data-resource-key="pd"><strong>PD</strong><b>${state.pd}${state.pdTemp?`<button type="button" class="temp-badge-btn" data-consume-temp="pd:1" title="Clique para extinguir 1 PD temporário (Botão direito para extinguir todos)"><em>+${state.pdTemp}</em></button>`:''}</b><span>${pips(state.pd,state.maxPd,'pd',state.pdTemp)}</span>${editMode?`<small class="cinematic-resource-edit">MÁX <button data-resource-adjust="maxPd:-1">−</button>${state.maxPd}<button data-resource-adjust="maxPd:1">+</button> TEMP <button data-resource-adjust="pdTemp:-1">−</button>${state.pdTemp}<button data-resource-adjust="pdTemp:1">+</button></small>`:''}</div></div><div class="cinematic-scroll"><div class="cinematic-card-column">${cinematicSection('abilities','HABILIDADES',abilities,'abilities')}${cinematicSection('items','ITENS',items,'items')}${cinematicSection('history','HISTÓRIA',history)}</div></div></section></div></main>`}
+function playCardSlideSound(){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime;
+ try{
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(220,now);
+  osc.frequency.exponentialRampToValueAtTime(80,now+0.07);
+  gain.gain.setValueAtTime(0.0001,now);
+  gain.gain.linearRampToValueAtTime(0.035,now+0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001,now+0.08);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);osc.stop(now+0.09);
+ }catch(e){}
+}
+
+function playSelectionConfirmSound(){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime;
+ const subOsc=ctx.createOscillator(),subGain=ctx.createGain();
+ subOsc.type='sine';
+ subOsc.frequency.setValueAtTime(82,now);
+ subOsc.frequency.exponentialRampToValueAtTime(26,now+0.48);
+ subGain.gain.setValueAtTime(0.0001,now);
+ subGain.gain.linearRampToValueAtTime(0.48,now+0.018);
+ subGain.gain.exponentialRampToValueAtTime(0.0001,now+0.58);
+ subOsc.connect(subGain).connect(ctx.destination);
+ subOsc.start(now);subOsc.stop(now+0.6);
+
+ const clickOsc=ctx.createOscillator(),clickGain=ctx.createGain();
+ clickOsc.type='triangle';
+ clickOsc.frequency.setValueAtTime(120,now);
+ clickOsc.frequency.exponentialRampToValueAtTime(38,now+0.09);
+ clickGain.gain.setValueAtTime(0.0001,now);
+ clickGain.gain.linearRampToValueAtTime(0.32,now+0.006);
+ clickGain.gain.exponentialRampToValueAtTime(0.0001,now+0.12);
+ clickOsc.connect(clickGain).connect(ctx.destination);
+ clickOsc.start(now);clickOsc.stop(now+0.14);
+
+ try{
+  const bufferSize=Math.floor(ctx.sampleRate*0.42);
+  const noiseBuffer=ctx.createBuffer(1,bufferSize,ctx.sampleRate);
+  const output=noiseBuffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){
+   output[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.16));
+  }
+  const noise=ctx.createBufferSource();
+  noise.buffer=noiseBuffer;
+  const filter=ctx.createBiquadFilter();
+  filter.type='lowpass';
+  filter.frequency.setValueAtTime(340,now);
+  filter.frequency.exponentialRampToValueAtTime(55,now+0.38);
+  filter.Q.setValueAtTime(2.2,now);
+  const noiseGain=ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001,now);
+  noiseGain.gain.linearRampToValueAtTime(0.2,now+0.02);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001,now+0.4);
+  noise.connect(filter).connect(noiseGain).connect(ctx.destination);
+  noise.start(now);noise.stop(now+0.42);
+ }catch(e){}
+}
+
+function playPresentationOpenSound(){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime;
+ try{
+  const subOsc=ctx.createOscillator(),subGain=ctx.createGain();
+  subOsc.type='sine';
+  subOsc.frequency.setValueAtTime(32,now);
+  subOsc.frequency.exponentialRampToValueAtTime(74,now+0.22);
+  subOsc.frequency.exponentialRampToValueAtTime(36,now+0.52);
+  subGain.gain.setValueAtTime(0.0001,now);
+  subGain.gain.linearRampToValueAtTime(0.42,now+0.03);
+  subGain.gain.exponentialRampToValueAtTime(0.0001,now+0.56);
+  subOsc.connect(subGain).connect(ctx.destination);
+  subOsc.start(now);subOsc.stop(now+0.58);
+
+  const clickOsc=ctx.createOscillator(),clickGain=ctx.createGain();
+  clickOsc.type='triangle';
+  clickOsc.frequency.setValueAtTime(42,now);
+  clickOsc.frequency.exponentialRampToValueAtTime(135,now+0.08);
+  clickGain.gain.setValueAtTime(0.0001,now);
+  clickGain.gain.linearRampToValueAtTime(0.28,now+0.01);
+  clickGain.gain.exponentialRampToValueAtTime(0.0001,now+0.12);
+  clickOsc.connect(clickGain).connect(ctx.destination);
+  clickOsc.start(now);clickOsc.stop(now+0.14);
+
+  const bufferSize=Math.floor(ctx.sampleRate*0.46);
+  const noiseBuffer=ctx.createBuffer(1,bufferSize,ctx.sampleRate);
+  const output=noiseBuffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){
+   output[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.18));
+  }
+  const noise=ctx.createBufferSource();
+  noise.buffer=noiseBuffer;
+  const filter=ctx.createBiquadFilter();
+  filter.type='lowpass';
+  filter.frequency.setValueAtTime(95,now);
+  filter.frequency.exponentialRampToValueAtTime(380,now+0.2);
+  filter.frequency.exponentialRampToValueAtTime(70,now+0.42);
+  filter.Q.setValueAtTime(2.4,now);
+  const noiseGain=ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001,now);
+  noiseGain.gain.linearRampToValueAtTime(0.22,now+0.03);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001,now+0.44);
+  noise.connect(filter).connect(noiseGain).connect(ctx.destination);
+  noise.start(now);noise.stop(now+0.46);
+ }catch(e){}
+}
+
+let presentationDirection=0;
+function openPresentationMode(){
+ if(presentationLockingIn)return;
+ state.viewMode='cinematic';
+ presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+ presentationMode=true;
+ presentationEntering=true;
+ presentationLockingIn=false;
+ presentationDirection=0;
+ state=sheets[presentationIndex];
+ activeSheetId=state.id;
+ playPresentationOpenSound();
+ render();
+ setTimeout(()=>{
+  presentationEntering=false;
+  const page=document.querySelector('.cinematic-page');
+  if(page)page.classList.remove('presentation-entering');
+ },560);
+}
+function closePresentationMode(){
+ if(presentationLockingIn)return;
+ confirmPresentationAgent(sheets[presentationIndex]);
+}
+function cyclePresentation(direction){
+ if(presentationLockingIn||sheets.length<=1)return;
+ presentationDirection=direction;
+ presentationIndex=(presentationIndex+direction+sheets.length)%sheets.length;
+ triggerGlitchTransition(()=>{
+  state=sheets[presentationIndex];
+  activeSheetId=state.id;
+  render();
+ });
+}
+
+function confirmPresentationAgent(chosenSheet){
+ if(!chosenSheet||presentationLockingIn)return;
+ presentationLockingIn=true;
+ playSelectionConfirmSound();
+ const page=document.querySelector('.cinematic-page');
+ const currCard=document.querySelector('[data-presentation-curr]');
+ if(page)page.classList.add('presentation-locking-in');
+ if(currCard)currCard.classList.add('locking-in');
+ const thumb=currCard?.querySelector('.cp-card-thumb');
+ if(thumb&&!thumb.querySelector('.pcard-lockin-overlay')){
+  const overlay=document.createElement('div');
+  overlay.className='pcard-lockin-overlay';
+  overlay.innerHTML=`<div class="pcard-lockin-stamp"><strong>✓ RECEPTÁCULO CONFIRMADO</strong><small>SINCRONIZANDO FICHA...</small></div>`;
+  thumb.appendChild(overlay);
+ }
+ setTimeout(()=>{
+  presentationLockingIn=false;
+  presentationMode=false;
+  state=chosenSheet;
+  activeSheetId=state.id;
+  state.viewMode='cinematic';
+  save(false);
+  render();
+ },540);
+}
+
+function renderPresentationDock(){
+ const total=sheets.length;
+ if(!total)return '';
+ const prevIdx=(presentationIndex-1+total)%total,currIdx=presentationIndex,nextIdx=(presentationIndex+1+total)%total;
+ const prevSheet=sheets[prevIdx],currSheet=sheets[currIdx],nextSheet=sheets[nextIdx];
+ const prevAccent=PROFILE_COLORS[prevSheet.profile]||'#e0150d';
+ const currAccent=PROFILE_COLORS[currSheet.profile]||'#e0150d';
+ const nextAccent=PROFILE_COLORS[nextSheet.profile]||'#e0150d';
+ const hasMultiple=total>1;
+ const dirClass=presentationDirection===1?'dir-next':(presentationDirection===-1?'dir-prev':'');
+ return `<section class="cinematic-presentation-dock" style="--agent-accent:${currAccent}"><header class="cp-dock-top"><span class="cp-dock-badge">${icon('dossier',11)} SELEÇÃO DE RECEPTÁCULO</span><span class="cp-dock-hint"><kbd>←</kbd> <kbd>→</kbd> Navegar · <b>Duplo clique</b> para Confirmar</span><span class="cp-dock-counter">${currIdx+1} / ${total}</span></header><div class="cp-dock-carousel ${dirClass}" id="presentation-stage" style="--prev-accent:${prevAccent};--curr-accent:${currAccent};--next-accent:${nextAccent};">${hasMultiple?`<button type="button" class="cp-arrow prev" data-presentation-prev title="Receptáculo anterior (←)">${icon('chevron-left',18)}</button><article class="cp-card card-side card-prev" data-presentation-pick="${prevIdx}" style="--agent-accent:${prevAccent}" title="Ver ${safe(prevSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">ANTERIOR</span><span class="cp-card-profile">${safe(prevSheet.profile)}</span></div><div class="cp-card-thumb">${prevSheet.tokenImage?`<img src="${safeUrl(prevSheet.tokenImage)}" alt="${safe(prevSheet.name)}">`:`<div class="cp-avatar-ph">${safe((prevSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(prevSheet.name)}</strong><small>${safe(prevSheet.occupation||'Investigador')}</small></div></article>`:''}<article class="cp-card card-curr ${presentationLockingIn?'locking-in':''}" data-presentation-curr style="--agent-accent:${currAccent}"><div class="cp-card-topbar"><span class="cp-card-tag" title="Duplo clique para confirmar receptáculo">DUPLO CLIQUE PARA CONFIRMAR</span><span class="cp-card-profile">${safe(currSheet.profile)}</span></div><div class="cp-card-thumb">${currSheet.tokenImage?`<img src="${safeUrl(currSheet.tokenImage)}" alt="${safe(currSheet.name)}">`:`<div class="cp-avatar-ph">${safe((currSheet.name||'?').slice(0,1))}</div>`}${presentationLockingIn?`<div class="pcard-lockin-overlay"><div class="pcard-lockin-stamp"><strong>✓ RECEPTÁCULO CONFIRMADO</strong><small>SINCRONIZANDO FICHA...</small></div></div>`:''}</div><div class="cp-card-summary"><div class="cp-summary-header"><strong>${safe(currSheet.name)}</strong><span class="cp-level-badge">NV ${currSheet.level||1}</span></div><small>${safe(currSheet.occupation||'Investigador')} · ${safe(currSheet.profile)}</small><div class="cp-pill-row"><span class="cp-stat-pill">FÍS <b>${currSheet.attributes?.['Físico']||4}</b></span><span class="cp-stat-pill">MEN <b>${currSheet.attributes?.['Mente']||4}</b></span><span class="cp-stat-pill">EMO <b>${currSheet.attributes?.['Emoção']||4}</b></span><span class="cp-res-pill pv">PV ${currSheet.pv}/${currSheet.maxPv}</span><span class="cp-res-pill pd">PD ${currSheet.pd}/${currSheet.maxPd}</span></div><button type="button" class="btn-select-cp-agent" data-confirm-agent="${currSheet.id}" title="Confirmar receptáculo (Duplo clique ou Enter)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>CONFIRMAR RECEPTÁCULO</span></button></div></article>${hasMultiple?`<article class="cp-card card-side card-next" data-presentation-pick="${nextIdx}" style="--agent-accent:${nextAccent}" title="Ver ${safe(nextSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">PRÓXIMO</span><span class="cp-card-profile">${safe(nextSheet.profile)}</span></div><div class="cp-card-thumb">${nextSheet.tokenImage?`<img src="${safeUrl(nextSheet.tokenImage)}" alt="${safe(nextSheet.name)}">`:`<div class="cp-avatar-ph">${safe((nextSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(nextSheet.name)}</strong><small>${safe(nextSheet.occupation||'Investigador')}</small></div></article><button type="button" class="cp-arrow next" data-presentation-next title="Próximo receptáculo (→)">${icon('chevron-right',18)}</button>`:''}</div></section>`;
+}
+
+function bindPresentationEvents(){
+ document.querySelectorAll('[data-open-presentation]').forEach(btn=>btn.onclick=()=>{
+  sheetDrawerOpen=false;
+  viewSwitchCollapsed=true;
+  openPresentationMode();
+ });
+ document.querySelectorAll('[data-close-presentation]').forEach(btn=>btn.onclick=()=>closePresentationMode());
+ document.querySelectorAll('[data-presentation-prev]').forEach(btn=>btn.onclick=()=>cyclePresentation(-1));
+ document.querySelectorAll('[data-presentation-next]').forEach(btn=>btn.onclick=()=>cyclePresentation(1));
+ document.querySelectorAll('[data-presentation-pick]').forEach(card=>{
+  card.onclick=e=>{
+   e.stopPropagation();
+   if(presentationLockingIn)return;
+   const idx=Number(card.dataset.presentationPick);
+   if(!isNaN(idx)){
+    if(card.classList.contains('card-next'))cyclePresentation(1);
+    else if(card.classList.contains('card-prev'))cyclePresentation(-1);
+    else{
+     const diff=(idx-presentationIndex+sheets.length)%sheets.length;
+     cyclePresentation(diff===1?1:-1);
+    }
+   }
+  };
+ });
+ document.querySelectorAll('[data-confirm-agent]').forEach(btn=>{
+  btn.onclick=e=>{
+   e.stopPropagation();
+   const id=btn.dataset.confirmAgent,target=sheets.find(s=>s.id===id)||sheets[presentationIndex];
+   confirmPresentationAgent(target);
+  };
+ });
+ const currCard=document.querySelector('[data-presentation-curr]');
+ if(currCard){
+  currCard.ondblclick=e=>{
+   e.stopPropagation();
+   confirmPresentationAgent(sheets[presentationIndex]);
+  };
+ }
+ const stage=document.querySelector('#presentation-stage');
+ if(stage){
+  let tStartX=0,tStartY=0,tStartTime=0;
+  stage.ontouchstart=e=>{
+   if(presentationLockingIn)return;
+   const t=e.touches[0];
+   tStartX=t.clientX;tStartY=t.clientY;tStartTime=Date.now();
+  };
+  stage.ontouchend=e=>{
+   if(presentationLockingIn||!tStartTime)return;
+   const t=e.changedTouches[0],dx=t.clientX-tStartX,dy=t.clientY-tStartY,dt=Date.now()-tStartTime;
+   tStartTime=0;
+   if(dt<400&&Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.2){
+    if(dx<0)cyclePresentation(1);else cyclePresentation(-1);
+   }
+  };
+ }
+}
 
 
 function readMedia(file,key){if(!file)return;const type=file.type;if(type.startsWith('video/')||type==='image/gif'){if(state[key]?.startsWith('blob:'))URL.revokeObjectURL(state[key]);blobBgType=type.startsWith('video/')?'video':'gif';state[key]=URL.createObjectURL(file);render()}else{blobBgType='';readImage(file,key,1920)}}
@@ -264,8 +502,9 @@ function renderSheetDrawer(){
    <button class="sheet-drawer-item new" data-new-sheet>${icon('plus',16)}<span>NOVA FICHA</span></button>
   </div>
   <div class="sheet-drawer-footer">
-   <button type="button" data-export-cinematic-image>${icon('camera',15)} FOTO HD</button>
-   <button type="button" data-open-roll-log>${icon('history',15)} LOG (${rollLog.length})</button>
+    <button type="button" data-open-presentation>${icon('presentation',15)} APRESENTAÇÃO</button>
+    <button type="button" data-export-cinematic-image>${icon('camera',15)} FOTO HD</button>
+    <button type="button" data-open-roll-log>${icon('history',15)} LOG (${rollLog.length})</button>
    <button data-export-json>${icon('download',15)} EXPORTAR</button>
    <button data-import-json>${icon('upload',15)} IMPORTAR</button>
    <button data-save-sheet>${icon('save',15)} SALVAR</button>
@@ -401,7 +640,7 @@ function bindRollLogItemEvents(container = document) {
 
 function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
   ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}">${bgIsVideo?'<video class="bg-video" autoplay loop muted playsinline></video><div class="bg-overlay"></div>':''}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
@@ -415,7 +654,7 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
  <section id="history-view" class="view-panel ${currentView==='history'?'active':''}">${tornTitle('HISTÓRIA DO PERSONAGEM',true)}<textarea data-field="history" placeholder="Escreva aqui a história, motivações e vínculos do agente..." ${editMode?'':'readonly'}>${safe(state.history||'')}</textarea></section></section>
  <aside class="right-panel"><nav class="right-tabs"><button class="${currentRight==='items'?'active':''}" data-right="items">ITENS</button><button class="${currentRight==='abilities'?'active':''}" data-right="abilities">HABILIDADES</button></nav><div class="right-tools"><div>${icon('search',15)}<input id="filter" placeholder="Filtrar cards..."></div><button title="Filtrar">${icon('filter',17)}</button><button class="add" title="Criar card">${icon('plus',17)}<span>CRIAR CARD</span></button></div><section id="abilities" class="right-content ${currentRight==='abilities'?'active':''}">${visibleCards('abilities').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhuma habilidade. Use + para criar.</p>'}</section><section id="items" class="right-content ${currentRight==='items'?'active':''}">${visibleCards('items').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhum item. Use + para criar.</p>'}</section></aside></main>`}
 	 ${state.viewMode==='cinematic'?renderCriticalAtmosphere():''}
-	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${state.viewMode==='traditional'?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${state.viewMode==='cinematic'?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
+	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${state.viewMode==='traditional'?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${state.viewMode==='cinematic'?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" data-open-presentation title="Modo de Apresentação">${icon('presentation',14)}<span>APRESENTAÇÃO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
  ${editMode?`<div class="edit-status active"><span></span>MODO DE EDIÇÃO — TEMA ÂMBAR</div>`:''}<div class="floating"><button class="${editMode?'active':''}" data-toggle-edit title="${editMode?'Fechar edição':'Editar ficha'}">${editMode?icon('close'):icon('edit')}</button></div><div class="save-toast" id="save-toast">SALVO</div>
 
  <div id="dice-stage"><canvas id="dice-canvas"></canvas><div id="dice-stage-result"></div></div>
@@ -428,7 +667,6 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
  ${renderBottomNav()}
  ${renderSheetDrawer()}
  ${renderRollLogDrawer()}
- ${state.viewMode==='cinematic'?`<div class="rotate-prompt"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg><p>GIRE O CELULAR</p><small>O modo cinematográfico funciona melhor em paisagem</small></div>`:''}
 	 `;const activePage=app.querySelector('.page,.cinematic-page');if(state.backgroundImage&&activePage&&!bgIsVideo)activePage.style.backgroundImage=`linear-gradient(rgba(7,9,15,.78),rgba(5,6,10,.92)),url("${state.backgroundImage}")`;bind();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl){bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
 
 
@@ -911,6 +1149,7 @@ async function exportCinematicImage(){
    const cl=node.classList;
    if(!cl)return true;
    return !(
+    cl.contains('cinematic-agent-bar')||
     cl.contains('btn-export-image-cinematic')||
     cl.contains('floating')||
     cl.contains('view-mode-switch')||
@@ -973,21 +1212,22 @@ async function exportCinematicImage(){
 }
 
 function bind(){
+ function notifyPresentationLocked(){const toast=document.querySelector('#save-toast');if(toast){toast.textContent='SELECIONE O PERSONAGEM PRIMEIRO';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}
  document.querySelector('[data-critical-settings]')?.addEventListener('click',()=>document.querySelector('#critical-settings-modal')?.classList.add('open'));
  document.querySelectorAll('.critical-settings-close,.critical-settings-backdrop').forEach(el=>el.onclick=()=>document.querySelector('#critical-settings-modal')?.classList.remove('open'));
  document.querySelectorAll('[data-critical-effect]').forEach(button=>button.onclick=()=>{const key=button.dataset.criticalEffect;criticalEffects[key]=!criticalEffects[key];saveCriticalEffects();button.classList.toggle('active',criticalEffects[key]);button.setAttribute('aria-pressed',String(criticalEffects[key]));const label=button.querySelector('em');if(label)label.textContent=criticalEffects[key]?'ATIVO':'DESATIVADO';syncCriticalAtmosphere()});
- document.querySelectorAll('[data-field]').forEach(el=>el.onchange=e=>{const key=e.target.dataset.field;state[key]=key==='level'?Math.max(0,Number(e.target.value)||0):e.target.value;save(false);render()});
- document.querySelectorAll('[data-set-resource]').forEach(el=>el.onclick=()=>{const[key,val]=el.dataset.setResource.split(':'),previous=state[key];state[key]=state[key]===Number(val)?Number(val)-1:Number(val);if(key==='pv'||key==='pd')playResourceSound(state[key]>previous);save(false);updateResourceUi(key)});
-  document.querySelectorAll('[data-consume-temp]').forEach(el=>{el.onclick=e=>{e.preventDefault();e.stopPropagation();const[key,valStr]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;const isBadge=el.classList.contains('temp-badge-btn'),val=Number(valStr);let next;if(isBadge){next=Math.max(0,current-1)}else{next=current===val?Math.max(0,val-1):Math.max(0,val)}if(next===current)next=Math.max(0,current-1);state[tempKey]=next;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=next===0?`${key.toUpperCase()} TEMPORÁRIO EXTINTO`:`${key.toUpperCase()} TEMPORÁRIO: +${next}`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}};el.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();const[key]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;state[tempKey]=0;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${key.toUpperCase()} TEMPORÁRIO EXTINTO`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}});
- document.querySelectorAll('[data-resource-adjust]').forEach(el=>el.onclick=()=>{const[key,delta]=el.dataset.resourceAdjust.split(':');state[key]=Math.max(0,Number(state[key]||0)+Number(delta));if(key==='maxPv')state.pv=Math.min(state.pv,state[key]);if(key==='maxPd')state.pd=Math.min(state.pd,state[key]);if(key.toLowerCase().includes('pv')||key.toLowerCase().includes('pd'))playResourceSound(Number(delta)>0);save(false);render()});
- document.querySelectorAll('[data-attribute-step]').forEach(el=>el.onclick=()=>{const[name,delta]=el.dataset.attributeStep.split(':'),at=DICE_STEPS.indexOf(state.attributes[name]);state.attributes[name]=DICE_STEPS[Math.max(0,Math.min(DICE_STEPS.length-1,at+Number(delta)))];save(false);render()});
+ document.querySelectorAll('[data-field]').forEach(el=>el.onchange=e=>{if(presentationMode){notifyPresentationLocked();return;}const key=e.target.dataset.field;state[key]=key==='level'?Math.max(0,Number(e.target.value)||0):e.target.value;save(false);render()});
+ document.querySelectorAll('[data-set-resource]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[key,val]=el.dataset.setResource.split(':'),previous=state[key];state[key]=state[key]===Number(val)?Number(val)-1:Number(val);if(key==='pv'||key==='pd')playResourceSound(state[key]>previous);save(false);updateResourceUi(key)});
+  document.querySelectorAll('[data-consume-temp]').forEach(el=>{el.onclick=e=>{e.preventDefault();e.stopPropagation();if(presentationMode){notifyPresentationLocked();return;}const[key,valStr]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;const isBadge=el.classList.contains('temp-badge-btn'),val=Number(valStr);let next;if(isBadge){next=Math.max(0,current-1)}else{next=current===val?Math.max(0,val-1):Math.max(0,val)}if(next===current)next=Math.max(0,current-1);state[tempKey]=next;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=next===0?`${key.toUpperCase()} TEMPORÁRIO EXTINTO`:`${key.toUpperCase()} TEMPORÁRIO: +${next}`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}};el.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();if(presentationMode){notifyPresentationLocked();return;}const[key]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;state[tempKey]=0;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${key.toUpperCase()} TEMPORÁRIO EXTINTO`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}});
+ document.querySelectorAll('[data-resource-adjust]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[key,delta]=el.dataset.resourceAdjust.split(':');state[key]=Math.max(0,Number(state[key]||0)+Number(delta));if(key==='maxPv')state.pv=Math.min(state.pv,state[key]);if(key==='maxPd')state.pd=Math.min(state.pd,state[key]);if(key.toLowerCase().includes('pv')||key.toLowerCase().includes('pd'))playResourceSound(Number(delta)>0);save(false);render()});
+ document.querySelectorAll('[data-attribute-step]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[name,delta]=el.dataset.attributeStep.split(':'),at=DICE_STEPS.indexOf(state.attributes[name]);state.attributes[name]=DICE_STEPS[Math.max(0,Math.min(DICE_STEPS.length-1,at+Number(delta)))];save(false);render()});
  document.querySelectorAll('[data-skill-extra]').forEach(el=>el.onchange=()=>{state.skills[Number(el.dataset.skillExtra)].extra=Number(el.value)||0;save(false)});
- document.querySelectorAll('[data-roll]').forEach(el=>el.onclick=e=>{if(e.target.closest('.custom-select,.extra input,[data-skill-extra],.card-actions,.skill-info-button,[data-remove-aptidao],[data-add-aptidao],.btn-remove-aptidao'))return;const[name,sides,bonus]=el.dataset.roll.split('|');roll(name,sides,bonus)});
-  document.querySelectorAll('[data-expression]').forEach(el=>el.onclick=async()=>{const cardId=el.dataset.cardId,actionId=el.dataset.actionId,card=cardId?state.cards.find(c=>c.id===cardId):null,action=card?.actions?.find(a=>a.id===actionId),res=await rollExpression(el.dataset.rollTitle,el.dataset.expression);if(!res||!Array.isArray(res.values)||!card)return;const targetMarker=card.markers?.find(m=>m.id===action?.targetMarker)||card.markers?.find(m=>m.type==='slots');if(targetMarker&&targetMarker.type==='slots'){const max=markerMax(targetMarker);if(!Array.isArray(targetMarker.slots))targetMarker.slots=[];targetMarker.slots=res.values.slice(0,max);while(targetMarker.slots.length<max)targetMarker.slots.push(null);targetMarker.current=targetMarker.slots.filter(v=>v!==null&&v!==undefined&&v!=='').length;save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${(targetMarker.label||'Slots').toUpperCase()} PREENCHIDA COM [ ${targetMarker.slots.filter(v=>v!==null).join(', ')} ]!`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},2200)}}});
-  document.querySelectorAll('[data-card-marker]').forEach(el=>el.onclick=()=>{const[cardId,markerId,action]=el.dataset.cardMarker.split(':'),marker=state.cards.find(c=>c.id===cardId)?.markers.find(m=>m.id===markerId);if(!marker)return;const max=markerMax(marker);marker.current=action==='toggle'?(marker.current?0:1):Math.max(0,Math.min(max||999,(Number(marker.current)||0)+Number(action)));save(false);updateMarkerUi(cardId,markerId)});
-  document.querySelectorAll('[data-card-marker-set]').forEach(el=>el.onclick=()=>{const[cardId,markerId,value]=el.dataset.cardMarkerSet.split(':'),marker=state.cards.find(c=>c.id===cardId)?.markers.find(m=>m.id===markerId);if(marker){marker.current=marker.current===Number(value)?Number(value)-1:Number(value);save(false);updateMarkerUi(cardId,markerId)}});
-  document.querySelectorAll('[data-use-slot]').forEach(el=>{el.onclick=()=>{const[cardId,markerId,slotIdxStr]=el.dataset.useSlot.split(':'),slotIndex=Number(slotIdxStr),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!card||!marker)return;if(!Array.isArray(marker.slots))marker.slots=[];const val=marker.slots[slotIndex];if(val!==null&&val!==undefined&&val!==''){marker.slots[slotIndex]=null;marker.current=marker.slots.filter(v=>v!==null&&v!==undefined&&v!=='').length;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`VALOR [ ${val} ] UTILIZADO!`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1800)}}else{openSlotModal(card,marker,slotIndex)}};el.oncontextmenu=e=>{e.preventDefault();const[cardId,markerId,slotIdxStr]=el.dataset.useSlot.split(':'),slotIndex=Number(slotIdxStr),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(card&&marker)openSlotModal(card,marker,slotIndex)}});
-  document.querySelectorAll('[data-fill-marker]').forEach(el=>el.onclick=()=>{const[cardId,markerId]=el.dataset.fillMarker.split(':'),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!card||!marker)return;const max=markerMax(marker);if(!Array.isArray(marker.slots))marker.slots=[];let targetIdx=-1;for(let i=0;i<max;i++){if(marker.slots[i]===null||marker.slots[i]===undefined||marker.slots[i]===''){targetIdx=i;break}}if(targetIdx===-1)targetIdx=0;openSlotModal(card,marker,targetIdx)});
+ document.querySelectorAll('[data-roll]').forEach(el=>el.onclick=e=>{if(e.target.closest('.custom-select,.extra input,[data-skill-extra],.card-actions,.skill-info-button,[data-remove-aptidao],[data-add-aptidao],.btn-remove-aptidao'))return;if(presentationMode){notifyPresentationLocked();return;}const[name,sides,bonus]=el.dataset.roll.split('|');roll(name,sides,bonus)});
+  document.querySelectorAll('[data-expression]').forEach(el=>el.onclick=async()=>{if(presentationMode){notifyPresentationLocked();return;}const cardId=el.dataset.cardId,actionId=el.dataset.actionId,card=cardId?state.cards.find(c=>c.id===cardId):null,action=card?.actions?.find(a=>a.id===actionId),res=await rollExpression(el.dataset.rollTitle,el.dataset.expression);if(!res||!Array.isArray(res.values)||!card)return;const targetMarker=card.markers?.find(m=>m.id===action?.targetMarker)||card.markers?.find(m=>m.type==='slots');if(targetMarker&&targetMarker.type==='slots'){const max=markerMax(targetMarker);if(!Array.isArray(targetMarker.slots))targetMarker.slots=[];targetMarker.slots=res.values.slice(0,max);while(targetMarker.slots.length<max)targetMarker.slots.push(null);targetMarker.current=targetMarker.slots.filter(v=>v!==null&&v!==undefined&&v!=='').length;save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${(targetMarker.label||'Slots').toUpperCase()} PREENCHIDA COM [ ${targetMarker.slots.filter(v=>v!==null).join(', ')} ]!`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},2200)}}});
+  document.querySelectorAll('[data-card-marker]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId,action]=el.dataset.cardMarker.split(':'),marker=state.cards.find(c=>c.id===cardId)?.markers.find(m=>m.id===markerId);if(!marker)return;const max=markerMax(marker);marker.current=action==='toggle'?(marker.current?0:1):Math.max(0,Math.min(max||999,(Number(marker.current)||0)+Number(action)));save(false);updateMarkerUi(cardId,markerId)});
+  document.querySelectorAll('[data-card-marker-set]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId,value]=el.dataset.cardMarkerSet.split(':'),marker=state.cards.find(c=>c.id===cardId)?.markers.find(m=>m.id===markerId);if(marker){marker.current=marker.current===Number(value)?Number(value)-1:Number(value);save(false);updateMarkerUi(cardId,markerId)}});
+  document.querySelectorAll('[data-use-slot]').forEach(el=>{el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId,slotIdxStr]=el.dataset.useSlot.split(':'),slotIndex=Number(slotIdxStr),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!card||!marker)return;if(!Array.isArray(marker.slots))marker.slots=[];const val=marker.slots[slotIndex];if(val!==null&&val!==undefined&&val!==''){marker.slots[slotIndex]=null;marker.current=marker.slots.filter(v=>v!==null&&v!==undefined&&v!=='').length;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`VALOR [ ${val} ] UTILIZADO!`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1800)}}else{openSlotModal(card,marker,slotIndex)}};el.oncontextmenu=e=>{e.preventDefault();if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId,slotIdxStr]=el.dataset.useSlot.split(':'),slotIndex=Number(slotIdxStr),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(card&&marker)openSlotModal(card,marker,slotIndex)}});
+  document.querySelectorAll('[data-fill-marker]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId]=el.dataset.fillMarker.split(':'),card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!card||!marker)return;const max=markerMax(marker);if(!Array.isArray(marker.slots))marker.slots=[];let targetIdx=-1;for(let i=0;i<max;i++){if(marker.slots[i]===null||marker.slots[i]===undefined||marker.slots[i]===''){targetIdx=i;break}}if(targetIdx===-1)targetIdx=0;openSlotModal(card,marker,targetIdx)});
   document.querySelectorAll('.slot-fill-close,.slot-fill-backdrop').forEach(el=>el.onclick=closeSlotModal);
   document.querySelectorAll('[data-pick-val]').forEach(el=>el.onclick=()=>applySlotValue(Number(el.dataset.pickVal)));
   const btnSlotRoll=document.querySelector('#btn-slot-roll-die');if(btnSlotRoll){btnSlotRoll.onclick=async()=>{const savedTarget=activeSlotTarget;document.querySelector('#slot-fill-modal')?.classList.remove('open');const res=await roll('Preencher Espaço',[6],0);if(res&&Array.isArray(res.values)&&res.values.length>0){activeSlotTarget=savedTarget;applySlotValue(res.values[0])}else{activeSlotTarget=null}}};
@@ -999,6 +1239,7 @@ function bind(){
   document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>{if(el.dataset.view===currentView)return;const old=document.querySelector(`#${currentView}-view`),next=document.querySelector(`#${el.dataset.view}-view`);document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===el));old.classList.add('leaving');setTimeout(()=>{old.classList.remove('active','leaving');next.classList.add('active','entering');setTimeout(()=>next.classList.remove('entering'),300);currentView=el.dataset.view},180)});
   document.querySelectorAll('[data-toggle-edit]').forEach(el=>{
    el.onclick=()=>{
+    if(presentationMode){notifyPresentationLocked();return;}
     editTransitionMode=editMode?'into-view':'into-edit';
     editMode=!editMode;
     playModeToggleSound(editMode);
@@ -1019,17 +1260,21 @@ function bind(){
   document.querySelector('#card-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget,data=Object.fromEntries(new FormData(form)),existing=state.cards.find(c=>c.id===form.dataset.cardId),card=existing||{id:makeId('card')};Object.assign(card,{schema:data.schema,title:data.title.trim()||'SEM TÍTULO',type:data.type.trim()||'Habilidade',icon:data.icon.trim()||'◆',accent:data.accent,themeLinked:data.colorMode==='profile',layout:data.layout,collapsed:data.collapsed==='true',imageUrl:data.imageUrl.trim(),content:data.content.trim(),markers:clone(editorMarkers),actions:clone(editorActions)});card.markers.forEach(marker=>{marker.current=Math.min(Number(marker.current)||0,marker.type==='toggle'?1:markerMax(marker)||999);if(marker.type==='slots'&&!Array.isArray(marker.slots)){const max=markerMax(marker);marker.slots=Array.from({length:max},()=>null)}});if(!existing)state.cards.push(card);currentRight=card.schema;save(false);closeCardEditor();render()};
   document.querySelector('.delete-card').onclick=()=>{const id=document.querySelector('#card-form').dataset.cardId;if(id){state.cards=state.cards.filter(c=>c.id!==id);save(false);closeCardEditor();render()}};
   document.querySelectorAll('#token-upload,#token-upload-secondary,#token-upload-cinematic').forEach(input=>input.onchange=()=>readImage(input.files[0],'tokenImage',2048));const backgroundUpload=document.querySelector('#background-upload');if(backgroundUpload)backgroundUpload.onchange=()=>readMedia(backgroundUpload.files[0],'backgroundImage');document.querySelector('[data-reset-background]')?.addEventListener('click',()=>{state.backgroundImage='';save(false);render()});const diceColor=document.querySelector('#dice-color');if(diceColor)diceColor.onchange=()=>{state.diceColor=diceColor.value;save(false);render()};document.querySelector('[data-reset-dice-color]')?.addEventListener('click',()=>{state.diceColor='';save(false);render()});
-    document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{const targetId=el.dataset.sheetId;if(targetId===state.id)return;save(false);const doSwitch=()=>{state=sheets.find(sheet=>sheet.id===targetId)||state;activeSheetId=state.id;render()};if(state.viewMode==='cinematic'){triggerGlitchTransition(doSwitch)}else{doSwitch()}});
-    document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render();const switcher=document.querySelector('.sheet-switcher');if(switcher)switcher.scrollTop=switcher.scrollHeight});
+    document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{const targetId=el.dataset.sheetId;if(targetId===state.id)return;save(false);const doSwitch=()=>{state=sheets.find(sheet=>sheet.id===targetId)||state;activeSheetId=state.id;if(presentationMode){presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id))}render()};if(state.viewMode==='cinematic'){triggerGlitchTransition(doSwitch)}else{doSwitch()}});
+    document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render();const switcher=document.querySelector('.sheet-switcher');if(switcher)switcher.scrollTop=switcher.scrollHeight});
     document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO'));
     document.querySelectorAll('[data-export-json]').forEach(el=>el.onclick=()=>exportJsonSheet());
     document.querySelectorAll('[data-import-json]').forEach(el=>el.onclick=()=>{document.querySelector('#json-file-input')?.click()});
     document.querySelectorAll('#json-file-input').forEach(input=>{input.onchange=()=>{if(input.files[0])importJsonSheet(input.files[0]);input.value=''}});
     document.querySelectorAll('[data-compendium]').forEach(el=>el.onclick=()=>{const toast=document.querySelector('#save-toast');if(toast){toast.textContent='COMPÊNDIO — EM BREVE';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)}});
 
- document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;if(state.viewMode==='cinematic')viewSwitchCollapsed=true;modeJustChanged=true;render()});
- document.querySelectorAll('[data-toggle-view-switch]').forEach(el=>el.onclick=e=>{e.stopPropagation();viewSwitchCollapsed=!viewSwitchCollapsed;render()});
- bindCinematicToken();bindSheetInteractions();
+  document.querySelectorAll('[data-display-mode]').forEach(el=>el.onclick=()=>{if(el.dataset.displayMode===state.viewMode)return;state.viewMode=el.dataset.displayMode;if(state.viewMode==='cinematic')viewSwitchCollapsed=true;modeJustChanged=true;render()});
+  document.querySelectorAll('[data-toggle-view-switch]').forEach(el=>el.onclick=e=>{e.stopPropagation();viewSwitchCollapsed=!viewSwitchCollapsed;render()});
+
+  // ── Modo de Apresentação (Dossiês de Agentes) ───────────────────────────────
+  bindPresentationEvents();
+
+  bindCinematicToken();bindSheetInteractions();
  // ── Mobile bottom nav ──────────────────────────────────────────────────────
  document.querySelectorAll('[data-mobile-tab]').forEach(el=>el.onclick=()=>{mobileTab=el.dataset.mobileTab;render()});
  document.querySelectorAll('[data-sheet-drawer]').forEach(el=>el.onclick=()=>{sheetDrawerOpen=!sheetDrawerOpen;render()});
@@ -1063,6 +1308,13 @@ function bind(){
 document.addEventListener('click',e=>{closeSheetContextMenu();if(!viewSwitchCollapsed&&!e.target.closest('.view-mode-switch')){viewSwitchCollapsed=true;render()}});
 
 document.addEventListener('keydown',e=>{
+ if(presentationMode){
+  if(e.key==='Escape'){closePresentationMode();return;}
+  if(e.key==='ArrowLeft'){cyclePresentation(-1);return;}
+  if(e.key==='ArrowRight'){cyclePresentation(1);return;}
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();confirmPresentationAgent(sheets[presentationIndex]);return;}
+  return;
+ }
  if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false);document.querySelector('#critical-settings-modal')?.classList.remove('open')}
  if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}
 });
@@ -1072,4 +1324,9 @@ window.addEventListener('resize',syncCriticalAtmosphere);
 document.addEventListener('visibilitychange',syncCriticalAtmosphere);
 document.addEventListener('pointerdown',()=>{const context=getUiAudioContext();if(context?.state==='running')syncCriticalAtmosphere();else context?.resume?.().then(syncCriticalAtmosphere).catch(()=>{})},{once:true,capture:true});
 await loadInitialSheets();
+state.viewMode = 'cinematic';
+presentationMode = true;
+presentationIndex = Math.max(0, sheets.findIndex(sheet => sheet.id === state.id));
+state = sheets[presentationIndex];
+activeSheetId = state.id;
 render();
