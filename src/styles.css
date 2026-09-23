@@ -322,10 +322,10 @@
 @media(max-width:900px){.cinematic-identity,.cinematic-identity-read{width:calc(46.7% + var(--resource-shift,120px));gap:6px}}
 
 /* ─── Transição Glitch / VHS Horror ─────────────────────────────────────── */
-.cinematic-contents{position:absolute;inset:0;pointer-events:none;transform-origin:center 38%;scale:1;translate:0 0;transition:scale .45s cubic-bezier(.16,1,.3,1),translate .45s cubic-bezier(.16,1,.3,1),filter .45s ease}.cinematic-contents>*{pointer-events:auto}
+.cinematic-contents{position:absolute;inset:0;pointer-events:none;transform-origin:center 38%;scale:1;translate:0 0;will-change:scale,translate;transform:translateZ(0);backface-visibility:hidden;transition:scale .45s cubic-bezier(.16,1,.3,1),translate .45s cubic-bezier(.16,1,.3,1),filter .45s ease}.cinematic-contents>*{pointer-events:auto}
 @keyframes ghost-fade-out{0%{opacity:1}100%{opacity:0}}
 @keyframes glitch-shake{0%{transform:translate(0,0)}7%{transform:translate(-7px,3px) skewX(-2.5deg)}14%{transform:translate(9px,-4px) skewX(3deg)}21%{transform:translate(-6px,5px) skewX(-1.5deg)}28%{transform:translate(8px,-3px) skewX(2deg)}35%{transform:translate(-4px,4px)}45%{transform:translate(5px,-3px)}57%{transform:translate(-3px,2px)}70%{transform:translate(2px,-2px)}85%{transform:translate(-1px,1px)}100%{transform:translate(0,0)}}
-.cinematic-contents.cinematic-ghost-exit{position:absolute;inset:0;pointer-events:none!important;z-index:10;animation:ghost-fade-out 220ms ease-out forwards,glitch-shake 380ms cubic-bezier(.22,.68,0,1.2) both}
+.cinematic-contents.cinematic-ghost-exit{position:absolute;inset:0;pointer-events:none!important;z-index:10;will-change:transform,opacity;transform:translateZ(0);backface-visibility:hidden;animation:ghost-fade-out 220ms ease-out forwards,glitch-shake 380ms cubic-bezier(.22,.68,0,1.2) both}
 .cinematic-contents.cinematic-ghost-exit *{pointer-events:none!important}
 .cinematic-contents.glitch-enter{animation:glitch-shake 380ms cubic-bezier(.22,.68,0,1.2) both}
 .resource-glitch-shake{animation:glitch-shake 380ms cubic-bezier(.22,.68,0,1.2) both;will-change:transform,filter;filter:drop-shadow(-3px 0 0 rgba(255,20,50,.85)) drop-shadow(3px 0 0 rgba(0,200,255,.85));position:relative;z-index:20}
@@ -551,9 +551,8 @@
 .cinematic-page.presentation-locking-in .cinematic-presentation-dock {
   opacity: 0;
   transform: translate(-50%, 70px) scale(0.92);
-  filter: blur(4px);
   pointer-events: none;
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.44s ease, filter 0.48s ease;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.44s ease;
 }
 .cinematic-page.presentation-locking-in .card-side {
   opacity: 0 !important;
@@ -570,12 +569,10 @@
   0% {
     opacity: 0;
     transform: translate(-50%, 70px) scale(0.92);
-    filter: blur(4px);
   }
   100% {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
-    filter: blur(0px);
   }
 }
 
@@ -616,7 +613,8 @@
   position: absolute;
   bottom: 12px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
+  will-change: transform, opacity;
   z-index: 25;
   display: flex;
   flex-direction: column;
@@ -715,6 +713,8 @@
   box-sizing: border-box;
   overflow: hidden;
   aspect-ratio: 1 / 1;
+  will-change: transform, opacity;
+  transform: translateZ(0);
   transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease, filter 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
 }
 
