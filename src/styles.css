@@ -143,7 +143,7 @@
 .cinematic-section-group:first-child{margin-top:0}
 .cinematic-section-heading{height:43px;margin-bottom:0;align-items:flex-start;gap:7px}
 .cinematic-section-heading>.cinematic-section-toggle{width:auto;height:36px;min-width:0;flex:1;border:0;border-radius:0;background:transparent;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;padding:0;text-align:left}
-.cinematic-section-heading>.cinematic-section-toggle>span{padding:6px 17px;font-size:18px;line-height:24px}
+.cinematic-section-heading>.cinematic-section-toggle>span{display:inline-flex;align-items:center;padding:6px 17px;font-size:18px;line-height:24px}
 .cinematic-section-heading>.cinematic-section-toggle>svg{flex:0 0 auto;margin:8px 5px 0;color:var(--cinematic-accent);transition:transform .22s ease}
 .cinematic-section-heading>.cinematic-section-add{flex:0 0 31px;width:31px;height:31px;margin-top:1px}
 .cinematic-section-body{display:grid;grid-template-rows:1fr;opacity:1;transition:grid-template-rows .26s cubic-bezier(.2,.72,.2,1),opacity .2s ease}
@@ -507,6 +507,119 @@
 .cinematic-page.presentation-active .cinematic-attribute-die,
 .cinematic-page.presentation-active .cinematic-skill {
   cursor: not-allowed !important;
+}
+
+/* Seções trancadas (ITENS e HISTÓRIA) no modo apresentação */
+.cinematic-section-lock {
+  display: none !important;
+}
+
+.cinematic-page.presentation-active .cinematic-section-lock {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-right: 7px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: #fff;
+  opacity: 0.95;
+  transform: translateY(-1px);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+}
+
+.cinematic-page.presentation-active .section-lockable .cinematic-section-toggle {
+  cursor: not-allowed !important;
+}
+
+.cinematic-page.presentation-active .section-lockable .cinematic-section-toggle>svg {
+  opacity: 0.45;
+}
+
+/* Chacoalhar ao tentar abrir seção trancada no modo apresentação */
+.cinematic-section-lock.lock-denied {
+  animation: lockDeniedShake 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes lockDeniedShake {
+  0%, 100% { transform: translateY(-1px) translateX(0); color: #fff; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4)); }
+  20%, 60% { transform: translateY(-1px) translateX(-3px); color: #ff5e67; filter: drop-shadow(0 0 6px #ff3b45); }
+  40%, 80% { transform: translateY(-1px) translateX(3px); color: #ff5e67; filter: drop-shadow(0 0 6px #ff3b45); }
+}
+
+/* Entrada no modo apresentação: cadeado surge com fade suave */
+.cinematic-page.presentation-entering .cinematic-section-lock {
+  animation: lockFadeIn 0.52s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes lockFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.6);
+  }
+  100% {
+    opacity: 0.95;
+    transform: translateY(-1px) scale(1);
+  }
+}
+
+/* Transição dinâmica de destrancar ao confirmar receptáculo */
+.cinematic-page.presentation-locking-in .cinematic-section-lock {
+  animation: unlockAndFade 0.54s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.cinematic-page.presentation-locking-in .cinematic-section-lock .lock-shackle {
+  transform-box: fill-box;
+  animation: unlockShacklePop 0.54s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes unlockShacklePop {
+  0% {
+    transform: translateY(0);
+  }
+  22% {
+    transform: translateY(-4.5px);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes unlockAndFade {
+  0% {
+    opacity: 0.95;
+    width: 15px;
+    margin-right: 7px;
+    transform: translateY(-1px) scale(1);
+    filter: drop-shadow(0 0 0px transparent);
+  }
+  18% {
+    opacity: 1;
+    color: #fff;
+    transform: translateY(-3.5px) scale(1.22);
+    filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--cinematic-accent));
+  }
+  48% {
+    opacity: 0.9;
+    transform: translateY(-5px) scale(1.1);
+    filter: drop-shadow(0 0 8px #fff);
+  }
+  75% {
+    opacity: 0.2;
+    width: 9px;
+    margin-right: 4px;
+    transform: translateY(-8px) scale(0.7);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 0;
+    width: 0px;
+    margin-right: 0px;
+    transform: translateY(-11px) scale(0.4);
+    filter: blur(4px);
+  }
 }
 
 .cinematic-page.presentation-active .cinematic-token-tools,

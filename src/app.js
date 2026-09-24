@@ -20,6 +20,7 @@ const icon=(name,size=19)=>{const paths={
   camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/>',
   presentation:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8l5 4 5-4"/>',
   dossier:'<path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>',
+  lock:'<rect class="lock-body" x="4" y="11" width="16" height="11" rx="2"/><path class="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4"/><path class="lock-keyhole" d="M12 15v2.5"/>',
   d20:'<path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z"/><path d="M12 22V12M12 2v10M20 6.5 12 12 4 6.5M20 17.5 12 12 4 17.5"/>'};
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
@@ -234,7 +235,7 @@ function renderCriticalAtmosphere(){return `<div class="critical-atmosphere" dat
 function renderCriticalSettings(){const row=(key,title,copy)=>`<div class="critical-setting-row"><span><b>${title}</b><small>${copy}</small></span><button type="button" class="critical-effect-toggle ${criticalEffects[key]?'active':''}" data-critical-effect="${key}" aria-pressed="${criticalEffects[key]}"><i></i><em>${criticalEffects[key]?'ATIVO':'DESATIVADO'}</em></button></div>`;return `<div class="modal critical-settings-modal" id="critical-settings-modal"><div class="backdrop critical-settings-backdrop"></div><section><button type="button" class="critical-settings-close">${icon('close')}</button><small>IMERSÃO & ACESSIBILIDADE</small><h2>EFEITOS CRÍTICOS</h2><p>Escolha quais efeitos atmosféricos podem aparecer. As cores e bordas informativas de PV e PD continuam visíveis.</p>${row('pv','ESTADO CRÍTICO DE PV','Vinheta pulsante e batimento cardíaco sincronizado.')}${row('pd','ESTADO CRÍTICO DE PD','Escurecimento, vibração e formas paranormais.')}</section></div>`}
 
 function renderCinematicCard(card){const inlineMarkers=(card.markers||[]).filter(marker=>marker.displayStyle==='rectangles'&&(marker.type==='pips'||marker.type==='bar'||marker.type==='slots')),bodyMarkers=(card.markers||[]).filter(marker=>!inlineMarkers.includes(marker)),actions=(card.actions||[]).map(action=>`<button class="card-roll" data-expression="${safe(action.expression)}" data-roll-title="${safe(action.name||card.title)}" data-card-id="${card.id}" data-action-id="${action.id}">${die((String(action.expression).match(/d(4|6|8|10|12|20)/i)||[])[1]||20,'micro',true)}<span>${safe(action.name||'Rolar')}</span></button>`).join('');return `<article class="cinematic-card ${inlineMarkers.length?'has-inline-marker':''}" data-card-id="${card.id}" style="--card-accent:${safe(cardAccent(card))}"><header><h3>${safe(card.title)}</h3>${inlineMarkers.length?`<div class="cinematic-inline-markers">${inlineMarkers.map(marker=>renderMarker(card,marker)).join('')}</div>`:''}${editMode?`<button class="cinematic-card-edit" data-edit-card="${card.id}" title="Editar">${icon('edit',14)}</button>`:''}</header>${bodyMarkers.map(marker=>renderMarker(card,marker)).join('')}<div class="cinematic-card-copy">${formatCardText(card.content)}</div>${actions?`<div class="card-rolls">${actions}</div>`:''}</article>`}
-function cinematicSection(key,title,content,addSchema=''){const collapsed=!!state.cinematicCollapsed?.[key];return `<section class="cinematic-section-group ${collapsed?'collapsed':''}"><div class="cinematic-section-heading"><button class="cinematic-section-toggle" data-cinematic-section-toggle="${key}" aria-expanded="${!collapsed}"><span>${title}</span>${icon('chevron',18)}</button>${editMode&&addSchema?`<button class="cinematic-section-add" data-cinematic-add="${addSchema}" title="Adicionar">${icon('plus',15)}</button>`:''}</div><div class="cinematic-section-body"><div>${content}</div></div></section>`}
+function cinematicSection(key,title,content,addSchema=''){const collapsed=!!state.cinematicCollapsed?.[key];const isLockable=key==='items'||key==='history';const lockHtml=isLockable?`<i class="cinematic-section-lock" title="Bloqueado no modo apresentação" aria-hidden="true">${icon('lock',15)}</i>`:'';return `<section class="cinematic-section-group ${collapsed?'collapsed':''} ${isLockable?'section-lockable':''}"><div class="cinematic-section-heading"><button class="cinematic-section-toggle" data-cinematic-section-toggle="${key}" aria-expanded="${!collapsed}"><span>${lockHtml}${title}</span>${icon('chevron',18)}</button>${editMode&&addSchema?`<button class="cinematic-section-add" data-cinematic-add="${addSchema}" title="Adicionar">${icon('plus',15)}</button>`:''}</div><div class="cinematic-section-body"><div>${content}</div></div></section>`}
 function renderBackgroundLayer(bgIsVideo=false,isCinematic=false){
  const bgUrl=safeUrl(state.backgroundImage)||'';
  if(bgIsVideo){
@@ -307,6 +308,46 @@ function playSelectionConfirmSound(){
   noiseGain.gain.exponentialRampToValueAtTime(0.0001,now+0.4);
   noise.connect(filter).connect(noiseGain).connect(ctx.destination);
   noise.start(now);noise.stop(now+0.42);
+ }catch(e){}
+}
+
+function playUnlockSound(){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime;
+ try{
+  const o1=ctx.createOscillator(),g1=ctx.createGain();
+  o1.type='triangle';o1.frequency.setValueAtTime(2400,now);
+  o1.frequency.exponentialRampToValueAtTime(1100,now+0.025);
+  g1.gain.setValueAtTime(0.0001,now);
+  g1.gain.linearRampToValueAtTime(0.12,now+0.004);
+  g1.gain.exponentialRampToValueAtTime(0.0001,now+0.04);
+  o1.connect(g1).connect(ctx.destination);
+  o1.start(now);o1.stop(now+0.045);
+
+  const o2=ctx.createOscillator(),g2=ctx.createGain();
+  o2.type='sine';o2.frequency.setValueAtTime(1600,now+0.045);
+  o2.frequency.exponentialRampToValueAtTime(420,now+0.13);
+  g2.gain.setValueAtTime(0.0001,now+0.045);
+  g2.gain.linearRampToValueAtTime(0.16,now+0.05);
+  g2.gain.exponentialRampToValueAtTime(0.0001,now+0.15);
+  o2.connect(g2).connect(ctx.destination);
+  o2.start(now+0.045);o2.stop(now+0.16);
+ }catch(e){}
+}
+
+function playLockRattleSound(){
+ const ctx=getUiAudioContext();if(!ctx)return;
+ const now=ctx.currentTime;
+ try{
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='square';o.frequency.setValueAtTime(320,now);
+  o.frequency.setValueAtTime(460,now+0.02);
+  o.frequency.setValueAtTime(240,now+0.045);
+  g.gain.setValueAtTime(0.0001,now);
+  g.gain.linearRampToValueAtTime(0.04,now+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001,now+0.07);
+  o.connect(g).connect(ctx.destination);
+  o.start(now);o.stop(now+0.08);
  }catch(e){}
 }
 
@@ -390,6 +431,7 @@ function confirmPresentationAgent(chosenSheet){
  if(!chosenSheet||presentationLockingIn)return;
  presentationLockingIn=true;
  playSelectionConfirmSound();
+ playUnlockSound();
  const page=document.querySelector('.cinematic-page');
  const currCard=document.querySelector('[data-presentation-curr]');
  if(page)page.classList.add('presentation-locking-in');
@@ -1258,7 +1300,7 @@ function bind(){
    el.onclick=()=>exportCinematicImage();
   });
   document.querySelectorAll('[data-right]').forEach(el=>el.onclick=()=>{const nextRight=el.dataset.right;if(nextRight===currentRight)return;const oldPanel=document.querySelector(`#${currentRight}`),newPanel=document.querySelector(`#${nextRight}`);document.querySelectorAll('[data-right]').forEach(button=>button.classList.toggle('active',button===el));oldPanel.classList.add('leaving');setTimeout(()=>{oldPanel.classList.remove('active','leaving');newPanel.classList.add('active','entering');setTimeout(()=>newPanel.classList.remove('entering'),280);currentRight=nextRight},180)});
-  const filter=document.querySelector('#filter');if(filter)filter.oninput=e=>document.querySelectorAll('.right-content.active [data-filter]').forEach(x=>x.hidden=!x.dataset.filter.includes(e.target.value.toLowerCase()));const traditionalAdd=document.querySelector('.right-tools .add');if(traditionalAdd)traditionalAdd.onclick=()=>openCardEditor();document.querySelectorAll('[data-cinematic-add]').forEach(el=>el.onclick=()=>{currentRight=el.dataset.cinematicAdd;openCardEditor()});document.querySelectorAll('[data-cinematic-section-toggle]').forEach(el=>el.onclick=()=>{const key=el.dataset.cinematicSectionToggle,group=el.closest('.cinematic-section-group');state.cinematicCollapsed[key]=!state.cinematicCollapsed[key];group.classList.toggle('collapsed',state.cinematicCollapsed[key]);el.setAttribute('aria-expanded',String(!state.cinematicCollapsed[key]));save(false)});
+  const filter=document.querySelector('#filter');if(filter)filter.oninput=e=>document.querySelectorAll('.right-content.active [data-filter]').forEach(x=>x.hidden=!x.dataset.filter.includes(e.target.value.toLowerCase()));const traditionalAdd=document.querySelector('.right-tools .add');if(traditionalAdd)traditionalAdd.onclick=()=>openCardEditor();document.querySelectorAll('[data-cinematic-add]').forEach(el=>el.onclick=()=>{currentRight=el.dataset.cinematicAdd;openCardEditor()});document.querySelectorAll('[data-cinematic-section-toggle]').forEach(el=>el.onclick=()=>{const key=el.dataset.cinematicSectionToggle;if(presentationMode&&(key==='items'||key==='history')){playLockRattleSound();notifyPresentationLocked();const lockEl=el.querySelector('.cinematic-section-lock');if(lockEl){lockEl.classList.remove('lock-denied');void lockEl.offsetWidth;lockEl.classList.add('lock-denied')}return;}const group=el.closest('.cinematic-section-group');state.cinematicCollapsed[key]=!state.cinematicCollapsed[key];group.classList.toggle('collapsed',state.cinematicCollapsed[key]);el.setAttribute('aria-expanded',String(!state.cinematicCollapsed[key]));save(false)});
   document.querySelectorAll('[data-edit-card]').forEach(el=>el.onclick=()=>openCardEditor(el.dataset.editCard));document.querySelectorAll('[data-toggle-card]').forEach(el=>el.onclick=()=>{const c=state.cards.find(x=>x.id===el.dataset.toggleCard);c.collapsed=!c.collapsed;save(false);render()});
   document.querySelectorAll('[data-duplicate-card]').forEach(el=>el.onclick=()=>{const c=state.cards.find(x=>x.id===el.dataset.duplicateCard),copy={...clone(c),id:makeId('card'),title:`${c.title} — CÓPIA`};copy.markers.forEach(m=>m.id=makeId('marker'));copy.actions.forEach(a=>a.id=makeId('action'));state.cards.splice(state.cards.indexOf(c)+1,0,copy);save(false);render()});
   document.querySelectorAll('[data-move]').forEach(el=>el.onclick=()=>{const[id,delta]=el.dataset.move.split(':'),from=state.cards.findIndex(c=>c.id===id),to=Math.max(0,Math.min(state.cards.length-1,from+Number(delta)));if(from!==to){const[c]=state.cards.splice(from,1);state.cards.splice(to,0,c);save(false);render()}});
