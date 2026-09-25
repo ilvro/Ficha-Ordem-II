@@ -693,7 +693,7 @@ function bindRollLogItemEvents(container = document) {
 
 function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
   ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):`<main class="page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--bg-blur:${state.backgroundBlur??0}px;--bg-zoom:${(state.backgroundZoom??100)/100};">${renderBackgroundLayer(bgIsVideo,false)}<aside class="character-side">
   <section class="character-card ${state.tokenImage?'has-token':''}"><div class="silhouette" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':'<span></span>'}${editMode?`<label class="token-upload">${icon('image',18)} TROCAR IMAGEM<input id="token-upload" type="file" accept="image/*"></label>`:''}</div><input data-field="name" value="${safe(state.name)}" aria-label="Nome do personagem" ${editMode?'':'readonly'}></section>
@@ -742,7 +742,6 @@ function save(showToast=true,toastMsg='SALVO'){
  collectActiveInputs();
  const index=sheets.findIndex(sheet=>sheet.id===state.id);
  if(index>=0)sheets[index]=state; else sheets.push(state);
- if(!showToast) return;
 
  try{
   fetch('/api/sheets',{
@@ -845,17 +844,41 @@ function showSheetContextMenu(e, sheetId) {
  }
  const target = sheets.find(s => s.id === sheetId);
  const name = target?.name || 'esta ficha';
+ const targetIndex = sheets.findIndex(s => s.id === sheetId);
+ const canMoveUp = targetIndex > 0;
+ const canMoveDown = targetIndex >= 0 && targetIndex < sheets.length - 1;
+
  menu.innerHTML = `
   <div class="custom-context-menu-header">${safe(name)}</div>
+  ${canMoveUp ? `<button type="button" data-action="move-up-sheet">↑ <span>Mover para cima</span></button>` : ''}
+  ${canMoveDown ? `<button type="button" data-action="move-down-sheet">↓ <span>Mover para baixo</span></button>` : ''}
+  ${(canMoveUp || canMoveDown) ? `<div class="custom-context-menu-separator"></div>` : ''}
   <button type="button" data-action="clone-sheet">${icon('copy', 14)} <span>Clonar ficha</span></button>
   <div class="custom-context-menu-separator"></div>
   <button type="button" data-action="delete-sheet" class="menu-danger">${icon('trash', 14)} <span>Deletar ficha</span></button>
  `;
  menu.hidden = false;
  const x = Math.min(window.innerWidth - 180, Math.max(10, e.clientX + 4));
- const y = Math.min(window.innerHeight - 110, Math.max(10, e.clientY + 4));
+ const y = Math.min(window.innerHeight - 150, Math.max(10, e.clientY + 4));
  menu.style.left = `${x}px`;
  menu.style.top = `${y}px`;
+
+ const btnUp = menu.querySelector('[data-action="move-up-sheet"]');
+ if (btnUp) {
+  btnUp.onclick = (ev) => {
+   ev.stopPropagation();
+   closeSheetContextMenu();
+   moveSheet(sheetId, -1);
+  };
+ }
+ const btnDown = menu.querySelector('[data-action="move-down-sheet"]');
+ if (btnDown) {
+  btnDown.onclick = (ev) => {
+   ev.stopPropagation();
+   closeSheetContextMenu();
+   moveSheet(sheetId, 1);
+  };
+ }
 
  menu.querySelector('[data-action="clone-sheet"]').onclick = (ev) => {
   ev.stopPropagation();
@@ -868,6 +891,20 @@ function showSheetContextMenu(e, sheetId) {
   closeSheetContextMenu();
   deleteSheet(sheetId);
  };
+}
+
+function moveSheet(sheetId, delta) {
+ const fromIndex = sheets.findIndex(s => s.id === sheetId);
+ if (fromIndex < 0) return;
+ const toIndex = Math.max(0, Math.min(sheets.length - 1, fromIndex + delta));
+ if (fromIndex === toIndex) return;
+ const [moved] = sheets.splice(fromIndex, 1);
+ sheets.splice(toIndex, 0, moved);
+ if (presentationMode) {
+  presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
+ }
+ save(true, 'FICHA MOVIDA');
+ render();
 }
 
 function closeSheetContextMenu() {
@@ -954,13 +991,21 @@ function deleteSheet(sheetId) {
  save(true, 'FICHA EXCLUÍDA');
 }
 
+let draggedSheetId = null;
+let isDraggingSheet = false;
+
 function bindSheetInteractions() {
  const avatars = document.querySelectorAll('.sheet-avatar');
  avatars.forEach(avatar => {
   avatar.oncontextmenu = (e) => showSheetContextMenu(e, avatar.dataset.sheetId);
 
   avatar.ondragstart = (e) => {
-   e.dataTransfer.setData('text/sheet-id', avatar.dataset.sheetId);
+   draggedSheetId = avatar.dataset.sheetId;
+   isDraggingSheet = true;
+   try {
+    e.dataTransfer.setData('text/sheet-id', avatar.dataset.sheetId);
+    e.dataTransfer.setData('text/plain', avatar.dataset.sheetId);
+   } catch {}
    e.dataTransfer.effectAllowed = 'move';
    avatar.classList.add('dragging');
   };
@@ -968,6 +1013,10 @@ function bindSheetInteractions() {
   avatar.ondragend = () => {
    avatar.classList.remove('dragging');
    avatars.forEach(a => a.classList.remove('drag-over-top', 'drag-over-bottom'));
+   setTimeout(() => {
+    isDraggingSheet = false;
+    draggedSheetId = null;
+   }, 100);
   };
 
   avatar.ondragover = (e) => {
@@ -985,8 +1034,9 @@ function bindSheetInteractions() {
 
   avatar.ondrop = (e) => {
    e.preventDefault();
+   e.stopPropagation();
    avatar.classList.remove('drag-over-top', 'drag-over-bottom');
-   const fromId = e.dataTransfer.getData('text/sheet-id');
+   const fromId = draggedSheetId || e.dataTransfer.getData('text/sheet-id') || e.dataTransfer.getData('text/plain');
    const toId = avatar.dataset.sheetId;
    if (!fromId || !toId || fromId === toId) return;
 
@@ -1001,9 +1051,36 @@ function bindSheetInteractions() {
    let targetIndex = sheets.findIndex(s => s.id === toId);
    if (!isTop) targetIndex += 1;
    sheets.splice(targetIndex, 0, moved);
+   if (presentationMode) {
+    presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
+   }
+   save(true, 'FICHAS REORGANIZADAS');
    render();
   };
  });
+
+ const switcher = document.querySelector('.sheet-switcher');
+ if (switcher) {
+  switcher.ondragover = (e) => {
+   if (!draggedSheetId) return;
+   e.preventDefault();
+   e.dataTransfer.dropEffect = 'move';
+  };
+  switcher.ondrop = (e) => {
+   if (!draggedSheetId) return;
+   if (e.target.closest('.sheet-avatar')) return;
+   e.preventDefault();
+   const fromIndex = sheets.findIndex(s => s.id === draggedSheetId);
+   if (fromIndex < 0) return;
+   const [moved] = sheets.splice(fromIndex, 1);
+   sheets.push(moved);
+   if (presentationMode) {
+    presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
+   }
+   save(true, 'FICHAS REORGANIZADAS');
+   render();
+  };
+ }
 }
 function parseRollExpression(expression){const vars=formulaVariables();let expanded=String(expression||'').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));const dice=[];expanded=expanded.replace(/(\d*)d(4|6|8|10|12|20)/gi,(_,count,sides)=>{for(let i=0;i<Math.min(12,Number(count)||1);i++)dice.push(Number(sides));return '0'});let modifier=0;try{if(/^[\d+\-*/().\s]+$/.test(expanded))modifier=Math.floor(Function(`"use strict";return (${expanded||0})`)())}catch{}return{dice,modifier}}
 async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return null;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;const res=await rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext);if(res&&Array.isArray(res.values)){addRollLogEntry({title:name,dice:res.breakdown||res.values.map((v,i)=>({sides:list[i]||20,value:v})),modifier:Number(modifier)||0,total:res.total})}return res}
@@ -1313,7 +1390,30 @@ function bind(){
   document.querySelector('#card-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget,data=Object.fromEntries(new FormData(form)),existing=state.cards.find(c=>c.id===form.dataset.cardId),card=existing||{id:makeId('card')};Object.assign(card,{schema:data.schema,title:data.title.trim()||'SEM TÍTULO',type:data.type.trim()||'Habilidade',icon:data.icon.trim()||'◆',accent:data.accent,themeLinked:data.colorMode==='profile',layout:data.layout,collapsed:data.collapsed==='true',imageUrl:data.imageUrl.trim(),content:data.content.trim(),markers:clone(editorMarkers),actions:clone(editorActions)});card.markers.forEach(marker=>{marker.current=Math.min(Number(marker.current)||0,marker.type==='toggle'?1:markerMax(marker)||999);if(marker.type==='slots'&&!Array.isArray(marker.slots)){const max=markerMax(marker);marker.slots=Array.from({length:max},()=>null)}});if(!existing)state.cards.push(card);currentRight=card.schema;save(false);closeCardEditor();render()};
   document.querySelector('.delete-card').onclick=()=>{const id=document.querySelector('#card-form').dataset.cardId;if(id){state.cards=state.cards.filter(c=>c.id!==id);save(false);closeCardEditor();render()}};
   document.querySelectorAll('#token-upload,#token-upload-secondary,#token-upload-cinematic').forEach(input=>input.onchange=()=>readImage(input.files[0],'tokenImage',2048));const backgroundUpload=document.querySelector('#background-upload');if(backgroundUpload)backgroundUpload.onchange=()=>readMedia(backgroundUpload.files[0],'backgroundImage');document.querySelectorAll('[data-reset-background]').forEach(el=>el.onclick=()=>{state.backgroundImage='';state.backgroundBlur=0;state.backgroundZoom=100;save(false);render()});document.querySelectorAll('[data-reset-bg-effects]').forEach(el=>el.onclick=()=>{state.backgroundBlur=0;state.backgroundZoom=100;save(false);render()});document.querySelectorAll('[data-cinematic-bg-blur]').forEach(input=>{input.oninput=()=>{const val=Math.max(0,Math.min(50,Number(input.value)||0));state.backgroundBlur=val;document.querySelectorAll('.page,.cinematic-page').forEach(page=>page.style.setProperty('--bg-blur',`${val}px`));const hint=input.parentElement?.querySelector('.slider-val-hint')||document.querySelector('#val-hint-blur');if(hint)hint.textContent=`${val}px`};input.onchange=()=>save(false);input.ondblclick=()=>{state.backgroundBlur=0;save(false);render()}});document.querySelectorAll('[data-cinematic-bg-zoom]').forEach(input=>{input.oninput=()=>{const val=Math.max(20,Math.min(300,Number(input.value)||100));state.backgroundZoom=val;document.querySelectorAll('.page,.cinematic-page').forEach(page=>page.style.setProperty('--bg-zoom',`${val/100}`));const hint=input.parentElement?.querySelector('.slider-val-hint')||document.querySelector('#val-hint-zoom');if(hint)hint.textContent=`${val}%`};input.onchange=()=>save(false);input.ondblclick=()=>{state.backgroundZoom=100;save(false);render()}});const diceColor=document.querySelector('#dice-color');if(diceColor)diceColor.onchange=()=>{state.diceColor=diceColor.value;save(false);render()};document.querySelectorAll('[data-reset-dice-color]').forEach(el=>el.onclick=()=>{state.diceColor='';save(false);render()});
-    document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=()=>{const targetId=el.dataset.sheetId;sheetDrawerOpen=false;if(targetId===state.id){render();return;}save(false);const doSwitch=()=>{state=sheets.find(sheet=>sheet.id===targetId)||state;activeSheetId=state.id;if(presentationMode){presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id))}render()};if(state.viewMode==='cinematic'){triggerGlitchTransition(doSwitch)}else{doSwitch()}});
+    document.querySelectorAll('[data-sheet-id]').forEach(el=>el.onclick=(e)=>{
+     if (isDraggingSheet) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+     }
+     const targetId=el.dataset.sheetId;
+     sheetDrawerOpen=false;
+     if(targetId===state.id){render();return;}
+     save(false);
+     const doSwitch=()=>{
+      state=sheets.find(sheet=>sheet.id===targetId)||state;
+      activeSheetId=state.id;
+      if(presentationMode){
+       presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+      }
+      render();
+     };
+     if(state.viewMode==='cinematic'){
+      triggerGlitchTransition(doSwitch);
+     }else{
+      doSwitch();
+     }
+    });
     document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render();const switcher=document.querySelector('.sheet-switcher');if(switcher)switcher.scrollTop=switcher.scrollHeight});
     document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO'));
     document.querySelectorAll('[data-export-json]').forEach(el=>el.onclick=()=>exportJsonSheet());
