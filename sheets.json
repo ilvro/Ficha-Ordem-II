@@ -27,7 +27,7 @@
     "cinematicCollapsed": {
       "abilities": false,
       "items": true,
-      "history": false
+      "history": true
     },
     "attributes": {
       "Físico": 6,
