@@ -376,9 +376,9 @@
 
 @media(max-width:700px){
  .nav-rail{display:none!important}
- body{overflow-y:auto}
+ body{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
- .mobile-bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;height:62px;background:#0f1019;border-top:1px solid #252636;padding:0 2px;padding-bottom:env(safe-area-inset-bottom,0px);align-items:stretch}
+ .mobile-bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;height:62px;background:#0f1019;border-top:1px solid #252636;padding:0 2px;padding-bottom:env(safe-area-inset-bottom,0px);align-items:stretch;box-shadow:0 -4px 20px #000000a0}
  .mobile-tab-btn,.mobile-drawer-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:0;color:#6a6d7e;font-size:7px;font-weight:800;letter-spacing:.07em;transition:.15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;padding:6px 2px 4px}
  .mobile-tab-btn.active{color:var(--red)}
  .mobile-tab-btn.edit-active{color:#ffd560}
@@ -386,17 +386,15 @@
  .mobile-avatar-thumb{width:32px;height:32px;border-radius:8px;object-fit:cover;border:2px solid var(--red)}
 
  .page{margin-left:0;padding-bottom:70px;height:auto;min-height:calc(100vh - 62px);display:block}
- .cinematic-page{margin-left:0;width:100vw}
  .view-mode-switch{left:auto;right:10px;bottom:70px;top:auto;z-index:45}
  .edit-status{left:10px;bottom:70px}
  .floating{display:none}
 
- /* Tabs — Agente */
+ /* ── MODO TRADICIONAL — TABS ── */
  .character-side{display:block;padding:12px 14px 10px;overflow:visible;border:0}
  .page .character-side{display:none}
  .page.mobile-tab-agent .character-side{display:block}
 
- /* Tabs — Stats */
  .page .sheet-main{display:none}
  .page.mobile-tab-stats .sheet-main,.page.mobile-tab-history .sheet-main{display:block}
  .sheet-main{border-right:0;padding:10px 14px 20px;overflow:visible}
@@ -406,10 +404,234 @@
  .page.mobile-tab-history #history-view{display:block;opacity:1}
  .page.mobile-tab-history #stats-view{display:none}
 
- /* Tabs — Cartas */
  .page .right-panel{display:none}
  .page.mobile-tab-cards .right-panel{display:block}
  .right-panel{padding:10px 14px 20px}
+
+ /* ── MODO CINEMATOGRÁFICO: MODO APRESENTAÇÃO NO MOBILE PORTRAIT ── */
+ .cinematic-page.presentation-active .cinematic-left,
+ .cinematic-page.presentation-active .cinematic-right {
+  display:none!important;
+ }
+ .cinematic-page.presentation-active .cinematic-character {
+  left:0!important;right:0!important;width:100%!important;
+  top:50px!important;bottom:165px!important;
+  display:flex!important;align-items:center;justify-content:center;
+  pointer-events:none;
+ }
+ .cinematic-page.presentation-active .cinematic-character>img {
+  position:static!important;transform:scale(var(--token-scale,1))!important;
+  max-height:82%!important;max-width:82%!important;
+  object-fit:contain!important;
+ }
+ .cinematic-page.presentation-active .cinematic-header {
+  left:0!important;right:0!important;top:10px!important;width:100%!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;border-bottom:0!important;padding:0 10px!important;z-index:10;
+ }
+ .cinematic-page.presentation-active .cinematic-name h1 {
+  font-size:clamp(28px,8vw,42px)!important;text-align:center!important;
+ }
+ .cinematic-page.presentation-active .cinematic-identity-read {
+  display:flex!important;gap:6px!important;justify-content:center!important;align-items:center!important;
+ }
+
+ /* ── MODO CINEMATOGRÁFICO: EM JOGO (TABS VIA BOTTOM NAV) ── */
+ .cinematic-page:not(.presentation-active) {
+  margin-left:0;width:100vw;height:auto;min-height:calc(100vh - 62px);
+  padding-bottom:70px;display:block;overflow-x:hidden;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-frame {
+  display:none;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-contents {
+  display:block;position:relative;width:100%;min-height:100%;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-header {
+  position:sticky;top:0;left:0;right:0;width:100%;z-index:15;height:auto;
+  padding:8px 14px;background:#080911f2;backdrop-filter:blur(8px);
+  border-bottom:1px solid #232536;display:flex;align-items:center;
+  justify-content:space-between;gap:8px;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-name {
+  min-width:0;flex:1;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-name h1 {
+  font-size:clamp(22px,6vw,32px);margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-name input {
+  font-size:22px;width:100%;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-identity,
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read {
+  font-size:11px;gap:6px;flex-shrink:0;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read>strong {
+  min-width:0;padding:5px 8px;font-size:10px;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read>span,
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read>em {
+  display:none;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read>b {
+  width:32px;height:34px;font-size:18px;flex-basis:32px;
+ }
+
+ /* ── CINEMATIC TAB: AGENTE ── */
+ .cinematic-page.mobile-tab-agent .cinematic-left,
+ .cinematic-page.mobile-tab-agent .cinematic-scroll {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-agent {
+  height:calc(100vh - 62px);overflow:hidden;
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-character {
+  display:flex;position:absolute;left:0;right:0;width:100%;
+  top:58px;bottom:80px;align-items:center;justify-content:center;pointer-events:none;
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-character>img {
+  position:static;max-height:90%;max-width:90%;object-fit:contain;
+  transform:scale(var(--token-scale,1));
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-right {
+  display:block;position:absolute;bottom:0;left:0;right:0;width:100%;
+  height:auto;top:auto;z-index:10;padding:0;
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-resources {
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:8px 12px;
+  background:#0c0d18f5;border-top:1px solid #282a3c;backdrop-filter:blur(8px);
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-resources strong {
+  font-size:14px;padding:4px 8px;
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-resources b {
+  font-size:15px;
+ }
+ .cinematic-page.mobile-tab-agent .cinematic-resources .pip {
+  width:14px;height:11px;
+ }
+
+ /* ── CINEMATIC TAB: STATS (ATRIBUTOS & PERÍCIAS) ── */
+ .cinematic-page.mobile-tab-stats .cinematic-character,
+ .cinematic-page.mobile-tab-stats .cinematic-right {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-left {
+  display:flex;flex-direction:column;position:static;width:100%;
+  padding:12px 14px 20px 14px;overflow:visible;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attributes {
+  display:flex;flex-direction:row;justify-content:space-around;align-items:center;
+  height:auto;flex:0 0 auto;padding:10px 8px;margin-bottom:16px;
+  background:#131422;border-radius:8px;border:1px solid #282a3c;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attributes:before,
+ .cinematic-page.mobile-tab-stats .cinematic-attributes:after {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attributes>h2 {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attributes>div {
+  height:auto;transform:none!important;display:flex;flex-direction:column;
+  align-items:center;gap:4px;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attributes>div>span {
+  font-size:13px;letter-spacing:.04em;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-attribute-die {
+  width:44px;height:44px;flex-basis:44px;margin:0;
+ }
+ .cinematic-page.mobile-tab-stats .die-svg.cinematic-attribute {
+  width:38px;height:38px;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skills {
+  flex:1;width:100%;height:auto;overflow:visible;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skills>h2 {
+  font-size:16px;padding:4px 12px;margin-bottom:8px;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skills>div {
+  height:auto;max-height:none;overflow:visible;padding:0;display:flex;flex-direction:column;gap:4px;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skill {
+  min-height:40px;padding:6px 10px;background:#121320;border-radius:6px;
+  display:grid;grid-template-columns:1fr auto;align-items:center;border:1px solid #1c1e2e;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skill:active {
+  background:#1c1d2e;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skill>span:first-child {
+  text-align:left;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skill-dice {
+  gap:4px;
+ }
+ .cinematic-page.mobile-tab-stats .die-svg.cinematic-skill-die {
+  width:22px;height:23px;
+ }
+ .cinematic-page.mobile-tab-stats .cinematic-skill-edit {
+  grid-column:1/-1;margin-top:4px;
+ }
+
+ /* ── CINEMATIC TAB: CARTAS (HABILIDADES & ITENS) ── */
+ .cinematic-page.mobile-tab-cards .cinematic-character,
+ .cinematic-page.mobile-tab-cards .cinematic-left,
+ .cinematic-page.mobile-tab-cards .section-history {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-right {
+  display:flex;flex-direction:column;position:static;width:100%;
+  padding:0 12px 20px 12px;overflow:visible;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-resources {
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px;
+  padding:8px 10px;background:#131422;border-radius:8px;border:1px solid #282a3c;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-resources strong {
+  font-size:14px;padding:4px 8px;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-resources b {
+  font-size:14px;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-resources .pip {
+  width:14px;height:11px;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-scroll {
+  overflow:visible;height:auto;padding:0;
+ }
+ .cinematic-page.mobile-tab-cards .cinematic-card-column {
+  padding:0;
+ }
+
+ /* ── CINEMATIC TAB: HISTÓRIA ── */
+ .cinematic-page.mobile-tab-history .cinematic-character,
+ .cinematic-page.mobile-tab-history .cinematic-left,
+ .cinematic-page.mobile-tab-history .cinematic-resources,
+ .cinematic-page.mobile-tab-history .section-abilities,
+ .cinematic-page.mobile-tab-history .section-items {
+  display:none!important;
+ }
+ .cinematic-page.mobile-tab-history .cinematic-right {
+  display:flex;flex-direction:column;position:static;width:100%;
+  padding:12px 14px 20px 14px;overflow:visible;
+ }
+ .cinematic-page.mobile-tab-history .cinematic-scroll {
+  overflow:visible;height:auto;padding:0;
+ }
+ .cinematic-page.mobile-tab-history .cinematic-card-column {
+  padding:0;
+ }
+ .cinematic-page.mobile-tab-history .section-history {
+  display:block!important;
+ }
+ .cinematic-page.mobile-tab-history .section-history .cinematic-section-body {
+  grid-template-rows:1fr!important;opacity:1!important;
+ }
+ .cinematic-page.mobile-tab-history .cinematic-history {
+  min-height:250px;
+ }
 
  /* Elementos menores */
  .attribute-grid{grid-template-columns:repeat(3,1fr);gap:7px}
@@ -435,10 +657,16 @@
  .card-actions{opacity:1!important;visibility:visible!important}
  .resource-card .card-actions button:not(:first-child){display:grid!important}
 
- /* Context menu centralizado em mobile */
+ /* Context menu e toasts em mobile */
  .custom-context-menu{left:50%!important;top:auto!important;bottom:74px;transform:translateX(-50%)}
  .save-toast{right:50%;transform:translateX(50%) translateY(-8px)}
  .save-toast.show{transform:translateX(50%) translateY(0)}
+
+ /* Resultado dos dados acima da bottom nav */
+ #dice-stage-result{bottom:74px!important}
+
+ /* Token tools em mobile */
+ .editing .cinematic-token-tools{position:fixed;bottom:66px;left:8px;right:8px;width:auto;transform:none;max-height:42vh;overflow-y:auto;z-index:45;border-radius:8px;padding:8px}
 }
 
 /* ── Sheet Drawer ─────────────────────────────────────────────────────────── */
@@ -458,41 +686,53 @@
 .sheet-drawer-footer button{flex:1;height:38px;border:1px solid #303243;border-radius:6px;background:#1c1d2b;color:#c0c2cc;font-size:9px;font-weight:800;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:5px}
 .sheet-drawer-footer button:active{background:#282938}
 
-/* ── Cinematográfico em Landscape Mobile ─────────────────────────────────── */
-@media(max-width:700px) and (orientation:landscape){
- .cinematic-page{margin-left:0;width:100vw;height:100vh;min-height:0;overflow:hidden}
- .cinematic-frame{inset:20px 14px 14px}
- .cinematic-frame:before{width:60px;height:60px;left:5px;top:5px}
- .cinematic-frame:after{width:60px;height:60px;right:5px;bottom:5px}
- .cinematic-header{left:34%;right:3%;top:22px;height:75px}
- .cinematic-name{transform:translateY(-14px)}
- .cinematic-name h1,.cinematic-name input{font-size:clamp(22px,5vw,36px)}
- .cinematic-identity-read{gap:6px;height:36px}
- .cinematic-identity-read>strong{min-width:72px;padding:6px 8px;font-size:10px}
+/* ── Cinematográfico em Landscape Mobile (Qualquer celular na horizontal) ── */
+@media (max-height: 520px) and (orientation: landscape), (max-width: 950px) and (max-height: 520px) {
+ .nav-rail{display:none!important}
+ .mobile-bottom-nav{display:none!important}
+ body{overflow:hidden}
+ .page{margin-left:0!important;display:grid;grid-template-columns:250px 1fr 270px;height:100vh}
+ .cinematic-page{margin-left:0!important;width:100vw!important;height:100vh!important;min-height:0!important;overflow:hidden!important}
+ .cinematic-frame{inset:14px 10px 10px}
+ .cinematic-frame:before{width:46px;height:46px;left:4px;top:4px}
+ .cinematic-frame:after{width:46px;height:46px;right:4px;bottom:4px}
+ .cinematic-header{left:32%;right:2%;top:10px;height:52px;padding-bottom:2px}
+ .cinematic-name{transform:translateY(-8px)}
+ .cinematic-name h1,.cinematic-name input{font-size:clamp(18px,3.8vw,30px)}
+ .cinematic-identity-read{gap:5px;height:28px}
+ .cinematic-identity-read>strong{min-width:65px;padding:4px 7px;font-size:9px}
  .cinematic-identity-read>span,.cinematic-identity-read>em{font-size:9px}
- .cinematic-identity-read>b{flex-basis:30px;width:30px;height:31px;font-size:17px}
- .cinematic-left{left:2%;width:33%;top:13%;bottom:2%}
- .cinematic-attributes{height:120px;flex-basis:120px}
- .cinematic-attributes>div{height:36px}
- .cinematic-attributes>div>span{font-size:clamp(18px,3.5vw,26px)}
- .cinematic-attribute-die{width:36px;height:36px;flex-basis:36px}
- .die-svg.cinematic-attribute{width:32px;height:33px}
- .cinematic-attributes>h2{font-size:14px;padding:4px 10px}
- .cinematic-attributes:after{height:96px}
- .cinematic-character{left:30%;width:40%}
- .cinematic-right{right:2%;width:34%;top:14%;bottom:2%}
- .cinematic-resources{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
- .cinematic-resources strong{font-size:16px;padding:4px 8px}
- .cinematic-resources b{font-size:14px}
- .cinematic-card h3{font-size:13px;padding:3px 9px}
- .cinematic-card-copy{font-size:11px;padding:5px 6px 3px}
- .cinematic-section-heading>.cinematic-section-toggle>span{font-size:14px;padding:4px 12px}
- .cinematic-skill>span:first-child{font-size:clamp(8px,1.1vw,10px)}
- .pip{width:14px;height:10px}
- .mobile-bottom-nav{display:none}
- .view-mode-switch{left:8px;bottom:8px;top:auto;right:auto}
+ .cinematic-identity-read>b{flex-basis:26px;width:26px;height:27px;font-size:15px}
+ .cinematic-left{left:1.5%;width:33%;top:11%;bottom:2%;display:flex!important;flex-direction:column}
+ .cinematic-attributes{height:100px;flex-basis:100px;padding-left:27%}
+ .cinematic-attributes>div{height:28px}
+ .cinematic-attributes>div>span{font-size:clamp(15px,2.6vw,20px)}
+ .cinematic-attribute-die{width:30px;height:30px;flex-basis:30px}
+ .die-svg.cinematic-attribute{width:26px;height:26px}
+ .cinematic-attributes>h2{font-size:12px;padding:3px 7px;top:18px}
+ .cinematic-attributes:after{height:76px}
+ .cinematic-character{left:28%;width:44%;top:2%;bottom:0;opacity:.85;display:block!important}
+ .cinematic-right{right:1.5%;width:34%;top:11%;bottom:2%;display:flex!important;flex-direction:column}
+ .cinematic-resources{grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+ .cinematic-resources strong{font-size:12px;padding:3px 6px}
+ .cinematic-resources b{font-size:12px}
+ .cinematic-card h3{font-size:12px;padding:3px 7px}
+ .cinematic-card-copy{font-size:11px;padding:3px 5px 2px}
+ .cinematic-section-heading>.cinematic-section-toggle>span{font-size:12px;padding:3px 9px}
+ .cinematic-skill>span:first-child{font-size:clamp(8px,.95vw,10px)}
+ .pip{width:12px;height:8px}
+ .view-mode-switch{left:8px;bottom:8px;top:auto;right:auto;z-index:45}
  .edit-status{display:none}
- .floating{display:flex}
+ .floating{display:flex;bottom:8px;right:8px}
+ .cinematic-skills>div{height:calc(100% - 32px);overflow-y:auto}
+ .cinematic-scroll{flex:1;min-height:0;overflow-y:auto}
+ /* Dock de apresentação em landscape */
+ .cinematic-presentation-dock{bottom:2px;max-height:120px}
+ .cp-dock-top{padding:1px 6px}
+ .cp-dock-carousel{--card-slide-step:80px;gap:4px}
+ .cp-card.card-side{width:46px;height:46px}
+ .cp-card.card-curr{width:105px;height:105px}
+ .btn-select-cp-agent{height:16px;font-size:7px}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1244,8 +1484,8 @@
     --card-slide-step: clamp(96px, 26vw, 120px);
   }
   .cp-arrow {
-    width: 20px;
-    height: 30px;
+    width: 28px;
+    height: 44px;
   }
   .cp-card.card-side {
     width: clamp(56px, 15vw, 68px);
@@ -1263,8 +1503,10 @@
     aspect-ratio: 1 / 1;
   }
   .btn-select-cp-agent {
-    height: 18px;
-    font-size: 7px;
+    height: 26px;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .06em;
   }
   .cinematic-page.presentation-active ~ .mobile-bottom-nav {
     display: none !important;
