@@ -436,201 +436,182 @@
   display:flex!important;gap:6px!important;justify-content:center!important;align-items:center!important;
  }
 
- /* ── MODO CINEMATOGRÁFICO: EM JOGO (TABS VIA BOTTOM NAV) ── */
+ /* ── MODO CINEMATOGRÁFICO: EM JOGO (PÁGINA ÚNICA VERTICAL CONTÍNUA) ── */
  .cinematic-page:not(.presentation-active) {
-  margin-left:0;width:100vw;height:auto;min-height:calc(100vh - 62px);
-  padding-bottom:70px;display:block;overflow-x:hidden;
+  margin-left:0!important;width:100vw!important;height:auto!important;min-height:100vh!important;
+  padding-bottom:90px!important;display:block!important;overflow-y:auto!important;overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch;
  }
  .cinematic-page:not(.presentation-active) .cinematic-frame {
-  display:none;
+  display:none!important;
  }
  .cinematic-page:not(.presentation-active) .cinematic-contents {
-  display:block;position:relative;width:100%;min-height:100%;
+  display:flex!important;flex-direction:column!important;position:relative!important;inset:auto!important;
+  width:100%!important;height:auto!important;padding:14px 14px 40px 14px!important;gap:20px!important;
+  box-sizing:border-box!important;
  }
+
+ /* Achatamento das colunas para permitir ordem vertical única */
+ .cinematic-page:not(.presentation-active) .cinematic-left,
+ .cinematic-page:not(.presentation-active) .cinematic-right {
+  display:contents!important;
+ }
+
+ /* 1. Cabeçalho com Nome e Perfil */
  .cinematic-page:not(.presentation-active) .cinematic-header {
-  position:sticky;top:0;left:0;right:0;width:100%;z-index:15;height:auto;
-  padding:8px 14px;background:#080911f2;backdrop-filter:blur(8px);
-  border-bottom:1px solid #232536;display:flex;align-items:center;
-  justify-content:space-between;gap:8px;
+  order:1;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+  margin:0!important;padding:0 0 12px 0!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;gap:8px!important;text-align:center!important;
+  border-bottom:1px solid rgba(224,21,13,0.3)!important;
  }
  .cinematic-page:not(.presentation-active) .cinematic-name {
-  min-width:0;flex:1;
+  width:100%;text-align:center;transform:none!important;
  }
  .cinematic-page:not(.presentation-active) .cinematic-name h1 {
-  font-size:clamp(22px,6vw,32px);margin:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:clamp(34px,10vw,50px)!important;letter-spacing:.05em;line-height:1.1;margin:0;
+  text-align:center;text-shadow:0 2px 20px rgba(224,21,13,0.4),0 0 40px rgba(0,0,0,0.9);
  }
  .cinematic-page:not(.presentation-active) .cinematic-name input {
-  font-size:22px;width:100%;
+  font-size:32px;text-align:center;width:100%;
  }
  .cinematic-page:not(.presentation-active) .cinematic-identity,
  .cinematic-page:not(.presentation-active) .cinematic-identity-read {
-  font-size:11px;gap:6px;flex-shrink:0;
+  display:flex!important;flex-wrap:wrap;gap:8px!important;justify-content:center!important;
+  align-items:center!important;height:auto!important;font-size:13px!important;
  }
  .cinematic-page:not(.presentation-active) .cinematic-identity-read>strong {
-  min-width:0;padding:5px 8px;font-size:10px;
+  padding:6px 12px!important;font-size:11px!important;letter-spacing:.1em;
  }
- .cinematic-page:not(.presentation-active) .cinematic-identity-read>span,
+ .cinematic-page:not(.presentation-active) .cinematic-identity-read>span {
+  font-size:13px!important;color:#d0d2dd;
+ }
  .cinematic-page:not(.presentation-active) .cinematic-identity-read>em {
-  display:none;
+  font-size:10px!important;letter-spacing:.1em;
  }
  .cinematic-page:not(.presentation-active) .cinematic-identity-read>b {
-  width:32px;height:34px;font-size:18px;flex-basis:32px;
+  width:34px!important;height:34px!important;font-size:18px!important;flex-basis:34px!important;
  }
 
- /* ── CINEMATIC TAB: AGENTE ── */
- .cinematic-page.mobile-tab-agent .cinematic-left,
- .cinematic-page.mobile-tab-agent .cinematic-scroll {
-  display:none!important;
+ /* 2. Retrato do Agente com Iluminação Paranormal */
+ .cinematic-page:not(.presentation-active) .cinematic-character {
+  order:2;position:relative!important;inset:auto!important;width:100%!important;
+  height:clamp(260px,46vh,380px)!important;margin:0!important;display:flex!important;
+  align-items:center!important;justify-content:center!important;pointer-events:none;
  }
- .cinematic-page.mobile-tab-agent {
-  height:calc(100vh - 62px);overflow:hidden;
- }
- .cinematic-page.mobile-tab-agent .cinematic-character {
-  display:flex;position:absolute;left:0;right:0;width:100%;
-  top:58px;bottom:80px;align-items:center;justify-content:center;pointer-events:none;
- }
- .cinematic-page.mobile-tab-agent .cinematic-character>img {
-  position:static;max-height:90%;max-width:90%;object-fit:contain;
-  transform:scale(var(--token-scale,1));
- }
- .cinematic-page.mobile-tab-agent .cinematic-right {
-  display:block;position:absolute;bottom:0;left:0;right:0;width:100%;
-  height:auto;top:auto;z-index:10;padding:0;
- }
- .cinematic-page.mobile-tab-agent .cinematic-resources {
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:8px 12px;
-  background:#0c0d18f5;border-top:1px solid #282a3c;backdrop-filter:blur(8px);
- }
- .cinematic-page.mobile-tab-agent .cinematic-resources strong {
-  font-size:14px;padding:4px 8px;
- }
- .cinematic-page.mobile-tab-agent .cinematic-resources b {
-  font-size:15px;
- }
- .cinematic-page.mobile-tab-agent .cinematic-resources .pip {
-  width:14px;height:11px;
+ .cinematic-page:not(.presentation-active) .cinematic-character>img {
+  position:static!important;max-height:100%!important;max-width:90%!important;object-fit:contain!important;
+  transform:scale(var(--token-scale,1))!important;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.85))!important;
  }
 
- /* ── CINEMATIC TAB: STATS (ATRIBUTOS & PERÍCIAS) ── */
- .cinematic-page.mobile-tab-stats .cinematic-character,
- .cinematic-page.mobile-tab-stats .cinematic-right {
-  display:none!important;
+ /* 3. Recursos Vitais (PV e PD com Pips) */
+ .cinematic-page:not(.presentation-active) .cinematic-resources {
+  order:3;position:relative!important;inset:auto!important;width:100%!important;display:grid!important;
+  grid-template-columns:1fr 1fr!important;gap:10px!important;margin:0!important;padding:12px 14px!important;
+  background:#10111cf0!important;border:1px solid #282a3c!important;border-radius:10px!important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5)!important;box-sizing:border-box;
  }
- .cinematic-page.mobile-tab-stats .cinematic-left {
-  display:flex;flex-direction:column;position:static;width:100%;
-  padding:12px 14px 20px 14px;overflow:visible;
+ .cinematic-page:not(.presentation-active) .cinematic-resources strong {
+  font-size:16px!important;padding:5px 10px!important;
  }
- .cinematic-page.mobile-tab-stats .cinematic-attributes {
-  display:flex;flex-direction:row;justify-content:space-around;align-items:center;
-  height:auto;flex:0 0 auto;padding:10px 8px;margin-bottom:16px;
-  background:#131422;border-radius:8px;border:1px solid #282a3c;
+ .cinematic-page:not(.presentation-active) .cinematic-resources b {
+  font-size:18px!important;
  }
- .cinematic-page.mobile-tab-stats .cinematic-attributes:before,
- .cinematic-page.mobile-tab-stats .cinematic-attributes:after {
-  display:none!important;
- }
- .cinematic-page.mobile-tab-stats .cinematic-attributes>h2 {
-  display:none!important;
- }
- .cinematic-page.mobile-tab-stats .cinematic-attributes>div {
-  height:auto;transform:none!important;display:flex;flex-direction:column;
-  align-items:center;gap:4px;
- }
- .cinematic-page.mobile-tab-stats .cinematic-attributes>div>span {
-  font-size:13px;letter-spacing:.04em;
- }
- .cinematic-page.mobile-tab-stats .cinematic-attribute-die {
-  width:44px;height:44px;flex-basis:44px;margin:0;
- }
- .cinematic-page.mobile-tab-stats .die-svg.cinematic-attribute {
-  width:38px;height:38px;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skills {
-  flex:1;width:100%;height:auto;overflow:visible;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skills>h2 {
-  font-size:16px;padding:4px 12px;margin-bottom:8px;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skills>div {
-  height:auto;max-height:none;overflow:visible;padding:0;display:flex;flex-direction:column;gap:4px;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skill {
-  min-height:40px;padding:6px 10px;background:#121320;border-radius:6px;
-  display:grid;grid-template-columns:1fr auto;align-items:center;border:1px solid #1c1e2e;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skill:active {
-  background:#1c1d2e;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skill>span:first-child {
-  text-align:left;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skill-dice {
-  gap:4px;
- }
- .cinematic-page.mobile-tab-stats .die-svg.cinematic-skill-die {
-  width:22px;height:23px;
- }
- .cinematic-page.mobile-tab-stats .cinematic-skill-edit {
-  grid-column:1/-1;margin-top:4px;
+ .cinematic-page:not(.presentation-active) .cinematic-resources .pip {
+  width:15px!important;height:12px!important;
  }
 
- /* ── CINEMATIC TAB: CARTAS (HABILIDADES & ITENS) ── */
- .cinematic-page.mobile-tab-cards .cinematic-character,
- .cinematic-page.mobile-tab-cards .cinematic-left,
- .cinematic-page.mobile-tab-cards .section-history {
+ /* 4. Atributos (Físico, Mente, Emoção em destaque) */
+ .cinematic-page:not(.presentation-active) .cinematic-attributes {
+  order:4;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+  flex:0 0 auto!important;padding:14px 10px!important;margin:0!important;display:flex!important;
+  flex-direction:row!important;justify-content:space-around!important;align-items:center!important;
+  background:#121320!important;border:1px solid #282a3c!important;border-radius:10px!important;
+  box-sizing:border-box;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-attributes:before,
+ .cinematic-page:not(.presentation-active) .cinematic-attributes:after {
   display:none!important;
  }
- .cinematic-page.mobile-tab-cards .cinematic-right {
-  display:flex;flex-direction:column;position:static;width:100%;
-  padding:0 12px 20px 12px;overflow:visible;
+ .cinematic-page:not(.presentation-active) .cinematic-attributes>h2 {
+  display:none!important;
  }
- .cinematic-page.mobile-tab-cards .cinematic-resources {
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px;
-  padding:8px 10px;background:#131422;border-radius:8px;border:1px solid #282a3c;
+ .cinematic-page:not(.presentation-active) .cinematic-attributes>div {
+  height:auto!important;transform:none!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;gap:6px!important;flex:1!important;
  }
- .cinematic-page.mobile-tab-cards .cinematic-resources strong {
-  font-size:14px;padding:4px 8px;
+ .cinematic-page:not(.presentation-active) .cinematic-attributes>div>span {
+  font-size:14px!important;font-weight:800!important;letter-spacing:.05em!important;color:#e4e2df!important;
+  text-transform:uppercase!important;
  }
- .cinematic-page.mobile-tab-cards .cinematic-resources b {
-  font-size:14px;
+ .cinematic-page:not(.presentation-active) .cinematic-attribute-die {
+  width:48px!important;height:48px!important;flex-basis:48px!important;margin:0!important;
+  cursor:pointer!important;-webkit-tap-highlight-color:transparent!important;
  }
- .cinematic-page.mobile-tab-cards .cinematic-resources .pip {
-  width:14px;height:11px;
- }
- .cinematic-page.mobile-tab-cards .cinematic-scroll {
-  overflow:visible;height:auto;padding:0;
- }
- .cinematic-page.mobile-tab-cards .cinematic-card-column {
-  padding:0;
+ .cinematic-page:not(.presentation-active) .die-svg.cinematic-attribute {
+  width:44px!important;height:44px!important;
  }
 
- /* ── CINEMATIC TAB: HISTÓRIA ── */
- .cinematic-page.mobile-tab-history .cinematic-character,
- .cinematic-page.mobile-tab-history .cinematic-left,
- .cinematic-page.mobile-tab-history .cinematic-resources,
- .cinematic-page.mobile-tab-history .section-abilities,
- .cinematic-page.mobile-tab-history .section-items {
+ /* 5. Perícias (Lista completa com dados de treinamento e rolagem) */
+ .cinematic-page:not(.presentation-active) .cinematic-skills {
+  order:5;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+  margin:0!important;display:flex!important;flex-direction:column!important;gap:8px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skills>h2 {
+  font-size:16px!important;padding:4px 12px!important;margin-bottom:4px!important;align-self:flex-start!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skills>div {
+  height:auto!important;max-height:none!important;overflow:visible!important;padding:0!important;
+  display:flex!important;flex-direction:column!important;gap:5px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skill {
+  min-height:42px!important;padding:8px 12px!important;background:#121320!important;
+  border:1px solid #1f2132!important;border-radius:6px!important;display:grid!important;
+  grid-template-columns:1fr auto!important;align-items:center!important;cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skill:active {
+  background:#1e2034!important;border-color:var(--cinematic-accent,#e0150d)!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skill>span:first-child {
+  text-align:left!important;font-size:12px!important;font-weight:700!important;color:#e4e2df!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-skill-dice {
+  gap:5px!important;align-items:center!important;
+ }
+ .cinematic-page:not(.presentation-active) .die-svg.cinematic-skill-die {
+  width:22px!important;height:23px!important;
+ }
+
+ /* 6. Cards: Habilidades, Itens e História */
+ .cinematic-page:not(.presentation-active) .cinematic-scroll {
+  order:6;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;
+  overflow:visible!important;padding:0!important;margin:0!important;display:flex!important;
+  flex-direction:column!important;gap:14px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-card-column {
+  width:100%!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:14px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-card {
+  width:100%!important;box-sizing:border-box!important;border-radius:8px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-card h3 {
+  font-size:14px!important;padding:4px 10px!important;
+ }
+ .cinematic-page:not(.presentation-active) .cinematic-card-copy {
+  font-size:12px!important;line-height:1.5!important;padding:8px 10px!important;
+ }
+
+ /* No modo cinematográfico mobile, a barra inferior de abas é ocultada — a ficha é unificada */
+ .cinematic-page ~ .mobile-bottom-nav {
   display:none!important;
  }
- .cinematic-page.mobile-tab-history .cinematic-right {
-  display:flex;flex-direction:column;position:static;width:100%;
-  padding:12px 14px 20px 14px;overflow:visible;
+ .cinematic-page ~ .view-mode-switch {
+  left:14px!important;bottom:18px!important;right:auto!important;top:auto!important;
+  z-index:45!important;display:block!important;
  }
- .cinematic-page.mobile-tab-history .cinematic-scroll {
-  overflow:visible;height:auto;padding:0;
- }
- .cinematic-page.mobile-tab-history .cinematic-card-column {
-  padding:0;
- }
- .cinematic-page.mobile-tab-history .section-history {
-  display:block!important;
- }
- .cinematic-page.mobile-tab-history .section-history .cinematic-section-body {
-  grid-template-rows:1fr!important;opacity:1!important;
- }
- .cinematic-page.mobile-tab-history .cinematic-history {
-  min-height:250px;
+ .cinematic-page ~ .floating {
+  display:flex!important;bottom:18px!important;right:14px!important;z-index:45!important;
  }
 
  /* Elementos menores */
@@ -667,6 +648,9 @@
 
  /* Token tools em mobile */
  .editing .cinematic-token-tools{position:fixed;bottom:66px;left:8px;right:8px;width:auto;transform:none;max-height:42vh;overflow-y:auto;z-index:45;border-radius:8px;padding:8px}
+
+ /* Gaveta de fichas em modo cinematográfico ocupa desde a base */
+ .cinematic-page ~ .sheet-drawer{bottom:0!important}
 }
 
 /* ── Sheet Drawer ─────────────────────────────────────────────────────────── */
