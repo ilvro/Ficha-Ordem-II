@@ -1885,4 +1885,3 @@ body.critical-pd-zero [data-resource-key="pd"]>b{background:transparent!importan
 [data-field], .cinematic-identity, .token-banner, .silhouette, .resource-config {
   transition: background-color 0.22s ease, border-color 0.22s ease, outline-color 0.22s ease, color 0.22s ease;
 }
-
