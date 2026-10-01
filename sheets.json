@@ -25,7 +25,7 @@
     "cinematicOutlineWidth": 0.5,
     "cinematicOutlineFade": 2.3,
     "cinematicCollapsed": {
-      "abilities": false,
+      "abilities": true,
       "items": true,
       "history": true
     },
