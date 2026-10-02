@@ -278,7 +278,32 @@
 /* Respiro inferior da tabela e remoção de divisórias redundantes dos cards */
 .cinematic-skills>div{padding-bottom:25px}
 .cinematic-card>header{border-bottom:0}
-.cinematic-card:not(.has-inline-marker)>header{height:34px}
+.cinematic-card:not(.has-inline-marker)>header{
+  width:100%;
+  height:33px;
+  min-height:33px;
+  background:var(--card-accent);
+  clip-path:polygon(0.4% 6%,99.6% 0,100% 16%,99.7% 50%,100% 86%,99.6% 100%,0.4% 96%,0% 50%,0.2% 14%);
+  padding:3px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-sizing:border-box;
+  margin-bottom:6px;
+}
+.cinematic-card:not(.has-inline-marker)>header h3{
+  background:transparent!important;
+  clip-path:none!important;
+  padding:0!important;
+  margin:0!important;
+  font:700 clamp(13px,1.15vw,16px) Georgia,serif;
+  color:#fff;
+  letter-spacing:.02em;
+  display:flex;
+  align-items:center;
+}
+.cinematic-card-cost{margin-left:auto;align-self:center;font:800 clamp(12px,1.05vw,14.5px) 'Hanken Grotesk',sans-serif;color:#fff;letter-spacing:.05em;padding-right:4px;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8);display:inline-flex;align-items:center}
+.cinematic-card>header .cinematic-card-cost + .cinematic-card-edit{margin-left:8px;background:rgba(0,0,0,.35);color:#fff;border-radius:3px}
 
 /* Cabeçalho de leitura independente do formulário de edição */
 .cinematic-name{transform:translateY(-24px)}
@@ -373,234 +398,588 @@
 
 /* ── Bottom Navigation Bar ──────────────────────────────────────────────── */
 .mobile-bottom-nav{display:none}
+.cinematic-mobile-tabs{display:none!important}
 
-/* ── Portrait: tela de "gire o dispositivo" ─────────────────────────────── */
-.rotate-prompt{display:none}
-
-@media(max-width:900px) and (orientation:portrait){
+@media(max-width:768px){
  .nav-rail{display:none!important}
- body{overflow:hidden}
+ body{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
- .page,.cinematic-page,.view-mode-switch,.edit-status,.floating,.mobile-bottom-nav{display:none!important}
-
- .rotate-prompt{
-  display:flex!important;position:fixed;inset:0;z-index:9999;
-  flex-direction:column;align-items:center;justify-content:center;
-  background:#07080e;gap:16px;text-align:center;padding:30px;
+ /* ── Bottom Navigation Bar ─────────────────────────────────────────────── */
+ .mobile-bottom-nav{
+  display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;
+  height:56px;background:#0d0e19;border-top:1px solid #202235;
+  padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0px);
+  align-items:stretch;box-shadow:0 -4px 20px #000000c0;
  }
- .rotate-prompt-icon{width:64px;height:64px;color:var(--red);animation:rotateHint 2.4s ease-in-out infinite;flex-shrink:0}
- @keyframes rotateHint{0%,100%{transform:rotate(0deg) scale(1)}35%{transform:rotate(-20deg) scale(.95)}70%{transform:rotate(20deg) scale(.95)}}
- .rotate-prompt-char{font:800 28px Georgia,serif;color:var(--cinematic-accent,var(--red));text-transform:uppercase;text-shadow:0 0 24px color-mix(in srgb,var(--cinematic-accent,var(--red)),transparent 45%);margin:0;letter-spacing:.06em}
- .rotate-prompt-title{font:700 13px "Hanken Grotesk",sans-serif;color:#c0c2cc;letter-spacing:.12em;text-transform:uppercase;margin:0}
- .rotate-prompt-hint{font:400 11px "Hanken Grotesk",sans-serif;color:#50526a;margin:0;line-height:1.6;max-width:220px}
-}
+ .mobile-tab-btn,.mobile-drawer-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;background:transparent;border:0;color:#676a7e;
+  font-size:7.5px;font-weight:800;letter-spacing:.06em;
+  transition:color .15s;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;padding:4px 2px 3px;min-width:0;
+ }
+ .mobile-tab-btn svg{transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+ .mobile-tab-btn.active{color:var(--red)}
+ .mobile-tab-btn.active svg{transform:scale(1.15)}
+ .mobile-tab-btn.edit-active{color:#ffd560}
+ .mobile-drawer-btn{flex:0 0 52px}
+ .mobile-avatar-thumb{width:30px;height:30px;border-radius:7px;object-fit:cover;border:2px solid var(--red)}
 
-/* ── Landscape Mobile: layout 2 colunas (Hexatombe-style) ───────────────── */
-@media(max-width:900px) and (orientation:landscape){
- .nav-rail{display:none!important}
- body{overflow:hidden}
- .mobile-bottom-nav,.rotate-prompt,.view-mode-switch,.edit-status{display:none!important}
+ /* ── Modo Tradicional — Tabs ────────────────────────────────────────────── */
+ .page{margin-left:0;padding-bottom:66px;height:auto;min-height:calc(100svh - 56px);display:block}
+ .view-mode-switch{left:auto;right:10px;bottom:64px;top:auto;z-index:45}
+ .edit-status{left:10px;bottom:64px}
+ .floating{display:none}
 
- /* Modo tradicional: escondido em landscape mobile */
- .page{display:none!important}
+ .character-side{display:block;padding:12px 14px 10px;overflow:visible;border:0}
+ .page .character-side{display:none}
+ .page.mobile-tab-agent .character-side{display:block}
 
- /* ── Cinematográfico: layout 2 colunas ───────────────────────────────── */
+ .page .sheet-main{display:none}
+ .page.mobile-tab-stats .sheet-main,.page.mobile-tab-history .sheet-main{display:block}
+ .sheet-main{border-right:0;padding:10px 14px 20px;overflow:visible}
+ .paper-tabs{display:none}
+ .page.mobile-tab-stats #stats-view{display:block;opacity:1}
+ .page.mobile-tab-stats #history-view{display:none}
+ .page.mobile-tab-history #history-view{display:block;opacity:1}
+ .page.mobile-tab-history #stats-view{display:none}
+
+ .page .right-panel{display:none}
+ .page.mobile-tab-cards .right-panel{display:block}
+ .right-panel{padding:10px 14px 20px}
+
+ /* Elementos menores no modo tradicional */
+ .attribute-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+ .attribute-card{height:130px;padding-top:12px}
+ .attribute-card>span{font-size:8px}
+ .die{width:60px;height:54px;margin-top:22px}
+ .die i{font-size:15px}
+ .info-grid{grid-template-columns:1fr 1fr;gap:6px}
+ .skill-row,.skills-table header{grid-template-columns:42% 34% 24%;padding:0 10px}
+ .skill-row .extra,.skills-table header span:last-child{display:none}
+ .character-card{height:100px}
+ .character-card input{font-size:20px}
+ .silhouette{width:90px}
+ .pip{width:15px;height:13px}
+ .resource-row{grid-template-columns:44px 30px 1fr}
+ .mini-torn{font-size:13px;height:33px;line-height:33px}
+ .pip{position:relative}
+ .pip::after{content:'';position:absolute;inset:-6px -4px}
+ .card-actions{opacity:1!important;visibility:visible!important}
+ .resource-card .card-actions button:not(:first-child){display:grid!important}
+ .custom-context-menu{left:50%!important;top:auto!important;bottom:74px;transform:translateX(-50%)}
+ .save-toast{right:50%;transform:translateX(50%) translateY(-8px)}
+ .save-toast.show{transform:translateX(50%) translateY(0)}
+
+ /* ── MODO CINEMATOGRÁFICO EM PORTRAIT MOBILE (Estilo Hexatombe) ──────────── */
  .cinematic-page{
-  margin-left:0!important;width:100vw!important;height:100svh!important;
-  min-height:0!important;overflow:hidden!important;
+  margin-left:0!important;width:100vw!important;
+  min-height:100svh;height:auto!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  display:flex!important;flex-direction:column!important;
+  padding-bottom:62px;
  }
- /* Frame minimalista */
- .cinematic-frame{inset:6px 6px 6px 6px;border-width:1px}
- .cinematic-frame:before{width:18px;height:18px;left:3px;top:3px}
- .cinematic-frame:after{width:18px;height:18px;right:3px;bottom:3px}
-
- /* ── Conteúdo: 2 colunas ────────────────────────────────────────────── */
  .cinematic-contents{
-  position:absolute!important;inset:0;z-index:2;
-  display:grid!important;
-  grid-template-columns:40% 1fr!important;
-  grid-template-rows:100svh!important;
-  grid-template-areas:"left right"!important;
+  position:relative;display:flex!important;flex-direction:column!important;
+  width:100%!important;min-height:100%;flex:1;
  }
+ .cinematic-frame{
+  inset:6px 6px 64px 6px;border-width:1px;opacity:.35;pointer-events:none;
+ }
+ .cinematic-frame:before,.cinematic-frame:after{width:24px;height:24px}
 
- /* ── COLUNA ESQUERDA: personagem + identidade + atributos ─────────── */
+ /* Header Hero com Nome e Conceito */
  .cinematic-header{
-  position:absolute!important;left:0;right:60%;top:0;
-  height:auto;padding:6px 10px 5px;z-index:10;
-  border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 35%);
-  background:linear-gradient(to bottom,#000000d8 0,#00000090 60%,transparent 100%);
-  display:flex;align-items:flex-end;gap:6px;
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  width:100%!important;height:auto!important;min-height:100px;
+  padding:14px 14px 10px!important;
+  background:linear-gradient(180deg,rgba(11,12,20,.95) 0%,rgba(10,11,18,.8) 75%,transparent 100%)!important;
+  z-index:10;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;gap:6px;
+  border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 45%)!important;
  }
- .cinematic-name{min-width:0;flex:1}
+ .cinematic-name{min-width:0;width:100%}
  .cinematic-name h1,.cinematic-name input{
-  font-size:clamp(16px,3.8vw,26px)!important;
-  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;
+  font-size:clamp(30px,9vw,44px)!important;
+  text-shadow:0 3px 16px #000,0 0 30px color-mix(in srgb,var(--cinematic-accent),transparent 75%)!important;
+  max-width:none!important;width:100%!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
  }
  .cinematic-identity,.cinematic-identity-read{
-  position:static!important;width:auto!important;gap:3px;
-  flex-direction:column;align-items:flex-end;flex-shrink:0;
+  display:flex!important;align-items:center!important;gap:7px!important;
+  font-size:11px!important;text-transform:uppercase;white-space:nowrap;
  }
- .cinematic-identity>strong,.cinematic-identity-read>strong{padding:3px 6px;font-size:8px;min-width:0}
- .cinematic-identity>i,.cinematic-identity-read>i,
- .cinematic-identity>.cinematic-occupation,.cinematic-identity-read>span,
- .cinematic-identity-read>em{display:none}
- .cinematic-identity>b,.cinematic-identity-read>b{width:24px;height:26px;font-size:15px;flex-basis:24px}
+ .cinematic-identity-read>strong{
+  padding:4px 9px!important;font-size:10px!important;letter-spacing:.05em;
+ }
+ .cinematic-identity-read>b{
+  width:28px!important;height:28px!important;font-size:16px!important;
+ }
 
- /* Personagem: coluna esquerda, ocupando tudo */
+ /* Arte do personagem como Hero Background */
  .cinematic-character{
-  position:absolute!important;
-  left:0!important;top:0!important;
-  width:40%!important;height:100%!important;
-  z-index:1;overflow:hidden;pointer-events:none;
+  position:absolute!important;top:0!important;left:0!important;right:0!important;
+  width:100%!important;height:230px!important;
+  pointer-events:none;z-index:1;overflow:hidden;opacity:.38;
+  mask-image:linear-gradient(180deg,#000 40%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 100%);
  }
  .cinematic-character>img{
-  position:absolute;left:50%;top:50%;
-  transform:translate(-50%,-50%) scale(var(--token-scale,1));
-  width:auto;height:110%;max-width:150%;object-fit:contain;
+  position:absolute;left:50%;top:30%;
+  transform:translate(-50%,-50%) scale(1.1)!important;
+  max-width:none!important;max-height:none!important;
+  width:100%!important;height:auto!important;
+  object-fit:cover;
  }
 
- /* Coluna esquerda: atributos + perícias sobrepostos ao personagem */
- .cinematic-left{
-  position:absolute!important;
-  left:0!important;width:40%!important;
-  bottom:0!important;top:auto!important;
-  z-index:5;height:auto;
-  background:linear-gradient(to top,#000000f2 0,#000000cc 55%,transparent 100%);
-  padding:10px 10px 8px;
-  display:flex!important;flex-direction:column;gap:6px;
+ /* Barra de Recursos PV/PD Sticky */
+ .cinematic-resources{
+  position:sticky!important;top:0!important;z-index:25!important;
+  width:100%!important;margin:0!important;
+  background:#0c0d18!important;border-bottom:1px solid #1f2133!important;
+  padding:8px 12px!important;
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;
+  box-shadow:0 4px 18px rgba(0,0,0,.6)!important;
+ }
+ .cinematic-resource-item{display:flex!important;align-items:center!important;gap:6px!important}
+ .cinematic-resources strong{font-size:14px!important;padding:4px 9px!important}
+ .cinematic-resources b{font-size:14px!important}
+ .cinematic-resources>div>span{display:flex!important;flex-wrap:wrap;gap:3px;align-content:center}
+ .cinematic-resources .pip{width:13px!important;height:10px!important}
+
+ /* Barra de Abas Mobile (oculta no portrait pois usamos o bottom nav) */
+ .cinematic-mobile-tabs{display:none!important}
+
+ /* ── Chaveamento de Abas em Mobile Portrait ── */
+ /* Aba DADOS (PERÍCIAS): PV/PD no topo (order: 2), atributos e perícias abaixo (order: 3) */
+ .cinematic-page.cinematic-tab-skills .cinematic-right{
+  display:block!important;position:static!important;width:100%!important;order:2!important;padding:0!important;
+ }
+ .cinematic-page.cinematic-tab-skills .cinematic-right .cinematic-scroll{
+  display:none!important;
+ }
+ .cinematic-page.cinematic-tab-skills .cinematic-left{
+  display:flex!important;flex-direction:column!important;position:static!important;width:100%!important;
+  padding:14px 12px!important;z-index:5;order:3!important;
  }
 
- /* Atributos: linha horizontal */
+ /* Abas HABILIDADES, ITENS, HISTÓRIA: oculta .cinematic-left, mostra .cinematic-right com PV/PD e cartas */
+ .cinematic-page:not(.cinematic-tab-skills) .cinematic-left{display:none!important}
+ .cinematic-page:not(.cinematic-tab-skills) .cinematic-right{
+  display:block!important;position:static!important;width:100%!important;order:2!important;
+  padding:0 12px 20px!important;z-index:5;
+ }
+ .cinematic-page:not(.cinematic-tab-skills) .cinematic-scroll{display:block!important;padding:0!important}
+ .cinematic-page.cinematic-tab-abilities .cinematic-section-group[data-section-key="abilities"]{display:block!important}
+ .cinematic-page.cinematic-tab-abilities .cinematic-section-group[data-section-key="items"]{display:none!important}
+ .cinematic-page.cinematic-tab-abilities .cinematic-section-group[data-section-key="history"]{display:none!important}
+
+ .cinematic-page.cinematic-tab-items .cinematic-section-group[data-section-key="abilities"]{display:none!important}
+ .cinematic-page.cinematic-tab-items .cinematic-section-group[data-section-key="items"]{display:block!important}
+ .cinematic-page.cinematic-tab-items .cinematic-section-group[data-section-key="history"]{display:none!important}
+
+ .cinematic-page.cinematic-tab-history .cinematic-section-group[data-section-key="abilities"]{display:none!important}
+ .cinematic-page.cinematic-tab-history .cinematic-section-group[data-section-key="items"]{display:none!important}
+ .cinematic-page.cinematic-tab-history .cinematic-section-group[data-section-key="history"]{display:block!important}
+
+ /* Atributos em Mobile Portrait: 3 Insígnias estilo Hexatombe */
  .cinematic-attributes{
-  height:auto!important;flex:0 0 auto!important;
-  padding-left:0!important;padding-top:0!important;
-  position:static!important;
-  display:flex;flex-direction:row;gap:4px;align-items:flex-end;
+  position:static!important;height:auto!important;flex:none!important;
+  padding:0!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;
+  gap:8px!important;margin-bottom:14px!important;
  }
  .cinematic-attributes>h2{display:none!important}
  .cinematic-attributes:before,.cinematic-attributes:after{display:none!important}
- .cinematic-attributes .attribute-stepper{display:none}
  .cinematic-attributes>div{
-  height:auto!important;transform:none!important;
-  flex:1;display:flex;flex-direction:column-reverse;align-items:center;gap:2px;
-  padding:4px 2px;background:#0000004a;border-top:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 55%);
+  height:auto!important;flex-direction:column-reverse!important;align-items:center!important;
+  justify-content:center!important;gap:4px!important;padding:10px 6px!important;
+  background:#131422!important;border:1px solid #282a3c!important;border-radius:8px!important;
+  transform:none!important;
  }
  .cinematic-attributes>div>span{
-  font:700 clamp(11px,2.2vw,16px)/1 Georgia,serif!important;
-  text-align:center;white-space:nowrap;
+  font-size:10.5px!important;font-family:'Hanken Grotesk',sans-serif!important;
+  letter-spacing:.09em;color:#85889a!important;
  }
  .cinematic-attribute-die{
-  flex:none!important;width:26px!important;height:26px!important;
-  margin:0!important;padding:2px!important;background:transparent!important;border:none!important;box-shadow:none!important;
+  width:46px!important;height:46px!important;margin:0!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
  }
- .die-svg.cinematic-attribute{width:22px!important;height:23px!important}
- .die-svg.cinematic-attribute text{font-size:33px}
+ .die-svg.cinematic-attribute{width:42px!important;height:42px!important}
 
- /* Perícias: acima dos atributos, compactas */
- .cinematic-skills{display:flex!important;flex-direction:column;flex:1;min-height:0}
- .cinematic-skills>h2{font-size:9px!important;padding:2px 8px!important;margin-bottom:3px!important;transform:none!important}
- .cinematic-skills>div{overflow-y:auto!important;height:auto!important;padding:0 2px 0!important;scrollbar-width:none}
- .cinematic-skill{min-height:16px!important;grid-template-columns:1fr auto!important;gap:3px;padding:1px 2px}
- .cinematic-skill>span:first-child{font-size:8px!important;text-align:left}
- .cinematic-skill-dice{gap:2px}
- .die-svg.cinematic-skill-die{width:13px!important;height:14px!important}
- .cinematic-skill-dice b{font-size:9px}
- .cinematic-skill-dice em,.skill-info-button{display:none!important}
-
- /* ── COLUNA DIREITA: recursos + habilidades ───────────────────────── */
- .cinematic-right{
-  position:absolute!important;
-  left:40%!important;right:0!important;top:0!important;bottom:0!important;
-  width:auto!important;height:100%!important;
-  display:flex!important;flex-direction:column;
-  border-left:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 65%);
-  background:linear-gradient(to right,#040508e8 0,#06080ce0 100%);
-  z-index:5;
+ /* Perícias em Mobile Portrait */
+ .cinematic-skills{width:100%!important;flex:none!important;padding:0!important}
+ .cinematic-skills>h2{font-size:14px!important;margin-bottom:8px!important;padding:4px 12px!important}
+ .cinematic-skills>div{
+  height:auto!important;overflow:visible!important;padding:0!important;
+  display:flex!important;flex-direction:column!important;gap:3px!important;
  }
-
- /* PV / PD */
- .cinematic-resources{
-  display:flex!important;flex-direction:row;gap:0;
-  margin-bottom:0!important;
-  border-bottom:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 60%);
-  padding:5px 8px;flex-shrink:0;
+ .cinematic-skill{
+  min-height:36px!important;padding:6px 10px!important;background:#111220!important;
+  border-radius:6px!important;grid-template-columns:1fr auto!important;gap:8px!important;
  }
- .cinematic-resources>div{flex:1;display:flex;align-items:center;gap:5px;grid-template-columns:none!important}
- .cinematic-resources>div+div{border-left:1px solid color-mix(in srgb,var(--cinematic-accent),transparent 65%);margin-left:6px;padding-left:6px}
- .cinematic-resources strong{font-size:11px!important;padding:3px 7px!important}
- .cinematic-resources b{font-size:11px!important}
- .cinematic-resources>div>span{display:flex;flex-wrap:wrap;gap:2px;flex:1}
- .cinematic-resources .pip{width:10px!important;height:8px!important}
- .cinematic-resource-edit{display:none!important}
+ .cinematic-skill>span:first-child{text-align:left!important;font-size:11px!important}
 
- /* Scroll de habilidades */
- .cinematic-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:4px 8px 8px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 55%) transparent}
-
- /* Seções compactas */
- .cinematic-section-group:first-child{margin-top:0}
- .cinematic-section-group{margin-top:8px}
- .cinematic-section-heading{height:30px!important;margin-bottom:0}
- .cinematic-section-heading>.cinematic-section-toggle>span{font-size:11px!important;padding:3px 10px!important}
- .cinematic-section-heading>.cinematic-section-toggle>svg{width:12px;height:12px;margin:6px 4px 0}
- .cinematic-section-heading>.cinematic-section-add{width:22px!important;height:22px!important;margin-top:3px}
-
- /* Cards compactos */
- .cinematic-card{margin-bottom:8px!important}
- .cinematic-card h3{font-size:10px!important;padding:3px 8px!important}
- .cinematic-card-copy{font-size:10px!important;padding:4px 6px 2px!important;line-height:1.4}
- .cinematic-card .card-marker{height:32px!important}
- .cinematic-card .card-roll{height:26px!important;font-size:10px!important}
- .cinematic-card-edit{width:22px!important;flex:0 0 22px!important}
- .cinematic-empty{font-size:9px;padding:8px}
-
- /* Pip touch-target */
- .pip{position:relative}
- .pip::after{content:'';position:absolute;inset:-5px -3px}
- .cinematic-resources .pip{touch-action:manipulation}
-
- /* Card actions */
- .card-actions{opacity:1!important;visibility:visible!important}
-
- /* Token tools durante edição */
- .cinematic-token-tools{
-  position:fixed!important;bottom:0;left:0;right:0;z-index:30!important;
-  border-radius:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important;
-  max-height:40svh;overflow-y:auto;flex-wrap:wrap;gap:5px;padding:6px 10px!important;
+ /* Cards Estilo Hexatombe */
+ .cinematic-card{
+  background:#121320!important;border:1px solid #28293b!important;
+  border-radius:6px!important;margin-bottom:12px!important;overflow:hidden!important;
  }
- .cinematic-token-tools small{display:none}
- .cinematic-token-tools>label,.cinematic-token-tools>button{min-height:30px;font-size:9px}
+ .cinematic-card>header{
+  padding:7px 10px!important;background:#171827!important;
+  border-bottom:1px solid #28293b!important;display:flex!important;
+  align-items:center!important;justify-content:space-between!important;
+  height:auto!important;
+ }
+ .cinematic-card h3{
+  font-size:13px!important;padding:3px 8px!important;
+  clip-path:polygon(3% 5%,94% 0,100% 16%,95% 50%,100% 90%,8% 100%,0 88%,4% 50%,0 13%);
+ }
+ .cinematic-card-cost{
+  font:800 13px 'Hanken Grotesk',sans-serif;color:#f3f1ed;
+  letter-spacing:.05em;margin-left:auto;padding-right:6px;
+ }
+ /* Arma estilo Hexatombe: Faixa Vermelho Sangue Sólido */
+ .cinematic-card.is-weapon>header{
+  background:#b8141c!important;border-bottom-color:#d41922!important;
+ }
+ .cinematic-card.is-weapon h3{
+  background:transparent!important;color:#fff!important;clip-path:none!important;
+  padding:0!important;
+ }
+ .cinematic-card-copy{
+  padding:9px 10px 5px!important;font-size:12px!important;line-height:1.48!important;
+ }
+ .cinematic-page.presentation-active .cinematic-skill.is-untrained{display:none!important}
+ .cinematic-page.presentation-active .cinematic-section-group.section-lockable{display:none!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"] > .cinematic-section-heading{display:none!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"]{margin-top:0!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"] .cinematic-section-body > div{padding-top:0!important}
 
- /* Botão editar */
- .floating{display:flex!important;position:fixed;bottom:8px;right:8px;z-index:45}
-
- /* Toasts */
- .save-toast{right:50%;transform:translateX(50%) translateY(-8px)}
- .save-toast.show{transform:translateX(50%) translateY(0)}
- .custom-context-menu{left:50%!important;top:auto!important;bottom:10px;transform:translateX(-50%)}
-
- /* Scroll do sheet drawer em landscape */
- .sheet-drawer{bottom:0}
+ /* Botão de editar em mobile */
+ .floating{display:flex!important;bottom:64px;right:10px;z-index:45}
 }
 
+/* ── Cinematográfico em Landscape Mobile (Estilo Ficha Hexatombe Widescreen) ── */
+@media (orientation: landscape) and (max-height: 550px){
+ .nav-rail{display:none!important}
+ .cinematic-mobile-tabs{display:none!important}
+ .mobile-bottom-nav{display:none!important}
+ body{overflow:hidden}
 
-/* ── Sheet Drawer ─────────────────────────────────────────────────────────── */
-.sheet-drawer-backdrop{position:fixed;inset:0;z-index:60;background:#000000a0;backdrop-filter:blur(2px)}
-.sheet-drawer{position:fixed;bottom:62px;left:0;right:0;z-index:61;background:#12131f;border:1px solid #282a3c;border-bottom:0;border-radius:14px 14px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);max-height:75vh;display:flex;flex-direction:column;animation:drawer-in .22s cubic-bezier(.2,.75,.25,1) both}
-@keyframes drawer-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sheet-drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;border-bottom:1px solid #252636}
-.sheet-drawer-header span{font-size:9px;font-weight:800;letter-spacing:.15em;color:#7e8194}
-.sheet-drawer-header button{width:30px;height:30px;background:#252633;border:0;border-radius:5px;color:#a8abb6;display:grid;place-items:center}
-.sheet-drawer-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:5px}
-.sheet-drawer-item{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #2a2c3c;border-radius:8px;background:transparent;color:#d0d2dd;font-size:13px;font-weight:700;text-align:left;-webkit-tap-highlight-color:transparent}
-.sheet-drawer-item:active{background:#25263a}
-.sheet-drawer-item.active{border-color:var(--red);background:color-mix(in srgb,var(--red),#12131f 85%);color:#fff}
-.sheet-drawer-item img{width:34px;height:34px;border-radius:7px;object-fit:cover}
-.sheet-drawer-item.new{color:#7e8194;border-style:dashed}
-.sheet-drawer-footer{display:flex;gap:6px;padding:10px 8px 12px;border-top:1px solid #252636}
-.sheet-drawer-footer button{flex:1;height:38px;border:1px solid #303243;border-radius:6px;background:#1c1d2b;color:#c0c2cc;font-size:9px;font-weight:800;letter-spacing:.07em;display:flex;align-items:center;justify-content:center;gap:5px}
-.sheet-drawer-footer button:active{background:#282938}
+ .cinematic-page{
+  margin-left:0!important;width:100vw!important;height:100vh!important;
+  min-height:0!important;overflow:hidden!important;display:block!important;
+  padding:0!important;
+ }
+ .cinematic-contents{
+  position:absolute!important;inset:0!important;display:block!important;
+ }
+ .cinematic-frame{inset:8px 8px 8px!important}
+ .cinematic-frame:before,.cinematic-frame:after{width:28px!important;height:28px!important}
 
+ /* ── Header no Topo: Nome ALAN na esquerda e EXECUTOR CIENTISTA NÍVEL na direita ── */
+ .cinematic-header{
+  position:absolute!important;left:55px!important;right:25px!important;top:16px!important;
+  height:auto!important;min-height:44px!important;padding:2px 0!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;background:none!important;
+  border-bottom:0!important;
+  z-index:10!important;overflow:visible!important;
+ }
+ .cinematic-name{
+  min-width:0!important;display:flex!important;align-items:center!important;
+  transform:none!important;margin:0!important;padding:2px 0!important;overflow:visible!important;
+ }
+ .cinematic-name h1,.cinematic-name input{
+  font:700 clamp(24px,3.8vw,32px)/1.2 Georgia,serif!important;margin:0!important;padding:2px 0!important;
+  letter-spacing:.03em!important;overflow:visible!important;color:var(--cinematic-accent)!important;
+ }
+ .cinematic-identity,
+ .cinematic-identity-read{
+  position:static!important;width:auto!important;transform:none!important;
+  display:flex!important;align-items:center!important;gap:8px!important;
+  height:auto!important;margin:0!important;padding:0!important;
+ }
+ .cinematic-identity-read>strong{
+  padding:6px 14px!important;font-size:13.5px!important;letter-spacing:.05em!important;
+  font-weight:800!important;transform:none!important;
+  background:var(--cinematic-accent)!important;
+  clip-path:polygon(4% 7%,94% 0,100% 16%,96% 49%,100% 88%,8% 100%,0 75%,4% 43%,0 16%)!important;
+ }
+ .cinematic-identity-read>span{
+  font-size:14.5px!important;font-weight:700!important;color:#fff!important;letter-spacing:.04em!important;
+ }
+ .cinematic-identity-read>i{
+  width:5px!important;height:5px!important;border-radius:50%!important;
+  background:var(--cinematic-accent)!important;flex-shrink:0!important;
+ }
+ .cinematic-identity-read>em{
+  font-size:12px!important;font-weight:700!important;letter-spacing:.06em!important;color:#dedfe6!important;
+ }
+ .cinematic-identity-read>b{
+  width:32px!important;height:34px!important;font-size:18px!important;font-weight:700!important;
+  transform:none!important;display:grid!important;place-items:center!important;
+  background:var(--cinematic-accent)!important;
+  clip-path:polygon(9% 5%,88% 0,100% 14%,94% 89%,17% 100%,0 88%,5% 18%)!important;
+ }
 
+ /* ── Centro: Personagem em pé no meio ── */
+ .cinematic-character{
+  display:block!important;position:absolute!important;
+  left:27%!important;width:44%!important;top:0!important;bottom:0!important;
+  height:100vh!important;opacity:.88!important;overflow:visible!important;
+  pointer-events:none!important;z-index:4!important;
+  mask-image:none!important;-webkit-mask-image:none!important;
+ }
+ .cinematic-character>img{
+  position:absolute!important;left:50%!important;bottom:0!important;top:auto!important;
+  transform:translateX(-50%) scale(var(--token-scale,1))!important;
+  transform-origin:center bottom!important;
+  width:auto!important;max-width:120%!important;max-height:96vh!important;
+  height:auto!important;object-fit:contain!important;
+ }
+
+ /* ── Coluna Esquerda: ATRIBUTOS e PERÍCIAS ── */
+ .cinematic-left{
+  display:flex!important;flex-direction:column!important;position:absolute!important;
+  left:20px!important;width:30%!important;top:72px!important;bottom:8px!important;
+  padding:0!important;z-index:5!important;pointer-events:auto!important;
+ }
+ /* Atributos em cascata diagonal idênticos ao desktop */
+ .cinematic-attributes{
+  position:relative!important;height:128px!important;flex:0 0 128px!important;
+  padding-left:30%!important;margin-bottom:6px!important;
+ }
+ .cinematic-attributes>h2{
+  position:absolute!important;left:0!important;top:14px!important;
+  font:700 16px Georgia,serif!important;padding:5px 14px!important;margin:0!important;
+  transform:rotate(2deg)!important;z-index:2!important;display:inline-block!important;
+  clip-path:polygon(2% 6%,93% 0,100% 11%,95% 48%,100% 91%,8% 100%,0 90%,3% 54%,0 17%)!important;
+ }
+ .cinematic-attributes:before{
+  display:none!important;
+ }
+ .cinematic-attributes:after{
+  display:block!important;content:""!important;position:absolute!important;
+  left:17%!important;top:20px!important;width:1px!important;height:95px!important;
+  background:var(--cinematic-accent)!important;transform:rotate(-12deg)!important;
+  transform-origin:top center!important;pointer-events:none!important;
+ }
+ .cinematic-attributes>div{
+  position:relative!important;height:36px!important;display:flex!important;
+  align-items:center!important;justify-content:flex-end!important;gap:6px!important;
+  margin:0!important;padding:0!important;background:none!important;border:0!important;
+ }
+ .cinematic-attributes>div:nth-of-type(1){transform:translateX(14px)!important;}
+ .cinematic-attributes>div:nth-of-type(2){transform:translateX(0)!important;}
+ .cinematic-attributes>div:nth-of-type(3){transform:translateX(-14px)!important;}
+ .cinematic-attributes>div>span{
+  font:700 clamp(18px,2.2vw,24px) Georgia,serif!important;text-transform:uppercase!important;
+  color:#fff!important;letter-spacing:.02em!important;text-shadow:0 3px 8px #000!important;
+ }
+ .cinematic-attribute-die{
+  width:32px!important;height:34px!important;margin:0!important;flex:0 0 32px!important;
+  display:grid!important;place-items:center!important;background:transparent!important;
+  border:0!important;box-shadow:none!important;
+ }
+ .die-svg.cinematic-attribute{width:30px!important;height:32px!important;}
+ .die-svg.cinematic-attribute text{font-size:32px!important;font-weight:800!important;}
+
+ /* Perícias alinhadas */
+ .cinematic-skills{
+  flex:1!important;min-height:0!important;display:flex!important;flex-direction:column!important;
+  padding-top:2px!important;
+ }
+ .cinematic-skills>h2{
+  font-size:12px!important;padding:3px 10px!important;margin-bottom:4px!important;
+  width:max-content!important;transform:none!important;flex:0 0 auto!important;
+ }
+ .cinematic-skills>div{
+  flex:1!important;min-height:0!important;overflow-y:auto!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 40%) transparent!important;
+  padding:0 4px 4px 0!important;display:flex!important;flex-direction:column!important;gap:2px!important;
+ }
+ .cinematic-skill{
+  min-height:21px!important;height:21px!important;padding:1px 4px!important;
+  display:grid!important;grid-template-columns:1fr auto!important;
+  align-items:center!important;gap:6px!important;
+  background:transparent!important;border-radius:3px!important;
+ }
+ .cinematic-skill:hover{background:rgba(255,255,255,.05)!important}
+ .cinematic-skill>span:first-child{
+  text-align:left!important;font-size:10px!important;font-weight:700!important;
+  letter-spacing:.02em!important;white-space:nowrap!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;color:#f0eeeb!important;
+ }
+ .cinematic-skill-dice{
+  display:grid!important;
+  grid-template-columns:20px 10px 20px 48px auto!important;
+  align-items:center!important;justify-items:center!important;
+  gap:3px!important;flex-shrink:0!important;width:108px!important;
+ }
+ .cinematic-skill-dice .die-svg{
+  width:18px!important;height:19px!important;justify-self:center!important;
+ }
+ .cinematic-skill-dice b{
+  font-size:11px!important;width:10px!important;text-align:center!important;
+  justify-self:center!important;color:#888b96!important;
+ }
+ .cinematic-skill-dice em{
+  font-size:8px!important;width:48px!important;text-align:left!important;
+  justify-self:start!important;letter-spacing:.02em!important;
+ }
+ .cinematic-skill-dice strong{
+  font-size:9px!important;justify-self:start!important;
+ }
+ .cinematic-page.presentation-active .cinematic-skill.is-untrained{display:none!important}
+
+ /* ── Coluna Direita: PV/PD e HABILIDADES ── */
+ .cinematic-right{
+  display:flex!important;flex-direction:column!important;position:absolute!important;
+  right:20px!important;width:31%!important;top:72px!important;bottom:8px!important;
+  padding:0!important;z-index:5!important;pointer-events:auto!important;
+ }
+
+ /* PV e PD organizados em blocos horizontais */
+ .cinematic-resources{
+  position:relative!important;top:auto!important;background:none!important;
+  border:0!important;padding:0!important;box-shadow:none!important;
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+  margin-bottom:8px!important;flex:0 0 auto!important;
+  width:100%!important;transform:none!important;
+ }
+ .cinematic-resource-item{
+  display:grid!important;grid-template-columns:auto auto 1fr!important;
+  align-items:center!important;gap:6px!important;
+ }
+ .cinematic-resources strong{
+  font-size:14px!important;padding:4px 8px!important;
+  background:var(--cinematic-accent)!important;color:#fff!important;
+  clip-path:polygon(4% 5%,95% 0,100% 18%,94% 89%,8% 100%,0 87%,5% 19%)!important;
+ }
+ .cinematic-resources b{font-size:16px!important;font-weight:700!important}
+ .cinematic-resources>div>span{
+  display:flex!important;flex-wrap:wrap!important;gap:2px!important;align-content:center!important;
+  max-width:105px!important;
+ }
+ .cinematic-resources .pip{width:13px!important;height:10px!important}
+
+ /* Área de Cartas / Habilidades */
+ .cinematic-scroll{
+  display:block!important;flex:1!important;min-height:0!important;
+  overflow-y:auto!important;scrollbar-width:thin!important;
+  scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 40%) transparent!important;
+  padding:0 4px 60px 0!important;
+ }
+
+ /* Cartas de Habilidades diretas na página */
+ .cinematic-abilities-direct{
+  display:flex!important;flex-direction:column!important;gap:10px!important;
+ }
+ .cinematic-card{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;margin-bottom:10px!important;overflow:visible!important;
+ }
+ .cinematic-card>header{
+  height:auto!important;min-height:28px!important;padding:0!important;
+  display:flex!important;align-items:flex-start!important;
+  border-bottom:0!important;background:transparent!important;
+ }
+ .cinematic-card:not(.has-inline-marker)>header{
+  width:100%!important;
+  height:28px!important;
+  min-height:28px!important;
+  background:var(--card-accent)!important;
+  clip-path:polygon(0.4% 6%,99.6% 0,100% 16%,99.7% 50%,100% 86%,99.6% 100%,0.4% 96%,0% 50%,0.2% 14%)!important;
+  padding:2px 10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  box-sizing:border-box!important;
+  border-bottom:0!important;
+  margin-bottom:5px!important;
+ }
+ .cinematic-card:not(.has-inline-marker) h3{
+  font-size:12.5px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  clip-path:none!important;
+  color:#fff!important;
+  font-family:Georgia,serif!important;
+  font-weight:700!important;
+  letter-spacing:.02em!important;
+  display:flex!important;
+  align-items:center!important;
+ }
+ .cinematic-card:not(.has-inline-marker) .cinematic-card-cost{
+  font-size:11.5px!important;
+  margin-left:auto!important;
+  color:#fff!important;
+  font-weight:800!important;
+  letter-spacing:.05em!important;
+  padding-right:2px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  text-shadow:0 1px 3px rgba(0,0,0,.6)!important;
+ }
+ .cinematic-card.has-inline-marker>header{
+  height:34px!important;min-height:34px!important;align-items:flex-start!important;
+  border-bottom:0!important;background:transparent!important;
+ }
+ .cinematic-card.has-inline-marker h3{
+  flex:0 0 auto!important;position:relative!important;z-index:2!important;
+ }
+ .cinematic-inline-markers{
+  display:flex!important;flex:1!important;min-width:65px!important;align-self:stretch!important;
+  align-items:flex-start!important;margin-left:-5px!important;padding-top:2px!important;
+ }
+ .cinematic-inline-markers .card-marker.style-rectangles{
+  width:100%!important;height:25px!important;min-height:25px!important;margin:0!important;
+  padding:2px 8px 2px 10px!important;border:0!important;border-radius:0!important;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--card-accent),#15161d 55%),color-mix(in srgb,var(--card-accent),#16171e 32%))!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--card-accent),transparent 25%)!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;
+ }
+ .cinematic-card>header .card-marker.style-rectangles .charge,
+ .cinematic-card>header .card-marker.style-rectangles .value-slot{
+  flex:0 0 25px!important;width:25px!important;height:16px!important;min-width:9px!important;
+  margin:0!important;border:1px solid #fff!important;border-radius:4px!important;
+  background:#f3f0eacc!important;opacity:.62!important;box-shadow:inset 0 0 0 1px #0005!important;
+ }
+ .cinematic-card>header .card-marker.style-rectangles .charge.on{
+  background:#fff!important;border-color:#fff!important;opacity:1!important;
+  box-shadow:0 0 7px color-mix(in srgb,var(--card-accent),transparent 30%)!important;
+ }
+ .cinematic-card-copy{
+  padding:6px 0 2px!important;font-size:11px!important;line-height:1.45!important;color:#dedfe6!important;
+  background:transparent!important;
+ }
+
+ /* Accordions normais (fora do modo apresentação) */
+ .cinematic-section-heading{height:32px!important;margin-bottom:6px!important}
+ .cinematic-section-heading span{font-size:13px!important;padding:3px 10px!important}
+ .cinematic-section-heading button{width:24px!important;height:24px!important}
+
+ /* No modo apresentação no mobile landscape: esconde seções trancadas e o heading de habilidades */
+ .cinematic-page.presentation-active .cinematic-section-group.section-lockable{display:none!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"] > .cinematic-section-heading{display:none!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"]{margin-top:0!important}
+ .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"] .cinematic-section-body > div{padding-top:0!important}
+
+ /* Dock de Apresentação em Landscape */
+ .cinematic-presentation-dock{
+  bottom:6px!important;scale:0.82!important;transform-origin:center bottom!important;
+ }
+
+ .view-mode-switch{left:8px;bottom:8px;top:auto;right:auto;z-index:30}
+ .floating{display:flex!important;bottom:8px;right:8px;z-index:30}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODO DE APRESENTAÇÃO (SELEÇÃO DE AGENTES NA FICHA CINEMATOGRÁFICA)
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Bloqueio de testes, dados, rolagens e alteração de PV/PD no modo apresentação */
 .cinematic-page.presentation-active [data-roll],
@@ -611,6 +990,13 @@
 .cinematic-page.presentation-active .cinematic-attribute-die,
 .cinematic-page.presentation-active .cinematic-skill {
   cursor: not-allowed !important;
+}
+
+/* Exibição direta das habilidades no modo de apresentação */
+.cinematic-abilities-direct {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Seções trancadas (ITENS e HISTÓRIA) no modo apresentação */
@@ -1299,11 +1685,21 @@
 }
 
 /* Responsividade Mobile para o Dock */
-@media(max-width: 700px) {
+@media(max-width: 768px) and (orientation: portrait) {
+  .cinematic-page.presentation-active .cinematic-mobile-tabs,
+  .cinematic-page.presentation-active .cinematic-resources,
+  .cinematic-page.presentation-active .cinematic-left,
+  .cinematic-page.presentation-active .cinematic-right {
+    display: none !important;
+  }
+  .cinematic-page.presentation-active .cinematic-character {
+    height: 52vh !important;
+    opacity: 0.82 !important;
+  }
   .cinematic-page.presentation-active .cinematic-contents {
-    scale: 0.86;
-    translate: 0 -34px;
-    filter: brightness(0.82) contrast(1.05);
+    scale: 0.95;
+    translate: 0 -10px;
+    filter: brightness(0.9) contrast(1.05);
   }
   .cinematic-page.presentation-locking-in .cinematic-contents {
     scale: 1.0;
