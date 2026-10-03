@@ -1253,7 +1253,7 @@
         "schema": "abilities",
         "title": "PROCESSO OTIMIZADO",
         "type": "Habilidade",
-        "content": "Sempre que faz um teste de perícia durante um teste estendido, ou uma ação para revisar documentos, pode pagar **[color=#67a2ff]2 PE[/color]** para receber **[color=#67a2ff]+1d6[/color]** nesse teste.",
+        "content": "Sempre que faz um teste de perícia durante um teste estendido, ou uma ação para revisar documentos, pode pagar **[color=#67a2ff]2 PD[/color]** para receber **[color=#67a2ff]+1d6[/color]** nesse teste.",
         "accent": "#e91d25",
         "icon": "◈",
         "markers": [],
@@ -1266,7 +1266,8 @@
         ],
         "layout": "standard",
         "collapsed": false,
-        "imageUrl": ""
+        "imageUrl": "",
+        "cost": "2 PD"
       },
       {
         "id": "card-1789936718103-s3tky",
