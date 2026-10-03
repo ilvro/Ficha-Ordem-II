@@ -69,7 +69,7 @@ const defaultCards=[
 ];
 const PROFILE_ABILITIES={
   Executor:defaultCards[0],
-  Vigilante:{id:'prontidao',profileAbility:'Vigilante',themeLinked:true,schema:'abilities',title:'PRONTIDÃO',type:'Habilidade de Perfil',content:'Você possui uma [color=#2d863f]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2d863f]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2d863f]**agir antes de todos**[/color].',accent:'#2d863f',icon:'◆',markers:[{id:'prontidao-m',type:'slots',displayStyle:'rectangles',label:'Prontidão',current:0,maxFormula:'3',slots:[null,null,null],fillCostResource:'pd',fillCostAmount:2}],actions:[{id:'prontidao-a',name:'Rolar Prontidão',expression:'3d6',targetMarker:'prontidao-m'}]},
+  Vigilante:{id:'prontidao',profileAbility:'Vigilante',themeLinked:true,schema:'abilities',title:'PRONTIDÃO',type:'Habilidade de Perfil',content:'Você possui uma [color=#2d863f]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d8 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2d863f]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2d863f]**agir antes de todos**[/color].',accent:'#2d863f',icon:'◆',markers:[{id:'prontidao-m',type:'slots',displayStyle:'rectangles',label:'Prontidão',current:0,maxFormula:'3',slots:[null,null,null],fillCostResource:'pd',fillCostAmount:2}],actions:[{id:'prontidao-a',name:'Rolar Prontidão',expression:'3d8',targetMarker:'prontidao-m'}]},
   Analista:{id:'avaliacao',profileAbility:'Analista',themeLinked:true,schema:'abilities',title:'AVALIAÇÃO',type:'Habilidade de Perfil',content:'Você pode gastar uma ação e [color=#2162ff]**2 PD**[/color] para observar um ser ou ambiente. Você recebe 2d4 que pode usar em testes relativos àquele ser ou ambiente. Você pode usá-los como quiser, recebendo +2d4 em um teste ou +1d4 em dois testes.\n\nVocê não pode acumular mais do que dois dados bônus por esta habilidade.',accent:'#2162ff',icon:'◈',markers:[{id:'avaliacao-dados',type:'pips',label:'Dados bônus',current:0,maxFormula:'2'}],actions:[]}
 };
 const defaults={name:'ALAN',occupation:'Cientista',profile:'Executor',level:2,pv:10,maxPv:12,pvTemp:0,pd:16,maxPd:18,pdTemp:0,history:'',tokenImage:'',backgroundImage:'',backgroundBlur:0,backgroundZoom:100,diceColor:'',viewMode:'traditional',cinematicTokenX:50,cinematicTokenY:52,cinematicTokenScale:100,cinematicOutlineSide:'left',cinematicOutlineIntensity:0.5,cinematicOutlineWidth:1.8,cinematicOutlineFade:1.5,cinematicCollapsed:{abilities:false,items:true,history:true},attributes:{Físico:6,Mente:8,Emoção:8},skills:defaultSkills,cards:defaultCards};
@@ -92,9 +92,19 @@ function normalizeCard(card){
  const knownProfile=Object.entries(PROFILE_ABILITIES).find(([,template])=>String(template.title).toUpperCase()===String(card.title).toUpperCase());
  const markers=(Array.isArray(card.markers)?card.markers:migratedMarkers).map(marker=>({...marker,displayStyle:marker.displayStyle||'default'}));
  if(card.id==='impeto'||card.id==='pistola')markers.forEach(marker=>{if(marker.type==='pips'&&marker.displayStyle==='default')marker.displayStyle='rectangles'});
- if(card.id==='prontidao'||(card.profileAbility==='Vigilante'&&String(card.title).toUpperCase()==='PRONTIDÃO')){markers.forEach(marker=>{marker.displayStyle='rectangles';if(marker.type==='pips'||marker.type==='counter'){marker.type='slots';marker.fillCostResource=marker.fillCostResource||'pd';marker.fillCostAmount=marker.fillCostAmount??2;if(!Array.isArray(marker.slots))marker.slots=[null,null,null]}})}
+ if(card.id==='prontidao'||(card.profileAbility==='Vigilante'&&String(card.title).toUpperCase()==='PRONTIDÃO')){
+  markers.forEach(marker=>{marker.displayStyle='rectangles';if(marker.type==='pips'||marker.type==='counter'){marker.type='slots';marker.fillCostResource=marker.fillCostResource||'pd';marker.fillCostAmount=marker.fillCostAmount??2;if(!Array.isArray(marker.slots))marker.slots=[null,null,null]}});
+  if(typeof card.content==='string'&&card.content.includes('role 3d6'))card.content=card.content.replace('role 3d6','role 3d8');
+ }
  const actions=(Array.isArray(card.actions)?card.actions:migratedActions).map(action=>({...action}));
- if(card.id==='prontidao'||(card.profileAbility==='Vigilante'&&String(card.title).toUpperCase()==='PRONTIDÃO')){actions.forEach(action=>{if(action.name==='Rolar Prontidão'&&!action.targetMarker)action.targetMarker='prontidao-m'})}
+ if(card.id==='prontidao'||(card.profileAbility==='Vigilante'&&String(card.title).toUpperCase()==='PRONTIDÃO')){
+  actions.forEach(action=>{
+   if(action.name==='Rolar Prontidão'){
+    if(!action.targetMarker)action.targetMarker='prontidao-m';
+    if(action.expression==='3d6')action.expression='3d8';
+   }
+  });
+ }
  return {...card,profileAbility:card.profileAbility||knownProfile?.[0],themeLinked:card.themeLinked!==false,markers,actions};
 }
 function ensureProfileAbility(sheet,profile=sheet.profile){const template=PROFILE_ABILITIES[profile];if(!template)return;const expected=String(template.title).toUpperCase(),existing=sheet.cards?.find(card=>card.profileAbility===profile||String(card.title).toUpperCase()===expected);if(existing){existing.profileAbility=profile;return}sheet.cards.push(normalizeCard(clone(template)))}

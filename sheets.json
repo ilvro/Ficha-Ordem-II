@@ -480,7 +480,7 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d8 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
         "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
@@ -504,7 +504,7 @@
           {
             "id": "prontidao-a",
             "name": "Rolar Prontidão",
-            "expression": "3d6",
+            "expression": "3d8",
             "targetMarker": "prontidao-m"
           }
         ]
@@ -772,7 +772,7 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d8 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
         "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
@@ -796,7 +796,7 @@
           {
             "id": "action-1790292112563-a7f88",
             "name": "Rolar Prontidão",
-            "expression": "3d6",
+            "expression": "3d8",
             "targetMarker": "marker-1790292112563-1mpy5"
           }
         ]
@@ -2016,7 +2016,7 @@
         "schema": "abilities",
         "title": "PRONTIDÃO",
         "type": "Habilidade de Perfil",
-        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d6 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
+        "content": "Você possui uma [color=#2e7d32]**barra de prontidão**[/color] com 3 espaços. No início de cada cena, role 3d8 e anote cada valor nos espaços da barra (qualquer espaço já preenchido é substituído). Você também pode gastar [color=#2e7d32]**2 PD**[/color] para preencher um espaço da barra.\n\nQuando você ou um aliado próximo faz um teste, você pode gastar um valor da barra para substituir um dado rolado pelo valor gasto.\nAlternativamente, você também pode gastar dois espaços da barra para, em qualquer ação ou conflito, [color=#2e7d32]**agir antes de todos**[/color].",
         "accent": "#2e7d32",
         "icon": "◆",
         "markers": [
@@ -2040,7 +2040,7 @@
           {
             "id": "prontidao-a",
             "name": "Rolar Prontidão",
-            "expression": "3d6",
+            "expression": "3d8",
             "targetMarker": "prontidao-m"
           }
         ],
