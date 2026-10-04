@@ -592,6 +592,47 @@ function renderBottomNav(){
  </nav>`;
 }
 
+function renderMobileOrientationPrompt(){
+ return `<aside class="mobile-orientation-prompt" role="dialog" aria-modal="true" aria-labelledby="orientation-prompt-title" aria-describedby="orientation-prompt-copy">
+  <div class="orientation-visual" aria-hidden="true">
+   <span class="orientation-orbit"></span>
+   <span class="orientation-phone"><i></i></span>
+  </div>
+  <small>FICHA CINEMATOGRÁFICA</small>
+  <h2 id="orientation-prompt-title">GIRE PARA PAISAGEM</h2>
+  <p id="orientation-prompt-copy">Esta visualização foi criada para a tela horizontal. Gire o celular para ver a ficha inteira.</p>
+  <button type="button" data-request-landscape>${icon('frame',16)} <span>ATIVAR TELA CHEIA</span></button>
+  <em data-orientation-status>O aviso desaparecerá automaticamente ao girar.</em>
+ </aside>`;
+}
+
+function syncMobilePresentationViewport(){
+ const viewport=window.visualViewport,width=Math.round(viewport?.width||window.innerWidth),height=Math.round(viewport?.height||window.innerHeight);
+ const touchDevice=(navigator.maxTouchPoints||0)>0||window.matchMedia?.('(pointer: coarse)').matches;
+ const cinematic=state?.viewMode==='cinematic';
+ document.documentElement.style.setProperty('--mobile-viewport-width',`${width}px`);
+ document.documentElement.style.setProperty('--mobile-viewport-height',`${height}px`);
+ document.body.classList.toggle('mobile-cinematic',touchDevice&&cinematic);
+ document.body.classList.toggle('mobile-cinematic-landscape',touchDevice&&cinematic&&width>height);
+ document.body.classList.toggle('orientation-prompt-active',touchDevice&&cinematic&&height>=width);
+}
+
+async function requestLandscapePresentation(){
+ const button=document.querySelector('[data-request-landscape]'),status=document.querySelector('[data-orientation-status]');
+ if(button)button.disabled=true;
+ if(status)status.textContent='Preparando a visualização horizontal…';
+ let locked=false;
+ try{
+  if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen({navigationUI:'hide'});
+ }catch{}
+ try{
+  if(screen.orientation?.lock){await screen.orientation.lock('landscape');locked=true}
+ }catch{}
+ syncMobilePresentationViewport();
+ if(status&&!locked&&document.body.classList.contains('orientation-prompt-active'))status.textContent='Gire o aparelho manualmente para continuar.';
+ if(button&&!locked)button.disabled=false;
+}
+
 function renderSheetDrawer(){
  if(!sheetDrawerOpen)return'';
  return `<div class="sheet-drawer-backdrop" data-close-drawer></div>
@@ -757,7 +798,8 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
   ${renderBottomNav()}
   ${renderSheetDrawer()}
   ${renderRollLogDrawer()}
-	 `;bind();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl&&state.backgroundImage){if(!bgVideoEl.src)bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),traditionalPage=app.querySelector('.traditional-dossier-page'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(traditionalPage)traditionalPage.scrollTop=previousScroll.traditionalPage;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
+  ${state.viewMode==='cinematic'?renderMobileOrientationPrompt():''}
+	 `;bind();syncMobilePresentationViewport();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl&&state.backgroundImage){if(!bgVideoEl.src)bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),traditionalPage=app.querySelector('.traditional-dossier-page'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(traditionalPage)traditionalPage.scrollTop=previousScroll.traditionalPage;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
 
 
 function collectActiveInputs(){
@@ -1388,6 +1430,7 @@ async function exportCinematicImage(){
 
 function bind(){
  function notifyPresentationLocked(){const toast=document.querySelector('#save-toast');if(toast){toast.textContent='SELECIONE O PERSONAGEM PRIMEIRO';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}
+ document.querySelector('[data-request-landscape]')?.addEventListener('click',requestLandscapePresentation);
  document.querySelector('[data-critical-settings]')?.addEventListener('click',()=>document.querySelector('#critical-settings-modal')?.classList.add('open'));
  document.querySelectorAll('.critical-settings-close,.critical-settings-backdrop').forEach(el=>el.onclick=()=>document.querySelector('#critical-settings-modal')?.classList.remove('open'));
  document.querySelectorAll('[data-critical-effect]').forEach(button=>button.onclick=()=>{const key=button.dataset.criticalEffect;criticalEffects[key]=!criticalEffects[key];saveCriticalEffects();button.classList.toggle('active',criticalEffects[key]);button.setAttribute('aria-pressed',String(criticalEffects[key]));const label=button.querySelector('em');if(label)label.textContent=criticalEffects[key]?'ATIVO':'DESATIVADO';syncCriticalAtmosphere()});
@@ -1522,10 +1565,15 @@ window.addEventListener('resize',()=>{
  if(resizeRaf)cancelAnimationFrame(resizeRaf);
  resizeRaf=requestAnimationFrame(()=>{
   resizeRaf=0;
+  syncMobilePresentationViewport();
   syncCinematicLineMask();
   syncCriticalAtmosphere();
  });
 },{passive:true});
+window.visualViewport?.addEventListener('resize',syncMobilePresentationViewport,{passive:true});
+screen.orientation?.addEventListener?.('change',syncMobilePresentationViewport);
+document.addEventListener('touchmove',event=>{if(document.body.classList.contains('mobile-cinematic-landscape')&&event.touches.length>1)event.preventDefault()},{passive:false});
+document.addEventListener('gesturestart',event=>{if(document.body.classList.contains('mobile-cinematic'))event.preventDefault()},{passive:false});
 document.addEventListener('visibilitychange',syncCriticalAtmosphere);
 document.addEventListener('pointerdown',()=>{const context=getUiAudioContext();if(context?.state==='running')syncCriticalAtmosphere();else context?.resume?.().then(syncCriticalAtmosphere).catch(()=>{})},{once:true,capture:true});
 await loadInitialSheets();
