@@ -1,4 +1,16 @@
 import { DEFAULT_SHEETS } from './default-sheets.js';
+let deferredInstallPrompt=null;
+
+window.addEventListener('beforeinstallprompt',event=>{
+ event.preventDefault();
+ deferredInstallPrompt=event;
+ document.querySelector('[data-install-app]')?.removeAttribute('hidden');
+});
+window.addEventListener('appinstalled',()=>{
+ deferredInstallPrompt=null;
+ document.querySelector('[data-install-app]')?.setAttribute('hidden','');
+});
+
 const icon=(name,size=19)=>{const paths={
   sheet:'<path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
   book:'<path d="M4 5a4 4 0 0 1 4-2h4v17H8a4 4 0 0 0-4 2Z"/><path d="M20 5a4 4 0 0 0-4-2h-4v17h4a4 4 0 0 1 4 2Z"/>',
@@ -602,6 +614,7 @@ function renderMobileOrientationPrompt(){
   <h2 id="orientation-prompt-title">GIRE PARA PAISAGEM</h2>
   <p id="orientation-prompt-copy">Esta visualização foi criada para a tela horizontal. Gire o celular para ver a ficha inteira.</p>
   <button type="button" data-request-landscape>${icon('frame',16)} <span>ATIVAR TELA CHEIA</span></button>
+  <button type="button" class="orientation-install" data-install-app ${deferredInstallPrompt?'':'hidden'}>${icon('download',16)} <span>INSTALAR COMO APP</span></button>
   <em data-orientation-status>O aviso desaparecerá automaticamente ao girar.</em>
  </aside>`;
 }
@@ -614,6 +627,8 @@ function syncMobilePresentationViewport(){
  document.documentElement.style.setProperty('--mobile-viewport-height',`${height}px`);
  document.body.classList.toggle('mobile-cinematic',touchDevice&&cinematic);
  document.body.classList.toggle('mobile-cinematic-landscape',touchDevice&&cinematic&&width>height);
+ document.body.classList.toggle('mobile-cinematic-compact',touchDevice&&cinematic&&width>height&&height<360);
+ document.body.classList.toggle('mobile-cinematic-tight',touchDevice&&cinematic&&width>height&&height<310);
  document.body.classList.toggle('orientation-prompt-active',touchDevice&&cinematic&&height>=width);
 }
 
@@ -631,6 +646,15 @@ async function requestLandscapePresentation(){
  syncMobilePresentationViewport();
  if(status&&!locked&&document.body.classList.contains('orientation-prompt-active'))status.textContent='Gire o aparelho manualmente para continuar.';
  if(button&&!locked)button.disabled=false;
+}
+
+async function requestAppInstall(){
+ if(!deferredInstallPrompt)return;
+ const prompt=deferredInstallPrompt;
+ deferredInstallPrompt=null;
+ await prompt.prompt();
+ await prompt.userChoice.catch(()=>null);
+ document.querySelector('[data-install-app]')?.setAttribute('hidden','');
 }
 
 function renderSheetDrawer(){
@@ -1431,6 +1455,7 @@ async function exportCinematicImage(){
 function bind(){
  function notifyPresentationLocked(){const toast=document.querySelector('#save-toast');if(toast){toast.textContent='SELECIONE O PERSONAGEM PRIMEIRO';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}
  document.querySelector('[data-request-landscape]')?.addEventListener('click',requestLandscapePresentation);
+ document.querySelector('[data-install-app]')?.addEventListener('click',requestAppInstall);
  document.querySelector('[data-critical-settings]')?.addEventListener('click',()=>document.querySelector('#critical-settings-modal')?.classList.add('open'));
  document.querySelectorAll('.critical-settings-close,.critical-settings-backdrop').forEach(el=>el.onclick=()=>document.querySelector('#critical-settings-modal')?.classList.remove('open'));
  document.querySelectorAll('[data-critical-effect]').forEach(button=>button.onclick=()=>{const key=button.dataset.criticalEffect;criticalEffects[key]=!criticalEffects[key];saveCriticalEffects();button.classList.toggle('active',criticalEffects[key]);button.setAttribute('aria-pressed',String(criticalEffects[key]));const label=button.querySelector('em');if(label)label.textContent=criticalEffects[key]?'ATIVO':'DESATIVADO';syncCriticalAtmosphere()});
@@ -1576,6 +1601,7 @@ document.addEventListener('touchmove',event=>{if(document.body.classList.contain
 document.addEventListener('gesturestart',event=>{if(document.body.classList.contains('mobile-cinematic'))event.preventDefault()},{passive:false});
 document.addEventListener('visibilitychange',syncCriticalAtmosphere);
 document.addEventListener('pointerdown',()=>{const context=getUiAudioContext();if(context?.state==='running')syncCriticalAtmosphere();else context?.resume?.().then(syncCriticalAtmosphere).catch(()=>{})},{once:true,capture:true});
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{}),{once:true});
 await loadInitialSheets();
 state.viewMode = 'cinematic';
 presentationMode = true;

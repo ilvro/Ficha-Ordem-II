@@ -618,6 +618,8 @@ body.orientation-prompt-active .mobile-orientation-prompt{
 .mobile-orientation-prompt>button{z-index:1;height:40px;margin-top:18px;padding:0 17px;border:1px solid color-mix(in srgb,var(--red),white 18%);border-radius:5px;background:color-mix(in srgb,var(--red),#0c0d15 30%);color:#fff;display:flex;align-items:center;gap:8px;font:800 9px "Hanken Grotesk",sans-serif;letter-spacing:.12em;box-shadow:0 8px 24px #0009,0 0 20px color-mix(in srgb,var(--red),transparent 78%);touch-action:manipulation}
 .mobile-orientation-prompt>button:active{transform:scale(.97)}
 .mobile-orientation-prompt>button:disabled{opacity:.58}
+.mobile-orientation-prompt>button[hidden]{display:none!important}
+.mobile-orientation-prompt>.orientation-install{margin-top:8px;background:#151725;border-color:#3a3d50;color:#d8d9e2}
 .mobile-orientation-prompt>em{z-index:1;margin-top:10px;color:#666978;font:500 9px/1.4 "Hanken Grotesk",sans-serif;font-style:normal}
 @keyframes orientationPhoneTurn{0%,22%,100%{transform:rotate(0deg) scale(.92)}52%,82%{transform:rotate(90deg) scale(1.06)}}
 @keyframes orientationOrbit{0%,18%{transform:rotate(-42deg);opacity:.3}55%,82%{transform:rotate(52deg);opacity:1}100%{transform:rotate(66deg);opacity:0}}
@@ -2423,6 +2425,278 @@ body.mobile-cinematic-landscape .cinematic-header{
 }
 body.mobile-cinematic-landscape .cinematic-left{left:max(20px,calc(env(safe-area-inset-left) + 10px))!important}
 body.mobile-cinematic-landscape .cinematic-right{right:max(20px,calc(env(safe-area-inset-right) + 10px))!important}
+
+/* A classe acima usa a viewport visual como fonte de verdade. Alguns navegadores
+   Samsung mantêm `orientation: portrait` durante/apos a rotação; por isso todas
+   as peças internas do widescreen precisam responder à classe, não à media query. */
+body.mobile-cinematic-landscape .nav-rail,
+body.mobile-cinematic-landscape .cinematic-mobile-tabs,
+body.mobile-cinematic-landscape .mobile-bottom-nav{display:none!important}
+body.mobile-cinematic-landscape .cinematic-contents{display:block!important}
+
+body.mobile-cinematic-landscape .cinematic-header{
+ top:clamp(9px,3.9vh,16px)!important;
+ left:max(46px,calc(env(safe-area-inset-left) + 34px))!important;
+ right:max(18px,calc(env(safe-area-inset-right) + 10px))!important;
+ width:auto!important;height:auto!important;min-height:38px!important;
+ padding:0!important;background:none!important;border:0!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:space-between!important;gap:16px!important;
+ overflow:visible!important;z-index:10!important;
+}
+body.mobile-cinematic-landscape .cinematic-name{
+ display:flex!important;align-items:center!important;flex:0 1 34%!important;
+ width:auto!important;min-width:0!important;margin:0!important;padding:0!important;
+ transform:none!important;overflow:visible!important;
+}
+body.mobile-cinematic-landscape .cinematic-name h1,
+body.mobile-cinematic-landscape .cinematic-name input{
+ width:auto!important;max-width:100%!important;margin:0!important;padding:0!important;
+ font:700 clamp(22px,3.8vw,32px)/1.08 Georgia,serif!important;
+ letter-spacing:.03em!important;white-space:nowrap!important;overflow:hidden!important;
+ text-overflow:ellipsis!important;color:var(--cinematic-accent)!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity,
+body.mobile-cinematic-landscape .cinematic-identity-read{
+ position:static!important;display:flex!important;flex:0 0 auto!important;
+ width:auto!important;max-width:62%!important;height:auto!important;
+ align-items:center!important;justify-content:flex-end!important;gap:clamp(4px,1vw,8px)!important;
+ margin:0!important;padding:0!important;transform:none!important;white-space:nowrap!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity-read>strong{
+ padding:clamp(5px,1.4vh,7px) clamp(10px,1.7vw,15px)!important;
+ background:var(--cinematic-accent)!important;color:#fff!important;
+ font:800 clamp(10px,1.55vw,14px)/1 "Hanken Grotesk",sans-serif!important;
+ letter-spacing:.05em!important;transform:none!important;
+ clip-path:polygon(4% 7%,94% 0,100% 16%,96% 49%,100% 88%,8% 100%,0 75%,4% 43%,0 16%)!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity-read>span{
+ font:700 clamp(10px,1.55vw,14.5px)/1 "Hanken Grotesk",sans-serif!important;
+ color:#fff!important;letter-spacing:.04em!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity-read>i{
+ display:block!important;width:5px!important;height:5px!important;flex:0 0 5px!important;
+ border-radius:50%!important;background:var(--cinematic-accent)!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity-read>em{
+ display:block!important;font:700 clamp(8px,1.25vw,12px)/1 "Hanken Grotesk",sans-serif!important;
+ letter-spacing:.06em!important;color:#dedfe6!important;
+}
+body.mobile-cinematic-landscape .cinematic-identity-read>b{
+ display:grid!important;place-items:center!important;flex:0 0 clamp(27px,3.6vw,34px)!important;
+ width:clamp(27px,3.6vw,34px)!important;height:clamp(29px,4vw,36px)!important;
+ background:var(--cinematic-accent)!important;color:#fff!important;
+ font:700 clamp(15px,2vw,19px)/1 Georgia,serif!important;transform:none!important;
+ clip-path:polygon(9% 5%,88% 0,100% 14%,94% 89%,17% 100%,0 88%,5% 18%)!important;
+}
+
+body.mobile-cinematic-landscape .cinematic-character{
+ display:block!important;position:absolute!important;left:27%!important;width:44%!important;
+ top:0!important;bottom:0!important;height:100%!important;opacity:.88!important;
+ overflow:visible!important;pointer-events:none!important;z-index:4!important;
+ mask-image:none!important;-webkit-mask-image:none!important;
+}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-character{
+ display:block!important;position:absolute!important;left:27%!important;right:auto!important;width:44%!important;
+ top:0!important;bottom:0!important;height:100%!important;opacity:.88!important;
+ overflow:visible!important;z-index:4!important;mask-image:none!important;-webkit-mask-image:none!important;
+}
+body.mobile-cinematic-landscape .cinematic-character>img{
+ position:absolute!important;left:50%!important;bottom:0!important;top:auto!important;
+ transform:translateX(-50%) scale(var(--token-scale,1))!important;transform-origin:center bottom!important;
+ width:auto!important;height:auto!important;max-width:120%!important;max-height:96%!important;object-fit:contain!important;
+}
+
+body.mobile-cinematic-landscape .cinematic-left{
+ display:flex!important;flex-direction:column!important;position:absolute!important;
+ top:clamp(56px,17.5vh,72px)!important;bottom:max(7px,env(safe-area-inset-bottom))!important;
+ left:max(16px,calc(env(safe-area-inset-left) + 9px))!important;width:30%!important;
+ padding:0!important;z-index:5!important;pointer-events:auto!important;
+}
+body.mobile-cinematic-landscape .cinematic-page.cinematic-tab-skills .cinematic-left,
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-left{
+ display:flex!important;flex-direction:column!important;position:absolute!important;
+ top:clamp(56px,17.5vh,72px)!important;bottom:max(7px,env(safe-area-inset-bottom))!important;
+ left:max(16px,calc(env(safe-area-inset-left) + 9px))!important;width:30%!important;
+ padding:0!important;z-index:5!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes{
+ position:relative!important;display:block!important;height:clamp(98px,31vh,128px)!important;
+ flex:0 0 clamp(98px,31vh,128px)!important;padding:0 0 0 30%!important;
+ margin:0 0 4px!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes>h2{
+ display:inline-block!important;position:absolute!important;left:-6px!important;right:auto!important;top:12px!important;
+ margin:0!important;padding:0!important;background:transparent!important;clip-path:none!important;
+ transform:rotate(2.5deg)!important;z-index:2!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes>h2>span{
+ display:inline-block!important;padding:5px 15px 5px 10px!important;
+ background:var(--cinematic-accent)!important;color:#fff!important;
+ font:700 clamp(11px,1.55vw,14px)/1 Georgia,serif!important;
+ clip-path:polygon(2% 8%,45% 6%,75% 3%,100% 0%,82% 100%,40% 98%,4% 96%,0 52%,2% 8%)!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes>h2:before{
+ display:block!important;content:""!important;position:absolute!important;left:100%!important;top:0!important;
+ width:42px!important;height:1px!important;background:var(--cinematic-accent)!important;
+ transform-origin:left center!important;transform:rotate(-45deg)!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes>h2:after{
+ display:block!important;content:""!important;position:absolute!important;left:82%!important;top:100%!important;
+ width:1px!important;height:clamp(68px,22vh,94px)!important;background:var(--cinematic-accent)!important;
+ transform-origin:top center!important;transform:rotate(12deg)!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes:before,
+body.mobile-cinematic-landscape .cinematic-attributes:after{display:none!important}
+body.mobile-cinematic-landscape .cinematic-attributes>div{
+ position:relative!important;display:flex!important;flex-direction:row!important;
+ height:clamp(28px,8.7vh,36px)!important;align-items:center!important;justify-content:flex-end!important;
+ gap:5px!important;margin:0!important;padding:0!important;background:none!important;border:0!important;border-radius:0!important;
+}
+body.mobile-cinematic-landscape .cinematic-attributes>div:nth-of-type(1){transform:translateX(14px)!important}
+body.mobile-cinematic-landscape .cinematic-attributes>div:nth-of-type(2){transform:translateX(0)!important}
+body.mobile-cinematic-landscape .cinematic-attributes>div:nth-of-type(3){transform:translateX(-14px)!important}
+body.mobile-cinematic-landscape .cinematic-attributes>div>span{
+ order:0!important;font:700 clamp(16px,2.4vw,24px)/1 Georgia,serif!important;
+ text-transform:uppercase!important;color:#fff!important;letter-spacing:.02em!important;text-shadow:0 3px 8px #000!important;
+}
+body.mobile-cinematic-landscape .cinematic-attribute-die{
+ order:1!important;display:grid!important;place-items:center!important;
+ width:clamp(25px,3.5vw,32px)!important;height:clamp(27px,3.8vw,34px)!important;
+ flex:0 0 clamp(25px,3.5vw,32px)!important;margin:0!important;padding:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body.mobile-cinematic-landscape .die-svg.cinematic-attribute{width:100%!important;height:100%!important}
+
+body.mobile-cinematic-landscape .cinematic-skills{
+ display:flex!important;flex:1!important;flex-direction:column!important;width:100%!important;
+ min-height:0!important;padding:0!important;
+}
+body.mobile-cinematic-landscape .cinematic-skills>h2{
+ flex:0 0 auto!important;width:max-content!important;margin:0 0 3px!important;
+ padding:3px 10px!important;font-size:clamp(10px,1.35vw,12px)!important;transform:none!important;
+}
+body.mobile-cinematic-landscape .cinematic-skills>div{
+ display:flex!important;flex:1!important;flex-direction:column!important;gap:1px!important;
+ min-height:0!important;height:auto!important;overflow-y:auto!important;padding:0 3px 3px 0!important;
+ scrollbar-width:thin!important;scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 40%) transparent!important;
+}
+body.mobile-cinematic-landscape .cinematic-skill{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
+ flex:0 0 clamp(17px,5.1vh,21px)!important;height:clamp(17px,5.1vh,21px)!important;
+ min-height:0!important;gap:4px!important;padding:1px 3px!important;background:transparent!important;border-radius:3px!important;
+}
+body.mobile-cinematic-landscape .cinematic-skill>span:first-child{
+ text-align:left!important;font-size:clamp(8px,1.15vw,10px)!important;font-weight:700!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+body.mobile-cinematic-landscape .cinematic-skill-dice{
+ display:grid!important;grid-template-columns:18px 8px 18px 43px auto!important;
+ align-items:center!important;justify-items:center!important;gap:2px!important;width:93px!important;flex-shrink:0!important;
+}
+body.mobile-cinematic-landscape .cinematic-skill-dice .die-svg{width:17px!important;height:18px!important}
+body.mobile-cinematic-landscape .cinematic-skill-dice b{width:8px!important;font-size:9px!important;text-align:center!important}
+body.mobile-cinematic-landscape .cinematic-skill-dice em{width:43px!important;font-size:7px!important;text-align:left!important}
+body.mobile-cinematic-landscape .cinematic-skill-dice strong{font-size:8px!important}
+
+body.mobile-cinematic-landscape .cinematic-right{
+ display:flex!important;flex-direction:column!important;position:absolute!important;
+ top:clamp(56px,17.5vh,72px)!important;bottom:max(7px,env(safe-area-inset-bottom))!important;
+ right:max(16px,calc(env(safe-area-inset-right) + 9px))!important;width:33%!important;
+ padding:0!important;z-index:5!important;pointer-events:auto!important;
+}
+body.mobile-cinematic-landscape .cinematic-page.cinematic-tab-skills .cinematic-right,
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-right{
+ display:flex!important;flex-direction:column!important;position:absolute!important;
+ top:clamp(56px,17.5vh,72px)!important;bottom:max(7px,env(safe-area-inset-bottom))!important;
+ right:max(16px,calc(env(safe-area-inset-right) + 9px))!important;width:33%!important;
+ padding:0!important;z-index:5!important;
+}
+body.mobile-cinematic-landscape .cinematic-resources{
+ position:relative!important;top:auto!important;display:grid!important;grid-template-columns:1fr 1fr!important;
+ width:100%!important;flex:0 0 auto!important;gap:7px!important;margin:0 0 7px!important;padding:0!important;
+ background:none!important;border:0!important;box-shadow:none!important;transform:none!important;
+}
+body.mobile-cinematic-landscape .cinematic-resource-item{
+ display:grid!important;grid-template-columns:auto 22px minmax(0,1fr)!important;
+ align-items:center!important;gap:4px!important;
+}
+body.mobile-cinematic-landscape .cinematic-resources strong{
+ padding:4px 7px!important;background:var(--cinematic-accent)!important;color:#fff!important;
+ font:700 clamp(11px,1.55vw,14px)/1 Georgia,serif!important;
+ clip-path:polygon(4% 5%,95% 0,100% 18%,94% 89%,8% 100%,0 87%,5% 19%)!important;
+}
+body.mobile-cinematic-landscape .cinematic-resources b{min-width:22px!important;font-size:clamp(12px,1.7vw,16px)!important}
+body.mobile-cinematic-landscape .cinematic-resources>div>span{
+ display:flex!important;flex-wrap:wrap!important;align-content:center!important;gap:2px!important;max-width:100%!important;
+}
+body.mobile-cinematic-landscape .cinematic-resources .pip{width:clamp(9px,1.35vw,13px)!important;height:clamp(8px,1.05vw,10px)!important}
+body.mobile-cinematic-landscape .cinematic-scroll{
+ display:block!important;flex:1!important;min-height:0!important;overflow-y:auto!important;
+ padding:0 3px 54px 0!important;scrollbar-width:thin!important;
+ scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 40%) transparent!important;
+}
+body.mobile-cinematic-landscape .cinematic-page.cinematic-tab-skills .cinematic-right .cinematic-scroll,
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-right .cinematic-scroll{display:block!important}
+body.mobile-cinematic-landscape .cinematic-abilities-direct{display:flex!important;flex-direction:column!important;gap:8px!important}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-section-group.section-lockable{display:none!important}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"]{display:block!important;margin-top:0!important}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"]>.cinematic-section-heading{display:none!important}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-section-group[data-section-key="abilities"] .cinematic-section-body>div{padding-top:0!important}
+body.mobile-cinematic-landscape .cinematic-page.presentation-active .cinematic-skill.is-untrained{display:none!important}
+body.mobile-cinematic-landscape .cinematic-card{
+ margin:0 0 8px!important;background:transparent!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;overflow:visible!important;
+}
+body.mobile-cinematic-landscape .cinematic-card>header{
+ min-height:27px!important;height:auto!important;padding:0!important;background:transparent!important;
+ border:0!important;display:flex!important;align-items:flex-start!important;
+}
+body.mobile-cinematic-landscape .cinematic-card-copy{
+ padding:5px 0 2px!important;background:transparent!important;color:#dedfe6!important;
+ font-size:clamp(8px,1.2vw,11px)!important;line-height:1.4!important;
+}
+body.mobile-cinematic-landscape .cinematic-presentation-dock{
+ bottom:max(4px,env(safe-area-inset-bottom))!important;scale:clamp(.68,.82,.82)!important;
+ transform-origin:center bottom!important;
+}
+body.mobile-cinematic-landscape .view-mode-switch{display:none!important}
+body.mobile-cinematic-landscape .floating{display:flex!important;right:max(8px,env(safe-area-inset-right))!important;bottom:max(8px,env(safe-area-inset-bottom))!important;z-index:30!important}
+
+body.mobile-cinematic-compact .cinematic-header{top:7px!important;min-height:32px!important}
+body.mobile-cinematic-compact .cinematic-left,
+body.mobile-cinematic-compact .cinematic-right{top:50px!important}
+body.mobile-cinematic-compact .cinematic-page.cinematic-tab-skills .cinematic-left,
+body.mobile-cinematic-compact .cinematic-page.presentation-active .cinematic-left,
+body.mobile-cinematic-compact .cinematic-page.cinematic-tab-skills .cinematic-right,
+body.mobile-cinematic-compact .cinematic-page.presentation-active .cinematic-right{top:50px!important}
+body.mobile-cinematic-compact .cinematic-attributes{height:92px!important;flex-basis:92px!important}
+body.mobile-cinematic-compact .cinematic-attributes>div{height:27px!important}
+body.mobile-cinematic-compact .cinematic-attributes>h2:after{height:65px!important}
+body.mobile-cinematic-compact .cinematic-resource-item{grid-template-columns:auto 19px minmax(0,1fr)!important;gap:3px!important}
+body.mobile-cinematic-compact .cinematic-card-copy{line-height:1.3!important}
+
+body.mobile-cinematic-tight .cinematic-header{left:max(35px,calc(env(safe-area-inset-left) + 25px))!important;right:max(12px,env(safe-area-inset-right))!important;gap:8px!important}
+body.mobile-cinematic-tight .cinematic-name{flex-basis:29%!important}
+body.mobile-cinematic-tight .cinematic-name h1{font-size:20px!important}
+body.mobile-cinematic-tight .cinematic-identity-read>strong{padding:4px 8px!important;font-size:9px!important}
+body.mobile-cinematic-tight .cinematic-identity-read>span{font-size:9px!important;max-width:105px!important}
+body.mobile-cinematic-tight .cinematic-identity-read>em{font-size:7px!important}
+body.mobile-cinematic-tight .cinematic-identity-read>b{width:25px!important;height:27px!important;flex-basis:25px!important;font-size:14px!important}
+body.mobile-cinematic-tight .cinematic-left{width:31%!important;top:43px!important}
+body.mobile-cinematic-tight .cinematic-right{width:35%!important;top:43px!important}
+body.mobile-cinematic-tight .cinematic-page.cinematic-tab-skills .cinematic-left,
+body.mobile-cinematic-tight .cinematic-page.presentation-active .cinematic-left{width:31%!important;top:43px!important}
+body.mobile-cinematic-tight .cinematic-page.cinematic-tab-skills .cinematic-right,
+body.mobile-cinematic-tight .cinematic-page.presentation-active .cinematic-right{width:35%!important;top:43px!important}
+body.mobile-cinematic-tight .cinematic-attributes{height:82px!important;flex-basis:82px!important}
+body.mobile-cinematic-tight .cinematic-attributes>div{height:24px!important}
+body.mobile-cinematic-tight .cinematic-attributes>h2{top:8px!important}
+body.mobile-cinematic-tight .cinematic-attributes>h2:after{height:57px!important}
+body.mobile-cinematic-tight .cinematic-skills>h2{padding:2px 8px!important}
+body.mobile-cinematic-tight .cinematic-skill{flex-basis:16px!important;height:16px!important}
+body.mobile-cinematic-tight .cinematic-resources{margin-bottom:4px!important}
+body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 @keyframes presentationEnterContentsMobileLandscape{
  from{scale:.97;translate:0 4px;filter:brightness(1) contrast(1);opacity:.7}
  to{scale:1;translate:0 0;filter:brightness(.82) contrast(1.05);opacity:1}
