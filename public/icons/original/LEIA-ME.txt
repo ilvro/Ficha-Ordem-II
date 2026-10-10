@@ -1,0 +1,5 @@
+Coloque aqui os ícones dos medalhões (pv-full.svg, pv-half.svg, pv-low.svg,
+pv-empty.svg, sanity-full.svg, sanity-half.svg, sanity-low.svg,
+sanity-empty.svg, effort-full.svg, effort-half.svg, effort-empty.svg) e
+também o heal-icon.svg (usado no botão "Curar" que aparece quando um
+recurso zera). Veja img/LEIA-ME.txt para mais detalhes.

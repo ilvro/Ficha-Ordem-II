@@ -16,7 +16,7 @@
     "backgroundBlur": 0,
     "backgroundZoom": 100,
     "diceColor": "",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 44.589962737621285,
     "cinematicTokenY": 56.71889828793998,
     "cinematicTokenScale": 100,
@@ -218,7 +218,8 @@
         "imageUrl": ""
       }
     ],
-    "id": "sheet-1789933906659-msnzp"
+    "id": "sheet-1789933906659-msnzp",
+    "systemMode": "ordem2"
   },
   {
     "name": "CLARA",
@@ -510,7 +511,8 @@
         ]
       }
     ],
-    "id": "sheet-1789935686382-iplu3"
+    "id": "sheet-1789935686382-iplu3",
+    "systemMode": "ordem2"
   },
   {
     "name": "CLARA",
@@ -529,7 +531,7 @@
     "backgroundBlur": 0,
     "backgroundZoom": 100,
     "diceColor": "",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 44.82931280656319,
     "cinematicTokenY": 58.75696009453432,
     "cinematicTokenScale": 100,
@@ -802,7 +804,8 @@
         ]
       }
     ],
-    "id": "sheet-1790292112563-5tjih"
+    "id": "sheet-1790292112563-5tjih",
+    "systemMode": "ordem2"
   },
   {
     "name": "EDGAR",
@@ -1020,7 +1023,8 @@
         "imageUrl": ""
       }
     ],
-    "id": "sheet-1789935462676-fbt69"
+    "id": "sheet-1789935462676-fbt69",
+    "systemMode": "ordem2"
   },
   {
     "name": "EDMUND",
@@ -1285,7 +1289,8 @@
         "actions": []
       }
     ],
-    "id": "sheet-1789936171837-fv94u"
+    "id": "sheet-1789936171837-fv94u",
+    "systemMode": "ordem2"
   },
   {
     "name": "KÊNIA",
@@ -1525,7 +1530,8 @@
         "imageUrl": ""
       }
     ],
-    "id": "sheet-1789934192511-ffzfi"
+    "id": "sheet-1789934192511-ffzfi",
+    "systemMode": "ordem2"
   },
   {
     "name": "MOIRA",
@@ -1808,7 +1814,8 @@
       }
     ],
     "impeto": 0,
-    "id": "sheet-1789933894738-hp4ge"
+    "id": "sheet-1789933894738-hp4ge",
+    "systemMode": "ordem2"
   },
   {
     "name": "VICTOR",
@@ -1827,7 +1834,7 @@
     "backgroundBlur": 0,
     "backgroundZoom": 100,
     "diceColor": "",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 45.55505018498842,
     "cinematicTokenY": 60.94476253786517,
     "cinematicTokenScale": 100,
@@ -2065,6 +2072,180 @@
         "actions": []
       }
     ],
-    "id": "sheet-1789934661352-pwiz0"
+    "id": "sheet-1789934661352-pwiz0",
+    "systemMode": "ordem2"
+  },
+  {
+    "systemMode": "original",
+    "name": "AGENTE 9",
+    "jogador": "",
+    "origemId": "acadêmico",
+    "classeId": "ocultista",
+    "trilhaId": "conduite",
+    "trilhaSecundariaId": "",
+    "trilhaTerciariaId": "",
+    "trilhaTierAtribuicoes": {},
+    "nex": 0,
+    "atributos": {
+      "for": 2,
+      "agi": 2,
+      "vig": 2,
+      "int": 1,
+      "pre": 1
+    },
+    "pv": 11,
+    "maxPv": 18,
+    "pvTemp": 0,
+    "pvMarcas": 0,
+    "pe": 3,
+    "maxPe": 5,
+    "peTemp": 0,
+    "san": 12,
+    "maxSan": 12,
+    "sanTemp": 0,
+    "sanMarcas": 0,
+    "defesaOutros": 0,
+    "deslocamento": "9m (6q)",
+    "pericias": {
+      "acrobacia": {
+        "treino": 15,
+        "extra": 0
+      },
+      "adestramento": {
+        "treino": 0,
+        "extra": 0
+      },
+      "artes": {
+        "treino": 0,
+        "extra": 0
+      },
+      "atletismo": {
+        "treino": 0,
+        "extra": 0
+      },
+      "atualidades": {
+        "treino": 0,
+        "extra": 0
+      },
+      "ciencias": {
+        "treino": 0,
+        "extra": 0
+      },
+      "crime": {
+        "treino": 0,
+        "extra": 0
+      },
+      "diplomacia": {
+        "treino": 0,
+        "extra": 0
+      },
+      "enganacao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "fortitude": {
+        "treino": 0,
+        "extra": 0
+      },
+      "furtividade": {
+        "treino": 0,
+        "extra": 0
+      },
+      "intimidacao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "intuicao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "investigacao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "luta": {
+        "treino": 0,
+        "extra": 0
+      },
+      "medicina": {
+        "treino": 0,
+        "extra": 0
+      },
+      "ocultismo": {
+        "treino": 0,
+        "extra": 0
+      },
+      "percepcao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "pilotagem": {
+        "treino": 0,
+        "extra": 0
+      },
+      "pontaria": {
+        "treino": 0,
+        "extra": 0
+      },
+      "profissao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "reflexos": {
+        "treino": 0,
+        "extra": 0
+      },
+      "religiao": {
+        "treino": 0,
+        "extra": 0
+      },
+      "sobrevivencia": {
+        "treino": 0,
+        "extra": 0
+      },
+      "tatica": {
+        "treino": 0,
+        "extra": 0
+      },
+      "tecnologia": {
+        "treino": 0,
+        "extra": 0
+      },
+      "vontade": {
+        "treino": 0,
+        "extra": 0
+      }
+    },
+    "skills": [],
+    "cards": [],
+    "ataques": [],
+    "poderesEscolhidos": [],
+    "poderesCustomizados": [],
+    "poderesParanormais": [],
+    "rituaisConhecidos": [],
+    "inventario": [],
+    "condicoesAtivas": [],
+    "history": "",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "diceColor": "",
+    "viewMode": "cinematic",
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "cinematicCollapsed": {
+      "abilities": false,
+      "combat": false,
+      "rituals": false,
+      "items": true,
+      "history": true
+    },
+    "id": "sheet-1791409120413-7oj8u"
   }
 ]

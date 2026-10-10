@@ -172,15 +172,28 @@ function topFace(die) {
   return best.value;
 }
 
-function showResult(resultNode, dice, results, title, modifier = 0) {
-  const total = results.reduce((sum, value) => sum + value, 0) + modifier;
+function showResult(resultNode, dice, results, title, modifier = 0, rollMode = 'sum') {
+  let total;
+  let diceBreakdownHtml;
   const modifierLabel = modifier ? `<i>${modifier > 0 ? '+' : '−'}</i><span class="modifier">${Math.abs(modifier)}</span>` : '';
-  resultNode.innerHTML = `<small>${title}</small><div>${results.map((value, index) => `<span><b>${value}</b> d${dice[index].sides}</span>`).join('<i>+</i>')}${modifierLabel}</div><strong>${total}</strong><button type="button" class="btn-dice-open-log" data-open-roll-log title="Ver histórico de rolagens">HISTÓRICO ▾</button>`;
+  if (rollMode === 'highest' || rollMode === 'lowest') {
+    const targetVal = rollMode === 'highest' ? Math.max(...results) : Math.min(...results);
+    const chosenIndex = results.indexOf(targetVal);
+    total = targetVal + modifier;
+    diceBreakdownHtml = results.map((value, index) => {
+      const isChosen = index === chosenIndex;
+      return `<span class="roll-die-tag ${isChosen ? 'chosen' : 'discarded'}"><b>${value}</b> d${dice[index].sides}</span>`;
+    }).join(' ') + modifierLabel;
+  } else {
+    total = results.reduce((sum, value) => sum + value, 0) + modifier;
+    diceBreakdownHtml = results.map((value, index) => `<span><b>${value}</b> d${dice[index].sides}</span>`).join('<i>+</i>') + modifierLabel;
+  }
+  resultNode.innerHTML = `<small>${title}</small><div>${diceBreakdownHtml}</div><strong>${total}</strong><button type="button" class="btn-dice-open-log" data-open-roll-log title="Ver histórico de rolagens">HISTÓRICO ▾</button>`;
 
   resultNode.classList.add('visible');
 }
 
-export function rollDice3d(configs, title = 'Rolagem', modifier = 0, sharedAudioContext = null) {
+export function rollDice3d(configs, title = 'Rolagem', modifier = 0, sharedAudioContext = null, rollMode = 'sum') {
   const list = Array.isArray(configs) ? configs : [{ sides: configs }];
   const stage = document.querySelector('#dice-stage');
   const canvas = document.querySelector('#dice-canvas');
@@ -257,10 +270,31 @@ export function rollDice3d(configs, title = 'Rolagem', modifier = 0, sharedAudio
         finishedAt = now;
         dice.forEach(die => { die.body.velocity.setZero(); die.body.angularVelocity.setZero(); });
         const values = dice.map(topFace);
-        showResult(resultNode, dice, values, title, modifier);
+        let total = 0;
+        let chosenValue = null;
+        let chosenIndex = -1;
+        if (rollMode === 'highest') {
+          chosenValue = Math.max(...values);
+          chosenIndex = values.indexOf(chosenValue);
+          total = chosenValue + modifier;
+        } else if (rollMode === 'lowest') {
+          chosenValue = Math.min(...values);
+          chosenIndex = values.indexOf(chosenValue);
+          total = chosenValue + modifier;
+        } else {
+          total = values.reduce((s, v) => s + v, 0) + modifier;
+        }
+        showResult(resultNode, dice, values, title, modifier, rollMode);
         cleanupTimer = setTimeout(closeDice3d, 4200);
-        finishResolve({ values, total: values.reduce((s, v) => s + v, 0) + modifier, dice: values, breakdown: dice.map((d, i) => ({ sides: d.sides, value: values[i] })) });
-
+        finishResolve({
+          values,
+          total,
+          chosenValue,
+          chosenIndex,
+          rollMode,
+          dice: values,
+          breakdown: dice.map((d, i) => ({ sides: d.sides, value: values[i], isChosen: i === chosenIndex, discarded: (chosenIndex >= 0 && i !== chosenIndex) }))
+        });
       }
       if (!finished || now - finishedAt < 900) animationFrame = requestAnimationFrame(animate);
     }

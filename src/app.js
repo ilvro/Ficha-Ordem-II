@@ -1,5 +1,27 @@
 import { DEFAULT_SHEETS } from './default-sheets.js';
-let deferredInstallPrompt=null;
+import {
+  DEFAULT_ORIGINAL_SHEET,
+  normalizeOriginalSheet,
+  ATRIBUTOS as ORIGINAL_ATRIBUTOS,
+  PERICIAS as ORIGINAL_PERICIAS,
+  RITUAIS as ORIGINAL_RITUAIS,
+  PODERES_PARANORMAIS as ORIGINAL_PODERES_PARANORMAIS,
+  classeAtual,
+  bonusPoderesPorPericia as originalBonusPoderesPorPericia,
+  calcPvMax as originalCalcPvMax,
+  calcPeMax as originalCalcPeMax,
+  calcSanMax as originalCalcSanMax,
+  calcDtRituais as originalCalcDtRituais,
+  snapNex
+} from './systems/original/original-system.js';
+import {
+  renderTraditionalOriginal,
+  renderCinematicOriginal
+} from './systems/original/original-views.js';
+
+let currentOriginalTab = 'habilidades';
+let originalSkillsFilter = '';
+let deferredInstallPrompt = null;
 
 window.addEventListener('beforeinstallprompt',event=>{
  event.preventDefault();
@@ -121,7 +143,11 @@ function normalizeCard(card){
 }
 function ensureProfileAbility(sheet,profile=sheet.profile){const template=PROFILE_ABILITIES[profile];if(!template)return;const expected=String(template.title).toUpperCase(),existing=sheet.cards?.find(card=>card.profileAbility===profile||String(card.title).toUpperCase()===expected);if(existing){existing.profileAbility=profile;return}sheet.cards.push(normalizeCard(clone(template)))}
 function normalizeSheet(raw={}){
+ if(raw && raw.systemMode === 'original'){
+  return normalizeOriginalSheet(raw);
+ }
  const sheet={...clone(defaults),...raw}; sheet.id=raw.id||makeId('sheet');
+ sheet.systemMode = 'ordem2';
  sheet.attributes={...defaults.attributes,...raw.attributes};
  sheet.skills=Array.isArray(raw.skills)?raw.skills:clone(defaultSkills);
  sheet.skills=sheet.skills.map(skill=>{let name=skill.name==='APTIDÃO'?'APTIDÃO (HUMANAS)':skill.name;let training=skill.training;if(training==='VETERANO')training='ESPECIALISTA';if(training==='EXPERT')training='MESTRE';if(training==='MESTRE'&&Number(skill.skillDie)===12)training='GRÃO MESTRE';const found=TRAINING.find(([label])=>label===training)||TRAINING.find(([,die])=>die===Number(skill.skillDie))||TRAINING[0];return {...skill,name,training:found[0],skillDie:found[1],extra:Number(skill.extra)||0}});
@@ -255,12 +281,28 @@ function dossierResourceEditor(key,badge,title){const maxKey=`max${key[0].toUppe
 function renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount){return `<main class="page traditional-dossier-page ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} mobile-tab-${mobileTab} ${modeJustChanged?'mode-enter':''}${bgIsVideo?' has-video-bg':''}" style="--bg-blur:${state.backgroundBlur??0}px;--bg-zoom:${(state.backgroundZoom??100)/100};">${renderBackgroundLayer(bgIsVideo,false)}<header class="dossier-hero"><div class="dossier-photo-col"><div class="dossier-photo-card ${state.tokenImage?'has-token':''}"><div class="dossier-photo-inner" ${state.tokenImage?`style="background-image:url('${safeUrl(state.tokenImage)}')"`:''}>${state.tokenImage?'':`<div class="dossier-photo-ph">${icon('user',42)}<span>FOTO DO AGENTE</span></div>`}</div>${editMode?`<label class="dossier-upload-btn">${icon('image',14)} TROCAR FOTO<input id="token-upload" type="file" accept="image/*"></label>`:''}</div></div><div class="dossier-info-col"><div class="dossier-meta-row"><span class="dossier-profile-pill profile-${state.profile?.toLowerCase()}">${safe(state.profile||'Executor')}</span></div><div class="dossier-name-row">${editMode?`<input class="dossier-name-input" data-field="name" value="${safe(state.name)}" placeholder="NOME DO AGENTE" aria-label="Nome do agente">`:`<h1 class="dossier-name-display">${safe(state.name||'AGENTE SEM NOME')}</h1>`}</div><div class="dossier-creds-row"><div class="dossier-field"><small>OCUPAÇÃO</small><input data-field="occupation" value="${safe(state.occupation)}" placeholder="Ocupação..." ${editMode?'':'readonly'}></div><div class="dossier-field"><small>PERFIL</small>${customSelect({value:state.profile,options:['Executor','Analista','Vigilante'].map(v=>({value:v,label:v})),id:'profile',className:'profile-select dossier-profile-select',disabled:!editMode})}</div><div class="dossier-field field-level"><small>NÍVEL</small><div class="dossier-level-val"><input class="center" data-field="level" value="${state.level}" inputmode="numeric" ${editMode?'':'readonly'}></div></div></div>${editMode?`<div class="dossier-visual-bar"><label class="dossier-chip">${icon('image',13)} FUNDO<input id="background-upload" type="file" accept="image/*,video/mp4,video/webm"></label>${state.backgroundImage?'<button type="button" class="dossier-chip-btn" data-reset-background>PADRÃO</button>':''}<label class="dossier-chip" title="Cor dos dados">${icon('dice',13)} DADOS<input id="dice-color" type="color" value="${safe(state.diceColor||PROFILE_COLORS[state.profile])}"></label>${state.diceColor?'<button type="button" class="dossier-chip-btn" data-reset-dice-color>PERFIL</button>':''}<label class="dossier-chip range-chip" title="Desfoque da imagem de fundo"><span>BLUR</span><input type="range" min="0" max="30" step="1" value="${state.backgroundBlur??0}" data-cinematic-bg-blur><span class="slider-val-hint" id="val-hint-blur">${state.backgroundBlur??0}px</span></label><label class="dossier-chip range-chip" title="Zoom da imagem de fundo"><span>ZOOM</span><input type="range" min="30" max="250" step="5" value="${state.backgroundZoom??100}" data-cinematic-bg-zoom><span class="slider-val-hint" id="val-hint-zoom">${state.backgroundZoom??100}%</span></label>${(state.backgroundBlur>0||(state.backgroundZoom&&state.backgroundZoom!==100))?'<button type="button" class="dossier-chip-btn" data-reset-bg-effects>RESET BG</button>':''}</div>`:''}</div><div class="dossier-vitals-col"><div class="dossier-vitals-header"><span>MONITORES VITAIS</span><i class="vitals-pulse"></i></div><div class="dossier-vitals-grid">${dossierResourceEditor('pv','PV','PONTOS DE VIDA')}${dossierResourceEditor('pd','PD','DETERMINAÇÃO')}</div></div></header><div class="dossier-body"><section class="dossier-main-col"><div class="dossier-block dossier-attr-block"><div class="dossier-block-header"><span class="block-tag">SEÇÃO I</span><h2>ATRIBUTOS PRINCIPAIS</h2></div><div class="dossier-attr-grid">${Object.entries(state.attributes).map(([name,value])=>`<article class="dossier-attr-card"><div class="dossier-attr-head"><span>${name}</span></div><button type="button" class="attribute-die dossier-die-btn" data-roll="${name}|${value}" title="Clique para rolar ${name} (d${value})">${die(value)}</button>${editMode?attributeStepper(name,value):''}</article>`).join('')}</div></div><div class="dossier-block dossier-skills-block"><div class="dossier-block-header"><span class="block-tag">SEÇÃO II</span><h2>REGISTRO DE PERÍCIAS</h2>${editMode?`<button type="button" class="btn-dossier-add-aptidao" data-add-aptidao title="Adicionar especialização de Aptidão">+ APTIDÃO</button>`:''}</div><div class="dossier-skills-table"><header class="dossier-skills-table-head"><span class="col-name">PERÍCIA ↕</span><span class="col-training">TREINAMENTO ↕</span><span class="col-attr">ATRIBUTO BASE ↕</span><span class="col-extra">EXTRA ↕</span></header><div class="dossier-skills-table-body">${state.skills.map((skill,index)=>{const trained=skill.skillDie>4,attrDie=state.attributes[skill.attribute]||4,isAptidao=skill.name.startsWith('APTIDÃO'),aptidaoField=isAptidao?(skill.name.match(/\(([^)]+)\)/)?.[1]||'HUMANAS'):'',nameCol=editMode&&isAptidao?`<span class="skill-name skill-name-aptidao"><span>APTIDÃO</span>${customSelect({value:aptidaoField,options:aptidaoOptions,id:`aptidao-field:${index}`,className:'aptidao-select'})}<button class="skill-info-button" data-skill-info="${index}" aria-label="Informações sobre ${safe(skill.name)}">${icon('info',14)}</button>${aptidaoCount>1?`<button type="button" class="btn-remove-aptidao" data-remove-aptidao="${index}" title="Remover">${icon('trash',13)}</button>`:''}</span>`:`<span class="skill-name">${safe(skill.name)} <button class="skill-info-button" data-skill-info="${index}" aria-label="Informações sobre ${safe(skill.name)}">${icon('info',14)}</button></span>`;return `<div class="skill-row dossier-skill-row grade-d${skill.skillDie} ${trained?'trained is-trained':'is-untrained'}" data-roll="${safe(skill.name)}|${skill.skillDie},${attrDie}|${skill.extra||0}">${nameCol}<span class="training">${die(skill.skillDie,'small',trained)}${customSelect({value:skill.training,options:trainingOptions,id:`skill-training:${index}`,className:'skill-select training-select',disabled:!editMode})}</span><span class="attribute-ref">${die(attrDie,'small gem',trained)}${customSelect({value:skill.attribute,options:['Físico','Mente','Emoção'].map(v=>({value:v,label:v})),id:`skill-attribute:${index}`,className:'skill-select attribute-select',disabled:!editMode})}</span><span class="extra">${editMode?`<input data-skill-extra="${index}" type="number" value="${skill.extra||0}">`:`${Number(skill.extra)>=0?'+':''}${skill.extra||0}`}</span></div>`}).join('')}</div></div></div></section><aside class="dossier-side-col"><div class="dossier-tabs-nav right-tabs"><button type="button" class="dossier-tab-btn ${currentRight==='abilities'?'active':''}" data-right="abilities">HABILIDADES</button><button type="button" class="dossier-tab-btn ${currentRight==='items'?'active':''}" data-right="items">ITENS</button><button type="button" class="dossier-tab-btn ${currentRight==='history'?'active':''}" data-right="history">HISTÓRIA</button></div><div class="dossier-tools right-tools"><div class="dossier-search-wrap">${icon('search',14)}<input id="filter" placeholder="Filtrar registros..."></div><button type="button" class="dossier-add-btn add" title="Criar card">${icon('plus',15)}<span>CRIAR CARD</span></button></div><section id="abilities" class="right-content ${currentRight==='abilities'?'active':''}">${visibleCards('abilities').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhuma habilidade registrada. Clique em CRIAR CARD para adicionar.</p>'}</section><section id="items" class="right-content ${currentRight==='items'?'active':''}">${visibleCards('items').map(renderResourceCard).join('')||'<p class="empty-cards">Nenhum item registrado. Clique em CRIAR CARD para adicionar.</p>'}</section><section id="history" class="right-content ${currentRight==='history'?'active':''}"><div class="dossier-history-card"><div class="dossier-history-head"><span>RELATÓRIO DE ANTECEDENTES & MOTIVAÇÕES</span></div><textarea data-field="history" placeholder="Escreva aqui a história, investigações anteriores, vínculos e anotações do agente..." ${editMode?'':'readonly'}>${safe(state.history||'')}</textarea></div></section></aside></div></main>`}
 function resourceEditor(key,label){const maxKey=`max${key[0].toUpperCase()}${key.slice(1)}`,tempKey=`${key}Temp`;return `<div class="resource-row" data-resource-key="${key}"><strong class="mini-torn">${label}</strong><b>${state[key]}${state[tempKey]?`<button type="button" class="temp-badge-btn" data-consume-temp="${key}:1" title="Clique para extinguir 1 ${key.toUpperCase()} temporário (Botão direito para extinguir todos)"><em>+${state[tempKey]}</em></button>`:''}</b><div class="pips">${pips(state[key],state[maxKey],key,state[tempKey])}</div>${editMode?`<div class="resource-config"><span>MÁX <button data-resource-adjust="${maxKey}:-1">−</button><i>${state[maxKey]}</i><button data-resource-adjust="${maxKey}:1">+</button></span><span>TEMP <button data-resource-adjust="${tempKey}:-1">−</button><i>${state[tempKey]}</i><button data-resource-adjust="${tempKey}:1">+</button></span></div>`:''}</div>`}
 function attributeStepper(name,value){return `<div class="attribute-stepper"><button data-attribute-step="${name}:-1">−</button><b>d${value}</b><button data-attribute-step="${name}:1">+</button></div>`}
-function syncTokenOutlineFilter(){const flood=document.querySelector('#token-outline-flood'),morph=document.querySelector('#token-outline-morph'),offset=document.querySelector('#token-outline-offset'),blur=document.querySelector('#token-outline-blur'),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;const side=state.cinematicOutlineSide||'left',intensity=side==='none'?0:Number(state.cinematicOutlineIntensity??0.5),width=Number(state.cinematicOutlineWidth??1.8),fade=Number(state.cinematicOutlineFade??1.5);let dx=0;if(side==='left')dx=-2.5;else if(side==='right')dx=2.5;if(flood){flood.setAttribute('flood-color',color);flood.setAttribute('flood-opacity',String(intensity))}if(morph)morph.setAttribute('radius',String(width));if(offset){offset.setAttribute('dx',String(dx));offset.setAttribute('dy','0')}if(blur)blur.setAttribute('stdDeviation',String(fade));const tokenImg=document.querySelector('.cinematic-character>img');if(tokenImg)tokenImg.classList.toggle('no-outline',side==='none'||intensity<=0||width<=0)}
-function applyTheme(){const accent=editMode?'#d98b19':(PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor);document.documentElement.style.setProperty('--red',accent);document.documentElement.style.setProperty('--red-dark',accent);document.body.dataset.profile=state.profile.toLowerCase();document.body.classList.toggle('editing',editMode);syncTokenOutlineFilter()}
+function syncTokenOutlineFilter(){const flood=document.querySelector('#token-outline-flood'),morph=document.querySelector('#token-outline-morph'),offset=document.querySelector('#token-outline-offset'),blur=document.querySelector('#token-outline-blur'),color=state.diceColor||getSheetAccent(state);const side=state.cinematicOutlineSide||'left',intensity=side==='none'?0:Number(state.cinematicOutlineIntensity??0.5),width=Number(state.cinematicOutlineWidth??1.8),fade=Number(state.cinematicOutlineFade??1.5);let dx=0;if(side==='left')dx=-2.5;else if(side==='right')dx=2.5;if(flood){flood.setAttribute('flood-color',color);flood.setAttribute('flood-opacity',String(intensity))}if(morph)morph.setAttribute('radius',String(width));if(offset){offset.setAttribute('dx',String(dx));offset.setAttribute('dy','0')}if(blur)blur.setAttribute('stdDeviation',String(fade));const tokenImg=document.querySelector('.cinematic-character>img');if(tokenImg)tokenImg.classList.toggle('no-outline',side==='none'||intensity<=0||width<=0)}
+const ORIGINAL_CLASS_COLORS = {
+  combatente: '#e0150d',
+  especialista: '#2162ff',
+  ocultista: '#a230ed',
+  mundano: '#808080'
+};
+function getSheetAccent(sheet) {
+  if (!sheet) return '#e0150d';
+  if (sheet.systemMode === 'original') {
+    return ORIGINAL_CLASS_COLORS[sheet.classeId] || '#e0150d';
+  }
+  return PROFILE_COLORS[sheet.profile] || PROFILE_COLORS.Executor;
+}
+function applyTheme(){const accent=editMode?'#d98b19':(state.diceColor||getSheetAccent(state));document.documentElement.style.setProperty('--red',accent);document.documentElement.style.setProperty('--red-dark',accent);document.body.dataset.profile=(state.systemMode==='original'?(state.classeId||'combatente'):(state.profile||'executor')).toLowerCase();document.body.classList.toggle('editing',editMode);syncTokenOutlineFilter()}
 
 function getCriticalState(){
  const resource=(current,maximum)=>{const max=Math.max(0,Number(maximum)||0),value=Math.max(0,Number(current)||0),ratio=max>0?Math.min(1,value/max):1,warning=max>0&&ratio<=.5,vignette=max>0&&ratio<=.35,special=max>0&&ratio<=.25,progress=(threshold,floor)=>ratio<=threshold?Math.min(1,floor+(threshold-ratio)/threshold*(1-floor)):0;return{value,max,ratio,warning,vignette,special,critical:special,warningIntensity:progress(.5,.12),vignetteIntensity:progress(.35,.08),specialIntensity:progress(.25,.08)}};
- const pv=resource(state.pv,state.maxPv),pd=resource(state.pd,state.maxPd);
+ const pv=resource(state.pv,state.maxPv);
+ const secCurrent = state.systemMode === 'original' ? state.san : state.pd;
+ const secMax = state.systemMode === 'original' ? state.maxSan : state.maxPd;
+ const pd=resource(secCurrent,secMax);
  return{pv,pd,active:pv.critical||pd.critical};
 }
 function renderCriticalAtmosphere(){return `<div class="critical-atmosphere" data-critical-atmosphere aria-hidden="true"><div class="critical-pd-darkness"></div><div class="critical-pv-vignette"></div><div class="critical-pd-vignette"></div><canvas class="critical-tendrils" data-critical-tendrils></canvas><div class="critical-distortion"></div></div>`}
@@ -443,13 +485,13 @@ function playPresentationOpenSound(){
 let presentationDirection=0;
 function openPresentationMode(){
  if(presentationLockingIn)return;
- state.viewMode='cinematic';
  presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
  presentationMode=true;
  presentationEntering=true;
  presentationLockingIn=false;
  presentationDirection=0;
  state=sheets[presentationIndex];
+ state.viewMode='cinematic';
  activeSheetId=state.id;
  playPresentationOpenSound();
  render();
@@ -469,6 +511,7 @@ function cyclePresentation(direction){
  presentationIndex=(presentationIndex+direction+sheets.length)%sheets.length;
  triggerGlitchTransition(()=>{
   state=sheets[presentationIndex];
+  state.viewMode='cinematic';
   activeSheetId=state.id;
   render();
  });
@@ -493,6 +536,7 @@ function confirmPresentationAgent(chosenSheet){
  setTimeout(()=>{
   presentationLockingIn=false;
   presentationMode=false;
+  editMode=false;
   state=chosenSheet;
   activeSheetId=state.id;
   state.viewMode='cinematic';
@@ -511,12 +555,28 @@ function renderPresentationDock(){
  if(!total)return '';
  const prevIdx=(presentationIndex-1+total)%total,currIdx=presentationIndex,nextIdx=(presentationIndex+1+total)%total;
  const prevSheet=sheets[prevIdx],currSheet=sheets[currIdx],nextSheet=sheets[nextIdx];
- const prevAccent=PROFILE_COLORS[prevSheet.profile]||'#e0150d';
- const currAccent=PROFILE_COLORS[currSheet.profile]||'#e0150d';
- const nextAccent=PROFILE_COLORS[nextSheet.profile]||'#e0150d';
+ const prevAccent=getSheetAccent(prevSheet);
+ const currAccent=getSheetAccent(currSheet);
+ const nextAccent=getSheetAccent(nextSheet);
  const hasMultiple=total>1;
  const dirClass=presentationDirection===1?'dir-next':(presentationDirection===-1?'dir-prev':'');
- return `<section class="cinematic-presentation-dock" style="--agent-accent:${currAccent}"><header class="cp-dock-top"><span class="cp-dock-badge">${icon('dossier',11)} SELEÇÃO DE RECEPTÁCULO</span><span class="cp-dock-hint"><kbd>←</kbd> <kbd>→</kbd> Navegar · <b>Duplo clique</b> para Confirmar</span><span class="cp-dock-counter">${currIdx+1} / ${total}</span></header><div class="cp-dock-carousel ${dirClass}" id="presentation-stage" style="--prev-accent:${prevAccent};--curr-accent:${currAccent};--next-accent:${nextAccent};">${hasMultiple?`<button type="button" class="cp-arrow prev" data-presentation-prev title="Receptáculo anterior (←)">${icon('chevron-left',18)}</button><article class="cp-card card-side card-prev" data-presentation-pick="${prevIdx}" style="--agent-accent:${prevAccent}" title="Ver ${safe(prevSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">ANTERIOR</span><span class="cp-card-profile">${safe(prevSheet.profile)}</span></div><div class="cp-card-thumb">${prevSheet.tokenImage?`<img src="${safeUrl(prevSheet.tokenImage)}" alt="${safe(prevSheet.name)}">`:`<div class="cp-avatar-ph">${safe((prevSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(prevSheet.name)}</strong><small>${safe(prevSheet.occupation||'Investigador')}</small></div></article>`:''}<article class="cp-card card-curr ${presentationLockingIn?'locking-in':''}" data-presentation-curr style="--agent-accent:${currAccent}"><div class="cp-card-topbar"><span class="cp-card-tag" title="Duplo clique para confirmar receptáculo">DUPLO CLIQUE PARA CONFIRMAR</span><span class="cp-card-profile">${safe(currSheet.profile)}</span></div><div class="cp-card-thumb">${currSheet.tokenImage?`<img src="${safeUrl(currSheet.tokenImage)}" alt="${safe(currSheet.name)}">`:`<div class="cp-avatar-ph">${safe((currSheet.name||'?').slice(0,1))}</div>`}${presentationLockingIn?`<div class="pcard-lockin-overlay"><div class="pcard-lockin-stamp"><strong>✓ RECEPTÁCULO CONFIRMADO</strong><small>SINCRONIZANDO FICHA...</small></div></div>`:''}</div><div class="cp-card-summary"><div class="cp-summary-header"><strong>${safe(currSheet.name)}</strong><span class="cp-level-badge">NV ${currSheet.level||1}</span></div><small>${safe(currSheet.occupation||'Investigador')} · ${safe(currSheet.profile)}</small><div class="cp-pill-row"><span class="cp-stat-pill">FÍS <b>${currSheet.attributes?.['Físico']||4}</b></span><span class="cp-stat-pill">MEN <b>${currSheet.attributes?.['Mente']||4}</b></span><span class="cp-stat-pill">EMO <b>${currSheet.attributes?.['Emoção']||4}</b></span><span class="cp-res-pill pv">PV ${currSheet.pv}/${currSheet.maxPv}</span><span class="cp-res-pill pd">PD ${currSheet.pd}/${currSheet.maxPd}</span></div><button type="button" class="btn-select-cp-agent" data-confirm-agent="${currSheet.id}" title="Confirmar receptáculo (Duplo clique ou Enter)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>CONFIRMAR RECEPTÁCULO</span></button></div></article>${hasMultiple?`<article class="cp-card card-side card-next" data-presentation-pick="${nextIdx}" style="--agent-accent:${nextAccent}" title="Ver ${safe(nextSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">PRÓXIMO</span><span class="cp-card-profile">${safe(nextSheet.profile)}</span></div><div class="cp-card-thumb">${nextSheet.tokenImage?`<img src="${safeUrl(nextSheet.tokenImage)}" alt="${safe(nextSheet.name)}">`:`<div class="cp-avatar-ph">${safe((nextSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(nextSheet.name)}</strong><small>${safe(nextSheet.occupation||'Investigador')}</small></div></article><button type="button" class="cp-arrow next" data-presentation-next title="Próximo receptáculo (→)">${icon('chevron-right',18)}</button>`:''}</div></section>`;
+
+ const renderPills = (s) => {
+  if(s.systemMode === 'original'){
+   const pvM = s.maxPv || originalCalcPvMax(s);
+   const sanM = s.maxSan || originalCalcSanMax(s);
+   const peM = s.maxPe || originalCalcPeMax(s);
+   const a = s.atributos || { agi: 1, for: 1, int: 1, pre: 1, vig: 1 };
+   return `<span class="cp-stat-pill">AGI <b>${a.agi}</b></span><span class="cp-stat-pill">FOR <b>${a.for}</b></span><span class="cp-stat-pill">INT <b>${a.int}</b></span><span class="cp-stat-pill">PRE <b>${a.pre}</b></span><span class="cp-stat-pill">VIG <b>${a.vig}</b></span><span class="cp-res-pill pv">PV ${s.pv??pvM}/${pvM}</span><span class="cp-res-pill san">SAN ${s.san??sanM}/${sanM}</span><span class="cp-res-pill pe">PE ${s.pe??peM}/${peM}</span>`;
+  }
+  return `<span class="cp-stat-pill">FÍS <b>${s.attributes?.['Físico']||4}</b></span><span class="cp-stat-pill">MEN <b>${s.attributes?.['Mente']||4}</b></span><span class="cp-stat-pill">EMO <b>${s.attributes?.['Emoção']||4}</b></span><span class="cp-res-pill pv">PV ${s.pv}/${s.maxPv}</span><span class="cp-res-pill pd">PD ${s.pd}/${s.maxPd}</span>`;
+ };
+
+ const getSub = (s) => s.systemMode === 'original' ? `${safe(classeAtual(s).nome)} · NEX ${s.nex || 5}%` : `${safe(s.occupation||'Investigador')} · ${safe(s.profile)}`;
+ const getProfileTag = (s) => s.systemMode === 'original' ? 'ORDEM RPG' : safe(s.profile);
+ const getLevelTag = (s) => s.systemMode === 'original' ? `NEX ${s.nex || 5}%` : `NV ${s.level||1}`;
+
+ return `<section class="cinematic-presentation-dock" style="--agent-accent:${currAccent}"><header class="cp-dock-top"><span class="cp-dock-badge">${icon('dossier',11)} SELEÇÃO DE RECEPTÁCULO</span><span class="cp-dock-hint"><kbd>←</kbd> <kbd>→</kbd> Navegar · <b>Duplo clique</b> para Confirmar</span><span class="cp-dock-counter">${currIdx+1} / ${total}</span></header><div class="cp-dock-carousel ${dirClass}" id="presentation-stage" style="--prev-accent:${prevAccent};--curr-accent:${currAccent};--next-accent:${nextAccent};">${hasMultiple?`<button type="button" class="cp-arrow prev" data-presentation-prev title="Receptáculo anterior (←)">${icon('chevron-left',18)}</button><article class="cp-card card-side card-prev" data-presentation-pick="${prevIdx}" style="--agent-accent:${prevAccent}" title="Ver ${safe(prevSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">ANTERIOR</span><span class="cp-card-profile ${prevSheet.systemMode==='original'?'original':''}">${getProfileTag(prevSheet)}</span></div><div class="cp-card-thumb">${prevSheet.tokenImage?`<img src="${safeUrl(prevSheet.tokenImage)}" alt="${safe(prevSheet.name)}">`:`<div class="cp-avatar-ph">${safe((prevSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(prevSheet.name)}</strong><small>${getSub(prevSheet)}</small></div></article>`:''}<article class="cp-card card-curr ${presentationLockingIn?'locking-in':''}" data-presentation-curr style="--agent-accent:${currAccent}"><div class="cp-card-topbar"><span class="cp-card-tag" title="Duplo clique para confirmar receptáculo">DUPLO CLIQUE PARA CONFIRMAR</span><span class="cp-card-profile ${currSheet.systemMode==='original'?'original':''}">${getProfileTag(currSheet)}</span></div><div class="cp-card-thumb">${currSheet.tokenImage?`<img src="${safeUrl(currSheet.tokenImage)}" alt="${safe(currSheet.name)}">`:`<div class="cp-avatar-ph">${safe((currSheet.name||'?').slice(0,1))}</div>`}${presentationLockingIn?`<div class="pcard-lockin-overlay"><div class="pcard-lockin-stamp"><strong>✓ RECEPTÁCULO CONFIRMADO</strong><small>SINCRONIZANDO FICHA...</small></div></div>`:''}</div><div class="cp-card-summary"><div class="cp-summary-header"><strong>${safe(currSheet.name)}</strong><span class="cp-level-badge">${getLevelTag(currSheet)}</span></div><small>${getSub(currSheet)}</small><div class="cp-pill-row ${currSheet.systemMode==='original'?'original-pills':''}">${renderPills(currSheet)}</div><button type="button" class="btn-select-cp-agent" data-confirm-agent="${currSheet.id}" title="Confirmar receptáculo (Duplo clique ou Enter)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>CONFIRMAR RECEPTÁCULO</span></button></div></article>${hasMultiple?`<article class="cp-card card-side card-next" data-presentation-pick="${nextIdx}" style="--agent-accent:${nextAccent}" title="Ver ${safe(nextSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">PRÓXIMO</span><span class="cp-card-profile ${nextSheet.systemMode==='original'?'original':''}">${getProfileTag(nextSheet)}</span></div><div class="cp-card-thumb">${nextSheet.tokenImage?`<img src="${safeUrl(nextSheet.tokenImage)}" alt="${safe(nextSheet.name)}">`:`<div class="cp-avatar-ph">${safe((nextSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(nextSheet.name)}</strong><small>${getSub(nextSheet)}</small></div></article><button type="button" class="cp-arrow next" data-presentation-next title="Próximo receptáculo (→)">${icon('chevron-right',18)}</button>`:''}</div></section>`;
 }
 
 function bindPresentationEvents(){
@@ -729,8 +789,12 @@ function renderRollLogItemsHtml() {
  }
  return rollLog.map(entry => {
   const modStr = entry.modifier ? ` ${entry.modifier > 0 ? '+' : '−'} ${Math.abs(entry.modifier)}` : '';
-  const diceStr = (entry.dice || []).map(d => `<span class="roll-die-pill" data-sides="${d.sides}"><b>${d.value}</b><small>d${d.sides}</small></span>`).join('<i class="roll-plus">+</i>');
-  const accentColor = PROFILE_COLORS[entry.profile] || '#e0150d';
+  const isAdvantage = entry.rollMode === 'highest' || entry.rollMode === 'lowest';
+  const diceStr = (entry.dice || []).map(d => {
+   const cls = d.isChosen ? 'chosen' : (d.discarded ? 'discarded' : '');
+   return `<span class="roll-die-pill ${cls}" data-sides="${d.sides}"><b>${d.value}</b><small>d${d.sides}</small></span>`;
+  }).join(isAdvantage ? '<i class="roll-plus">,</i>' : '<i class="roll-plus">+</i>');
+  const accentColor = PROFILE_COLORS[entry.profile] || ORIGINAL_CLASS_COLORS[entry.profile?.toLowerCase()] || '#e0150d';
   const copyText = `🎲 [${entry.characterName}] ${entry.title}: ${entry.total} (${(entry.dice || []).map(d => `d${d.sides}:${d.value}`).join(', ')}${modStr})`;
   return `<article class="roll-log-item" style="--item-accent:${accentColor}">
    <div class="roll-log-item-top">
@@ -803,13 +867,16 @@ function bindRollLogItemEvents(container = document) {
  });
 }
 
-function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length;app.innerHTML=`
+function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)}">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
-  ${state.viewMode==='cinematic'?renderCinematic(trainingOptions,bgIsVideo):renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount)}
-	 ${state.viewMode==='cinematic'?renderCriticalAtmosphere():''}
-	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${state.viewMode==='traditional'?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${state.viewMode==='cinematic'?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" data-open-presentation title="Modo de Apresentação">${icon('presentation',14)}<span>APRESENTAÇÃO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
+  ${state.systemMode==='original'
+    ? (isCinematic?renderCinematicOriginal(state,editMode,{safeUrl,renderBackgroundLayer,presentationMode,renderPresentationDock,accent:getSheetAccent(state),resourceShift:currentResourceShift,pageClass:`cinematic-tab-${cinematicMobileTab} ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}`}):renderTraditionalOriginal(state,editMode,{currentRight:currentOriginalTab,filterQuery:originalSkillsFilter,safeUrl,renderBackgroundLayer}))
+    : (isCinematic?renderCinematic(trainingOptions,bgIsVideo):renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount))
+  }
+	 ${isCinematic?renderCriticalAtmosphere():''}
+	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${isCinematic?icon('film',14):icon('grid',14)}<span>${isCinematic?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${!isCinematic?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${isCinematic&&!presentationMode?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" class="${presentationMode?'active':''}" data-open-presentation title="Modo de Apresentação">${icon('presentation',14)}<span>APRESENTAÇÃO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
   ${editMode?`<div class="edit-status active"><span></span>MODO DE EDIÇÃO — TEMA ÂMBAR</div>`:''}<div class="floating"><button class="${editMode?'active':''}" data-toggle-edit title="${editMode?'Fechar edição':'Editar ficha'}">${editMode?icon('close'):icon('edit')}</button></div><div class="save-toast" id="save-toast">SALVO</div>
 
   <div id="dice-stage"><canvas id="dice-canvas"></canvas><div id="dice-stage-result"></div></div>
@@ -819,26 +886,77 @@ function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=
   <div class="modal card-editor" id="card-editor"><div class="backdrop editor-backdrop"></div><form id="card-form"><header><div><small>EDITOR DE CARD</small><h2 id="editor-title">NOVA HABILIDADE</h2></div><button type="button" class="editor-close">${icon('close')}</button></header><div class="editor-grid"><label class="span-2">TÍTULO<input name="title" maxlength="64" required></label><label>COLEÇÃO${customSelect({value:'abilities',options:[{value:'abilities',label:'Habilidades'},{value:'items',label:'Itens'}],id:'editor-schema',formName:'schema',className:'editor-select'})}</label><label>TIPO<input name="type" placeholder="Habilidade"></label><label>CUSTO<input name="cost" placeholder="Ex: 2 PD ou 1d4 PV"></label><label>ÍCONE<input name="icon" maxlength="3" placeholder="◆"></label><label>COR<input name="accent" type="color" value="#e91d25"></label><label>USAR COR${customSelect({value:'profile',options:[{value:'profile',label:'Do perfil'},{value:'custom',label:'Personalizada'}],id:'editor-color-mode',formName:'colorMode',className:'editor-select'})}</label><label>APRESENTAÇÃO${customSelect({value:'standard',options:[{value:'standard',label:'Padrão'},{value:'compact',label:'Compacto'},{value:'featured',label:'Destaque'}],id:'editor-layout',formName:'layout',className:'editor-select'})}</label><label>INICIAR${customSelect({value:'false',options:[{value:'false',label:'Expandido'},{value:'true',label:'Recolhido'}],id:'editor-collapsed',formName:'collapsed',className:'editor-select'})}</label><label class="span-2">URL DA IMAGEM<input name="imageUrl" type="url" placeholder="https://..."></label><label class="span-2 content-editor-label">CONTEÚDO<div class="rich-toolbar"><button type="button" data-format="bold"><b>B</b></button><button type="button" data-format="italic"><i>I</i></button><button type="button" data-format="underline"><u>U</u></button><span class="color-picker" title="Cor do texto"><input id="content-color" type="color" value="#67a2ff"><span>A</span></span><button type="button" data-format="color">APLICAR COR</button></div><textarea name="content" rows="5" placeholder="Descrição e regras do card..."></textarea></label>
   <section class="span-2 builder-section"><header><div><b>MARCADORES</b><small>Contador, barra, cargas ou liga/desliga. Fórmulas aceitam @{level}, @{pv} e atributos.</small></div><button type="button" data-add-marker>+ ADICIONAR</button></header><div id="marker-builder"></div></section>
    <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>
+  <div class="modal system-select-modal" id="system-select-modal" style="display:none;"><div class="backdrop" data-close-system-modal></div><section><button type="button" class="skill-info-close" data-close-system-modal>${icon('close')}</button><small style="color:var(--red);font-weight:800;letter-spacing:.15em;">NOVO AGENTE</small><h2>ESCOLHA O SISTEMA DE REGRAS</h2><p>Selecione a base mecânica para esta nova ficha de personagem. Ambas as fichas coexistem na sua base de dados.</p><div class="system-options-grid"><div class="system-option-card card-v2" data-create-system="ordem2"><span class="badge-system-sigil">SISTEMA II</span><h3>ORDEM PARANORMAL II</h3><p>Playtest Alpha de "A Maldição do Ídolo de Pedra". Atributos em dados (Físico, Mente, Emoção), Pontos de Determinação, Perfis táticos e cards interativos.</p></div><div class="system-option-card card-original" data-create-system="original"><span class="badge-system-sigil">SISTEMA ORIGINAL</span><h3>ORDEM PARANORMAL RPG</h3><p>Sistema clássico de regras d20. 5 Atributos (AGI, FOR, INT, PRE, VIG), Classes, Trilhas, NEX% (0-99%), Sanidade, Esforço, 28 Perícias d20, Rituais e Inventário.</p></div></div></section></div>
   ${renderBottomNav()}
   ${renderSheetDrawer()}
   ${renderRollLogDrawer()}
-  ${state.viewMode==='cinematic'?renderMobileOrientationPrompt():''}
+  ${isCinematic?renderMobileOrientationPrompt():''}
 	 `;bind();syncMobilePresentationViewport();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl&&state.backgroundImage){if(!bgVideoEl.src)bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),traditionalPage=app.querySelector('.traditional-dossier-page'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(traditionalPage)traditionalPage.scrollTop=previousScroll.traditionalPage;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
 
 
 function collectActiveInputs(){
  document.querySelectorAll('[data-field]').forEach(el=>{
+  if(el.closest('.cinematic-ghost-exit')) return;
   const key=el.dataset.field;
   if(key&&el.value!==undefined){
    state[key]=key==='level'?Math.max(0,Number(el.value)||0):el.value;
   }
  });
  document.querySelectorAll('[data-skill-extra]').forEach(el=>{
-  const idx=Number(el.dataset.skillExtra);
-  if(!isNaN(idx)&&state.skills[idx]){
-   state.skills[idx].extra=Number(el.value)||0;
+  if(el.closest('.cinematic-ghost-exit')) return;
+  const rawId=el.dataset.skillExtra;
+  const numIdx=Number(rawId);
+  if(!isNaN(numIdx)&&state.skills&&state.skills[numIdx]){
+   state.skills[numIdx].extra=Number(el.value)||0;
+  }else if(state.pericias&&state.pericias[rawId]){
+   state.pericias[rawId].extra=Number(el.value)||0;
   }
  });
+ document.querySelectorAll('[data-skill-treino]').forEach(el=>{
+  if(el.closest('.cinematic-ghost-exit')) return;
+  const rawId=el.dataset.skillTreino;
+  if(!state.pericias) state.pericias={};
+  if(!state.pericias[rawId]) state.pericias[rawId]={treino:0,extra:0};
+  state.pericias[rawId].treino=Number(el.value)||0;
+ });
+ document.querySelectorAll('[data-original-field]').forEach(el=>{
+  if(el.closest('.cinematic-ghost-exit')) return;
+  const key=el.dataset.originalField;
+  if(key&&el.value!==undefined){
+   if(key==='nex'){
+    state.nex=snapNex(el.value);
+   }else if(['defesaOutros','pvTemp','peTemp','sanTemp'].includes(key)){
+    state[key]=Number(el.value)||0;
+   }else{
+    state[key]=el.value;
+   }
+  }
+ });
+ document.querySelectorAll('[data-attack-field]').forEach(el=>{
+  if(el.closest('.cinematic-ghost-exit')) return;
+  const [idxStr, field] = el.dataset.attackField.split(':');
+  const idx = Number(idxStr);
+  if (!isNaN(idx) && state.ataques && state.ataques[idx] && field) {
+   state.ataques[idx][field] = el.value;
+  }
+ });
+ document.querySelectorAll('[data-inv-field]').forEach(el=>{
+  if(el.closest('.cinematic-ghost-exit')) return;
+  const [idxStr, field] = el.dataset.invField.split(':');
+  const idx = Number(idxStr);
+  if (!isNaN(idx) && state.inventario && state.inventario[idx] && field) {
+   if (field === 'espaco' || field === 'qtd') {
+    state.inventario[idx][field] = Number(el.value) || 0;
+   } else {
+    state.inventario[idx][field] = el.value;
+   }
+  }
+ });
+ if(state.systemMode==='original'){
+  state.maxPv=originalCalcPvMax(state);
+  state.maxPe=originalCalcPeMax(state);
+  state.maxSan=originalCalcSanMax(state);
+ }
 }
 
 /* Persistência (JSON de vários MB) é adiada e agrupada: cliques rápidos em PV/PD não travam mais a thread principal. */
@@ -917,14 +1035,20 @@ function importJsonSheet(file){
  reader.onload=()=>{
   try{
    const parsed=JSON.parse(reader.result);
+   const prepareImport=item=>{
+    if(item&&!item.systemMode&&(item.atributos?.for!==undefined||item.classeId!==undefined||(item.nex!==undefined&&item.pd===undefined))){
+     item.systemMode='original';
+    }
+    return normalizeSheet(item);
+   };
    if(Array.isArray(parsed)){
     if(!parsed.length)throw new Error('Arquivo vazio');
-    const imported=parsed.map(normalizeSheet);
+    const imported=parsed.map(prepareImport);
     sheets.push(...imported);
     state=imported[imported.length-1];
     activeSheetId=state.id;
    }else if(parsed&&typeof parsed==='object'){
-    const imported=normalizeSheet(parsed);
+    const imported=prepareImport(parsed);
     if(sheets.some(s=>s.id===imported.id))imported.id=makeId('sheet');
     sheets.push(imported);
     state=imported;
@@ -1194,15 +1318,100 @@ function bindSheetInteractions() {
  }
 }
 function parseRollExpression(expression){const vars=formulaVariables();let expanded=String(expression||'').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));const dice=[];expanded=expanded.replace(/(\d*)d(4|6|8|10|12|20)/gi,(_,count,sides)=>{for(let i=0;i<Math.min(12,Number(count)||1);i++)dice.push(Number(sides));return '0'});let modifier=0;try{if(/^[\d+\-*/().\s]+$/.test(expanded))modifier=Math.floor(Function(`"use strict";return (${expanded||0})`)())}catch{}return{dice,modifier}}
-async function roll(name,sides,modifier=0){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return null;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||PROFILE_COLORS[state.profile]||PROFILE_COLORS.Executor;const res=await rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext);if(res&&Array.isArray(res.values)){addRollLogEntry({title:name,dice:res.breakdown||res.values.map((v,i)=>({sides:list[i]||20,value:v})),modifier:Number(modifier)||0,total:res.total})}return res}
+async function roll(name,sides,modifier=0,rollMode='sum'){const list=Array.isArray(sides)?sides:String(sides).split(',').map(Number).filter(side=>DICE_STEPS.includes(side));if(!list.length)return null;const soundContext=getUiAudioContext(),{rollDice3d}=await getDiceApi(),color=state.diceColor||getSheetAccent(state);const res=await rollDice3d(list.map(side=>({sides:side,color})),name,Number(modifier)||0,soundContext,rollMode);if(res&&Array.isArray(res.values)){addRollLogEntry({title:name,dice:res.breakdown||res.values.map((v,i)=>({sides:list[i]||20,value:v})),modifier:Number(modifier)||0,total:res.total,rollMode})}return res}
 
-async function rollExpression(name,expression){const parsed=parseRollExpression(expression);return roll(name,parsed.dice,parsed.modifier)}
+async function rollExpression(name,expression){const parsed=parseRollExpression(expression);return roll(name,parsed.dice,parsed.modifier,'sum')}
+
+async function rollOriginalAttribute(attrKey){
+ if(presentationMode)return;
+ const attrInfo=ORIGINAL_ATRIBUTOS.find(a=>a.id===attrKey)||{nome:attrKey.toUpperCase(),abrev:attrKey.toUpperCase()};
+ const attrVal=Number(state.atributos?.[attrKey]??1);
+ const count=attrVal>0?attrVal:2;
+ const rollMode=attrVal>0?'highest':'lowest';
+ const sides=Array(count).fill(20);
+ const title=`Teste de ${attrInfo.nome} (${attrVal>0?`${attrVal}d20`: '2d20 Menor'})`;
+ return roll(title,sides,0,rollMode);
+}
+
+async function rollOriginalSkill(periciaId){
+ if(presentationMode)return;
+ const pericia=ORIGINAL_PERICIAS.find(p=>p.id===periciaId)||{nome:periciaId,atributo:'pre'};
+ const st=state.pericias?.[periciaId]||{treino:0,extra:0};
+ const attrVal=Number(state.atributos?.[pericia.atributo]??1);
+ const count=attrVal>0?attrVal:2;
+ const rollMode=attrVal>0?'highest':'lowest';
+ const sides=Array(count).fill(20);
+ const bonusPoder=originalBonusPoderesPorPericia(state)[periciaId]||0;
+ const totalMod=Number(st.treino||0)+Number(st.extra||0)+bonusPoder;
+ const title=`Teste de ${pericia.nome} (${attrVal>0?`${attrVal}d20`: '2d20 Menor'})`;
+ return roll(title,sides,totalMod,rollMode);
+}
+
+async function rollOriginalAttack(atkIdx){
+ if(presentationMode)return;
+ const atk=state.ataques?.[atkIdx];
+ if(!atk)return;
+ const atkName=atk.nome||'Ataque';
+ const expr=(atk.ataque||'').trim();
+ const matchedSkill=ORIGINAL_PERICIAS.find(p=>p.nome.toLowerCase()===expr.toLowerCase()||p.id===expr.toLowerCase());
+ if(matchedSkill){
+  return rollOriginalSkill(matchedSkill.id);
+ }
+ const parsed=parseRollExpression(expr);
+ if(parsed.dice.length){
+  const allD20=parsed.dice.every(d=>d===20);
+  const rollMode=allD20&&parsed.dice.length>1?'highest':'sum';
+  return roll(`${atkName} (Ataque)`,parsed.dice,parsed.modifier,rollMode);
+ }
+ const defaultSkill=ORIGINAL_PERICIAS.find(p=>p.id==='pontaria')||ORIGINAL_PERICIAS[0];
+ return rollOriginalSkill(defaultSkill.id);
+}
+
+async function rollOriginalDamage(atkIdx){
+ if(presentationMode)return;
+ const atk=state.ataques?.[atkIdx];
+ if(!atk)return;
+ const atkName=atk.nome||'Ataque';
+ const expr=(atk.dano||'1d8').trim();
+ const parsed=parseRollExpression(expr);
+ if(!parsed.dice.length){
+  parsed.dice=[8];
+ }
+ return roll(`${atkName} (Dano)`,parsed.dice,parsed.modifier,'sum');
+}
+
+async function castRitual(ritualId){
+ if(presentationMode)return;
+ const ritual=ORIGINAL_RITUAIS.find(r=>r.id===ritualId);
+ if(!ritual)return;
+ const cost=Number(ritual.custoPE)||1;
+ const currentPe=Number(state.pe)||0;
+ if(currentPe<cost){
+  const toast=document.querySelector('#save-toast');
+  if(toast){
+   toast.textContent=`PE INSUFICIENTE (NECESSÁRIO ${cost} PE)!`;
+   toast.classList.add('show');
+   setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1800);
+  }
+  return;
+ }
+ state.pe=Math.max(0,currentPe-cost);
+ playResourceSound(false);
+ save(false);
+ render();
+ const toast=document.querySelector('#save-toast');
+ if(toast){
+  toast.textContent=`RITUAL ${ritual.nome.toUpperCase()} CONJURADO! (-${cost} PE)`;
+  toast.classList.add('show');
+  setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},2200);
+ }
+}
 function setSelectVisual(id,value){const select=document.querySelector(`[data-select-id="${id}"]`);if(!select)return;const option=[...select.querySelectorAll('.select-option')].find(item=>String(item.dataset.selectValue)===String(value));select.querySelector('.select-display').textContent=option?.dataset.triggerLabel||value;select.querySelectorAll('.select-option').forEach(item=>{item.classList.toggle('selected',item===option);item.querySelector('b').textContent=item===option?'✓':''});if(select.dataset.formName)select.previousElementSibling.value=value}
 function renderCardBuilders(){const markerBuilder=document.querySelector('#marker-builder'),actionBuilder=document.querySelector('#action-builder');if(!markerBuilder||!actionBuilder)return;markerBuilder.innerHTML=editorMarkers.map((marker,index)=>`<article class="builder-row"><div class="builder-row-head"><b>MARCADOR ${index+1}</b><button type="button" data-remove-marker="${index}">${icon('trash',15)}</button></div><div class="marker-types">${[['counter','CONTADOR'],['bar','BARRA'],['pips','CARGAS'],['slots','SLOTS'],['toggle','LIGA/DESLIGA']].map(([type,label])=>`<button type="button" class="${marker.type===type?'active':''}" data-marker-type="${index}:${type}">${label}</button>`).join('')}</div>${marker.type==='pips'||marker.type==='bar'||marker.type==='slots'?`<div class="marker-display-styles"><span>ESTILO VISUAL</span><button type="button" class="${(marker.displayStyle||'default')==='default'?'active':''}" data-marker-style="${index}:default">ATUAL</button><button type="button" class="${marker.displayStyle==='rectangles'?'active':''}" data-marker-style="${index}:rectangles">RETANGULAR</button></div>`:''}<div class="builder-fields"><label>LABEL<input data-marker-field="${index}:label" value="${safe(marker.label)}"></label><label>ATUAL<input type="number" min="0" data-marker-field="${index}:current" value="${Number(marker.current)||0}"></label>${marker.type!=='toggle'?`<label>MÁXIMO / FÓRMULA<input data-marker-field="${index}:maxFormula" value="${safe(marker.maxFormula||'0')}" placeholder="@{level} + 2"></label>`:''}${marker.type==='slots'?`<label>RECURSO PREENCHER<select data-marker-field="${index}:fillCostResource"><option value="none" ${(!marker.fillCostResource||marker.fillCostResource==='none')?'selected':''}>Nenhum</option><option value="pd" ${marker.fillCostResource==='pd'?'selected':''}>PD</option><option value="pv" ${marker.fillCostResource==='pv'?'selected':''}>PV</option></select></label><label>CUSTO RECURSO<input type="number" min="0" data-marker-field="${index}:fillCostAmount" value="${Number(marker.fillCostAmount)||0}"></label>`:''}</div></article>`).join('')||'<p class="builder-empty">Nenhum marcador neste card.</p>';actionBuilder.innerHTML=editorActions.map((action,index)=>{const slotsMarkers=editorMarkers.filter(m=>m.type==='slots');return `<article class="builder-row action-row"><div class="builder-fields"><label>NOME<input data-action-field="${index}:name" value="${safe(action.name)}" placeholder="Ataque"></label><label>EXPRESSÃO<input data-action-field="${index}:expression" value="${safe(action.expression)}" placeholder="3d6"></label>${slotsMarkers.length?`<label>PREENCHER MARCADOR<select data-action-field="${index}:targetMarker"><option value="">Nenhum</option>${slotsMarkers.map((m,i)=>`<option value="${safe(m.id||`marker-${i}`)}" ${action.targetMarker===(m.id||`marker-${i}`)?'selected':''}>${safe(m.label||`Slots ${i+1}`)}</option>`).join('')}</select></label>`:''}<button type="button" data-remove-action="${index}">${icon('trash',16)}</button></div></article>`}).join('')||'<p class="builder-empty">Nenhuma ação de rolagem neste card.</p>';bindBuilderEvents()}
 function bindBuilderEvents(){document.querySelectorAll('[data-marker-type]').forEach(el=>el.onclick=()=>{const[index,type]=el.dataset.markerType.split(':');editorMarkers[index].type=type;if(type==='slots'&&!editorMarkers[index].fillCostResource)editorMarkers[index].fillCostResource='pd';renderCardBuilders()});document.querySelectorAll('[data-marker-style]').forEach(el=>el.onclick=()=>{const[index,displayStyle]=el.dataset.markerStyle.split(':');editorMarkers[index].displayStyle=displayStyle;renderCardBuilders()});document.querySelectorAll('[data-remove-marker]').forEach(el=>el.onclick=()=>{editorMarkers.splice(Number(el.dataset.removeMarker),1);renderCardBuilders()});document.querySelectorAll('[data-remove-action]').forEach(el=>el.onclick=()=>{editorActions.splice(Number(el.dataset.removeAction),1);renderCardBuilders()});document.querySelectorAll('[data-marker-field]').forEach(el=>{const handler=()=>{const[index,key]=el.dataset.markerField.split(':');editorMarkers[index][key]=['current','fillCostAmount'].includes(key)?Number(el.value)||0:el.value};el.oninput=handler;el.onchange=handler});document.querySelectorAll('[data-action-field]').forEach(el=>{const handler=()=>{const[index,key]=el.dataset.actionField.split(':');editorActions[index][key]=el.value};el.oninput=handler;el.onchange=handler})}
 function openCardEditor(cardId=null){const modal=document.querySelector('#card-editor'),form=document.querySelector('#card-form'),card=state.cards.find(item=>item.id===cardId);form.reset();form.dataset.cardId=cardId||'';document.querySelector('#editor-title').textContent=card?'EDITAR CARD':`NOVO ${currentRight==='items'?'ITEM':'RECURSO'}`;setSelectVisual('editor-schema',card?.schema||currentRight);setSelectVisual('editor-layout',card?.layout||'standard');setSelectVisual('editor-collapsed',String(card?.collapsed||false));setSelectVisual('editor-color-mode',card?.themeLinked===false?'custom':'profile');form.elements.title.value=card?.title||'';form.elements.type.value=card?.type||(currentRight==='items'?'Equipamento':'Habilidade');form.elements.cost.value=card?(card.cost!==undefined?card.cost:getCardCost(card)):'';form.elements.icon.value=card?.icon||'◆';form.elements.accent.value=card?.accent||PROFILE_COLORS[state.profile]||'#e91d25';form.elements.imageUrl.value=card?.imageUrl||'';form.elements.content.value=card?.content||'';editorMarkers=clone(card?.markers||[]);editorActions=clone(card?.actions||[]);form.querySelector('.delete-card').hidden=!card;renderCardBuilders();modal.classList.remove('closing');modal.classList.add('open')}
 function closeCardEditor(){const modal=document.querySelector('#card-editor');if(!modal)return;modal.classList.add('closing');setTimeout(()=>modal.classList.remove('open','closing'),160)}
-function openSkillInfo(index){const skill=state.skills[index],modal=document.querySelector('#skill-info-modal'),upper=String(skill.name).toUpperCase(),info=SKILL_INFO[upper]||(upper.startsWith('APTIDÃO')?SKILL_INFO['APTIDÃO (HUMANAS)']:null)||SKILL_INFO['APTIDÃO']||['Use esta perícia em testes relacionados à sua especialidade.',skill.attribute];document.querySelector('#skill-info-title').textContent=skill.name;document.querySelector('#skill-info-copy').textContent=info[0];document.querySelector('#skill-info-attribute').textContent=`ATRIBUTO SUGERIDO · ${info[1]||skill.attribute}`;modal.classList.add('open')}
+function openSkillInfo(index){if(!state.skills||!state.skills[index])return;const skill=state.skills[index],modal=document.querySelector('#skill-info-modal'),upper=String(skill.name).toUpperCase(),info=SKILL_INFO[upper]||(upper.startsWith('APTIDÃO')?SKILL_INFO['APTIDÃO (HUMANAS)']:null)||SKILL_INFO['APTIDÃO']||['Use esta perícia em testes relacionados à sua especialidade.',skill.attribute];document.querySelector('#skill-info-title').textContent=skill.name;document.querySelector('#skill-info-copy').textContent=info[0];document.querySelector('#skill-info-attribute').textContent=`ATRIBUTO SUGERIDO · ${info[1]||skill.attribute}`;modal.classList.add('open')}
 function closeSkillInfo(){document.querySelector('#skill-info-modal')?.classList.remove('open')}
 let activeSlotTarget=null;
 function openSlotModal(card,marker,slotIndex=0){const modal=document.querySelector('#slot-fill-modal');if(!modal)return;activeSlotTarget={card,marker,slotIndex};const costRes=(marker.fillCostResource||'pd').toLowerCase(),costAmt=Number(marker.fillCostAmount)||0,currentVal=state[costRes]??0;document.querySelector('#slot-fill-title').textContent=`ESPAÇO ${slotIndex+1} · ${marker.label||'SLOT'}`;document.querySelector('#slot-fill-info').innerHTML=costAmt>0?`Custo: <strong>${costAmt} ${costRes.toUpperCase()}</strong> (Você possui ${currentVal} ${costRes.toUpperCase()} disponíveis).`:`Preencha este espaço com o valor desejado.`;document.querySelector('#slot-manual-val').value='';modal.classList.add('open')}
@@ -1464,7 +1673,7 @@ function bind(){
   document.querySelectorAll('[data-consume-temp]').forEach(el=>{el.onclick=e=>{e.preventDefault();e.stopPropagation();if(presentationMode){notifyPresentationLocked();return;}const[key,valStr]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;const isBadge=el.classList.contains('temp-badge-btn'),val=Number(valStr);let next;if(isBadge){next=Math.max(0,current-1)}else{next=current===val?Math.max(0,val-1):Math.max(0,val)}if(next===current)next=Math.max(0,current-1);state[tempKey]=next;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=next===0?`${key.toUpperCase()} TEMPORÁRIO EXTINTO`:`${key.toUpperCase()} TEMPORÁRIO: +${next}`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}};el.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();if(presentationMode){notifyPresentationLocked();return;}const[key]=el.dataset.consumeTemp.split(':'),tempKey=`${key}Temp`,current=Number(state[tempKey])||0;if(current<=0)return;state[tempKey]=0;playResourceSound(false);save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${key.toUpperCase()} TEMPORÁRIO EXTINTO`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1500)}}});
  document.querySelectorAll('[data-resource-adjust]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[key,delta]=el.dataset.resourceAdjust.split(':');state[key]=Math.max(0,Number(state[key]||0)+Number(delta));if(key==='maxPv')state.pv=Math.min(state.pv,state[key]);if(key==='maxPd')state.pd=Math.min(state.pd,state[key]);if(key.toLowerCase().includes('pv')||key.toLowerCase().includes('pd'))playResourceSound(Number(delta)>0);save(false);render()});
  document.querySelectorAll('[data-attribute-step]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[name,delta]=el.dataset.attributeStep.split(':'),at=DICE_STEPS.indexOf(state.attributes[name]);state.attributes[name]=DICE_STEPS[Math.max(0,Math.min(DICE_STEPS.length-1,at+Number(delta)))];save(false);render()});
- document.querySelectorAll('[data-skill-extra]').forEach(el=>el.onchange=()=>{state.skills[Number(el.dataset.skillExtra)].extra=Number(el.value)||0;save(false)});
+ document.querySelectorAll('[data-skill-extra]').forEach(el=>el.onchange=()=>{const rawId=el.dataset.skillExtra,numIdx=Number(rawId);if(!isNaN(numIdx)&&state.skills&&state.skills[numIdx]){state.skills[numIdx].extra=Number(el.value)||0}else if(state.pericias&&state.pericias[rawId]){state.pericias[rawId].extra=Number(el.value)||0}save(false)});
  document.querySelectorAll('[data-roll]').forEach(el=>el.onclick=e=>{if(e.target.closest('.custom-select,.extra input,[data-skill-extra],.card-actions,.skill-info-button,[data-remove-aptidao],[data-add-aptidao],.btn-remove-aptidao'))return;if(presentationMode){notifyPresentationLocked();return;}const[name,sides,bonus]=el.dataset.roll.split('|');roll(name,sides,bonus)});
   document.querySelectorAll('[data-expression]').forEach(el=>el.onclick=async()=>{if(presentationMode){notifyPresentationLocked();return;}const cardId=el.dataset.cardId,actionId=el.dataset.actionId,card=cardId?state.cards.find(c=>c.id===cardId):null,action=card?.actions?.find(a=>a.id===actionId),res=await rollExpression(el.dataset.rollTitle,el.dataset.expression);if(!res||!Array.isArray(res.values)||!card)return;const targetMarker=card.markers?.find(m=>m.id===action?.targetMarker)||card.markers?.find(m=>m.type==='slots');if(targetMarker&&targetMarker.type==='slots'){const max=markerMax(targetMarker);if(!Array.isArray(targetMarker.slots))targetMarker.slots=[];targetMarker.slots=res.values.slice(0,max);while(targetMarker.slots.length<max)targetMarker.slots.push(null);targetMarker.current=targetMarker.slots.filter(v=>v!==null&&v!==undefined&&v!=='').length;save(false);render();const toast=document.querySelector('#save-toast');if(toast){toast.textContent=`${(targetMarker.label||'Slots').toUpperCase()} PREENCHIDA COM [ ${targetMarker.slots.filter(v=>v!==null).join(', ')} ]!`;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},2200)}}});
   document.querySelectorAll('[data-card-marker]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[cardId,markerId,action]=el.dataset.cardMarker.split(':'),marker=state.cards.find(c=>c.id===cardId)?.markers.find(m=>m.id===markerId);if(!marker)return;const max=markerMax(marker);marker.current=action==='toggle'?(marker.current?0:1):Math.max(0,Math.min(max||999,(Number(marker.current)||0)+Number(action)));save(false);updateMarkerUi(cardId,markerId)});
@@ -1513,21 +1722,55 @@ function bind(){
      sheetDrawerOpen=false;
      if(targetId===state.id){render();return;}
      save(false);
+     editMode=false;
      const doSwitch=()=>{
       state=sheets.find(sheet=>sheet.id===targetId)||state;
       activeSheetId=state.id;
       if(presentationMode){
        presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+       state.viewMode='cinematic';
       }
       render();
      };
-     if(state.viewMode==='cinematic'){
+     if(state.viewMode==='cinematic'||presentationMode){
       triggerGlitchTransition(doSwitch);
      }else{
       doSwitch();
      }
     });
-    document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}save(false);const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`});sheets.push(sheet);state=sheet;activeSheetId=sheet.id;editMode=true;render();const switcher=document.querySelector('.sheet-switcher');if(switcher)switcher.scrollTop=switcher.scrollHeight});
+    document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{
+     if(presentationMode){notifyPresentationLocked();return;}
+     const modal=document.querySelector('#system-select-modal');
+     if(modal) modal.style.display='flex';
+    });
+    document.querySelectorAll('[data-close-system-modal]').forEach(el=>el.onclick=()=>{
+     const modal=document.querySelector('#system-select-modal');
+     if(modal) modal.style.display='none';
+    });
+    document.querySelectorAll('[data-create-system]').forEach(card=>{
+     card.onclick=(e)=>{
+      const mode=card.dataset.createSystem||e.currentTarget?.dataset?.createSystem||'ordem2';
+      const modal=document.querySelector('#system-select-modal');
+      if(modal) modal.style.display='none';
+      save(false);
+      editMode=false;
+      const currentMode=state.viewMode||'cinematic';
+      const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`,systemMode:mode,viewMode:currentMode});
+      sheets.push(sheet);
+      state=sheet;
+      activeSheetId=sheet.id;
+      presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+      if(state.viewMode==='cinematic'){
+       triggerGlitchTransition(()=>render());
+      }else{
+       render();
+      }
+      setTimeout(()=>{
+       const switcher=document.querySelector('.sheet-switcher');
+       if(switcher) switcher.scrollTop=switcher.scrollHeight;
+      },50);
+     };
+    });
     document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO'));
     document.querySelectorAll('[data-export-json]').forEach(el=>el.onclick=()=>exportJsonSheet());
     document.querySelectorAll('[data-import-json]').forEach(el=>el.onclick=()=>{document.querySelector('#json-file-input')?.click()});
@@ -1541,6 +1784,344 @@ function bind(){
   bindPresentationEvents();
 
   bindCinematicToken();bindSheetInteractions();
+
+  // ── Interações do Sistema Original (d20) ───────────────────────────────────
+  document.querySelectorAll('[data-original-tab]').forEach(btn=>{
+   btn.onclick=()=>{
+    const nextTab=btn.dataset.originalTab;
+    if(nextTab===currentOriginalTab) return;
+    const oldPanel=document.querySelector(`#tab-${currentOriginalTab}`);
+    const newPanel=document.querySelector(`#tab-${nextTab}`);
+    currentOriginalTab=nextTab;
+    document.querySelectorAll('[data-original-tab]').forEach(b=>b.classList.toggle('active',b===btn));
+    if(oldPanel) oldPanel.classList.add('leaving');
+    setTimeout(()=>{
+      if(oldPanel) oldPanel.classList.remove('active','leaving');
+      if(newPanel){
+        newPanel.classList.add('active','entering');
+        setTimeout(()=>newPanel.classList.remove('entering'),280);
+      }
+    },180);
+   };
+  });
+  const origFilterInput = document.querySelector('#filter-original-skills');
+  if(origFilterInput){
+   origFilterInput.oninput=(e)=>{
+    originalSkillsFilter=e.target.value;
+    const q=originalSkillsFilter.toLowerCase();
+    document.querySelectorAll('.original-skill-row').forEach(row=>{
+     const pId=row.dataset.originalPericia||'';
+     const pName=row.querySelector('.skill-title')?.textContent?.toLowerCase()||'';
+     row.style.display=(!q||pName.includes(q)||pId.includes(q))?'':'none';
+    });
+   };
+  }
+  document.querySelectorAll('[data-original-roll-attr]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    rollOriginalAttribute(btn.dataset.originalRollAttr);
+   };
+  });
+  document.querySelectorAll('[data-attr-step]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    const[attrKey,deltaStr]=btn.dataset.attrStep.split(':');
+    const delta=Number(deltaStr)||0;
+    if(state.atributos&&attrKey){
+     state.atributos[attrKey]=Math.max(0,Math.min(10,(state.atributos[attrKey]??1)+delta));
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-skill-treino]').forEach(sel=>{
+   sel.onchange=()=>{
+    if(!editMode) return;
+    const pId=sel.dataset.skillTreino;
+    if(!state.pericias) state.pericias={};
+    if(!state.pericias[pId]) state.pericias[pId]={treino:0,extra:0};
+    state.pericias[pId].treino=Number(sel.value)||0;
+    save(false);
+    render();
+   };
+  });
+  document.querySelectorAll('[data-cycle-treino]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    if(!editMode) return;
+    const pId=btn.dataset.cycleTreino;
+    if(!state.pericias) state.pericias={};
+    if(!state.pericias[pId]) state.pericias[pId]={treino:0,extra:0};
+    const curr=Number(state.pericias[pId].treino)||0;
+    const cycle=[0,5,10,15];
+    const nextIdx=(cycle.indexOf(curr)+1)%cycle.length;
+    state.pericias[pId].treino=cycle[nextIdx];
+    save(false);
+    render();
+   };
+  });
+  const nexRange=document.querySelector('.field-nex-control input[type="range"]');
+  if(nexRange){
+   nexRange.oninput=()=>{
+    const pill=document.querySelector('.field-nex-control .nex-badge-pill');
+    if(pill) pill.textContent=`${snapNex(nexRange.value)}%`;
+    nexRange.style.setProperty('--nex-pct',`${Number(nexRange.value)||0}%`);
+   };
+   nexRange.onchange=()=>{
+    state.nex=snapNex(nexRange.value);
+    save(false);
+    render();
+   };
+  }
+  document.querySelectorAll('[data-consume-temp]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    const[key,deltaStr]=btn.dataset.consumeTemp.split(':');
+    const tempKey=`${key}Temp`;
+    const delta=Number(deltaStr)||1;
+    if(state[tempKey]!==undefined&&state[tempKey]>0){
+     state[tempKey]=Math.max(0,state[tempKey]-delta);
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-roll-skill]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    rollOriginalSkill(btn.dataset.rollSkill);
+   };
+  });
+  document.querySelectorAll('[data-res-adjust]').forEach(inp=>{
+   inp.onchange=()=>{
+    const key=inp.dataset.resAdjust;
+    const maxVal=key==='pv'?originalCalcPvMax(state):(key==='pe'?originalCalcPeMax(state):originalCalcSanMax(state));
+    const prev=Number(state[key]??maxVal);
+    const next=Math.max(0,Math.min(maxVal,Number(inp.value)||0));
+    state[key]=next;
+    inp.value=next;
+    save(false);
+
+    const card=inp.closest('.original-resource-card');
+    if(card){
+     const fill=card.querySelector('.res-fill');
+     if(fill&&maxVal>0) fill.style.width=`${(next/maxVal)*100}%`;
+     const animClass=next<prev?'res-flash-damage':'res-flash-heal';
+     card.classList.remove('res-flash-damage','res-flash-heal');
+     void card.offsetWidth;
+     card.classList.add(animClass);
+     setTimeout(()=>card.classList.remove(animClass),400);
+     return;
+    }
+    render();
+   };
+  });
+  document.querySelectorAll('[data-res-delta]').forEach(btn=>{
+   btn.onclick=()=>{
+    const[key,deltaStr]=btn.dataset.resDelta.split(':');
+    const delta=Number(deltaStr)||0;
+    const maxVal=key==='pv'?originalCalcPvMax(state):(key==='pe'?originalCalcPeMax(state):originalCalcSanMax(state));
+    const curr=Number(state[key]??maxVal);
+    const next=Math.max(0,Math.min(maxVal,curr+delta));
+    state[key]=next;
+    playResourceSound(delta>0);
+    save(false);
+
+    const card=btn.closest('.original-resource-card');
+    if(card){
+     const inp=card.querySelector('.res-input-current');
+     if(inp) inp.value=next;
+     const fill=card.querySelector('.res-fill');
+     if(fill&&maxVal>0) fill.style.width=`${(next/maxVal)*100}%`;
+     const animClass=delta<0?'res-flash-damage':'res-flash-heal';
+     card.classList.remove('res-flash-damage','res-flash-heal');
+     void card.offsetWidth;
+     card.classList.add(animClass);
+     setTimeout(()=>card.classList.remove(animClass),400);
+     return;
+    }
+
+    const cinItem=btn.closest('.cinematic-resource-item');
+    if(cinItem){
+     const bold=cinItem.querySelector('b');
+     if(bold&&bold.childNodes.length>0){
+      bold.childNodes[0].nodeValue=String(next);
+     }
+     const fill=cinItem.querySelector('.cin-progress-track i');
+     if(fill&&maxVal>0) fill.style.width=`${(next/maxVal)*100}%`;
+     const animClass=delta<0?'res-flash-damage':'res-flash-heal';
+     cinItem.classList.remove('res-flash-damage','res-flash-heal');
+     void cinItem.offsetWidth;
+     cinItem.classList.add(animClass);
+     setTimeout(()=>cinItem.classList.remove(animClass),400);
+     return;
+    }
+
+    render();
+   };
+  });
+  const btnAddPower=document.querySelector('#btn-add-paranormal-power');
+  if(btnAddPower){
+   btnAddPower.onclick=()=>{
+    const sel=document.querySelector('#select-paranormal-power');
+    const idx=Number(sel?.value);
+    const power=ORIGINAL_PODERES_PARANORMAIS[idx];
+    if(power){
+     if(!Array.isArray(state.poderesParanormais)) state.poderesParanormais=[];
+     state.poderesParanormais.push(clone(power));
+     save(false);
+     render();
+    }
+   };
+  }
+  document.querySelectorAll('[data-remove-paranormal]').forEach(btn=>{
+   btn.onclick=()=>{
+    const idx=Number(btn.dataset.removeParanormal);
+    if(!isNaN(idx)&&state.poderesParanormais){
+     state.poderesParanormais.splice(idx,1);
+     save(false);
+     render();
+    }
+   };
+  });
+  const btnLearnRitual=document.querySelector('#btn-learn-ritual');
+  if(btnLearnRitual){
+   btnLearnRitual.onclick=()=>{
+    const sel=document.querySelector('#select-ritual-to-learn');
+    const rId=sel?.value;
+    if(rId){
+     if(!Array.isArray(state.rituaisConhecidos)) state.rituaisConhecidos=[];
+     if(!state.rituaisConhecidos.includes(rId)){
+      state.rituaisConhecidos.push(rId);
+      save(false);
+      render();
+     }
+    }
+   };
+  }
+  document.querySelectorAll('[data-remove-ritual]').forEach(btn=>{
+   btn.onclick=()=>{
+    const rId=btn.dataset.removeRitual;
+    if(rId&&state.rituaisConhecidos){
+     state.rituaisConhecidos=state.rituaisConhecidos.filter(id=>id!==rId);
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-cast-ritual]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    castRitual(btn.dataset.castRitual);
+   };
+  });
+  const btnAddAttack=document.querySelector('#btn-add-attack');
+  if(btnAddAttack){
+   btnAddAttack.onclick=()=>{
+    if(!Array.isArray(state.ataques)) state.ataques=[];
+    state.ataques.push({
+     nome:'Nova Arma',
+     ataque:'3d20+5',
+     dano:'1d8',
+     critico:'20/x2',
+     alcance:'Curto',
+     tipo:'Balístico'
+    });
+    save(false);
+    render();
+   };
+  }
+  document.querySelectorAll('[data-remove-attack]').forEach(btn=>{
+   btn.onclick=()=>{
+    const idx=Number(btn.dataset.removeAttack);
+    if(!isNaN(idx)&&state.ataques){
+     state.ataques.splice(idx,1);
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-attack-field]').forEach(inp=>{
+   inp.onchange=()=>{
+    const[idxStr,field]=inp.dataset.attackField.split(':');
+    const idx=Number(idxStr);
+    if(!isNaN(idx)&&state.ataques?.[idx]&&field){
+     state.ataques[idx][field]=inp.value;
+     save(false);
+    }
+   };
+  });
+  document.querySelectorAll('[data-roll-attack]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    rollOriginalAttack(Number(btn.dataset.rollAttack));
+   };
+  });
+  document.querySelectorAll('[data-roll-damage]').forEach(btn=>{
+   btn.onclick=(e)=>{
+    e.stopPropagation();
+    rollOriginalDamage(Number(btn.dataset.rollDamage));
+   };
+  });
+  const btnAddInv=document.querySelector('#btn-add-inventory-item');
+  if(btnAddInv){
+   btnAddInv.onclick=()=>{
+    if(!Array.isArray(state.inventario)) state.inventario=[];
+    state.inventario.push({
+     nome:'Novo Item',
+     espaco:1,
+     categoria:'0',
+     qtd:1,
+     descricao:''
+    });
+    save(false);
+    render();
+   };
+  }
+  document.querySelectorAll('[data-remove-inventory]').forEach(btn=>{
+   btn.onclick=()=>{
+    const idx=Number(btn.dataset.removeInventory);
+    if(!isNaN(idx)&&state.inventario){
+     state.inventario.splice(idx,1);
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-inv-field]').forEach(inp=>{
+   inp.onchange=()=>{
+    const[idxStr,field]=inp.dataset.invField.split(':');
+    const idx=Number(idxStr);
+    if(!isNaN(idx)&&state.inventario?.[idx]&&field){
+     if(field==='espaco'||field==='qtd'){
+      state.inventario[idx][field]=Number(inp.value)||0;
+     }else{
+      state.inventario[idx][field]=inp.value;
+     }
+     save(false);
+     render();
+    }
+   };
+  });
+  document.querySelectorAll('[data-original-field]').forEach(el=>{
+   el.onchange=e=>{
+    if(presentationMode){notifyPresentationLocked();return;}
+    const key=e.target.dataset.originalField;
+    if(key==='nex'){
+     state.nex=snapNex(e.target.value);
+    }else if(['defesaOutros','pvTemp','peTemp','sanTemp'].includes(key)){
+     state[key]=Number(e.target.value)||0;
+    }else{
+     state[key]=e.target.value;
+    }
+    if(key==='classeId'){
+     const cls=classeAtual(state);
+     state.trilhaId=cls.trilhas?.[0]?.id||'';
+    }
+    save(false);
+    render();
+   };
+  });
  // ── Mobile bottom nav ──────────────────────────────────────────────────────
  document.querySelectorAll('[data-mobile-tab]').forEach(el=>el.onclick=()=>{mobileTab=el.dataset.mobileTab;render()});
  document.querySelectorAll('[data-cinematic-mobile-tab]').forEach(el=>el.onclick=()=>{cinematicMobileTab=el.dataset.cinematicMobileTab;render()});
@@ -1580,7 +2161,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===' '){e.preventDefault();confirmPresentationAgent(sheets[presentationIndex]);return;}
   return;
  }
- if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false);document.querySelector('#critical-settings-modal')?.classList.remove('open')}
+ if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false);document.querySelector('#critical-settings-modal')?.classList.remove('open');const m=document.querySelector('#system-select-modal');if(m)m.style.display='none';}
  if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}
 });
 
