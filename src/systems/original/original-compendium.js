@@ -221,6 +221,20 @@ function renderOrigens(bate) {
             <p class="card-desc">${safe(o.poder.descricao)}</p>
           </div>
         ` : ''}
+        ${(o.poderesExtras || []).map(p => `
+          <div class="oc-sub">
+            <div class="card-head"><strong>${safe(p.nome)}</strong></div>
+            ${p.alternativa ? `<span class="card-meta">Alternativa a ${safe(o.poder?.nome || '')} — escolha um dos dois</span>` : ''}
+            <p class="card-desc">${safe(p.descricao)}</p>
+          </div>
+        `).join('')}
+        ${o.aprimoramento ? `
+          <div class="oc-sub">
+            <div class="card-head"><strong>Aprimoramento${o.aprimoramento.poder ? `: ${safe(o.aprimoramento.poder.nome)}` : ''}</strong></div>
+            <span class="card-meta">NEX 40% · Perícia: ${safe((PERICIAS.find(x => x.id === o.aprimoramento.pericia) || {}).nome || o.aprimoramento.pericia)}</span>
+            ${o.aprimoramento.poder ? `<p class="card-desc">${safe(o.aprimoramento.poder.descricao)}</p>` : ''}
+          </div>
+        ` : ''}
       </article>
     `).join('') || emptyNote('Nenhuma origem encontrada.')
   };
@@ -300,7 +314,7 @@ function renderPoderes(bate) {
       ${grupos.map(g => chip('grupo', g.id, g.label, ui.grupo === g.id)).join('')}
     </div>`,
     html: itens.map(({ p, g }) => {
-      const owned = escolhidos.has(p.nome);
+      const owned = escolhidos.has(p.nome) && !p.repetivel;
       return `
         <article class="original-card oc-card ${ui.pick && owned ? 'owned' : ''}">
           <div class="card-head">

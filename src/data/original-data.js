@@ -54,6 +54,7 @@ const PERICIAS = [
   { id: "enganacao",       nome: "Enganação",        atributo: "pre" },
   { id: "fortitude",       nome: "Fortitude",        atributo: "vig" },
   { id: "furtividade",     nome: "Furtividade",      atributo: "agi" },
+  { id: "iniciativa",      nome: "Iniciativa",       atributo: "agi" },
   { id: "intimidacao",     nome: "Intimidação",      atributo: "pre" },
   { id: "intuicao",        nome: "Intuição",         atributo: "pre" },
   { id: "investigacao",    nome: "Investigação",     atributo: "int" },
@@ -90,8 +91,27 @@ const ORIGENS = [
       bonus: "+5 em testes de Intelecto (2 PE)",
       descricao: "Quando faz um teste usando Intelecto, você pode gastar 2 PE para receber +5 nesse teste.",
     },
+    // "poderesExtras": habilidades de origem adicionais (use alternativa: true
+    // quando o jogador escolhe ENTRE ela e o poder principal).
+    poderesExtras: [
+      {
+        nome: "Estudos Aprofundados",
+        descricao: "Seus profundos estudos sobre um assunto lhe ofereceram um domínio em sua respectiva área. Escolha uma perícia baseada em Intelecto relacionada aos seus estudos. Em testes desta perícia, rolar 19 no dado irá contar como um 20 natural.",
+      },
+    ],
   },
 
+  {
+    id: "advogado",
+    nome: "Advogado",
+    descricao: "Você construiu uma carreira como advogado, resolvendo casos difíceis com precisão e habilidade. Durante a investigação de um caso peculiar, você descobriu evidências que iam além das explicações racionais. Talvez tenha pego um caso em que o réu era um cultista, ou até encontrado documentos com detalhes perturbadores.",
+    pericias: ["diplomacia", "investigacao"],
+    poder: {
+      nome: "Objeção",
+      bonus: "+2 em Intuição contra mentiras; +5 para mudar atitude de culpados",
+      descricao: "Você aprendeu a ler os padrões das pessoas. Você recebe +2 em testes de Intuição para descobrir se alguém está mentindo ou contando a verdade. Além disso, recebe +5 em testes de mudar atitude (também vale para Intimidação) contra personagens que tenham cometido algum crime ou sejam culpados de algo.",
+    },
+  },
   {
     "id": "agente-de-saúde",
     "nome": "Agente de Saúde",
@@ -99,9 +119,26 @@ const ORIGENS = [
     "pericias": ["intuicao", "medicina"],
     "poder": {
       "nome": "Técnica Medicinal",
-      bonus: "+Intelecto no total de PV curados",
-      "descricao": "Sempre que cura um personagem, você adiciona seu Intelecto no total de PV curados."
-    }
+      bonus: "+2× Intelecto no total de PV curados",
+      "descricao": "Sempre que cura um personagem, você adiciona o dobro do seu Intelecto no total de PV curados."
+    },
+    poderesExtras: [
+      {
+        nome: "Tratamento Preventivo",
+        descricao: "Você pode gastar uma Ação de Interlúdio para realizar um tratamento preventivo em um número de aliados igual ao seu Intelecto. Durante o Interlúdio, aliados afetados recebem PVs adicionais iguais ao seu NEX+Intelecto, e na próxima vez que entrarem em morrendo, deverão rolar 1d4. Caso tirem 4, em vez de cair, continuam de pé com 1 PV.",
+      },
+    ],
+  },
+  {
+    id: "alpinista",
+    nome: "Alpinista",
+    descricao: "Você viajou para diversos lugares ao redor do mundo, escalando montanhas e aprendendo a encontrar a paz consigo mesmo. Por isso, você topa qualquer aventura, até as que envolvem criaturas e lugares que não deveriam pertencer a esse mundo.",
+    pericias: ["atletismo", "vontade"],
+    poder: {
+      nome: "Coração da Montanha",
+      bonus: "+3m de deslocamento; ignora terreno difícil e escalada",
+      descricao: "Você ignora as penalidades por andar em terreno difícil e por escalar. Além disso, você ganha um bônus de +3m no seu deslocamento.",
+    },
   },
   {
     "id": "amigo-dos-animais",
@@ -173,7 +210,7 @@ const ORIGENS = [
     "id": "bombeiro",
     "nome": "Bombeiro",
     "descricao": "Você passou anos apagando incêndios, salvando vidas e enfrentando situações de extremo perigo. Durante um resgate em um prédio antigo, encontrou algo que mudou sua perspectiva para sempre. Talvez descobriu um misterioso símbolo esculpido nas paredes chamuscadas, ou percebeu que as chamas não eram realmente fogo, e sim energias malignas de demônios que sussurravam entre as “chamas”. Sua bravura e habilidades de proteção podem ser a salvação de cidadãos e agentes em meio ao paranormal.",
-    "pericias": ["atletismo", "iniciativa"],
+    "pericias": ["atletismo", "Vontade ou Iniciativa"],
     "poder": {
       "nome": "Resgate",
       bonus: "+2 em testes de resgate (2 PE)",
@@ -218,9 +255,8 @@ const ORIGENS = [
     "descricao": "Você trabalhava coletando provas para a solução de crimes, seja para a polícia, seja para uma empresa privada de investigação. Usava métodos e técnicas adquiridos através de uma graduação em uma área científica ou médica, além de cursos específicos. Recrutado para a Ordem pelos seus conhecimentos técnicos, seu trabalho não mudou muito - mas o tipo de crime que você investiga, sim.",
     "pericias": ["ciencias", "investigacao"],
     "poder": {
-      "nome": "Fome do Outro Lado",
-      bonus: "RD 10 contra o elemento do ingrediente (ou vulnerabilidade)",
-      "descricao": "Você pode usar partes de criaturas do Outro Lado como ingredientes culinários. No início de cada missão você pode solicitar essas partes como itens de Categoria I que ocupam 0,5 espaço, e pode obtê-las de criaturas derrotadas (cada criatura Pequena ou maior fornece 1 ingrediente paranormal). Você pode gastar uma ação de interlúdio e 1 ingrediente para preparar um prato especial; faça um teste de Profissão (cozinheiro) com DT 15 + O (o mestre oculta o resultado do teste até alguém comer o prato). Se você passar no teste, o prato fornece RD 10 contra o tipo de dano do elemento da criatura cujo ingrediente foi usado. Caso contrário, o prato causa vulnerabilidade a esse tipo de dano. Os efeitos duram até o fim da próxima cena. Independentemente do resultado, se alimentar do paranormal, por menor que seja a porção, gera consequências brutais e permanentes em seu organismo, sendo uma das formas mais rápidas de destruir sua mente. A cada refeição consumida, você perde 1 ponto permanente de Sanidade. Além disso, se estiver usando a regra opcional Nível de Experiência e Nível de Exposição (p. 98), o NEX do personagem aumenta em 3% para cada parte de criatura diferente que ingerir (mesmo que não esteja usando essa regra, use as alterações descritas na regra para personagens que ingerem partes de criaturas dessa forma). A coragem para se beneficiar desses pratos é algo muito mais presente em grupos de cultistas e, por todas essas razões, não é uma ação apoiada pela Ordo Realitas."
+      "nome": "Investigação Científica",
+      "descricao": "Uma vez por cena de investigação, você pode gastar uma ação livre para procurar pistas, usando Ciências no lugar da perícia que seria usada para tentar encontrar a pista em questão."
     }
   },
   {
@@ -315,8 +351,8 @@ const ORIGENS = [
     "descricao": "Você sempre foi obcecado pelo sobrenatural. Desde que pode se lembrar, a ideia de encontrar uma criatura o fascina tanto quanto o assusta. Essa faísca fez você se tornar um \"caçador de monstros\", dedicando-se a localizar as feras citadas em documentários sensacionalistas. Para você, todo rumor e crendice pode esconder um fundo de verdade. Talvez uma de suas pesquisas o tenha levado diretamente a uma criatura paranormal, ou talvez elas tenham encontrado você primeiro. Afinal, você nunca esteve se escondendo.",
     "pericias": ["investigacao", "ocultismo"],
     "poder": {
-      "nome": "Investigação Científica",
-      "descricao": "Uma vez por cena de investigação, você pode gastar uma ação livre para procurar pistas, usando Ciências no lugar da perícia que seria usada para tentar encontrar a pista em questão."
+      "nome": "Conhecimento Oculto",
+      "descricao": "Você pode fazer testes de Ocultismo para identificar criatura a partir de informações como uma imagem, rastros, indícios de sua presença ou outras pistas que o mestre considere suficientes. Se passar, você descobre as características da criatura (conforme descrito na perícia), mas não sua identidade ou tipo específico. Além disso, quando passa em um teste de Ocultismo para identificar criatura, você recebe também +2 em todos os testes contra a criatura até o fim da missão."
     }
   },
   {
@@ -407,6 +443,17 @@ const ORIGENS = [
     }
   },
   {
+    id: "marinheiro",
+    nome: "Marinheiro",
+    descricao: "Você era, ou é, uma pessoa com grande autoridade a bordo. Você já viu muita coisa em alto mar, desde ouvir histórias de fantasmas e lugares misteriosos até lidar com ataques de contrabandistas.",
+    pericias: ["iniciativa", "intimidacao"],
+    // A homebrew ainda não descreve o poder desta origem ("Poder. Poder.").
+    poder: {
+      nome: "Poder de Marinheiro",
+      descricao: "Ainda não definido na homebrew — combine o efeito com o mestre.",
+    },
+  },
+  {
     "id": "mateiro",
     "nome": "Mateiro",
     "descricao": "Você conhece áreas rurais e selvagens. Você pode ser um guia florestal, um biólogo de campo ou simplesmente um entusiasta da vida selvagem. Qualquer que seja sua relação com a natureza, ela foi sua porta para o contato com o Outro Lado.",
@@ -421,7 +468,7 @@ const ORIGENS = [
     "id": "mercenário",
     "nome": "Mercenário",
     "descricao": "Você é um soldado de aluguel, que trabalha sozinho ou como parte de alguma organização que vende serviços militares. Escoltas e assassinatos fizeram parte de sua rotina por tempo o suficiente para você se envolver em alguma situação com o paranormal. Você é o que os conspiradores mais temem. Seu nome e rosto já foram apagados de diversos registros - a sua identidade atual é realmente sua?",
-    "pericias": ["iniciativa", "intimidacao"],
+    "pericias": ["Iniciativa ou Tática", "Furtividade ou Intimidação"],
     "poder": {
       "nome": "Posição de Combate",
       bonus: "+5 em Investigação/Diplomacia/Enganação (vs. indiferentes)",
@@ -578,7 +625,14 @@ const ORIGENS = [
       "nome": "Eu Já Sabia",
       bonus: "RD contra dano mental = Intelecto",
       "descricao": "Você não se abala tanto com entidades ou anomalias. Afinal, sempre soube que isso tudo existia. Você recebe resistência a dano mental igual ao seu Intelecto."
-    }
+    },
+    poderesExtras: [
+      {
+        nome: "Conhecimento Oculto",
+        alternativa: true,
+        descricao: "Você pode fazer testes de Ocultismo para identificar criatura a partir de informações como uma imagem, rastros, indícios de sua presença ou outras pistas que o mestre considere suficientes. Se passar, você descobre as características da criatura (conforme descrito na perícia), mas não sua identidade ou tipo específico. Além disso, quando passa em um teste de Ocultismo para identificar criatura, você recebe também +2 em todos os testes contra a criatura até o fim da missão.",
+      },
+    ],
   },
   {
     "id": "t.i.",
@@ -645,6 +699,16 @@ const ORIGENS = [
     }
   },
   {
+    id: "vendedor",
+    nome: "Vendedor",
+    descricao: "Você trabalhou como barista, lojista ou vendedor ambulante, ou era dono ou administrava um comércio, como uma padaria, uma banca de jornal, um bar ou até um restaurante. Talvez você colecionava algo em quantias surpreendentes, sejam moedas, revistinhas ou qualquer tipo de artigo que seja lançado em grandes quantias. Por algum motivo, provavelmente relacionado a sua coleção ou um cliente atípico, os seus negócios lucrativos se tornaram sua porta de entrada para o submundo ocultista.",
+    pericias: ["diplomacia", "intuicao"],
+    poder: {
+      nome: "Deixa que eu Faço",
+      descricao: "Você sempre teve que lidar com funcionários ou clientes ruins, e, algumas vezes, é melhor você assumir o controle e fazer o trabalho bem feito do seu jeito. Uma vez por rodada, quando um de seus aliados falha em um teste, você pode gastar 2 PE para fazer a mesma ação como ação livre.",
+    },
+  },
+  {
     "id": "vítima",
     "nome": "Vítima",
     "descricao": "Em algum momento de sua vida — infância, juventude ou início da vida adulta — você encontrou o paranormal… E a experiência não foi nada boa. Você viu os espíritos dos mortos, foi atacado por uma entidade ou mesmo foi sequestrado para ser sacrificado em um ritual impedido no último momento. A experiência foi traumática, mas você não se abateu; em vez disso, decidiu lutar para impedir que outros inocentes passem pelo mesmo. E, já tendo sido vítima do paranormal, se tornou habilidoso em evitar perigos.",
@@ -656,6 +720,53 @@ const ORIGENS = [
     }
   }
 ];
+
+
+/* --------------------------------------------------------------------------
+   3.1 APRIMORAMENTO DE ORIGENS (homebrew)
+   A partir de NEX 40% o personagem pode gastar um poder de classe
+   ("Aprimoramento de Origem") para aprimorar sua origem: ganha mais uma
+   perícia treinada (se já for treinado, escolhe outra) e o poder de origem
+   recebe o aprimoramento abaixo, por substituição ou adição (veja o texto).
+   "pericia": id de PERICIAS, ou texto livre quando há escolha.
+   "poder": opcional — algumas origens só ganham a perícia.
+   -------------------------------------------------------------------------- */
+const APRIMORAMENTOS_ORIGEM = {
+  "acadêmico": { pericia: "atualidades", poder: { nome: "Pesquisa Extensiva", descricao: "Além do normal, uma vez por cena, você pode rolar novamente um teste de perícia baseado em Intelecto." } },
+  "agente-de-saúde": { pericia: "diplomacia", poder: { nome: "Tratamento Psiquiátrico", descricao: "Você pode realizar testes de Diplomacia para tirar seres de Enlouquecendo usando Intelecto ao invés de Presença." } },
+  "amnésico": { pericia: "Uma à escolha do mestre", poder: { nome: "Déjà Vu", descricao: "A DT de Vislumbres do Passado se torna 15 e o bônus em PE temporários se torna 4d4." } },
+  "artista": { pericia: "intuicao", poder: { nome: "Meu Melhor Trabalho", descricao: "Você pode usar Magnum Opus uma vez por sessão." } },
+  "atleta": { pericia: "fortitude", poder: { nome: "120%", descricao: "Ao usar a habilidade 110%, pode gastar 1 PE adicional para usar em Luta ou Pontaria." } },
+  "bombeiro": { pericia: "diplomacia" },
+  "caçador": { pericia: "tatica" },
+  "chef": { pericia: "sobrevivencia", poder: { nome: "Ingredientes Fortes", descricao: "Quando você cozinha em um interlúdio, a categoria do descanso aumenta em um passo." } },
+  "cientista-forense": { pericia: "crime" },
+  "vendedor": { pericia: "intuicao" },
+  "criminoso": { pericia: "reflexos", poder: { nome: "Punguista", descricao: "Você pode usar a habilidade O Crime Compensa para incluir até dois itens." } },
+  "cultista-arrependido": { pericia: "vontade", poder: { nome: "Mergulho Paranormal", descricao: "Os pré-requisitos de poderes paranormais reduzem em 1 para você." } },
+  "desgarrado": { pericia: "vontade", poder: { nome: "Vigor Perfeito", descricao: "Você recebe +1 PV por NEX." } },
+  "engenheiro": { pericia: "ciencias", poder: { nome: "Ferramenta Aprimorada", descricao: "A categoria do item escolhido é reduzida em II." } },
+  "executivo": { pericia: "enganacao", poder: { nome: "Processo Aprimorado", descricao: "Uma vez por cena, você pode gastar 1 PE para rolar novamente um teste de perícia, porém com um bônus de até +5." } },
+  "investigador": { pericia: "intuicao", poder: { nome: "Análise Profunda", descricao: "Uma vez por rodada, você pode usar Faro para Pistas." } },
+  "jornalista": { pericia: "intuicao" },
+  "lutador": { pericia: "fortitude", poder: { nome: "Ataque Preciso", descricao: "O bônus de Mão Pesada também se aplica a testes de ataque corpo a corpo." } },
+  "magnata": { pericia: "enganacao", poder: { nome: "Crédito a Mais", descricao: "Além do normal, escolha um aliado (incluindo você mesmo) para receber um item adicional da maior categoria que você tem acesso." } },
+  "mercenário": { pericia: "furtividade", poder: { nome: "O Melhor Vem Primeiro", descricao: "Ao usar a habilidade Posição de Combate, você pode gastar +3 PE para receber uma ação padrão adicional." } },
+  "militar": { pericia: "intimidacao", poder: { nome: "Plano de Ataque", descricao: "Você pode gastar 4 PE e uma ação completa para analisar um inimigo. Faça um teste de Tática (DT 20 +5 para cada categoria de tamanho além de médio). Se passar, o inimigo sofre –5 na Defesa contra você e seus aliados até o fim da cena." } },
+  "operário": { pericia: "luta", poder: { nome: "Revolução", descricao: "Os bônus de Ferramenta de Trabalho são dobrados." } },
+  "policial": { pericia: "Diplomacia ou Enganação", poder: { nome: "Sentinela", descricao: "O bônus na Defesa aumenta para +5." } },
+  "politico": { pericia: "atualidades" },
+  "professor": { pericia: "intuicao" },
+  "religioso": { pericia: "ocultismo", poder: { nome: "Pregador", descricao: "Você pode realizar uma missa ou ritos religiosos. Gaste uma ação de interlúdio para que um número de aliados igual à sua Presença recebam PV, PE ou PS temporários (escolha um desses) pelo resto da missão. O valor de pontos temporários recebidos é igual a sua Presença × 5." } },
+  "servidor-público": { pericia: "diplomacia", poder: { nome: "Quebrar um Galho", descricao: "Ao invés do normal, você pode gastar 1 PE para somar +5 no bônus de um teste de ajuda." } },
+  "teórico-da-conspiração": { pericia: "vontade", poder: { nome: "Eu Esperava Mais", descricao: "Além do normal, você tem +1d20 em resistências para condições de medo." } },
+  "t.i.": { pericia: "intuicao", poder: { nome: "Revisar Código", descricao: "Uma vez por rodada, você pode fazer um teste de Tecnologia como ação livre." } },
+  "trabalhador-rural": { pericia: "fortitude", poder: { nome: "Companheiro", descricao: "Além do normal, aliados fornecem bônus dobrados para você. Acólito fornece +4 na DT, Faz-Tudo fornece +1d12, Guerrilheiro causa +2d8 pontos de dano e Socorrista cura 2d8+2 PV de si mesmo ou aliado adjacente." } },
+  "trambiqueiro": { pericia: "furtividade", poder: { nome: "Blefe", descricao: "Você pode usar a habilidade Impostor uma vez por rodada." } },
+  "universitário": { pericia: "vontade", poder: { nome: "Força de Vontade", descricao: "Você recebe +1 PE por NEX ao invés de +1 PE em NEX ímpares." } },
+  "vítima": { pericia: "iniciativa", poder: { nome: "Já Passei Por Isso", descricao: "Você pode gastar 4 PE para rolar novamente um teste de resistência contra a Presença Perturbadora de uma criatura paranormal." } },
+};
+ORIGENS.forEach(o => { if (APRIMORAMENTOS_ORIGEM[o.id]) o.aprimoramento = APRIMORAMENTOS_ORIGEM[o.id]; });
 
 
 /* --------------------------------------------------------------------------
@@ -682,6 +793,12 @@ const ORIGENS = [
    o material de vocês e ajuste como quiser (é só editar os objetos abaixo).
    -------------------------------------------------------------------------- */
 const PODERES_GERAIS =  [
+  // Homebrew: estes cinco eram poderes de combatente e agora são gerais.
+  { "nome": "Artista Marcial", "preRequisito": "", "descricao": "Seus ataques desarmados causam 1d6 pontos de dano, podem causar dano letal e se tornam ágeis (veja p. 59). Em NEX 35%, o dano aumenta para 1d8 e, em NEX 70%, para 1d10." },
+  { "nome": "Ataque de Oportunidade", "preRequisito": "", "descricao": "Sempre que um ser sair voluntariamente de um espaço adjacente ao seu, você pode gastar uma reação e 1 PE para fazer um ataque corpo a corpo contra ele." },
+  { "nome": "Combater com Duas Armas", "preRequisito": "AGI 3, Treinado em Luta ou Pontaria", "descricao": "Se estiver empunhando duas armas (e pelo menos uma for leve) e fizer a ação agredir, você pode fazer dois ataques, um com cada arma. Se fizer isso, sofre –O em todos os testes de ataque até o seu próximo turno." },
+  { "nome": "Saque Rápido", "preRequisito": "Treinado em Iniciativa", "bonus": "+2 em Iniciativa", "descricao": "Você pode sacar ou guardar itens como uma ação livre (em vez de ação de movimento). Além disso, caso esteja usando a regra opcional de contagem de munição, uma vez por rodada pode recarregar uma arma de disparo como uma ação livre. Além do normal, também concede +2 em Iniciativa." },
+  { "nome": "Tiro Certeiro", "preRequisito": "Treinado em Pontaria", "descricao": "Se estiver usando uma arma de disparo, você soma sua Agilidade nas rolagens de dano e ignora a penalidade contra alvos envolvidos em combate corpo a corpo (mesmo se não usar a ação mirar)." },
   {
     "nome": "Acrobático",
     "preRequisito": "AGI 2",
@@ -765,7 +882,7 @@ const PODERES_GERAIS =  [
   },
   {
     "nome": "Evasão",
-    "preRequisito": "Treinado em Reflexos",
+    "preRequisito": "AGI 2, Treinado em Reflexos",
     "descricao": "Quando sofre um ataque que permite um teste de Reflexos para reduzir o dano à metade, você não sofre dano algum se passar. Esta habilidade exige liberdade de movimentos; você não pode usá-la se estiver usando armadura pesada ou sob alguma condição que te deixe imóvel. Além disso, uma vez por rodada, você pode gastar 1 PE para evitar um ataque de oportunidade."
   },
   {
@@ -914,7 +1031,7 @@ const PODERES_GERAIS =  [
   },
   {
     "nome": "Reflexos Inteligentes",
-    "preRequisito": "Treinado em Reflexos ou Iniciativa",
+    "preRequisito": "INT 2, Treinado em Reflexos ou Iniciativa",
     "descricao": "Você substitui o atributo-base de Reflexos e Iniciativa por Intelecto."
   },
   {
@@ -981,11 +1098,6 @@ const PODERES_GERAIS =  [
     "descricao": "Você pode ficar furtivo com uma ação livre."
   },
   {
-    "nome": "Versatilidade",
-    "preRequisito": "",
-    "descricao": "Homebrew: escolhido uma única vez. Ao escolher, você seleciona uma segunda trilha (diferente da sua trilha principal, entre as da mesma classe). A partir daí, em cada NEX de progressão de trilha (10%, 25%, 40%, 65%, 99%), você escolhe livremente se aquele poder vem da trilha principal ou da secundária. Um personagem só pode ter duas trilhas — esse limite só aumenta com o poder paranormal Versatilidade Amplificada."
-  },
-  {
     "nome": "Valente",
     "preRequisito": "PRE 2",
     "bonus": "+1d20 em resistência para aliados próximos",
@@ -1023,16 +1135,32 @@ const PODERES_GERAIS =  [
   }
 ]
 
+// Homebrew: poderes de classe compartilhados pelas três classes.
+// "repetivel": pode ser escolhido mais de uma vez.
+const PODER_VERSATILIDADE = {
+  nome: "Versatilidade",
+  preRequisito: null,
+  repetivel: true,
+  descricao: "Você recebe a primeira habilidade de uma segunda trilha da sua classe. Você pode escolher este poder novamente para receber a habilidade seguinte dessa trilha, desde que possua as anteriores. Um personagem só pode ter duas trilhas — esse limite aumenta com o poder paranormal Versatilidade Amplificada. Na ficha: escolha a trilha secundária em Habilidades → Trilhas.",
+};
+const PODER_APRIMORAMENTO_ORIGEM = {
+  nome: "Aprimoramento de Origem",
+  preRequisito: "NEX 40%",
+  descricao: "Suas habilidades de origem se aperfeiçoam com suas experiências. Você recebe mais uma perícia treinada de acordo com a sua origem (se já for treinado, pode escolher outra) e seu poder de origem é aprimorado, por substituição ou adição. Na ficha: o aprimoramento aparece junto do poder de origem.",
+};
+
 const CLASSES = {
 
   combatente: {
     nome: "Combatente",
     resumo: "Perito em armas brancas e de fogo, a linha de frente contra o Outro Lado.",
     pv: { base: 20, porNex: 4 },
-    pe: { base: 2, porNex: 2 },
+    pe: { base: 6, porNex: 3 },
     san: { base: 12, porNex: 3 },
+    // PV/PE fixos que a tabela de NEX concede (somados automaticamente).
+    bonusPorNex: [{ nex: 85, pv: 5, pe: 5 }],
     proficiencias: "Armas simples, armas táticas e proteções leves (e pesadas, a partir de certo NEX).",
-    periciasIniciaisTexto: "Luta ou Pontaria, e Fortitude ou Reflexos, mais 1 + Intelecto perícias à escolha.",
+    periciasIniciaisTexto: "Luta ou Pontaria, e Fortitude ou Reflexos, mais 2 + Intelecto perícias à escolha.",
 
     tabelaNex: [
       { nex: 5,  tipo: "fixo",    texto: "Ataque especial (2 PE, +5)" },
@@ -1041,14 +1169,14 @@ const CLASSES = {
       { nex: 20, tipo: "fixo",    texto: "Aumento de Atributo" },
       { nex: 25, tipo: "escolha", texto: "Poder de combatente, habilidade de trilha" },
       { nex: 30, tipo: "escolha", texto: "Ataque especial (3 PE, +10)" },
-      { nex: 35, tipo: "fixo",    texto: "Grau de treinamento" },
+      { nex: 35, tipo: "fixo",    texto: "Grau de treinamento (3 + Intelecto perícias)" },
       { nex: 40, tipo: "trilha",  texto: "Poder de combatente, habilidade de trilha" },
       { nex: 45, tipo: "escolha", texto: "Aumento de atributo" },
       { nex: 50, tipo: "fixo",    texto: "Ataque especial (4 PE, +15)" },
       { nex: 55, tipo: "escolha", texto: "Poder de combatente" },
       { nex: 60, tipo: "escolha", texto: "Perícia adicional ou +2 em perícia treinada" },
       { nex: 65, tipo: "trilha",  texto: "Poder de combatente, habilidade de trilha" },
-      { nex: 70, tipo: "fixo",    texto: "Grau de treinamento" },
+      { nex: 70, tipo: "fixo",    texto: "Grau de treinamento (3 + Intelecto perícias)" },
       { nex: 75, tipo: "escolha", texto: "Ataque especial (5 PE, +20)" },
       { nex: 80, tipo: "fixo",    texto: "Aumento de atributo" },
       { nex: 85, tipo: "escolha", texto: "+5 PV, +5 PE" },
@@ -1058,19 +1186,19 @@ const CLASSES = {
     ],
 
     poderes: [
+        PODER_VERSATILIDADE,
+        PODER_APRIMORAMENTO_ORIGEM,
+
         { "nome": "Acuidade Armamentista", "preRequisito": null, "descricao": "Armas leves tem seu dano aumentado em um passo (de d6 para d8, de d8 para d10, de d10 para d12)." },
 
         { "nome": "Armamento Pesado", "preRequisito": "FOR 2", "descricao": "Você recebe proficiência com armas pesadas." },
 
-        { "nome": "Artista Marcial", "preRequisito": null, "descricao": "Seus ataques desarmados causam 1d6 pontos de dano, podem causar dano letal e se tornam ágeis (veja p. 59). Em NEX 35%, o dano aumenta para 1d8 e, em NEX 70%, para 1d10." },
 
-        { "nome": "Ataque de Oportunidade", "preRequisito": null, "descricao": "Sempre que um ser sair voluntariamente de um espaço adjacente ao seu, você pode gastar uma reação e 1 PE para fazer um ataque corpo a corpo contra ele." },
 
         { "nome": "Atirador Rudimentar", "preRequisito": null, "descricao": "O dano das suas armas de disparo (exceto armas de fogo) aumenta em um dado do mesmo tipo." },
 
         { "nome": "Combate Defensivo", "preRequisito": "INT 2", "descricao": "Quando usa a ação agredir, você pode combater defensivamente. Se fizer isso, até seu próximo turno, sofre –O em todos os testes de ataque, mas recebe +5 na Defesa." },
 
-        { "nome": "Combater com Duas Armas", "preRequisito": "AGI 3, Treinado em Luta ou Pontaria", "descricao": "Se estiver empunhando duas armas (e pelo menos uma for leve) e fizer a ação agredir, você pode fazer dois ataques, um com cada arma. Se fizer isso, sofre –O em todos os testes de ataque até o seu próximo turno." },
 
         { "nome": "Corte Arterial", "preRequisito": null, "descricao": "Ao acertar um ataque crítico usando uma arma cortante, você pode gastar 1 PE para deixar o alvo sangrando." },
 
@@ -1102,7 +1230,6 @@ const CLASSES = {
 
         { "nome": "Reflexos Defensivos", "preRequisito": "AGI 2", "descricao": "Você recebe +2 em Defesa e em testes de resistência." },
 
-        { "nome": "Saque Rápido", "preRequisito": "Treinado em Iniciativa", "descricao": "Além do normal, também concede +2 em Iniciativa." },
 
         { "nome": "Samba", "preRequisito": null, "descricao": "Você recebe +1d20 em testes de manobras de agarrar, derrubar e desarmar." },
 
@@ -1114,9 +1241,7 @@ const CLASSES = {
 
         { "nome": "Tanque de Guerra", "preRequisito": "Proteção Pesada", "descricao": "Se estiver usando uma proteção pesada, a Defesa e a resistência a dano que ela fornece aumentam em +2." },
 
-        { "nome": "Tática Paranormal", "preRequisito": null, "descricao": "Você recebe +2 em testes de ataque para cada ser sob efeito de um ritual seu." },
 
-        { "nome": "Tiro Certeiro", "preRequisito": "Treinado em Pontaria", "descricao": "Se estiver usando uma arma de disparo, você soma sua Agilidade nas rolagens de dano e ignora a penalidade contra alvos envolvidos em combate corpo a corpo (mesmo se não usar a ação mirar)." },
 
         { "nome": "Tiro de Cobertura", "preRequisito": null, "descricao": "Você pode gastar uma ação padrão e 1 PE para disparar uma arma de fogo na direção de um ser no alcance da arma para forçá-lo a se proteger. Faça um teste de Pontaria contra a Vontade do alvo. Se vencer, até o início do seu próximo turno o alvo não pode sair do lugar onde está e sofre –5 em testes de ataque. A critério do mestre, o alvo recebe +5 no teste de Vontade se estiver em um lugar extremamente perigoso, como uma casa em chamas ou um barco afundando. Este é um efeito de medo." },
 
@@ -1391,8 +1516,9 @@ const CLASSES = {
     nome: "Especialista",
     resumo: "Versátil e engenhoso, especializado em resolver problemas com perícia e inteligência.",
     pv: { base: 16, porNex: 3 },
-    pe: { base: 3, porNex: 3 },
+    pe: { base: 6, porNex: 3 },
     san: { base: 16, porNex: 4 },
+    bonusPorNex: [{ nex: 85, pv: 5, pe: 5 }],
     proficiencias: "Armas simples e proteções leves.",
     periciasIniciaisTexto: "7 + Intelecto perícias à escolha.",
 
@@ -1403,14 +1529,14 @@ const CLASSES = {
         { nex: 20, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 25, tipo: "trilha",  texto: "Poder de especialista, habilidade de trilha" },
         { nex: 30, tipo: "fixo",    texto: "Perito (3 PE, +1d8)" },
-        { nex: 35, tipo: "fixo",    texto: "Grau de treinamento" },
+        { nex: 35, tipo: "fixo",    texto: "Grau de treinamento (5 + Intelecto perícias)" },
         { nex: 40, tipo: "trilha",  texto: "Engenhosidade (veterano), poder de especialista, trilha" },
         { nex: 45, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 50, tipo: "fixo",    texto: "Perito (4 PE, +1d10)" },
         { nex: 55, tipo: "escolha", texto: "Poder de especialista" },
         { nex: 60, tipo: "fixo",    texto: "Slot adicional de perito" },
         { nex: 65, tipo: "trilha",  texto: "Poder de especialista, habilidade de trilha" },
-        { nex: 70, tipo: "fixo",    texto: "Grau de treinamento" },
+        { nex: 70, tipo: "fixo",    texto: "Grau de treinamento (5 + Intelecto perícias)" },
         { nex: 75, tipo: "fixo",    texto: "Engenhosidade (expert), perito (5 PE, +1d12)" },
         { nex: 80, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 85, tipo: "fixo",    texto: "+5 PV, +5 PE" },
@@ -1420,6 +1546,9 @@ const CLASSES = {
         ],
 
     poderes: [
+        PODER_VERSATILIDADE,
+        PODER_APRIMORAMENTO_ORIGEM,
+
         {
             "nome": "Adepto do Escuro",
             "preRequisito": null,
@@ -1444,11 +1573,6 @@ const CLASSES = {
             "descricao": "Você soma seu Intelecto em rolagens de dano e em ataques com armas de disparo (exceto armas de fogo)."
         },
 
-        {
-            "nome": "Artista Marcial",
-            "preRequisito": null,
-            "descricao": "Seus ataques desarmados causam 1d6 pontos de dano, podem causar dano letal e contam como armas ágeis. Em NEX 35%, o dano aumenta para 1d8 e, em NEX 70%, para 1d10."
-        },
 
         {
             "nome": "Atirador Rudimentar",
@@ -1718,7 +1842,7 @@ const CLASSES = {
         "descricao": "Sua principal habilidade é a manutenção e reparo do valioso equipamento que seu time carrega em missão. Seu conhecimento técnico também permite que improvise ferramentas com o que tiver à disposição e sabote os itens usados por seus inimigos.",
         "poderes": [
             { "nex": 10, "nome": "Inventário Otimizado", "descricao": "Você soma seu Intelecto à sua Força para calcular sua capacidade de carga. Por exemplo, se você tem Força 1 e Intelecto 3, seu inventário tem 20 espaços." },
-            { "nex": 25, "nome": "Improvisar", "descricao": "Você pode improvisar equipamentos ou modificações com materiais ao seu redor. Escolha um equipamento geral ou outro tipo de objeto à sua escolha (consulte o mestre) e gaste uma ação completa e 2 PE, mais 2 PE por categoria do item escolhido. Você cria uma versão funcional do item escolhido, que segue suas regras de espaço e categoria como normal. Ao final da cena, seu equipamento improvisado se torna inútil. Você pode fazer um equipamento que não se torna inútil no fim da cena se usar essa ação em uma cena de interlúdio." },
+            { "nex": 25, "nome": "Gambiarra", "descricao": "Você pode improvisar equipamentos ou modificações com materiais ao seu redor. Escolha um equipamento geral ou outro tipo de objeto à sua escolha (consulte o mestre) e gaste uma ação completa e 2 PE, mais 2 PE por categoria do item escolhido. Você cria uma versão funcional do item escolhido, que segue suas regras de espaço e categoria como normal. Ao final da cena, seu equipamento improvisado se torna inútil. Você pode fazer um equipamento que não se torna inútil no fim da cena se usar essa ação em uma cena de interlúdio." },
             { "nex": 40, "nome": "Remendão", "descricao": "Você pode gastar uma ação completa e 1 PE para remover a condição quebrado de um equipamento adjacente até o final da cena. Além disso, qualquer equipamento geral tem sua categoria reduzida em I para você." },
             { "nex": 65, "nome": "Improvisar", "descricao": "Você pode improvisar equipamentos com materiais ao seu redor. Escolha um equipamento geral e gaste uma ação completa e 2 PE, mais 2 PE por categoria do item escolhido. Você cria uma versão funcional do equipamento, que segue suas regras de espaço e categoria como normal. Ao final da cena, seu equipamento improvisado se torna inútil." },
             { "nex": 99, "nome": "Preparado para Tudo", "descricao": "Você sempre tem o que precisa para qualquer situação. Sempre que precisar de um item qualquer (exceto armas), pode gastar uma ação de movimento e 3 PE por categoria do item para lembrar que colocou ele no fundo da bolsa! Depois de encontrado, o item segue normalmente as regras de inventário." }
@@ -1730,11 +1854,12 @@ const CLASSES = {
   ocultista: {
     nome: "Ocultista",
     resumo: "Estuda e domina o paranormal para usá-lo como arma, aprendendo a conjurar Rituais.",
-    pv: { base: 16, porNex: 3 },
-    pe: { base: 4, porNex: 4 },
-    san: { base: 12, porNex: 3 },
+    pv: { base: 12, porNex: 2 },
+    pe: { base: 8, porNex: 4 },
+    san: { base: 20, porNex: 5 },
     proficiencias: "Armas simples e proteções leves.",
-    periciasIniciaisTexto: "5 + Intelecto perícias à escolha, sempre incluindo Ocultismo.",
+    bonusPorNex: [{ nex: 85, pe: 8 }],
+    periciasIniciaisTexto: "Ocultismo e Vontade, mais 3 + Intelecto perícias à escolha.",
 
     tabelaNex: [
         { nex: 5,  tipo: "fixo",    texto: "Escolhido pelo Outro Lado (1º círculo)" },
@@ -1743,14 +1868,14 @@ const CLASSES = {
         { nex: 20, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 25, tipo: "trilha",  texto: "Escolhido pelo Outro Lado (2º círculo), habilidade de trilha" },
         { nex: 30, tipo: "escolha", texto: "Poder de ocultista" },
-        { nex: 35, tipo: "fixo",    texto: "Grau de treinamento" },
+        { nex: 35, tipo: "fixo",    texto: "Grau de treinamento (3 + Intelecto perícias)" },
         { nex: 40, tipo: "trilha",  texto: "Poder de ocultista, habilidade de trilha" },
         { nex: 45, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 50, tipo: "fixo",    texto: "Escolhido pelo Outro Lado (3 círculo)" },
         { nex: 55, tipo: "escolha", texto: "Poder de ocultista" },
         { nex: 60, tipo: "fixo",    texto: "Perícia adicional ou +2 em perícia treinada" },
         { nex: 65, tipo: "trilha",  texto: "Poder de ocultista, habilidade de trilha" },
-        { nex: 70, tipo: "fixo",    texto: "Grau de treinamento" },
+        { nex: 70, tipo: "fixo",    texto: "Grau de treinamento (3 + Intelecto perícias)" },
         { nex: 75, tipo: "fixo",    texto: "Escolhido pelo Outro Lado (4 círculo)" },
         { nex: 80, tipo: "fixo",    texto: "Aumento de atributo" },
         { nex: 85, tipo: "fixo",    texto: "+8 de PE" },
@@ -1760,6 +1885,9 @@ const CLASSES = {
     ],
 
     poderes: [
+        PODER_VERSATILIDADE,
+        PODER_APRIMORAMENTO_ORIGEM,
+
         {
             "nome": "Afinidade Elemental",
             "preRequisito": null,
@@ -1907,6 +2035,17 @@ const CLASSES = {
 
     trilhas: [
         {
+        "id": "criptologista",
+        "nome": "Criptologista",
+        "descricao": "Você estuda tentando compreender as linguagens utilizadas para se comunicar com o Outro Lado. Mesmo desconfiando que não haja uma solução concreta, você analisa os padrões, desenvolve técnicas e ensina aos seus aliados maneiras de aprimorar suas súplicas ao paranormal. (Arquivos Secretos 05 — a homebrew não define a habilidade de NEX 25% desta trilha.)",
+        "poderes": [
+            { "nex": 10, "nome": "Método Intuitivo", "descricao": "Você recebe o poder Criar Selo (OPRPG, p. 33). Se recebê-lo novamente, dobra a quantidade máxima de selos criados ao mesmo tempo. Você pode criar 2 selos com uma ação de interlúdio, em vez de apenas 1. O número de selos que você pode criar em uma ação de interlúdio aumenta em +1 para cada outra habilidade desta trilha que possuir." },
+            { "nex": 40, "nome": "Método Intuitivo (40%)", "descricao": "Selos feitos por você são mais fáceis de usar. O teste para usar o Selo de um ritual que o usuário não conhece muda para Ocultismo (DT 10 + custo em PE do ritual). Além disso, você recebe +5 em testes para identificar rituais." },
+            { "nex": 65, "nome": "Decifrar à Distância", "descricao": "Quando usa um Selo Paranormal, você não precisa estar empunhando-o nem precisa lê-lo em voz alta. Basta poder lê-lo, mesmo que apenas mentalmente, mas o Selo precisa estar, no máximo, em alcance curto de você." },
+            { "nex": 99, "nome": "Selo Supremo", "descricao": "Selos feitos por você dispensam testes de Ocultismo para serem usados, à sua escolha. Além disso, os seus Selos sofrem as seguintes alterações: se o ritual pede testes de resistência, a DT aumenta em +5; se o ritual causa dano, a rolagem de dano aumenta em +3 dados extras do mesmo tipo; se o ritual for usado em forma aprimorada, o usuário do Selo não precisa pagar o custo adicional em PE." }
+        ]
+        },
+        {
         "id": "conduite",
         "nome": "Conduíte",
         "descricao": "Você domina os aspectos fundamentais da conjuração de rituais e é capaz de aumentar o alcance e velocidade de suas conjurações. Conforme sua conexão com as entidades paranormais aumenta você se torna capaz de interferir com os rituais de outros ocultistas.",
@@ -2024,7 +2163,7 @@ const CLASSES = {
     escalaAtributoPorNex: false,
     resumo: "Uma pessoa comum, com uma ocupação regular — mas essa normalidade não vai durar muito.",
     pv: { base: 10, porNex: 2 },   // PV inicial = 10+VIGOR; a cada estágio +2
-    pe: { base: 4, porNex: 1 },    // PE inicial = 4+PRESENÇA; a cada estágio +1
+    pe: { base: 3, porNex: 1 },    // PE inicial = 3+PRESENÇA; a cada estágio +1
     san: { base: 10, porNex: 2 },  // SAN inicial = 10; a cada estágio +2
     proficiencias: "Nenhuma proficiência especial (a menos que a origem conceda alguma).",
     periciasIniciaisTexto: "2 + Intelecto perícias à escolha. Além disso, todo Sobrevivente escolhe uma das habilidades gerais abaixo (na aba Habilidades) e começa com um Poder Geral.",
@@ -2092,6 +2231,12 @@ const CLASSES = {
   },
 };
 
+// Homebrew: as trilhas Caçador e Monstruoso (de combatente) também podem ser
+// escolhidas por Especialistas (Agente Secreto já está nas duas listas).
+CLASSES.especialista.trilhas.push(
+  ...CLASSES.combatente.trilhas.filter(t => ["cacador", "monstruoso"].includes(t.id))
+);
+
 
 /* --------------------------------------------------------------------------
    5. PODERES PARANORMAIS (obtidos ao Transcender / poder de ocultista, custam Sanidade)
@@ -2115,7 +2260,7 @@ const PODERES_PARANORMAIS = [
     "nome": "Arma de Sangue",
     "elemento": "Sangue",
     "custoSAN": null,
-    "descricao": "O Sangue devora parte de seu corpo e se manifesta como parte de você. Você pode gastar uma ação de movimento e 2 PD para produzir garras, chifres ou uma lâmina de sangue cristalizado que brota de seu antebraço. Qualquer que seja sua escolha, é considerada uma arma simples, corpo a corpo e leve, que você não precisa empunhar e causa 1d10 pontos de dano de Sangue, que aumenta para 1d12+2 quando estiver machucado, com crítico 20/x2. Uma vez por turno, quando você usa a ação agredir, pode gastar 1 PE para fazer um ataque adicional com essa arma, ou pode gastar 2 PE para recuperar PVs equivalentes ao dano dado. Essas duas habilidades podem ser usadas em conjunto.  A arma dura até o final da cena, e então se desfaz numa poça de sangue coagulado.\nAfinidade: A arma se torna permanentemente parte de você. O crítico se torna 18, o dano base aumenta para 1d12+2, e quando estiver machucado o dano base aumenta para 2d10+1. Ao acertar um ataque, você pode gastar 2 PE para fincar a arma de sangue no alvo, que, após uma rodada, explode em sangue, causando 4d8 de dano de Sangue. Após usar essa habilidade, a arma entra em estado de regeneração e não pode ser usada por 2 rodadas."
+    "descricao": "O Sangue devora parte de seu corpo e se manifesta como parte de você. Você pode gastar uma ação de movimento e 2 PE para produzir garras, chifres ou uma lâmina de sangue cristalizado que brota de seu antebraço. Qualquer que seja sua escolha, é considerada uma arma simples, corpo a corpo e leve, que você não precisa empunhar e causa 1d10 pontos de dano de Sangue, que aumenta para 1d12+2 quando estiver machucado, com crítico 20/x2. Uma vez por turno, quando você usa a ação agredir, pode gastar 1 PE para fazer um ataque adicional com essa arma, ou pode gastar 2 PE para recuperar PVs equivalentes ao dano dado. Essas duas habilidades podem ser usadas em conjunto.  A arma dura até o final da cena, e então se desfaz numa poça de sangue coagulado.\nAfinidade: A arma se torna permanentemente parte de você. O crítico se torna 18, o dano base aumenta para 1d12+2, e quando estiver machucado o dano base aumenta para 2d10+1. Ao acertar um ataque, você pode gastar 2 PE para fincar a arma de sangue no alvo, que, após uma rodada, explode em sangue, causando 4d8 de dano de Sangue. Após usar essa habilidade, a arma entra em estado de regeneração e não pode ser usada por 2 rodadas."
   },
   {
     "nome": "Armadura Viva",
@@ -2169,8 +2314,8 @@ const PODERES_PARANORMAIS = [
     "nome": "Sangue Vivo",
     "elemento": "Sangue",
     "custoSAN": null,
-    "bonus": "Cura acelerada 2 quando machucado (1x/cena)",
-    "descricao": "A carnificina não pode parar, o Sangue precisa continuar fluindo. Na primeira vez que ficar machucado durante uma cena, você recebe cura acelerada 2 (veja a página 179). Esse efeito nunca cura você acima da metade dos PV máximos (ou seja, você nunca deixa de estar machucado) e termina no fim da cena ou caso você perca a condição machucado.\nPré-requisito: Sangue 1.\nAfinidade: a cura acelerada aumenta para 5."
+    "bonus": "Cura acelerada 2 enquanto machucado",
+    "descricao": "A carnificina não pode parar, o Sangue precisa continuar fluindo. Sempre que estiver machucado, você recebe cura acelerada 2 (veja a página 179) — este poder pode ativar várias vezes por cena. Esse efeito nunca cura você acima da metade dos PV máximos (ou seja, você nunca deixa de estar machucado) e termina no fim da cena ou caso você perca a condição machucado.\nPré-requisito: Sangue 1.\nAfinidade: a cura acelerada aumenta para 5."
   },
   {
     "nome": "Absorver Conhecimento",
@@ -2215,7 +2360,7 @@ const PODERES_PARANORMAIS = [
     "elemento": "Conhecimento",
     "custoSAN": null,
     "bonus": "+5 em Defesa e testes de resistência",
-    "descricao": "Você possui um “sexto sentido” que o avisa do perigo antes que ele aconteça. Você recebe +5 em Defesa e em testes de resistência.\nAfinidade: Você fica imune à condição desprevenido."
+    "descricao": "Você possui um “sexto sentido” que o avisa do perigo antes que ele aconteça. Você recebe +5 em Defesa e em testes de resistência.\nAfinidade: Você fica imune à condição desprevenido e recebe +5 em Iniciativa."
   },
   {
     "nome": "Sensitivo",
@@ -2228,7 +2373,7 @@ const PODERES_PARANORMAIS = [
     "nome": "Versatilidade Amplificada",
     "elemento": "Conhecimento",
     "custoSAN": null,
-    "descricao": "Você avança um nível de trilha OU escolhe uma terceira trilha para seu personagem, à sua escolha. Na ficha: destrava a escolha de uma 3ª trilha em Habilidades → Progressão de Trilha (requer já ter Versatilidade e a trilha secundária escolhida)."
+    "descricao": "Você avança um nível de trilha OU escolhe uma terceira trilha para seu personagem, à sua escolha. Na ficha: em Habilidades → Trilhas, deixe a 3ª trilha vazia para avançar um nível na trilha secundária, ou escolha uma 3ª trilha."
   },
   {
     "nome": "Visão do Oculto",
@@ -4159,7 +4304,7 @@ const RITUAIS = [
     "elemento": "Morte",
     "circulo": 2,
     "custoPE": 3,
-    "execucao": "movimento",
+    "execucao": "padrão",
     "alcance": "pessoal",
     "alvo": "você",
     "duracao": "Instantânea",

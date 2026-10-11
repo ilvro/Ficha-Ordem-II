@@ -11,6 +11,9 @@ export const TREINOS_ORIGINAL = [
 
 export const TIERS_TRILHA = [10, 25, 40, 65, 99];
 
+// NEX em que a tabela de classe concede "Aumento de atributo".
+export const NEX_AUMENTO_ATRIBUTO = [20, 45, 80, 95];
+
 export const ICONES_RECURSO = {
   pv: {
     full: './icons/original/pv-full.svg',
@@ -40,7 +43,8 @@ export const DEFAULT_ORIGINAL_SHEET = {
   trilhaId: 'aniquilador',
   trilhaSecundariaId: '',
   trilhaTerciariaId: '',
-  trilhaTierAtribuicoes: {},
+  nivelTrilhaTerciaria: 1,
+  aumentosAtributo: {},
   nex: 5,
   atributos: { for: 2, agi: 2, vig: 2, int: 1, pre: 1 },
   pv: 22,
@@ -101,7 +105,9 @@ export function snapNex(value) {
 export function passosNex(sheet) {
   const c = classeAtual(sheet);
   const nexBase = (c && typeof c.nexBase === 'number') ? c.nexBase : 5;
-  return Math.max(0, Math.floor(((sheet.nex ?? 5) - nexBase) / 5));
+  const nex = sheet.nex ?? 5;
+  // NEX 99% é o nível seguinte a 95% (conta como 100 na progressão).
+  return Math.max(0, Math.floor(((nex >= 99 ? 100 : nex) - nexBase) / 5));
 }
 
 export function estagioAtual(sheet) {
@@ -118,8 +124,24 @@ export function trilhaAtual(sheet) {
   return c.trilhas.find(t => t.id === sheet.trilhaId) || c.trilhas[0] || null;
 }
 
+// Homebrew: Versatilidade é um poder de classe que pode ser escolhido várias
+// vezes — cada escolha concede a próxima habilidade de uma segunda trilha.
+export function contarVersatilidade(sheet) {
+  return Array.isArray(sheet.poderesEscolhidos) ? sheet.poderesEscolhidos.filter(p => p.nome === 'Versatilidade').length : 0;
+}
+
 export function temVersatilidade(sheet) {
-  return Array.isArray(sheet.poderesEscolhidos) && sheet.poderesEscolhidos.some(p => p.nome === 'Versatilidade');
+  return contarVersatilidade(sheet) > 0;
+}
+
+export function temAprimoramentoDeOrigem(sheet) {
+  return temPoderEscolhido(sheet, 'Aprimoramento de Origem');
+}
+
+// Aprimoramento da origem atual, se a ficha tiver o poder de classe.
+export function aprimoramentoDeOrigemAtual(sheet) {
+  if (!temAprimoramentoDeOrigem(sheet)) return null;
+  return origemAtual(sheet)?.aprimoramento || null;
 }
 
 // Poderes que o jogador ESCOLHE (de classe + gerais) e que ainda não estão na
@@ -128,7 +150,7 @@ export function poderesDisponiveis(sheet) {
   const c = classeAtual(sheet);
   const ja = new Set((sheet.poderesEscolhidos || []).map(p => p.nome));
   const daClasse = (c?.poderes || [])
-    .filter(p => !ja.has(p.nome))
+    .filter(p => p.repetivel || !ja.has(p.nome))
     .map(p => ({ label: p.nome, nome: p.nome, descricao: p.descricao, preRequisito: p.preRequisito, origemTipo: `Poder de ${c.nome}`, bonus: p.bonus || null }));
   const gerais = PODERES_GERAIS
     .filter(p => !ja.has(p.nome))
@@ -142,36 +164,74 @@ export function temVersatilidadeAmplificada(sheet) {
 
 export function trilhaSecundariaAtual(sheet) {
   const c = classeAtual(sheet);
-  if (!c || !c.trilhas || !sheet.trilhaSecundariaId) return null;
+  if (!c || !c.trilhas || !sheet.trilhaSecundariaId || !temVersatilidade(sheet)) return null;
+  if (sheet.trilhaSecundariaId === trilhaAtual(sheet)?.id) return null;
   return c.trilhas.find(t => t.id === sheet.trilhaSecundariaId) || null;
 }
 
 export function trilhaTerciariaAtual(sheet) {
   const c = classeAtual(sheet);
   if (!c || !c.trilhas || !sheet.trilhaTerciariaId || !temVersatilidadeAmplificada(sheet)) return null;
+  if ([trilhaAtual(sheet)?.id, sheet.trilhaSecundariaId].includes(sheet.trilhaTerciariaId)) return null;
   return c.trilhas.find(t => t.id === sheet.trilhaTerciariaId) || null;
 }
 
-export function trilhaAtribuidaNoTier(sheet, tier) {
-  return sheet.trilhaTierAtribuicoes?.[tier] || 'principal';
+// Quantas habilidades das trilhas extras a ficha tem. Cada Versatilidade vale
+// um nível; Versatilidade Amplificada vale mais um, que vai para a trilha
+// secundária ou abre uma terceira trilha (que pode receber outros níveis).
+export function niveisDeTrilhasExtras(sheet) {
+  const total = contarVersatilidade(sheet) + (temVersatilidadeAmplificada(sheet) ? 1 : 0);
+  let terciaria = 0;
+  if (trilhaTerciariaAtual(sheet)) {
+    terciaria = Math.max(1, Math.min(Number(sheet.nivelTrilhaTerciaria) || 1, Math.max(1, total - 1)));
+  }
+  return { total, secundaria: Math.max(0, total - terciaria), terciaria };
 }
 
+// Habilidades de trilha que a ficha possui: as da trilha principal destravam
+// por NEX; as das trilhas extras somam-se a elas, na ordem, uma por nível.
 export function progressaoDeTrilhas(sheet) {
-  const contadores = { principal: 0, secundaria: 0, terciaria: 0 };
-  const trilhaPorAlvo = {
-    principal: trilhaAtual(sheet),
-    secundaria: trilhaSecundariaAtual(sheet),
-    terciaria: trilhaTerciariaAtual(sheet),
-  };
-  return TIERS_TRILHA.filter(tier => tier <= sheet.nex).map(tier => {
-    const alvo = trilhaAtribuidaNoTier(sheet, tier);
-    const trilhaObj = trilhaPorAlvo[alvo] || trilhaPorAlvo.principal;
-    if (!trilhaObj) return { tier, alvo, trilhaObj: null, poder: null };
-    const poderesOrdenados = [...trilhaObj.poderes].sort((a, b) => a.nex - b.nex);
-    const idx = contadores[alvo] || 0;
-    contadores[alvo] = idx + 1;
-    return { tier, alvo, trilhaObj, poder: poderesOrdenados[idx] || null };
+  const nex = Number(sheet.nex) || 0;
+  const itens = [];
+  const principal = trilhaAtual(sheet);
+  if (principal) {
+    principal.poderes.filter(p => p.nex <= nex).forEach(poder => itens.push({ tier: poder.nex, alvo: 'principal', trilhaObj: principal, poder }));
+  }
+  if (classeEhMundana(classeAtual(sheet))) return itens;
+  const niveis = niveisDeTrilhasExtras(sheet);
+  [['secundaria', trilhaSecundariaAtual(sheet)], ['terciaria', trilhaTerciariaAtual(sheet)]].forEach(([alvo, trilhaObj]) => {
+    if (!trilhaObj) return;
+    [...trilhaObj.poderes].sort((x, y) => x.nex - y.nex)
+      .slice(0, niveis[alvo])
+      .filter(p => p.nex <= nex)
+      .forEach(poder => itens.push({ tier: poder.nex, alvo, trilhaObj, poder }));
   });
+  return itens;
+}
+
+// Homebrew: aumentos de atributo não são retroativos. Se a ficha informa em
+// qual NEX cada aumento foi para o atributo, os níveis anteriores usam o valor
+// antigo; aumentos não informados contam como se o atributo sempre fosse o atual.
+function atributoNoNex(sheet, attr, nexDoNivel) {
+  const atual = Number(sheet.atributos?.[attr]) || 0;
+  if (classeEhMundana(classeAtual(sheet))) return atual;
+  const nex = Number(sheet.nex) || 0;
+  const posteriores = NEX_AUMENTO_ATRIBUTO.filter(n => n <= nex && n > nexDoNivel && sheet.aumentosAtributo?.[n] === attr).length;
+  return Math.max(0, atual - posteriores);
+}
+
+// Soma do atributo ganho em cada nível depois do primeiro.
+function somaAtributoPorNivel(sheet, attr) {
+  const c = classeAtual(sheet);
+  const nexBase = (c && typeof c.nexBase === 'number') ? c.nexBase : 5;
+  let soma = 0;
+  for (let i = 1; i <= passosNex(sheet); i++) soma += atributoNoNex(sheet, attr, Math.min(99, nexBase + i * 5));
+  return soma;
+}
+
+function bonusFixoPorNex(sheet, recurso) {
+  const nex = Number(sheet.nex) || 0;
+  return (classeAtual(sheet).bonusPorNex || []).reduce((acc, b) => acc + (b.nex <= nex ? (Number(b[recurso]) || 0) : 0), 0);
 }
 
 function somaPorEstagioAlcancado(mapa, estagioAtualVal) {
@@ -187,11 +247,11 @@ export function calcPvMax(sheet) {
   const c = classeAtual(sheet);
   const steps = passosNex(sheet);
   const vig = Number(sheet.atributos?.vig) || 0;
-  const somaAtributo = c.escalaAtributoPorNex === false ? 0 : vig;
+  const nexBase = typeof c.nexBase === 'number' ? c.nexBase : 5;
   const t = trilhaAtual(sheet);
   const estagio = estagioAtual(sheet);
 
-  let progressaoPv = steps * (c.pv.porNex + somaAtributo);
+  let progressaoPv = steps * c.pv.porNex + (c.escalaAtributoPorNex === false ? 0 : somaAtributoPorNivel(sheet, 'vig'));
   if (t && t.pvSubstituiProgressao) {
     progressaoPv = somaPorEstagioAlcancado(t.pvSubstituiProgressao, estagio);
   }
@@ -200,18 +260,19 @@ export function calcPvMax(sheet) {
   const bonusSaude = temPoderEscolhido(sheet, 'Saúde Aprimorada') ? 5 : 0;
   const bonus = Number(sheet.bonusTransicao?.pv) || 0;
 
-  return c.pv.base + vig + progressaoPv + bonusTrilha + bonusSaude + bonus;
+  return c.pv.base + (vig ? atributoNoNex(sheet, 'vig', nexBase) : 0) + progressaoPv + bonusTrilha + bonusSaude + bonus + bonusFixoPorNex(sheet, 'pv');
 }
 
 export function calcPeMax(sheet) {
   const c = classeAtual(sheet);
   const steps = passosNex(sheet);
   const pre = Number(sheet.atributos?.pre) || 0;
-  const somaAtributo = c.escalaAtributoPorNex === false ? 0 : pre;
+  const nexBase = typeof c.nexBase === 'number' ? c.nexBase : 5;
+  const progressaoPe = steps * c.pe.porNex + (c.escalaAtributoPorNex === false ? 0 : somaAtributoPorNivel(sheet, 'pre'));
   const bonusEsforco = temPoderEscolhido(sheet, 'Esforço Aprimorado') ? 5 : 0;
   const bonus = Number(sheet.bonusTransicao?.pe) || 0;
 
-  return c.pe.base + pre + steps * (c.pe.porNex + somaAtributo) + bonusEsforco + bonus;
+  return c.pe.base + (pre ? atributoNoNex(sheet, 'pre', nexBase) : 0) + progressaoPe + bonusEsforco + bonus + bonusFixoPorNex(sheet, 'pe');
 }
 
 export function calcSanMax(sheet) {
@@ -224,7 +285,7 @@ export function calcSanMax(sheet) {
 export function calcPePorTurno(sheet) {
   const c = classeAtual(sheet);
   if (classeEhMundana(c)) return 2;
-  return 2 + passosNex(sheet);
+  return 1 + passosNex(sheet);
 }
 
 export function calcDefesa(sheet) {
@@ -297,22 +358,15 @@ export function bonusPoderesPorPericia(sheet) {
   if (Array.isArray(sheet.poderesParanormais)) sheet.poderesParanormais.forEach(considerar);
   if (Array.isArray(sheet.poderesCustomizados)) sheet.poderesCustomizados.forEach(considerar);
 
-  const t = trilhaAtual(sheet);
-  const tSec = trilhaSecundariaAtual(sheet);
-  const mundana = classeEhMundana(classeAtual(sheet));
-  if (t && (mundana || !temVersatilidade(sheet))) {
-    t.poderes.filter(p => p.nex <= sheet.nex).forEach(considerar);
-  } else if (t && tSec) {
-    progressaoDeTrilhas(sheet).forEach(item => considerar(item.poder));
-  } else if (t) {
-    t.poderes.filter(p => p.nex <= sheet.nex).forEach(considerar);
-  }
+  progressaoDeTrilhas(sheet).forEach(item => considerar(item.poder));
   return soma;
 }
 
 export function periciasTreinadasDaOrigem(sheet) {
   const o = origemAtual(sheet);
-  return o ? (o.pericias || []) : [];
+  if (!o) return [];
+  const extra = aprimoramentoDeOrigemAtual(sheet)?.pericia;
+  return extra ? [...(o.pericias || []), extra] : (o.pericias || []);
 }
 
 export function normalizeOriginalSheet(raw = {}) {
@@ -343,7 +397,9 @@ export function normalizeOriginalSheet(raw = {}) {
   sheet.trilhaId = raw.trilhaId || CLASSES[sheet.classeId]?.trilhas?.[0]?.id || '';
   sheet.trilhaSecundariaId = raw.trilhaSecundariaId || '';
   sheet.trilhaTerciariaId = raw.trilhaTerciariaId || '';
-  sheet.trilhaTierAtribuicoes = raw.trilhaTierAtribuicoes || {};
+  sheet.nivelTrilhaTerciaria = Math.max(1, Number(raw.nivelTrilhaTerciaria) || 1);
+  sheet.aumentosAtributo = (raw.aumentosAtributo && typeof raw.aumentosAtributo === 'object') ? { ...raw.aumentosAtributo } : {};
+  delete sheet.trilhaTierAtribuicoes;
   sheet.nex = Math.max(0, Math.min(99, Number(raw.nex ?? 5)));
 
   sheet.maxPv = calcPvMax(sheet);

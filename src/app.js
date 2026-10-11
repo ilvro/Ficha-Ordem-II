@@ -2205,7 +2205,23 @@ function bind(){
     if(key==='classeId'){
      const cls=classeAtual(state);
      state.trilhaId=cls.trilhas?.[0]?.id||'';
+     state.trilhaSecundariaId='';
+     state.trilhaTerciariaId='';
     }
+    if(key==='trilhaId'){
+     if(state.trilhaSecundariaId===state.trilhaId) state.trilhaSecundariaId='';
+     if(state.trilhaTerciariaId===state.trilhaId) state.trilhaTerciariaId='';
+    }
+    if(key==='nivelTrilhaTerciaria') state.nivelTrilhaTerciaria=Number(e.target.value)||1;
+    save(false);
+    render();
+   };
+  });
+  document.querySelectorAll('[data-aumento-atributo]').forEach(el=>{
+   el.onchange=e=>{
+    if(presentationMode){notifyPresentationLocked();return;}
+    if(!state.aumentosAtributo) state.aumentosAtributo={};
+    state.aumentosAtributo[e.target.dataset.aumentoAtributo]=e.target.value;
     save(false);
     render();
    };

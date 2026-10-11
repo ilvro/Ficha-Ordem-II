@@ -17,6 +17,11 @@ import {
   trilhaSecundariaAtual,
   progressaoDeTrilhas,
   temVersatilidade,
+  temVersatilidadeAmplificada,
+  niveisDeTrilhasExtras,
+  aprimoramentoDeOrigemAtual,
+  classeEhMundana,
+  NEX_AUMENTO_ATRIBUTO,
   calcPvMax,
   calcPeMax,
   calcSanMax,
@@ -455,9 +460,13 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                 </div>
                 <p class="card-desc">${safe(origem.poder?.descricao || origem.descricao || '')}</p>
               </div>
+              ${originExtraCards(state, origem)}
 
-              <h3 style="margin-top:16px;">HABILIDADES DE CLASSE & TRILHA</h3>
-              ${renderProgressionList(state)}
+              <h3 style="margin-top:16px;">HABILIDADES DE CLASSE</h3>
+              ${renderProgressionList(state, editMode)}
+
+              <h3 style="margin-top:16px;">TRILHAS</h3>
+              ${renderTrilhas(state, editMode)}
 
               <h3 style="margin-top:16px;">PODERES ESCOLHIDOS</h3>
               <div class="card-list">
@@ -659,10 +668,99 @@ function chosenPowerCards(state, canRemove, emptyNote) {
   `).join('') || emptyNote;
 }
 
-function renderProgressionList(state) {
+// Habilidades de origem adicionais e, se a ficha tiver o poder de classe
+// "Aprimoramento de Origem", o aprimoramento da origem (homebrew).
+function originExtraCards(state, origem) {
+  const extras = (origem.poderesExtras || []).map(p => `
+    <div class="original-card origin-card" style="margin-top:8px;">
+      <div class="card-head">
+        <strong>${safe(p.nome)}</strong>
+      </div>
+      ${p.alternativa ? `<span class="card-meta">Alternativa a ${safe(origem.poder?.nome || 'poder de origem')} — escolha um dos dois</span>` : ''}
+      <p class="card-desc">${safe(p.descricao)}</p>
+    </div>
+  `).join('');
+  const ap = aprimoramentoDeOrigemAtual(state);
+  if (!ap) return extras;
+  const per = PERICIAS.find(p => p.id === ap.pericia);
+  return extras + `
+    <div class="original-card origin-card" style="margin-top:8px;">
+      <div class="card-head">
+        <strong>${safe(ap.poder?.nome || 'Aprimoramento de Origem')}</strong>
+        <span class="badge-bonus">✦ Perícia: ${safe(per ? per.nome : ap.pericia)}</span>
+      </div>
+      <span class="card-meta">Aprimoramento de Origem — se já for treinado na perícia, escolha outra</span>
+      ${ap.poder ? `<p class="card-desc">${safe(ap.poder.descricao)}</p>` : ''}
+    </div>
+  `;
+}
+
+// Trilha principal + trilhas extras da Versatilidade (homebrew): cada vez que
+// Versatilidade é escolhida, a ficha ganha a próxima habilidade da 2ª trilha.
+function renderTrilhas(state, editMode) {
+  const classe = classeAtual(state);
+  const itens = progressaoDeTrilhas(state);
+  const principal = trilhaAtual(state);
+  const niveis = niveisDeTrilhasExtras(state);
+  const extras = !classeEhMundana(classe) && (temVersatilidade(state) || temVersatilidadeAmplificada(state));
+  const usadas = [principal?.id, state.trilhaSecundariaId, state.trilhaTerciariaId];
+  const seletor = (campo, atual, vazio) => `
+    <select data-original-field="${campo}" ${editMode ? '' : 'disabled'} class="original-select">
+      <option value="">${vazio}</option>
+      ${(classe.trilhas || []).filter(t => t.id === atual || !usadas.includes(t.id)).map(t => `<option value="${t.id}" ${t.id === atual ? 'selected' : ''}>${safe(t.nome)}</option>`).join('')}
+    </select>`;
+  const cards = alvo => itens.filter(i => i.alvo === alvo).map(i => `
+    <div class="original-card progression-card">
+      <div class="card-head">
+        <span class="nex-tag">NEX ${i.poder.nex}%</span>
+        <strong>${safe(i.poder.nome)}</strong>
+      </div>
+      <span class="card-meta">${safe(i.trilhaObj.nome)}</span>
+      <p class="card-desc">${safe(i.poder.descricao)}</p>
+    </div>
+  `).join('');
+
+  let html = `<div class="progression-cards">${cards('principal') || '<p class="empty-cards">Nenhuma habilidade de trilha destravada no NEX atual.</p>'}</div>`;
+  if (!extras) return html;
+
+  html += `
+    <div class="dossier-field" style="margin-top:10px;">
+      <small>TRILHA SECUNDÁRIA (VERSATILIDADE) — ${niveis.secundaria} ${niveis.secundaria === 1 ? 'NÍVEL' : 'NÍVEIS'}</small>
+      ${seletor('trilhaSecundariaId', state.trilhaSecundariaId, '— escolha a segunda trilha —')}
+    </div>
+    <div class="progression-cards">${cards('secundaria')}</div>`;
+  if (temVersatilidadeAmplificada(state)) {
+    html += `
+    <div class="dossier-field" style="margin-top:10px;">
+      <small>TERCEIRA TRILHA (VERSATILIDADE AMPLIFICADA)</small>
+      ${seletor('trilhaTerciariaId', state.trilhaTerciariaId, '— nenhuma: +1 nível na trilha secundária —')}
+    </div>
+    ${niveis.terciaria && niveis.total > 2 ? `
+    <div class="dossier-field">
+      <small>NÍVEIS NA TERCEIRA TRILHA</small>
+      <select data-original-field="nivelTrilhaTerciaria" ${editMode ? '' : 'disabled'} class="original-select">
+        ${Array.from({ length: niveis.total - 1 }, (_, k) => k + 1).map(n => `<option value="${n}" ${n === niveis.terciaria ? 'selected' : ''}>${n}</option>`).join('')}
+      </select>
+    </div>` : ''}
+    <div class="progression-cards">${cards('terciaria')}</div>`;
+  }
+  return html;
+}
+
+function renderProgressionList(state, editMode = false) {
   const classe = classeAtual(state);
   const nex = Number(state.nex) || 0;
-  const trilha = trilhaAtual(state);
+  // Homebrew: aumento de atributo não é retroativo — informar onde foi cada
+  // aumento faz PV (Vigor) e PE (Presença) contarem só dali em diante.
+  const aumentoSelect = item => {
+    if (classeEhMundana(classe) || !NEX_AUMENTO_ATRIBUTO.includes(item.nex) || !/aumento de atributo/i.test(item.texto)) return '';
+    const atual = state.aumentosAtributo?.[item.nex] || '';
+    return `
+          <select data-aumento-atributo="${item.nex}" ${editMode ? '' : 'disabled'} class="original-select" title="Atributo aumentado neste NEX (PV e PE não são retroativos)">
+            <option value="">Atributo: não informado</option>
+            ${ATRIBUTOS.map(a => `<option value="${a.id}" ${a.id === atual ? 'selected' : ''}>+1 ${safe(a.nome)}</option>`).join('')}
+          </select>`;
+  };
 
   const list = (classe.tabelaNex || []).filter(item => item.nex <= nex);
   if (!list.length) return '<p class="empty-cards">Nenhuma habilidade destravada no NEX atual.</p>';
@@ -674,7 +772,7 @@ function renderProgressionList(state) {
           <div class="card-head">
             <span class="nex-tag">NEX ${item.nex}%</span>
             <strong>${safe(item.texto)}</strong>
-          </div>
+          </div>${aumentoSelect(item)}
         </div>
       `).join('')}
     </div>
@@ -922,8 +1020,10 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                       <p class="card-desc" style="font-size:11px;">${safe(origem.poder.descricao || '')}</p>
                     </div>
                   ` : ''}
+                  ${originExtraCards(state, origem)}
 
-                  ${renderProgressionList(state)}
+                  ${renderProgressionList(state, editMode)}
+                  ${renderTrilhas(state, editMode)}
 
                   ${chosenPowerCards(state, editMode, '')}
                   ${editMode ? pickerButton('poderes', 'ADICIONAR PODER') : ''}

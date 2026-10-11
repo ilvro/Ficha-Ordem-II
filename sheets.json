@@ -2088,12 +2088,13 @@
     "name": "AGENTE 9",
     "jogador": "",
     "origemId": "acadêmico",
-    "classeId": "combatente",
-    "trilhaId": "agente-secreto",
+    "classeId": "sobrevivente",
+    "trilhaId": "durao",
     "trilhaSecundariaId": "",
     "trilhaTerciariaId": "",
-    "trilhaTierAtribuicoes": {},
-    "nex": 0,
+    "nivelTrilhaTerciaria": 1,
+    "aumentosAtributo": {},
+    "nex": 10,
     "atributos": {
       "for": 2,
       "agi": 2,
@@ -2106,10 +2107,10 @@
     "pvTemp": 0,
     "pvMarcas": 0,
     "pe": 5,
-    "maxPe": 3,
+    "maxPe": 6,
     "peTemp": 0,
     "san": 12,
-    "maxSan": 12,
+    "maxSan": 14,
     "sanTemp": 0,
     "sanMarcas": 0,
     "defesaOutros": 0,
@@ -2157,6 +2158,10 @@
       },
       "furtividade": {
         "treino": 5,
+        "extra": 0
+      },
+      "iniciativa": {
+        "treino": 0,
         "extra": 0
       },
       "intimidacao": {
@@ -2249,7 +2254,7 @@
     "backgroundZoom": 100,
     "diceColor": "",
     "themeColor": "#ffffff",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 50,
     "cinematicTokenY": 52,
     "cinematicTokenScale": 100,
