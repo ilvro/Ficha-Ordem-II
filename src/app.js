@@ -15,8 +15,71 @@ import {
   snapNex,
   nexDoEstagio,
   ajustarNexDaClasse,
-  rotuloNivel
+  rotuloNivel,
+  trilhaLiberada,
+  pendenciaDeTrilha,
+  aplicarVersatilidade,
+  recusarVersatilidade
 } from './systems/original/original-system.js';
+import { renderDecisaoTrilha, renderEscolhaDeTrilha } from './systems/original/original-views.js';
+
+// Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
+// pergunta de Versatilidade a cada NEX de habilidade de trilha.
+let promptTrilhaInicial=null, promptTrilhaAdiado=null;
+function mudarNexOriginal(aplicar){
+ const antes=trilhaLiberada(state);
+ aplicar();
+ if(!antes&&trilhaLiberada(state)) promptTrilhaInicial=state.id;
+ promptTrilhaAdiado=null;
+}
+function syncPromptDeTrilha(){
+ document.querySelector('#trilha-decisao-modal')?.remove();
+ if(state?.systemMode==='original'&&!presentationMode){
+  let html='';
+  if(promptTrilhaInicial===state.id) html=renderEscolhaDeTrilha(state);
+  else{
+   const p=pendenciaDeTrilha(state);
+   if(p&&promptTrilhaAdiado!==`${state.id}:${p.tier}`) html=renderDecisaoTrilha(state,{modal:true});
+  }
+  if(html){
+   const modal=document.createElement('div');
+   modal.className='modal open trilha-decisao-modal';
+   modal.id='trilha-decisao-modal';
+   modal.innerHTML=`<div class="backdrop"></div><section>${html}</section>`;
+   document.body.appendChild(modal);
+  }
+ }
+ document.querySelectorAll('[data-trilha-decisao]').forEach(btn=>{
+  btn.onclick=()=>{
+   const p=pendenciaDeTrilha(state);
+   if(!p) return;
+   const acao=btn.dataset.trilhaDecisao;
+   if(acao==='depois'){promptTrilhaAdiado=`${state.id}:${p.tier}`;syncPromptDeTrilha();return;}
+   if(acao==='recusar') recusarVersatilidade(state,p.tier);
+   if(acao==='versatilidade'){
+    const sel=btn.closest('.trilha-decisao')?.querySelector('[data-trilha-decisao-select]');
+    if(!aplicarVersatilidade(state,sel?.value)) return;
+   }
+   save(false);
+   render();
+  };
+ });
+ const selInicial=document.querySelector('[data-trilha-inicial-select]');
+ if(selInicial){
+  selInicial.onchange=()=>{
+   const t=classeAtual(state).trilhas?.find(x=>x.id===selInicial.value);
+   const desc=document.querySelector('[data-trilha-inicial-desc]');
+   if(desc) desc.textContent=t?.descricao||'';
+  };
+  document.querySelector('[data-trilha-inicial-confirm]').onclick=()=>{
+   state.trilhaId=selInicial.value;
+   promptTrilhaInicial=null;
+   save(false);
+   render();
+  };
+ }
+}
+
 import {
   renderTraditionalOriginal,
   renderCinematicOriginal
@@ -1983,8 +2046,10 @@ function bind(){
     nexRange.style.setProperty('--nex-pct',`${porEstagio?((val-min)/(max-min))*100:val}%`);
    };
    nexRange.onchange=()=>{
-    if(nexRange.dataset.originalField==='estagio') state.nex=nexDoEstagio(nexRange.value);
-    else{state.nex=snapNex(nexRange.value);ajustarNexDaClasse(state);}
+    mudarNexOriginal(()=>{
+     if(nexRange.dataset.originalField==='estagio') state.nex=nexDoEstagio(nexRange.value);
+     else{state.nex=snapNex(nexRange.value);ajustarNexDaClasse(state);}
+    });
     save(false);
     render();
    };
@@ -2205,10 +2270,9 @@ function bind(){
     if(presentationMode){notifyPresentationLocked();return;}
     const key=e.target.dataset.originalField;
     if(key==='nex'){
-     state.nex=snapNex(e.target.value);
-     ajustarNexDaClasse(state);
+     mudarNexOriginal(()=>{state.nex=snapNex(e.target.value);ajustarNexDaClasse(state);});
     }else if(key==='estagio'){
-     state.nex=nexDoEstagio(e.target.value);
+     mudarNexOriginal(()=>{state.nex=nexDoEstagio(e.target.value);});
     }else if(['defesaOutros','pvTemp','peTemp','sanTemp'].includes(key)){
      state[key]=Number(e.target.value)||0;
     }else{
@@ -2239,6 +2303,7 @@ function bind(){
     render();
    };
   });
+  syncPromptDeTrilha();
  // ── Mobile bottom nav ──────────────────────────────────────────────────────
  document.querySelectorAll('[data-mobile-tab]').forEach(el=>el.onclick=()=>{mobileTab=el.dataset.mobileTab;render()});
  document.querySelectorAll('[data-cinematic-mobile-tab]').forEach(el=>el.onclick=()=>{cinematicMobileTab=el.dataset.cinematicMobileTab;render()});

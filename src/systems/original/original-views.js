@@ -25,6 +25,7 @@ import {
   ESTAGIO_MAX,
   rotuloNivel,
   trilhaLiberada,
+  pendenciaDeTrilha,
   calcPvMax,
   calcPeMax,
   calcSanMax,
@@ -710,6 +711,55 @@ function originExtraCards(state, origem) {
   `;
 }
 
+// Pergunta feita quando o personagem chega a um NEX de habilidade de trilha:
+// a trilha principal avança e o poder de classe do mesmo NEX pode virar
+// Versatilidade (segunda trilha). Usada no card da aba e no pop-up.
+export function renderDecisaoTrilha(state, { modal = false } = {}) {
+  const p = pendenciaDeTrilha(state);
+  if (!p) return '';
+  const versatilidade = p.secundaria
+    ? `<button type="button" class="trilha-decisao-opt" data-trilha-decisao="versatilidade">
+         <b>Avançar a segunda trilha</b>
+         <span>${safe(p.secundaria.nome)}${p.proximoPoderSecundaria ? ` — ${safe(p.proximoPoderSecundaria.nome)}` : ''}</span>
+       </button>`
+    : `<div class="trilha-decisao-opt is-select">
+         <b>Começar uma segunda trilha</b>
+         <label class="styled-select"><select data-trilha-decisao-select>
+           ${p.opcoes.map(o => `<option value="${o.id}">${safe(o.nome)}${o.primeiroPoder ? ` — ${safe(o.primeiroPoder)}` : ''}</option>`).join('')}
+         </select></label>
+         <button type="button" class="trilha-decisao-confirm" data-trilha-decisao="versatilidade">ESCOLHER</button>
+       </div>`;
+  return `
+    <div class="trilha-decisao ${modal ? 'in-modal' : 'original-card'}">
+      <small>NEX ${p.tier}% · HABILIDADE DE TRILHA</small>
+      <h4>O que você quer evoluir?</h4>
+      <p>${p.poderPrincipal ? `Sua trilha principal (${safe(p.principal.nome)}) avançou: <b>${safe(p.poderPrincipal.nome)}</b>. ` : ''}Este NEX também dá um poder de classe, que você pode usar em <b>Versatilidade</b>.</p>
+      <button type="button" class="trilha-decisao-opt" data-trilha-decisao="recusar">
+        <b>Só a trilha principal</b>
+        <span>Usar o poder de classe em outro poder</span>
+      </button>
+      ${versatilidade}
+      ${modal ? `<button type="button" class="trilha-decisao-later" data-trilha-decisao="depois">Decidir depois</button>` : ''}
+    </div>`;
+}
+
+// Pop-up de escolha de trilha, ao chegar em NEX 10% (ou no Estágio 2).
+export function renderEscolhaDeTrilha(state) {
+  const classe = classeAtual(state);
+  const atual = trilhaAtual(state);
+  if (!atual) return '';
+  return `
+    <div class="trilha-decisao in-modal">
+      <small>${safe(rotuloNivel(state).toUpperCase())} · ESCOLHA DE TRILHA</small>
+      <h4>Qual trilha você vai seguir?</h4>
+      <label class="styled-select"><select data-trilha-inicial-select>
+        ${(classe.trilhas || []).map(t => `<option value="${t.id}" ${t.id === atual.id ? 'selected' : ''}>${safe(t.nome)}</option>`).join('')}
+      </select></label>
+      <p data-trilha-inicial-desc>${safe(atual.descricao || '')}</p>
+      <button type="button" class="trilha-decisao-confirm" data-trilha-inicial-confirm>CONFIRMAR TRILHA</button>
+    </div>`;
+}
+
 // Trilha principal + trilhas extras da Versatilidade (homebrew): cada vez que
 // Versatilidade é escolhida, a ficha ganha a próxima habilidade da 2ª trilha.
 function renderTrilhas(state, editMode) {
@@ -738,7 +788,7 @@ function renderTrilhas(state, editMode) {
   const semTrilha = trilhaLiberada(state)
     ? 'Nenhuma habilidade de trilha destravada ainda.'
     : (classeEhMundana(classe) ? 'A trilha é escolhida no Estágio 2.' : 'A trilha é escolhida em NEX 10%.');
-  let html = `<div class="progression-cards">${cards('principal') || `<p class="empty-cards">${semTrilha}</p>`}</div>`;
+  let html = renderDecisaoTrilha(state) + `<div class="progression-cards">${cards('principal') || `<p class="empty-cards">${semTrilha}</p>`}</div>`;
   if (!extras) return html;
 
   html += `

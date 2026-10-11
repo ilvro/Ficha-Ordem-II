@@ -44,6 +44,7 @@ export const DEFAULT_ORIGINAL_SHEET = {
   trilhaSecundariaId: '',
   trilhaTerciariaId: '',
   nivelTrilhaTerciaria: 1,
+  versatilidadeRecusada: {},
   aumentosAtributo: {},
   nex: 5,
   atributos: { for: 2, agi: 2, vig: 2, int: 1, pre: 1 },
@@ -117,6 +118,11 @@ export function ajustarNexDaClasse(sheet) {
   const nex = Number(sheet.nex) || 0;
   if (classeEhMundana(c)) sheet.nex = nexDoEstagio(Math.floor(nex / 5) + 1);
   else sheet.nex = Math.max(5, snapNex(nex));
+  // Recusas de Versatilidade em NEX que a ficha deixou de ter voltam a valer
+  // como pergunta quando o personagem subir de novo.
+  if (sheet.versatilidadeRecusada) {
+    Object.keys(sheet.versatilidadeRecusada).forEach(t => { if (Number(t) > sheet.nex) delete sheet.versatilidadeRecusada[t]; });
+  }
   return sheet.nex;
 }
 
@@ -239,6 +245,49 @@ export function progressaoDeTrilhas(sheet) {
   return itens;
 }
 
+// Homebrew: nos NEX em que a trilha avança (25%, 40%, 65%, 99%) o personagem
+// também ganha um poder de classe, que pode virar Versatilidade. Devolve o
+// primeiro desses NEX em que a ficha ainda não decidiu, ou null.
+export function pendenciaDeTrilha(sheet) {
+  const c = classeAtual(sheet);
+  if (classeEhMundana(c)) return null;
+  const principal = trilhaAtual(sheet);
+  if (!principal) return null;
+  const nex = Number(sheet.nex) || 0;
+  const abertos = TIERS_TRILHA.filter(t => t > TIERS_TRILHA[0] && t <= nex && !sheet.versatilidadeRecusada?.[t]);
+  const tier = abertos[contarVersatilidade(sheet)];
+  if (!tier) return null;
+  const ordenar = t => [...t.poderes].sort((x, y) => x.nex - y.nex);
+  const secundaria = trilhaSecundariaAtual(sheet);
+  return {
+    tier,
+    principal,
+    poderPrincipal: principal.poderes.find(p => p.nex === tier) || null,
+    secundaria,
+    proximoPoderSecundaria: secundaria ? (ordenar(secundaria)[niveisDeTrilhasExtras(sheet).secundaria] || null) : null,
+    opcoes: (c.trilhas || []).filter(t => t.id !== principal.id).map(t => ({ id: t.id, nome: t.nome, primeiroPoder: ordenar(t)[0]?.nome || '' })),
+  };
+}
+
+// Usa o poder de classe do NEX pendente em Versatilidade.
+export function aplicarVersatilidade(sheet, trilhaSecundariaId) {
+  const c = classeAtual(sheet);
+  const poder = (c.poderes || []).find(p => p.nome === 'Versatilidade');
+  if (!poder) return false;
+  if (!sheet.trilhaSecundariaId || sheet.trilhaSecundariaId === trilhaAtual(sheet)?.id) {
+    if (!trilhaSecundariaId || trilhaSecundariaId === trilhaAtual(sheet)?.id) return false;
+    sheet.trilhaSecundariaId = trilhaSecundariaId;
+  }
+  if (!Array.isArray(sheet.poderesEscolhidos)) sheet.poderesEscolhidos = [];
+  sheet.poderesEscolhidos.push({ nome: poder.nome, descricao: poder.descricao, preRequisito: poder.preRequisito, origemTipo: `Poder de ${c.nome}`, bonus: null });
+  return true;
+}
+
+export function recusarVersatilidade(sheet, tier) {
+  if (!sheet.versatilidadeRecusada) sheet.versatilidadeRecusada = {};
+  sheet.versatilidadeRecusada[tier] = true;
+}
+
 // Homebrew: aumentos de atributo não são retroativos. Se a ficha informa em
 // qual NEX cada aumento foi para o atributo, os níveis anteriores usam o valor
 // antigo; aumentos não informados contam como se o atributo sempre fosse o atual.
@@ -315,7 +364,7 @@ export function calcSanMax(sheet) {
 export function calcPePorTurno(sheet) {
   const c = classeAtual(sheet);
   if (classeEhMundana(c)) return 2;
-  return 1 + passosNex(sheet);
+  return 2 + passosNex(sheet);
 }
 
 export function calcDefesa(sheet) {
@@ -430,6 +479,10 @@ export function normalizeOriginalSheet(raw = {}) {
   sheet.nivelTrilhaTerciaria = Math.max(1, Number(raw.nivelTrilhaTerciaria) || 1);
   sheet.aumentosAtributo = (raw.aumentosAtributo && typeof raw.aumentosAtributo === 'object') ? { ...raw.aumentosAtributo } : {};
   delete sheet.trilhaTierAtribuicoes;
+  // Fichas antigas não são questionadas sobre os NEX que já passaram.
+  sheet.versatilidadeRecusada = (raw.versatilidadeRecusada && typeof raw.versatilidadeRecusada === 'object')
+    ? { ...raw.versatilidadeRecusada }
+    : Object.fromEntries(TIERS_TRILHA.filter(t => t <= (Number(raw.nex) || 0)).map(t => [t, true]));
   sheet.nex = Math.max(0, Math.min(99, Number(raw.nex ?? 5)));
   ajustarNexDaClasse(sheet);
 

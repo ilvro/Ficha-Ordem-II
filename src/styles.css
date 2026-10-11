@@ -2736,8 +2736,34 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .original-system-pill{background:rgba(212,175,55,0.15)!important;color:#e5b839!important;border:1px solid rgba(212,175,55,0.4)!important}
 .original-creds-grid{grid-template-columns:1fr 1fr 1fr 140px!important}
 @media (max-width: 900px){.original-creds-grid{grid-template-columns:1fr 1fr!important}}
-.original-select{width:100%;border:0;background:transparent;outline:none;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer}
-.original-select option{background:#161827;color:#ececf2}
+.original-select,.styled-select select,.ocin-identity-edit select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239a9db3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:10px 6px}
+.original-select{width:100%;height:30px;border:1px solid #2f3247;border-radius:4px;background-color:#0f101b;outline:none;padding:0 28px 0 9px;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer;text-overflow:ellipsis;transition:border-color .14s,background-color .14s,box-shadow .14s}
+.original-select:hover:not(:disabled){border-color:#4a4e6c;background-color:#141627}
+.original-select:focus-visible{border-color:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red),transparent 78%)}
+.original-select:disabled{cursor:default;opacity:1;border-color:transparent;background-color:transparent;background-image:none;padding:0;height:auto}
+.original-select option,.styled-select option{background:#161827;color:#ececf2;font-family:Georgia,serif}
+.progression-card>.original-select{height:26px;font-size:11.5px}
+.progression-card>.original-select:disabled{color:#9a9db3;font-size:11px}
+.ocin-identity-edit select{padding-right:26px}
+.styled-select{display:block}
+.styled-select select{width:100%;height:36px;border:1px solid #3a3e58;border-radius:5px;background-color:#0f101b;outline:none;padding:0 30px 0 11px;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer;text-overflow:ellipsis}
+.styled-select select:focus-visible{border-color:var(--red)}
+.trilha-decisao{display:flex;flex-direction:column;gap:8px;text-align:left}
+.trilha-decisao.original-card{border-color:color-mix(in srgb,var(--red),transparent 45%);background:color-mix(in srgb,var(--red),#151727 90%)}
+.trilha-decisao small{font:800 8.5px "Hanken Grotesk";letter-spacing:.18em;color:var(--red)}
+.trilha-decisao h4{margin:0;font:700 17px Georgia,serif;color:#fff}
+.trilha-decisao p{margin:0;font-size:12px;line-height:1.5;color:#b9bdd2}
+.trilha-decisao p b{color:#ececf2}
+.trilha-decisao-opt{display:flex;flex-direction:column;gap:5px;width:100%;box-sizing:border-box;text-align:left;padding:10px 12px;background:#0f101b;border:1px solid #2f3247;border-radius:6px;color:#ececf2;transition:border-color .14s,background .14s}
+button.trilha-decisao-opt{cursor:pointer}
+button.trilha-decisao-opt:hover{border-color:var(--red);background:color-mix(in srgb,var(--red),#0f101b 88%)}
+.trilha-decisao-opt b{font:800 10.5px "Hanken Grotesk";letter-spacing:.1em;text-transform:uppercase}
+.trilha-decisao-opt span{font:400 12px Georgia,serif;color:#9a9db3}
+.trilha-decisao-confirm{align-self:flex-end;padding:8px 14px;border:0;border-radius:4px;background:var(--red);color:#fff;font:800 9.5px "Hanken Grotesk";letter-spacing:.12em;cursor:pointer}
+.trilha-decisao-confirm:hover{filter:brightness(1.15)}
+.trilha-decisao-later{align-self:center;background:transparent;border:0;color:#8a8da3;font:700 11px "Hanken Grotesk";cursor:pointer;padding:4px 8px}
+.trilha-decisao-later:hover{color:#fff}
+.modal.trilha-decisao-modal section{width:min(440px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;box-sizing:border-box;text-align:left;padding:22px}
 .field-nex-control .nex-slider-wrap{display:flex;align-items:center;gap:10px;margin-top:5px}
 .field-nex-control .original-nex-slider{-webkit-appearance:none;appearance:none;width:100%;flex:1;height:10px;border-radius:5px;background:linear-gradient(to right,#e5a11c 0%,#e5a11c var(--nex-pct,0%),#2b2f47 var(--nex-pct,0%),#2b2f47 100%);border:1px solid #474c6b;box-shadow:inset 0 1px 2px #000a;outline:none;cursor:pointer;margin:0;padding:0;transition:border-color .15s ease}
 .field-nex-control .original-nex-slider:hover,.field-nex-control .original-nex-slider:focus-visible{border-color:#e5a11c}
