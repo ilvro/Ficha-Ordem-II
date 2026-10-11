@@ -3309,3 +3309,14 @@ button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
 .trilha-evolucao .card-desc{margin:0;font-size:12px;line-height:1.5;color:#a6a9be;white-space:pre-line}
 @media (max-width:700px){.modal.trilha-escolha-modal section{width:calc(100vw - 16px);height:calc(100vh - 16px)}.trilha-escolha .wiz-split{grid-template-columns:1fr;grid-template-rows:minmax(120px,32%) 1fr}}
 @media (prefers-reduced-motion:reduce){.modal.trilha-escolha-modal section{animation:none}}
+
+/* Ordem 1 com a regra opcional de Pontos de Determinação: PD em azul, como em Ordem 2 */
+.original-resource-card[hidden],.cinematic-resource-item[hidden]{display:none!important}
+.original-resource-card.resource-pd .res-fill{background:#0284c7}
+.original-resource-card.resource-pd .res-sigil-tag.pe{background:rgba(2,132,199,.2);border-color:rgba(56,189,248,.5);color:#38bdf8}
+.original-cin-vitals .resource-pd strong{background:#0284c7!important;color:#fff!important}
+.resource-pd .cin-progress-track i{background:#0284c7}
+.wiz-option-tag{align-self:flex-start;padding:2px 6px;border-radius:3px;background:#22253a;font:800 8px "Hanken Grotesk";font-style:normal;letter-spacing:.14em;color:#9a9db3}
+.wiz-option.selected .wiz-option-tag{background:color-mix(in srgb,var(--red),#0f101b 55%);color:#fff}
+.wiz-warn{display:block;margin-top:4px;font-style:normal;font-size:11px;color:#e5b839}
+.wiz-steps[hidden]{display:none}

@@ -45,6 +45,7 @@ export const DEFAULT_ORIGINAL_SHEET = {
   trilhaTerciariaId: '',
   nivelTrilhaTerciaria: 1,
   versatilidadeRecusada: {},
+  usaPD: false,
   aumentosAtributo: {},
   nex: 5,
   atributos: { for: 2, agi: 2, vig: 2, int: 1, pre: 1 },
@@ -329,6 +330,13 @@ function temPoderEscolhido(sheet, nome) {
   return Array.isArray(sheet.poderesEscolhidos) && sheet.poderesEscolhidos.some(p => p.nome === nome);
 }
 
+// Regra opcional "Jogando sem Sanidade": PE e SAN dão lugar aos Pontos de
+// Determinação. Na ficha o PD ocupa o lugar do PE (mesmos campos `pe`/`peTemp`
+// e as mesmas mecânicas de gasto e limite por turno) e a Sanidade deixa de existir.
+export function usaPD(sheet) {
+  return !!sheet?.usaPD;
+}
+
 export function calcPvMax(sheet) {
   const c = classeAtual(sheet);
   const steps = passosNex(sheet);
@@ -354,14 +362,16 @@ export function calcPeMax(sheet) {
   const steps = passosNex(sheet);
   const pre = Number(sheet.atributos?.pre) || 0;
   const nexBase = typeof c.nexBase === 'number' ? c.nexBase : 5;
-  const progressaoPe = steps * c.pe.porNex + (c.escalaAtributoPorNex === false ? 0 : somaAtributoPorNivel(sheet, 'pre'));
+  const recurso = usaPD(sheet) && c.pd ? c.pd : c.pe;
+  const progressaoPe = steps * recurso.porNex + (c.escalaAtributoPorNex === false ? 0 : somaAtributoPorNivel(sheet, 'pre'));
   const bonusEsforco = temPoderEscolhido(sheet, 'Esforço Aprimorado') ? 5 : 0;
   const bonus = Number(sheet.bonusTransicao?.pe) || 0;
 
-  return c.pe.base + (pre ? atributoNoNex(sheet, 'pre', nexBase) : 0) + progressaoPe + bonusEsforco + bonus + bonusFixoPorNex(sheet, 'pe');
+  return recurso.base + (pre ? atributoNoNex(sheet, 'pre', nexBase) : 0) + progressaoPe + bonusEsforco + bonus + bonusFixoPorNex(sheet, 'pe');
 }
 
 export function calcSanMax(sheet) {
+  if (usaPD(sheet)) return 0;
   const c = classeAtual(sheet);
   const steps = passosNex(sheet);
   const bonusSanidade = temPoderEscolhido(sheet, 'Sanidade Aprimorada') ? 5 : 0;
@@ -486,6 +496,7 @@ export function normalizeOriginalSheet(raw = {}) {
   sheet.nivelTrilhaTerciaria = Math.max(1, Number(raw.nivelTrilhaTerciaria) || 1);
   sheet.aumentosAtributo = (raw.aumentosAtributo && typeof raw.aumentosAtributo === 'object') ? { ...raw.aumentosAtributo } : {};
   delete sheet.trilhaTierAtribuicoes;
+  sheet.usaPD = !!raw.usaPD;
   // Fichas antigas não são questionadas sobre os NEX que já passaram.
   sheet.versatilidadeRecusada = (raw.versatilidadeRecusada && typeof raw.versatilidadeRecusada === 'object')
     ? { ...raw.versatilidadeRecusada }

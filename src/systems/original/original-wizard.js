@@ -6,7 +6,10 @@ import { ATRIBUTOS, PERICIAS, ORIGENS, PODERES_GERAIS, CLASSES } from '../../dat
 import { calcPvMax, calcPeMax, calcSanMax } from './original-system.js';
 import { safe, rich } from './original-text.js';
 
-const PASSOS = ['Aprimoramento', 'Origem', 'Atributos', 'Perícias', 'Poder geral'];
+// O primeiro passo (regra de recursos) é perguntado em toda ficha nova; os
+// demais formam o tutorial e só aparecem quando ele está ligado.
+const PASSOS = ['Recursos', 'Aprimoramento', 'Origem', 'Atributos', 'Perícias', 'Poder geral'];
+const totalDePassos = () => (atual.soRecursos ? 1 : PASSOS.length);
 const ATRIBUTO_INICIAL = 1;
 const ATRIBUTO_MAX_CRIACAO = 3;
 // Todos em 1, mais 3 pontos; zerar um atributo devolve 1 ponto. As duas regras
@@ -54,10 +57,11 @@ function ajustarPericias(d) {
 }
 
 function passoValido(d, passo) {
-  if (passo === 0) return !!d.aprimoramento;
-  if (passo === 1) return !!origemDe(d);
-  if (passo === 2) return pontosRestantes(d) === 0;
-  if (passo === 3) return d.pericias.length === totalDeEscolhas(d);
+  if (passo === 0) return d.usaPD !== null;
+  if (passo === 1) return !!d.aprimoramento;
+  if (passo === 2) return !!origemDe(d);
+  if (passo === 3) return pontosRestantes(d) === 0;
+  if (passo === 4) return d.pericias.length === totalDeEscolhas(d);
   return !!d.poderGeral;
 }
 
@@ -67,9 +71,25 @@ function previa(d) {
     nex: 0,
     trilhaId: '',
     atributos: d.atributos,
+    usaPD: !!d.usaPD,
     poderesEscolhidos: d.aprimoramento ? [{ nome: d.aprimoramento }] : [],
   };
   return { pv: calcPvMax(ficha), pe: calcPeMax(ficha), san: calcSanMax(ficha) };
+}
+
+function renderRecursos(d) {
+  const opcao = (valor, titulo, selo, texto) => `
+    <button type="button" class="wiz-option ${d.usaPD === valor ? 'selected' : ''}" data-wiz-recursos="${valor ? 'pd' : 'pesan'}">
+      <b>${titulo}</b>
+      <em class="wiz-option-tag">${selo}</em>
+      <span>${texto}</span>
+    </button>`;
+  return `
+    <p class="wiz-lead">Como esta ficha acompanha o esforço e a mente do personagem? Dá para trocar depois, no modo edição.</p>
+    <div class="wiz-options">
+      ${opcao(false, 'PE e Sanidade', 'REGRA PADRÃO', 'Pontos de Esforço pagam habilidades e rituais; a Sanidade absorve o dano mental. Dois recursos separados.')}
+      ${opcao(true, 'Pontos de Determinação', 'REGRA OPCIONAL', 'PE e Sanidade viram um recurso só. O PD paga habilidades e rituais e também absorve o dano mental — o medo custa mais caro.')}
+    </div>`;
 }
 
 function renderAprimoramento(d) {
@@ -79,7 +99,7 @@ function renderAprimoramento(d) {
       ${aprimoramentos().map(p => `
         <button type="button" class="wiz-option ${d.aprimoramento === p.nome ? 'selected' : ''}" data-wiz-aprimoramento="${safe(p.nome)}">
           <b>${safe(p.nome)}</b>
-          <span>${rich(p.descricao.replace(/^Habilidade inicial[^.]*\.\s*/, ''))}</span>
+          <span>${rich(p.descricao.replace(/^Habilidade inicial[^.]*\.\s*/, ''))}${d.usaPD && p.nome === 'Sanidade Aprimorada' ? ' <i class="wiz-warn">Sem efeito com Pontos de Determinação.</i>' : ''}</span>
         </button>`).join('')}
     </div>`;
 }
@@ -136,7 +156,7 @@ function renderAtributos(d) {
           </div>`;
       }).join('')}
     </div>
-    <div class="wiz-preview"><span>PV <b>${p.pv}</b></span><span>PE <b>${p.pe}</b></span><span>SAN <b>${p.san}</b></span></div>`;
+    <div class="wiz-preview"><span>PV <b>${p.pv}</b></span>${d.usaPD ? `<span>PD <b>${p.pe}</b></span>` : `<span>PE <b>${p.pe}</b></span><span>SAN <b>${p.san}</b></span>`}</div>`;
 }
 
 function renderPericias(d) {
@@ -184,13 +204,14 @@ function renderPoderGeral(d) {
     </div>`;
 }
 
-const RENDER = [renderAprimoramento, renderOrigem, renderAtributos, renderPericias, renderPoderGeral];
+const RENDER = [renderRecursos, renderAprimoramento, renderOrigem, renderAtributos, renderPericias, renderPoderGeral];
 
 // O conteúdo é redesenhado a cada interação, então as animações são aplicadas
 // só ao que acabou de mudar: a troca de passo (com direção) e o item tocado.
 function desenhar() {
   const { el, d } = atual;
-  const ultimo = d.passo === PASSOS.length - 1;
+  const total = totalDePassos();
+  const ultimo = d.passo === total - 1;
   const anterior = atual.passoDesenhado;
   const mudouPasso = anterior !== d.passo;
   const { fx } = atual;
@@ -202,18 +223,18 @@ function desenhar() {
   const rolagem = el.querySelector('.wiz-list')?.scrollTop || 0;
   el.querySelector('section').innerHTML = `
     <header class="wiz-head ${mudouPasso ? 'fx-step' : ''}">
-      <small>NOVA FICHA · PASSO ${d.passo + 1} DE ${PASSOS.length}</small>
+      <small>NOVA FICHA${total > 1 ? ` · PASSO ${d.passo + 1} DE ${total}` : ''}</small>
       <h2>${safe(PASSOS[d.passo])}</h2>
-      <ol class="wiz-steps">
-        ${PASSOS.map((nome, i) => `<li class="${i === d.passo ? 'current' : ''} ${i < d.passo ? 'done' : ''}"><button type="button" data-wiz-ir="${i}" ${i <= d.passo ? '' : 'disabled'} title="${safe(nome)}"><i>${i + 1}</i><span>${safe(nome)}</span></button></li>`).join('')}
+      <ol class="wiz-steps" ${total > 1 ? '' : 'hidden'}>
+        ${PASSOS.slice(0, total).map((nome, i) => `<li class="${i === d.passo ? 'current' : ''} ${i < d.passo ? 'done' : ''}"><button type="button" data-wiz-ir="${i}" ${i <= d.passo ? '' : 'disabled'} title="${safe(nome)}"><i>${i + 1}</i><span>${safe(nome)}</span></button></li>`).join('')}
       </ol>
     </header>
     <div class="wiz-body ${mudouPasso && anterior !== undefined ? (d.passo > anterior ? 'fx-next' : 'fx-prev') : ''}">${RENDER[d.passo](d)}</div>
     <footer class="wiz-foot">
-      <button type="button" class="wiz-skip" data-wiz-pular>Pular tutorial</button>
+      ${total > 1 ? '<button type="button" class="wiz-skip" data-wiz-pular>Pular tutorial</button>' : ''}
       <span></span>
       ${d.passo > 0 ? '<button type="button" class="wiz-back" data-wiz-voltar>VOLTAR</button>' : ''}
-      <button type="button" class="wiz-next" data-wiz-avancar ${passoValido(d, d.passo) ? '' : 'disabled'}>${ultimo ? 'CRIAR PERSONAGEM' : 'CONTINUAR'}</button>
+      <button type="button" class="wiz-next" data-wiz-avancar ${passoValido(d, d.passo) ? '' : 'disabled'}>${!ultimo ? 'CONTINUAR' : (total > 1 ? 'CRIAR PERSONAGEM' : 'CRIAR FICHA')}</button>
     </footer>`;
   const lista = el.querySelector('.wiz-list');
   if (lista && !mudouPasso) lista.scrollTop = rolagem;
@@ -224,8 +245,22 @@ function desenhar() {
   }
 }
 
+// Grava a regra de recursos e deixa os pontos atuais cheios nessa regra.
+function aplicarRecursos(sheet, d) {
+  sheet.usaPD = !!d.usaPD;
+  sheet.pv = calcPvMax(sheet);
+  sheet.pe = calcPeMax(sheet);
+  sheet.san = calcSanMax(sheet);
+}
+
 function concluir() {
   const { d, sheet, onFinish } = atual;
+  if (atual.soRecursos) {
+    aplicarRecursos(sheet, d);
+    fecharTutorial(true);
+    onFinish?.();
+    return;
+  }
   const { fixas } = periciasDaOrigem(d);
   sheet.classeId = 'sobrevivente';
   sheet.nex = 0;
@@ -238,9 +273,7 @@ function concluir() {
     { nome: aprimoramento.nome, descricao: aprimoramento.descricao, preRequisito: aprimoramento.preRequisito, origemTipo: `Poder de ${CLASSES.sobrevivente.nome}`, bonus: aprimoramento.bonus || null },
     { nome: geral.nome, descricao: geral.descricao, preRequisito: geral.preRequisito, origemTipo: 'Poder Geral', bonus: geral.bonus || null },
   ];
-  sheet.pv = calcPvMax(sheet);
-  sheet.pe = calcPeMax(sheet);
-  sheet.san = calcSanMax(sheet);
+  aplicarRecursos(sheet, d);
   fecharTutorial(true);
   onFinish?.();
 }
@@ -249,7 +282,8 @@ function aoClicar(e) {
   const { d } = atual;
   const alvo = sel => e.target.closest(sel);
   let b;
-  if ((b = alvo('[data-wiz-aprimoramento]'))) { d.aprimoramento = b.dataset.wizAprimoramento; ajustarPericias(d); atual.fx = ['.wiz-option.selected']; }
+  if ((b = alvo('[data-wiz-recursos]'))) { d.usaPD = b.dataset.wizRecursos === 'pd'; atual.fx = ['.wiz-option.selected']; }
+  else if ((b = alvo('[data-wiz-aprimoramento]'))) { d.aprimoramento = b.dataset.wizAprimoramento; ajustarPericias(d); atual.fx = ['.wiz-option.selected']; }
   else if ((b = alvo('[data-wiz-origem]'))) { d.origemId = b.dataset.wizOrigem; ajustarPericias(d); atual.fx = ['.wiz-detail']; }
   else if ((b = alvo('[data-wiz-attr]'))) {
     const [id, delta] = b.dataset.wizAttr.split(':');
@@ -268,17 +302,18 @@ function aoClicar(e) {
   else if (alvo('[data-wiz-voltar]')) d.passo = Math.max(0, d.passo - 1);
   else if (alvo('[data-wiz-avancar]')) {
     if (!passoValido(d, d.passo)) return;
-    if (d.passo === PASSOS.length - 1) { concluir(); return; }
+    if (d.passo === totalDePassos() - 1) { concluir(); return; }
     d.passo += 1;
   }
-  else if (alvo('[data-wiz-pular]')) { const { onSkip } = atual; fecharTutorial(true); onSkip?.(); return; }
+  else if (alvo('[data-wiz-pular]')) { const { onSkip, onFinish, sheet } = atual; if (d.usaPD !== null) aplicarRecursos(sheet, d); fecharTutorial(true); (onSkip || onFinish)?.(); return; }
   else return;
   desenhar();
 }
 
 // Abre o tutorial para uma ficha recém-criada. `onFinish` é chamado depois de
 // a ficha ser preenchida; `onSkip`, se o jogador pular.
-export function abrirTutorial(sheet, { onFinish, onSkip } = {}) {
+// `soRecursos`: pergunta apenas a regra de recursos (tutorial desligado).
+export function abrirTutorial(sheet, { onFinish, onSkip, soRecursos = false } = {}) {
   fecharTutorial();
   const el = document.createElement('div');
   el.className = 'modal open wizard-modal';
@@ -290,8 +325,10 @@ export function abrirTutorial(sheet, { onFinish, onSkip } = {}) {
     sheet,
     onFinish,
     onSkip,
+    soRecursos,
     d: {
       passo: 0,
+      usaPD: null,
       aprimoramento: '',
       origemId: '',
       atributos: Object.fromEntries(ATRIBUTOS.map(a => [a.id, ATRIBUTO_INICIAL])),

@@ -392,8 +392,9 @@ function applyTheme(){const accent=editMode?'#d98b19':(state.themeColor?getSheet
 function getCriticalState(){
  const resource=(current,maximum)=>{const max=Math.max(0,Number(maximum)||0),value=Math.max(0,Number(current)||0),ratio=max>0?Math.min(1,value/max):1,warning=max>0&&ratio<=.5,vignette=max>0&&ratio<=.35,special=max>0&&ratio<=.25,progress=(threshold,floor)=>ratio<=threshold?Math.min(1,floor+(threshold-ratio)/threshold*(1-floor)):0;return{value,max,ratio,warning,vignette,special,critical:special,warningIntensity:progress(.5,.12),vignetteIntensity:progress(.35,.08),specialIntensity:progress(.25,.08)}};
  const pv=resource(state.pv,state.maxPv);
- const secCurrent = state.systemMode === 'original' ? state.san : state.pd;
- const secMax = state.systemMode === 'original' ? state.maxSan : state.maxPd;
+ // Ordem 1: o estado crítico mental acompanha a Sanidade, ou o PD na regra opcional.
+ const secCurrent = state.systemMode === 'original' ? (state.usaPD ? state.pe : state.san) : state.pd;
+ const secMax = state.systemMode === 'original' ? (state.usaPD ? state.maxPe : state.maxSan) : state.maxPd;
  const pd=resource(secCurrent,secMax);
  return{pv,pd,active:pv.critical||pd.critical};
 }
@@ -659,7 +660,7 @@ function renderPresentationDock(){
    const sanM = s.maxSan || originalCalcSanMax(s);
    const peM = s.maxPe || originalCalcPeMax(s);
    const a = s.atributos || { agi: 1, for: 1, int: 1, pre: 1, vig: 1 };
-   return `<span class="cp-stat-pill">AGI <b>${a.agi}</b></span><span class="cp-stat-pill">FOR <b>${a.for}</b></span><span class="cp-stat-pill">INT <b>${a.int}</b></span><span class="cp-stat-pill">PRE <b>${a.pre}</b></span><span class="cp-stat-pill">VIG <b>${a.vig}</b></span><span class="cp-res-pill pv">PV ${s.pv??pvM}/${pvM}</span><span class="cp-res-pill san">SAN ${s.san??sanM}/${sanM}</span><span class="cp-res-pill pe">PE ${s.pe??peM}/${peM}</span>`;
+   return `<span class="cp-stat-pill">AGI <b>${a.agi}</b></span><span class="cp-stat-pill">FOR <b>${a.for}</b></span><span class="cp-stat-pill">INT <b>${a.int}</b></span><span class="cp-stat-pill">PRE <b>${a.pre}</b></span><span class="cp-stat-pill">VIG <b>${a.vig}</b></span><span class="cp-res-pill pv">PV ${s.pv??pvM}/${pvM}</span>${s.usaPD?`<span class="cp-res-pill pd">PD ${s.pe??peM}/${peM}</span>`:`<span class="cp-res-pill san">SAN ${s.san??sanM}/${sanM}</span><span class="cp-res-pill pe">PE ${s.pe??peM}/${peM}</span>`}`;
   }
   return `<span class="cp-stat-pill">FÍS <b>${s.attributes?.['Físico']||4}</b></span><span class="cp-stat-pill">MEN <b>${s.attributes?.['Mente']||4}</b></span><span class="cp-stat-pill">EMO <b>${s.attributes?.['Emoção']||4}</b></span><span class="cp-res-pill pv">PV ${s.pv}/${s.maxPv}</span><span class="cp-res-pill pd">PD ${s.pd}/${s.maxPd}</span>`;
  };
@@ -1950,8 +1951,9 @@ function bind(){
       sheets.push(sheet);
       state=sheet;
       activeSheetId=sheet.id;
-      if(mode==='original'&&appSettings.tutorialOriginal){
-       abrirTutorial(sheet,{onFinish:()=>{if(state===sheet){save(false);render();}}});
+      // Com o tutorial desligado ainda se pergunta a regra de recursos (PE/SAN ou PD).
+      if(mode==='original'){
+       abrirTutorial(sheet,{soRecursos:!appSettings.tutorialOriginal,onFinish:()=>{if(state===sheet){save(false);render();}}});
       }else fecharTutorial();
       presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
       if(state.viewMode==='cinematic'){
@@ -2301,6 +2303,18 @@ function bind(){
      if(state.trilhaTerciariaId===state.trilhaId) state.trilhaTerciariaId='';
     }
     if(key==='nivelTrilhaTerciaria') state.nivelTrilhaTerciaria=Number(e.target.value)||1;
+    save(false);
+    render();
+   };
+  });
+  document.querySelectorAll('[data-toggle-pd]').forEach(btn=>{
+   btn.onclick=()=>{
+    if(presentationMode){notifyPresentationLocked();return;}
+    state.usaPD=!state.usaPD;
+    // PD e PE têm totais diferentes: recomeça cheio na regra nova.
+    state.pe=originalCalcPeMax(state);
+    state.peTemp=0;
+    if(!state.usaPD) state.san=originalCalcSanMax(state);
     save(false);
     render();
    };

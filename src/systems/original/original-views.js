@@ -27,6 +27,7 @@ import {
   niveisDaClasse,
   trilhaLiberada,
   pendenciaDeTrilha,
+  usaPD,
   calcPvMax,
   calcPeMax,
   calcSanMax,
@@ -129,6 +130,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
             <button type="button" class="btn-open-compendium" data-open-compendium>COMPÊNDIO</button>
             ${editMode ? `
               <label class="dossier-chip" title="Cor tema da ficha">TEMA<input type="color" data-theme-color value="${safe(accent)}"></label>
+              <button type="button" class="dossier-chip-btn" data-toggle-pd title="Alternar entre PE + Sanidade e Pontos de Determinação (regra opcional)">RECURSOS: ${usaPD(state) ? 'PD' : 'PE / SAN'}</button>
               ${state.themeColor ? '<button type="button" class="dossier-chip-btn" data-reset-theme-color title="Voltar à cor da classe">CLASSE</button>' : ''}
             ` : ''}
           </div>
@@ -173,8 +175,8 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
               <b>${defesa}</b>
               ${editMode ? `<span class="defesa-edit-extra">+ OUTROS <input type="number" data-original-field="defesaOutros" value="${state.defesaOutros || 0}"></span>` : ''}
             </div>
-            <div class="derived-stat-box" title="Limite de PE por turno">
-              <small>PE / TURNO</small>
+            <div class="derived-stat-box" title="Limite de ${usaPD(state) ? 'PD' : 'PE'} por turno">
+              <small>${usaPD(state) ? 'PD' : 'PE'} / TURNO</small>
               <b>${pePorTurno}</b>
             </div>
             <div class="derived-stat-box" title="Dificuldade do Teste para resistir aos seus rituais">
@@ -227,7 +229,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
             </div>
 
             <!-- SANIDADE (SAN) -->
-            <div class="original-resource-card resource-san">
+            <div class="original-resource-card resource-san" ${usaPD(state) ? 'hidden' : ''}>
               <div class="res-head">
                 <div class="res-badge">
                   <span class="res-sigil-tag san">SAN</span>
@@ -257,18 +259,18 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
             </div>
 
             <!-- ESFORÇO (PE) -->
-            <div class="original-resource-card resource-pe">
+            <div class="original-resource-card resource-pe ${usaPD(state) ? 'resource-pd' : ''}">
               <div class="res-head">
                 <div class="res-badge">
-                  <span class="res-sigil-tag pe">PE</span>
-                  <strong>ESFORÇO</strong>
+                  <span class="res-sigil-tag pe">${usaPD(state) ? 'PD' : 'PE'}</span>
+                  <strong>${usaPD(state) ? 'DETERMINAÇÃO' : 'ESFORÇO'}</strong>
                 </div>
                 <div class="res-vals-and-actions">
                   <div class="res-vals">
-                    <input type="number" class="res-input-current" data-res-adjust="pe" value="${peAtual}" title="PE Atual">
+                    <input type="number" class="res-input-current" data-res-adjust="pe" value="${peAtual}" title="${usaPD(state) ? 'PD' : 'PE'} Atual">
                     <span class="res-sep">/</span>
                     <span class="res-max">${peMax}</span>
-                    ${state.peTemp ? `<button type="button" class="temp-badge-btn" data-consume-temp="pe:1" title="Clique para consumir 1 PE Temporário"><em>+${state.peTemp}</em></button>` : ''}
+                    ${state.peTemp ? `<button type="button" class="temp-badge-btn" data-consume-temp="pe:1" title="Clique para consumir 1 ${usaPD(state) ? 'PD' : 'PE'} Temporário"><em>+${state.peTemp}</em></button>` : ''}
                   </div>
                   <div class="res-step-group">
                     <button type="button" class="btn-res-step minus" data-res-delta="pe:-1" title="Reduzir 1 PE">−</button>
@@ -1034,6 +1036,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
               <label title="Escala / Zoom da imagem de fundo">ZOOM BG <input type="range" min="30" max="250" step="5" value="${state.backgroundZoom ?? 100}" data-cinematic-bg-zoom><span class="slider-val-hint" id="val-hint-zoom">${state.backgroundZoom ?? 100}%</span></label>
               ${(state.backgroundBlur > 0 || (state.backgroundZoom && state.backgroundZoom !== 100)) ? '<button type="button" data-reset-bg-effects title="Redefinir blur para 0 e zoom para 100%">RESET BG</button>' : ''}
               <label>COR TEMA <input type="color" data-theme-color value="${safe(accent)}"></label>
+              <button type="button" data-toggle-pd title="Alternar entre PE + Sanidade e Pontos de Determinação (regra opcional)">RECURSOS: ${usaPD(state) ? 'PD' : 'PE / SAN'}</button>
               ${state.themeColor ? '<button type="button" data-reset-theme-color>TEMA DA CLASSE</button>' : ''}
               <label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor || accent)}"></label>
               ${state.diceColor ? '<button type="button" data-reset-dice-color>COR DA CLASSE</button>' : ''}
@@ -1062,7 +1065,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
             </div>
 
             <!-- SAN -->
-            <div class="cinematic-resource-item resource-san" data-resource-key="san">
+            <div class="cinematic-resource-item resource-san" data-resource-key="san" ${usaPD(state) ? 'hidden' : ''}>
               <strong>SAN</strong>
               <b>${sanAtual}${state.sanTemp ? `<button type="button" class="temp-badge-btn" data-consume-temp="san:1" title="Clique para extinguir 1 SAN temporária"><em>+${state.sanTemp}</em></button>` : ''}</b>
               <div class="original-cin-bar-wrap">
@@ -1078,9 +1081,9 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
             </div>
 
             <!-- PE -->
-            <div class="cinematic-resource-item resource-pe" data-resource-key="pe">
-              <strong>PE</strong>
-              <b>${peAtual}${state.peTemp ? `<button type="button" class="temp-badge-btn" data-consume-temp="pe:1" title="Clique para extinguir 1 PE temporário"><em>+${state.peTemp}</em></button>` : ''}</b>
+            <div class="cinematic-resource-item resource-pe ${usaPD(state) ? 'resource-pd' : ''}" data-resource-key="pe">
+              <strong>${usaPD(state) ? 'PD' : 'PE'}</strong>
+              <b>${peAtual}${state.peTemp ? `<button type="button" class="temp-badge-btn" data-consume-temp="pe:1" title="Clique para extinguir 1 ${usaPD(state) ? 'PD' : 'PE'} temporário"><em>+${state.peTemp}</em></button>` : ''}</b>
               <div class="original-cin-bar-wrap">
                 <div class="original-cin-bar-top">
                   <small>/ ${peMax}</small>

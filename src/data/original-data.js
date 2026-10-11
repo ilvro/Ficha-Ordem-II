@@ -1157,6 +1157,7 @@ const CLASSES = {
     pv: { base: 20, porNex: 4 },
     pe: { base: 6, porNex: 3 },
     san: { base: 12, porNex: 3 },
+    pd: { base: 6, porNex: 3 },   // regra opcional de Pontos de Determinação (substitui PE e SAN)
     // PV/PE fixos que a tabela de NEX concede (somados automaticamente).
     bonusPorNex: [{ nex: 85, pv: 5, pe: 5 }],
     proficiencias: "Armas simples, armas táticas e proteções leves (e pesadas, a partir de certo NEX).",
@@ -1518,6 +1519,7 @@ const CLASSES = {
     pv: { base: 16, porNex: 3 },
     pe: { base: 6, porNex: 3 },
     san: { base: 16, porNex: 4 },
+    pd: { base: 8, porNex: 4 },   // regra opcional de Pontos de Determinação (substitui PE e SAN)
     bonusPorNex: [{ nex: 85, pv: 5, pe: 5 }],
     proficiencias: "Armas simples e proteções leves.",
     periciasIniciaisTexto: "7 + Intelecto perícias à escolha.",
@@ -1857,6 +1859,7 @@ const CLASSES = {
     pv: { base: 12, porNex: 2 },
     pe: { base: 8, porNex: 4 },
     san: { base: 20, porNex: 5 },
+    pd: { base: 10, porNex: 5 },   // regra opcional de Pontos de Determinação (substitui PE e SAN)
     proficiencias: "Armas simples e proteções leves.",
     bonusPorNex: [{ nex: 85, pe: 8 }],
     periciasIniciaisTexto: "Ocultismo e Vontade, mais 3 + Intelecto perícias à escolha.",
@@ -2165,6 +2168,7 @@ const CLASSES = {
     pv: { base: 10, porNex: 2 },   // PV inicial = 10+VIGOR; a cada estágio +2
     pe: { base: 3, porNex: 1 },    // PE inicial = 3+PRESENÇA; a cada estágio +1
     san: { base: 10, porNex: 2 },  // SAN inicial = 10; a cada estágio +2
+    pd: { base: 4, porNex: 2 },    // PD inicial = 4+PRESENÇA; a cada estágio +2 (regra opcional)
     proficiencias: "Nenhuma proficiência especial (a menos que a origem conceda alguma).",
     periciasIniciaisTexto: "2 + Intelecto perícias à escolha. Além disso, todo Sobrevivente escolhe uma das habilidades gerais abaixo (na aba Habilidades) e começa com um Poder Geral.",
 
