@@ -771,20 +771,49 @@ export function renderDecisaoTrilha(state, { modal = false } = {}) {
     </div>`;
 }
 
-// Pop-up de escolha de trilha, ao chegar em NEX 10% (ou no Estágio 2).
-export function renderEscolhaDeTrilha(state) {
+// Tela de escolha de trilha, ao chegar em NEX 10% (ou no Estágio 2): lista de
+// trilhas à esquerda e, à direita, a evolução completa da trilha em foco.
+export function renderEscolhaDeTrilha(state, focoId) {
   const classe = classeAtual(state);
-  const atual = trilhaAtual(state);
-  if (!atual) return '';
+  const trilhas = classe.trilhas || [];
+  const foco = trilhas.find(t => t.id === focoId) || trilhaAtual(state) || trilhas[0];
+  if (!foco) return '';
+  const nex = Number(state.nex) || 0;
+  const poderes = [...foco.poderes].sort((x, y) => x.nex - y.nex);
   return `
-    <div class="trilha-decisao in-modal">
-      <small>${safe(rotuloNivel(state).toUpperCase())} · ESCOLHA DE TRILHA</small>
-      <h4>Qual trilha você vai seguir?</h4>
-      <label class="styled-select"><select data-trilha-inicial-select>
-        ${(classe.trilhas || []).map(t => `<option value="${t.id}" ${t.id === atual.id ? 'selected' : ''}>${safe(t.nome)}</option>`).join('')}
-      </select></label>
-      <p data-trilha-inicial-desc>${safe(atual.descricao || '')}</p>
-      <button type="button" class="trilha-decisao-confirm" data-trilha-inicial-confirm>CONFIRMAR TRILHA</button>
+    <div class="trilha-escolha">
+      <header class="wiz-head">
+        <small>${safe(rotuloNivel(state).toUpperCase())} · ESCOLHA DE TRILHA</small>
+        <h2>Qual trilha você vai seguir?</h2>
+      </header>
+      <div class="wiz-body">
+        <div class="wiz-split">
+          <div class="wiz-list-col">
+            <div class="wiz-list">
+              ${trilhas.map(t => `<button type="button" class="wiz-row ${t.id === foco.id ? 'selected' : ''}" data-trilha-inicial-opt="${safe(t.id)}">${safe(t.nome)}<small>${t.poderes.length} habilidades</small></button>`).join('')}
+            </div>
+          </div>
+          <div class="wiz-detail" data-trilha-inicial="${safe(foco.id)}">
+            <h4>${safe(foco.nome)}</h4>
+            <p>${safe(foco.descricao || '')}</p>
+            <ol class="trilha-evolucao">
+              ${poderes.map(p => `
+                <li class="${p.nex <= nex ? 'agora' : ''}">
+                  <div class="trilha-evolucao-head">
+                    <span class="nex-tag">${safe(rotuloNivel(state, p.nex).toUpperCase())}</span>
+                    <strong>${safe(p.nome)}</strong>
+                    ${p.nex <= nex ? '<em>VOCÊ RECEBE AGORA</em>' : ''}
+                  </div>
+                  <p class="card-desc">${rich(p.descricao)}</p>
+                </li>`).join('')}
+            </ol>
+          </div>
+        </div>
+      </div>
+      <footer class="wiz-foot">
+        <span></span>
+        <button type="button" class="wiz-next" data-trilha-inicial-confirm="${safe(foco.id)}">SEGUIR ${safe(foco.nome.toUpperCase())}</button>
+      </footer>
     </div>`;
 }
 

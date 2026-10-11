@@ -3289,3 +3289,20 @@ button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
 @keyframes wiz-pop{0%{transform:scale(.94)}60%{transform:scale(1.035)}100%{transform:scale(1)}}
 @keyframes wiz-step-line{from{border-bottom-color:#2a2d42}}
 @media (prefers-reduced-motion:reduce){.wizard-modal *,.wizard-modal .backdrop,.wizard-modal section{animation:none!important;transition:none!important}}
+
+/* Tela de escolha de trilha (lista + evolução da trilha em foco) */
+.modal.trilha-escolha-modal section{width:min(820px,calc(100vw - 24px));height:min(660px,calc(100vh - 32px));padding:0;display:flex;overflow:hidden;background:#13141f;border-color:#383b52;animation:wiz-open .26s cubic-bezier(.2,.8,.25,1) both}
+.trilha-escolha{flex:1;min-width:0;display:flex;flex-direction:column}
+.trilha-escolha .wiz-head h2{margin-bottom:0}
+.trilha-escolha .wiz-split{grid-template-columns:210px 1fr}
+.trilha-evolucao{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column}
+.trilha-evolucao li{position:relative;padding:0 0 16px 20px;border-left:1px solid #30344e;margin-left:5px}
+.trilha-evolucao li:last-child{padding-bottom:2px;border-left-color:transparent}
+.trilha-evolucao li::before{content:"";position:absolute;left:-5px;top:3px;width:9px;height:9px;box-sizing:border-box;border-radius:50%;background:#13141f;border:2px solid #4a4e6c}
+.trilha-evolucao li.agora::before{background:var(--red);border-color:var(--red)}
+.trilha-evolucao-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:5px}
+.trilha-evolucao-head strong{font:700 14px Georgia,serif;color:#ececf2}
+.trilha-evolucao-head em{font:800 8px "Hanken Grotesk";font-style:normal;letter-spacing:.14em;color:var(--red)}
+.trilha-evolucao .card-desc{margin:0;font-size:12px;line-height:1.5;color:#a6a9be;white-space:pre-line}
+@media (max-width:700px){.modal.trilha-escolha-modal section{width:calc(100vw - 16px);height:calc(100vh - 16px)}.trilha-escolha .wiz-split{grid-template-columns:1fr;grid-template-rows:minmax(120px,32%) 1fr}}
+@media (prefers-reduced-motion:reduce){.modal.trilha-escolha-modal section{animation:none}}

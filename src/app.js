@@ -29,25 +29,26 @@ import { abrirTutorial, fecharTutorial } from './systems/original/original-wizar
 
 // Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
 // pergunta de Versatilidade a cada NEX de habilidade de trilha.
-let promptTrilhaInicial=null, promptTrilhaAdiado=null;
+let promptTrilhaInicial=null, promptTrilhaAdiado=null, promptTrilhaFoco=null;
 function mudarNexOriginal(aplicar){
  const antes=trilhaLiberada(state);
  aplicar();
- if(!antes&&trilhaLiberada(state)) promptTrilhaInicial=state.id;
+ if(!antes&&trilhaLiberada(state)){promptTrilhaInicial=state.id;promptTrilhaFoco=null;}
  promptTrilhaAdiado=null;
 }
 function syncPromptDeTrilha(){
  document.querySelector('#trilha-decisao-modal')?.remove();
  if(state?.systemMode==='original'&&!presentationMode){
   let html='';
-  if(promptTrilhaInicial===state.id) html=renderEscolhaDeTrilha(state);
+  const escolhendo=promptTrilhaInicial===state.id;
+  if(escolhendo) html=renderEscolhaDeTrilha(state,promptTrilhaFoco);
   else{
    const p=pendenciaDeTrilha(state);
    if(p&&promptTrilhaAdiado!==`${state.id}:${p.tier}`) html=renderDecisaoTrilha(state,{modal:true});
   }
   if(html){
    const modal=document.createElement('div');
-   modal.className='modal open trilha-decisao-modal';
+   modal.className=`modal open trilha-decisao-modal ${escolhendo?'trilha-escolha-modal':''}`;
    modal.id='trilha-decisao-modal';
    modal.innerHTML=`<div class="backdrop"></div><section>${html}</section>`;
    document.body.appendChild(modal);
@@ -69,16 +70,25 @@ function syncPromptDeTrilha(){
   };
  });
  enhanceSelects();
- const selInicial=document.querySelector('[data-trilha-inicial-select]');
- if(selInicial){
-  selInicial.onchange=()=>{
-   const t=classeAtual(state).trilhas?.find(x=>x.id===selInicial.value);
-   const desc=document.querySelector('[data-trilha-inicial-desc]');
-   if(desc) desc.textContent=t?.descricao||'';
+ // Tela de escolha de trilha: clicar numa trilha só muda o foco; confirmar grava.
+ document.querySelectorAll('[data-trilha-inicial-opt]').forEach(btn=>{
+  btn.onclick=()=>{
+   const lista=btn.closest('.wiz-list'),rolagem=lista?lista.scrollTop:0;
+   promptTrilhaFoco=btn.dataset.trilhaInicialOpt;
+   syncPromptDeTrilha();
+   const nova=document.querySelector('#trilha-decisao-modal .wiz-list');
+   if(nova) nova.scrollTop=rolagem;
+   document.querySelector('#trilha-decisao-modal .wiz-detail')?.classList.add('fx-pick');
   };
-  document.querySelector('[data-trilha-inicial-confirm]').onclick=()=>{
-   state.trilhaId=selInicial.value;
+ });
+ const confirmarTrilha=document.querySelector('[data-trilha-inicial-confirm]');
+ if(confirmarTrilha){
+  confirmarTrilha.onclick=()=>{
+   state.trilhaId=confirmarTrilha.dataset.trilhaInicialConfirm;
+   if(state.trilhaSecundariaId===state.trilhaId) state.trilhaSecundariaId='';
+   if(state.trilhaTerciariaId===state.trilhaId) state.trilhaTerciariaId='';
    promptTrilhaInicial=null;
+   promptTrilhaFoco=null;
    save(false);
    render();
   };
