@@ -2226,7 +2226,16 @@
     },
     "skills": [],
     "cards": [],
-    "ataques": [],
+    "ataques": [
+      {
+        "nome": "Nova Arma",
+        "ataque": "3d20+5",
+        "dano": "1d8",
+        "critico": "20/x2",
+        "alcance": "Curto",
+        "tipo": "Balístico"
+      }
+    ],
     "poderesEscolhidos": [],
     "poderesCustomizados": [],
     "poderesParanormais": [],

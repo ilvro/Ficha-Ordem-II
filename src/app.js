@@ -882,7 +882,7 @@ function bindRollLogItemEvents(container = document) {
  });
 }
 
-function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
+function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
 	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
@@ -974,29 +974,115 @@ function collectActiveInputs(){
  }
 }
 
+/* Rascunho de edição: o que muda durante o jogo (PV, PE, SAN, PD, marcadores)
+   é gravado automaticamente; o resto do que é alterado no modo edição fica só
+   em memória até o jogador clicar em SALVAR (ou é desfeito em DESCARTAR / ao
+   recarregar a página). */
+// (viewMode e cinematicCollapsed são só estado de interface, então também não contam como edição)
+const LIVE_FIELDS=['pv','pvTemp','pvMarcas','pd','pdTemp','pe','peTemp','san','sanTemp','sanMarcas','condicoesAtivas','viewMode','cinematicCollapsed'];
+const LIVE_MARKER_FIELDS=['current','slots'];
+const draftBaseline=new Map(); // id -> cópia da ficha como estava ao entrar no modo edição
+const dirtySheets=new Set();   // ids com alterações de edição ainda não salvas
+function deepEqual(a,b){
+ if(a===b)return true;
+ // inputs devolvem texto: 12 e '12' contam como o mesmo valor
+ if(typeof a!=='object'||typeof b!=='object'||a===null||b===null)return a!=null&&b!=null&&typeof a!==typeof b&&String(a)===String(b);
+ if(Array.isArray(a)!==Array.isArray(b))return false;
+ const keysA=Object.keys(a).filter(k=>a[k]!==undefined),keysB=Object.keys(b).filter(k=>b[k]!==undefined);
+ if(keysA.length!==keysB.length)return false;
+ return keysA.every(k=>deepEqual(a[k],b[k]));
+}
+// Versão da ficha que vai para o armazenamento: a própria ficha, ou — se ela
+// tem rascunho — a última versão salva com os valores "de jogo" atuais por cima.
+function persistedSheet(sheet){
+ const base=draftBaseline.get(sheet.id);
+ if(!base||!dirtySheets.has(sheet.id))return sheet;
+ return overlayLive(base,sheet);
+}
+function overlayLive(base,sheet){
+ const out={...base};
+ LIVE_FIELDS.forEach(key=>{if(key in sheet)out[key]=sheet[key]});
+ if(Array.isArray(base.cards)&&Array.isArray(sheet.cards)){
+  out.cards=base.cards.map(baseCard=>{
+   const card=sheet.cards.find(c=>c.id===baseCard.id);
+   if(!card||!Array.isArray(baseCard.markers)||!Array.isArray(card.markers))return baseCard;
+   return {...baseCard,markers:baseCard.markers.map(baseMarker=>{
+    const marker=card.markers.find(m=>m.id===baseMarker.id);
+    if(!marker)return baseMarker;
+    const merged={...baseMarker};
+    LIVE_MARKER_FIELDS.forEach(key=>{if(key in marker)merged[key]=marker[key]});
+    return merged;
+   })};
+  });
+ }
+ return out;
+}
+// Chamado a cada render: guarda a base ao entrar no modo edição e a solta ao
+// sair dele sem alterações pendentes.
+function syncDraftBaseline(){
+ if(!state)return;
+ [...draftBaseline.keys()].forEach(id=>{if(!dirtySheets.has(id)&&!(editMode&&id===state.id))draftBaseline.delete(id)});
+ if(editMode&&!draftBaseline.has(state.id))draftBaseline.set(state.id,clone(state));
+}
+function refreshDirty(){
+ const base=draftBaseline.get(state.id);
+ if(!base)return;
+ if(deepEqual(overlayLive(base,state),state))dirtySheets.delete(state.id); else dirtySheets.add(state.id);
+}
+function discardDraft(){
+ const base=draftBaseline.get(state.id);
+ if(!base||!dirtySheets.has(state.id))return;
+ const restored=normalizeSheet(clone(overlayLive(base,state)));
+ dirtySheets.delete(state.id);
+ draftBaseline.delete(state.id);
+ const index=sheets.findIndex(sheet=>sheet.id===state.id);
+ state=restored;
+ if(index>=0)sheets[index]=state;
+ persistSheetsNow();
+ render();
+ const toast=document.querySelector('#save-toast');
+ if(toast){toast.textContent='ALTERAÇÕES DESCARTADAS';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},1300)}
+}
+let unsavedBar=null;
+function syncUnsavedBar(){
+ const show=!!state&&dirtySheets.has(state.id)&&!presentationMode;
+ if(!unsavedBar){
+  if(!show)return;
+  unsavedBar=document.createElement('div');
+  unsavedBar.className='unsaved-bar';
+  unsavedBar.innerHTML='<span>ALTERAÇÕES NÃO SALVAS</span><button type="button" data-discard-draft>DESCARTAR</button><button type="button" class="primary" data-commit-draft>SALVAR</button>';
+  unsavedBar.querySelector('[data-discard-draft]').onclick=discardDraft;
+  unsavedBar.querySelector('[data-commit-draft]').onclick=()=>save(true,'SALVO',true);
+  document.body.appendChild(unsavedBar);
+ }
+ unsavedBar.classList.toggle('show',show);
+}
+window.addEventListener('beforeunload',event=>{if(dirtySheets.size){event.preventDefault();event.returnValue=''}});
+
 /* Persistência (JSON de vários MB) é adiada e agrupada: cliques rápidos em PV/PD não travam mais a thread principal. */
 let persistTimer=0;
 function persistSheetsNow(){
  clearTimeout(persistTimer);persistTimer=0;
+ const out=sheets.map(persistedSheet);
  try{
   fetch('/api/sheets',{
    method:'POST',
    headers:{'Content-Type':'application/json'},
-   body:JSON.stringify(sheets)
+   body:JSON.stringify(out)
   }).catch(()=>{});
  }catch{}
 
  try{
-  idbSet('sheets',sheets);
+  idbSet('sheets',out);
   idbSet('activeSheetId',state.id);
  }catch{}
 
  try{
   localStorage.setItem('ordem-ii-active-sheet',state.id);
-  localStorage.setItem(SHEETS_KEY,JSON.stringify(sheets));
+  localStorage.setItem(SHEETS_KEY,JSON.stringify(out));
  }catch{
   try{
-   const light=sheets.map(s=>({
+   const light=out.map(s=>({
     ...s,
     tokenImage:(s.tokenImage&&s.tokenImage.length>20000)?'':s.tokenImage,
     backgroundImage:(s.backgroundImage&&s.backgroundImage.length>20000)?'':s.backgroundImage
@@ -1008,11 +1094,17 @@ function persistSheetsNow(){
 function schedulePersist(){clearTimeout(persistTimer);persistTimer=setTimeout(persistSheetsNow,300)}
 window.addEventListener('pagehide',()=>{if(persistTimer)persistSheetsNow()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&persistTimer)persistSheetsNow()});
-function save(showToast=true,toastMsg='SALVO'){
+// commit=true (botão SALVAR) grava também o rascunho de edição da ficha atual.
+function save(showToast=true,toastMsg='SALVO',commit=false){
  collectActiveInputs();
  const index=sheets.findIndex(sheet=>sheet.id===state.id);
  if(index>=0)sheets[index]=state; else sheets.push(state);
+ if(commit){
+  dirtySheets.delete(state.id);
+  if(editMode)draftBaseline.set(state.id,clone(state)); else draftBaseline.delete(state.id);
+ }else refreshDirty();
  if(showToast)persistSheetsNow(); else schedulePersist();
+ syncUnsavedBar();
 
  if(showToast){
   const toast=document.querySelector('#save-toast');
@@ -1786,7 +1878,7 @@ function bind(){
       },50);
      };
     });
-    document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO'));
+    document.querySelectorAll('[data-save-sheet]').forEach(el=>el.onclick=()=>save(true,'SALVO',true));
     document.querySelectorAll('[data-export-json]').forEach(el=>el.onclick=()=>exportJsonSheet());
     document.querySelectorAll('[data-import-json]').forEach(el=>el.onclick=()=>{document.querySelector('#json-file-input')?.click()});
     document.querySelectorAll('#json-file-input').forEach(input=>{input.onchange=()=>{if(input.files[0])importJsonSheet(input.files[0]);input.value=''}});

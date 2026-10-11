@@ -3089,3 +3089,13 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .collapsed>.oc-collapse-head .oc-arrow{transform:rotate(-45deg);margin-bottom:0}
 .oc-collapse-head:hover .oc-arrow{border-color:#fff}
 .oc-collapse-head:focus-visible{outline:1px solid var(--red);outline-offset:3px;border-radius:3px}
+
+/* Aviso de rascunho de edição não salvo */
+.unsaved-bar{position:fixed;left:50%;top:14px;z-index:90;display:none;align-items:center;gap:8px;padding:6px 8px 6px 14px;transform:translateX(-50%);background:#151620f2;border:1px solid #e5b839;border-radius:6px;box-shadow:0 6px 22px #000a;backdrop-filter:blur(10px);white-space:nowrap}
+.unsaved-bar.show{display:flex}
+.unsaved-bar span{font:800 9px "Hanken Grotesk";letter-spacing:.14em;color:#e5b839}
+.unsaved-bar button{height:24px;padding:0 10px;background:transparent;border:1px solid #3d3f4e;border-radius:4px;color:#c7cade;font:800 9px "Hanken Grotesk";letter-spacing:.1em;cursor:pointer}
+.unsaved-bar button:hover{border-color:#8a8fa6;color:#fff}
+.unsaved-bar button.primary{background:#e5b839;border-color:#e5b839;color:#111}
+.unsaved-bar button.primary:hover{background:#f2cb5a;border-color:#f2cb5a;color:#111}
+@media (max-width:640px){.unsaved-bar{top:auto;bottom:74px;gap:6px;padding-left:10px}.unsaved-bar span{letter-spacing:.06em}}
