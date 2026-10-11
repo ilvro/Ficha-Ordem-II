@@ -72,6 +72,7 @@ export const DEFAULT_ORIGINAL_SHEET = {
   backgroundBlur: 0,
   backgroundZoom: 100,
   diceColor: '',
+  themeColor: '',
   viewMode: 'cinematic',
   cinematicTokenX: 50,
   cinematicTokenY: 52,
@@ -373,6 +374,7 @@ export function normalizeOriginalSheet(raw = {}) {
   sheet.condicoesAtivas = Array.isArray(raw.condicoesAtivas) ? raw.condicoesAtivas : [];
 
   sheet.diceColor = typeof raw.diceColor === 'string' ? raw.diceColor : '';
+  sheet.themeColor = typeof raw.themeColor === 'string' ? raw.themeColor : '';
   sheet.viewMode = raw.viewMode === 'traditional' ? 'traditional' : 'cinematic';
   sheet.cinematicTokenX = Math.max(0, Math.min(100, Number(raw.cinematicTokenX ?? 50)));
   sheet.cinematicTokenY = Math.max(0, Math.min(100, Number(raw.cinematicTokenY ?? 52)));

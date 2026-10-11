@@ -3075,3 +3075,10 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
   .oc-filters{padding:10px 14px 8px}
   .oc-body{padding:4px 14px 18px}
 }
+
+/* Contraste da cor tema: o texto sobre fundos na cor de destaque usa a "tinta"
+   calculada em applyTheme (preta para temas claros, branca para os demais). */
+.dossier-upload-btn:hover,.dossier-chip-btn:hover,.dossier-block-header .block-tag,.btn-dossier-add-aptidao:hover,.dossier-add-btn:hover,.rolled-die,.roll-again,.compact-rail .nav-btn.active,.btn-add-aptidao:hover,.floating button.active,.roll-log-badge,.btn-res-step:hover,.attr-btn:hover,.btn-roll-original-skill:hover,.btn-add-power:hover,.btn-learn-ritual:hover,.btn-cast-ritual:hover,.btn-roll-atk:hover,.oc-add:hover,.btn-open-picker:hover{color:var(--red-ink,#fff)!important}
+::selection{color:var(--red-ink,#fff)}
+.cinematic-identity>strong,.cinematic-identity>b,.cinematic-identity-read>strong,.cinematic-identity-read>b,.cinematic-left h2,.cinematic-section-heading span,.cinematic-attributes>h2>span,.cinematic-resources strong,.token-side-group>button.active,.btn-export-image-cinematic:hover,.cinematic-add-aptidao:hover,body.mobile-cinematic-landscape .cinematic-identity>strong,body.mobile-cinematic-landscape .cinematic-identity>b,body.mobile-cinematic-landscape .cinematic-identity-read>strong,body.mobile-cinematic-landscape .cinematic-identity-read>b,body.mobile-cinematic-landscape .cinematic-left h2,body.mobile-cinematic-landscape .cinematic-section-heading span,body.mobile-cinematic-landscape .cinematic-attributes>h2>span,body.mobile-cinematic-landscape .cinematic-resources strong,body.mobile-cinematic-landscape .token-side-group>button.active,body.mobile-cinematic-landscape .btn-export-image-cinematic:hover,body.mobile-cinematic-landscape .cinematic-add-aptidao:hover{color:var(--cinematic-accent-ink,#fff)!important}
+.cinematic-card h3,.cinematic-card:not(.has-inline-marker)>header h3,.cinematic-card:not(.has-inline-marker) h3{color:var(--card-ink,var(--cinematic-accent-ink,#fff))!important}

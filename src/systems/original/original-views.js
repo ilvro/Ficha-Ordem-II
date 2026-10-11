@@ -56,7 +56,7 @@ function originalIcon(name, size = 16) {
 }
 
 export function renderTraditionalOriginal(state, editMode, options = {}) {
-  const { currentRight = 'habilidades', filterQuery = '', safeUrl, renderBackgroundLayer } = options;
+  const { currentRight = 'habilidades', filterQuery = '', safeUrl, renderBackgroundLayer, accent = '#e0150d' } = options;
   const bgIsVideo = !!(state.backgroundImage && state.backgroundImage.startsWith('data:video/'));
 
   const classe = classeAtual(state);
@@ -118,6 +118,10 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
             <span class="dossier-profile-pill original-system-pill">ORDEM PARANORMAL RPG · d20</span>
             <span class="dossier-meta-file">PATENTE: <b>${safe(patente)}</b></span>
             <button type="button" class="btn-open-compendium" data-open-compendium>COMPÊNDIO</button>
+            ${editMode ? `
+              <label class="dossier-chip" title="Cor tema da ficha">TEMA<input type="color" data-theme-color value="${safe(accent)}"></label>
+              ${state.themeColor ? '<button type="button" class="dossier-chip-btn" data-reset-theme-color title="Voltar à cor da classe">CLASSE</button>' : ''}
+            ` : ''}
           </div>
 
           <div class="dossier-name-row">
@@ -801,7 +805,9 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
               <label title="Desfoque da imagem de fundo">BLUR <input type="range" min="0" max="30" step="1" value="${state.backgroundBlur ?? 0}" data-cinematic-bg-blur><span class="slider-val-hint" id="val-hint-blur">${state.backgroundBlur ?? 0}px</span></label>
               <label title="Escala / Zoom da imagem de fundo">ZOOM BG <input type="range" min="30" max="250" step="5" value="${state.backgroundZoom ?? 100}" data-cinematic-bg-zoom><span class="slider-val-hint" id="val-hint-zoom">${state.backgroundZoom ?? 100}%</span></label>
               ${(state.backgroundBlur > 0 || (state.backgroundZoom && state.backgroundZoom !== 100)) ? '<button type="button" data-reset-bg-effects title="Redefinir blur para 0 e zoom para 100%">RESET BG</button>' : ''}
-              <label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor || '')}"></label>
+              <label>COR TEMA <input type="color" data-theme-color value="${safe(accent)}"></label>
+              ${state.themeColor ? '<button type="button" data-reset-theme-color>TEMA DA CLASSE</button>' : ''}
+              <label>COR DOS DADOS <input id="dice-color" type="color" value="${safe(state.diceColor || accent)}"></label>
               ${state.diceColor ? '<button type="button" data-reset-dice-color>COR DA CLASSE</button>' : ''}
               <small>Arraste o personagem para reposicionar · Duplo clique nos sliders para redefinir</small>
             </div>
