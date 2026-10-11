@@ -2184,8 +2184,11 @@ const CLASSES = {
     // através do mesmo seletor de poderes de classe da aba Habilidades.
     poderes: [
       { nome: "Saúde Aprimorada", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PV iniciais." },
-      { nome: "Sanidade Aprimorada", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 SAN iniciais." },
-      { nome: "Esforço Aprimorado", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PE iniciais." },
+      // "regra": só existe na regra de recursos indicada — "pesan" (PE e
+      // Sanidade) ou "pd" (Pontos de Determinação, onde os dois viram um só).
+      { nome: "Sanidade Aprimorada", preRequisito: null, regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 SAN iniciais." },
+      { nome: "Esforço Aprimorado", preRequisito: null, regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PE iniciais." },
+      { nome: "Determinação Aprimorada", preRequisito: null, regra: "pd", descricao: "Habilidade inicial (escolha 1 entre as 3). Você recebe +3 PD iniciais." },
       { nome: "Treinamento Aprimorado", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe uma quantidade de perícias treinadas igual ao seu Intelecto." },
     ],
 

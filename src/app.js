@@ -16,6 +16,7 @@ import {
   nexDoEstagio,
   ajustarNexDaClasse,
   rotuloNivel,
+  definirRegraDeRecursos,
   niveisDaClasse,
   trilhaLiberada,
   pendenciaDeTrilha,
@@ -2310,11 +2311,7 @@ function bind(){
   document.querySelectorAll('[data-toggle-pd]').forEach(btn=>{
    btn.onclick=()=>{
     if(presentationMode){notifyPresentationLocked();return;}
-    state.usaPD=!state.usaPD;
-    // PD e PE têm totais diferentes: recomeça cheio na regra nova.
-    state.pe=originalCalcPeMax(state);
-    state.peTemp=0;
-    if(!state.usaPD) state.san=originalCalcSanMax(state);
+    definirRegraDeRecursos(state,!state.usaPD);
     save(false);
     render();
    };

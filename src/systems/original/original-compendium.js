@@ -12,7 +12,8 @@ import {
   CONDICOES,
   classeAtual,
   bonusLabel,
-  poderesDisponiveis
+  poderesDisponiveis,
+  poderValeNaRegra
 } from './original-system.js';
 
 import { safe, rich } from './original-text.js';
@@ -300,7 +301,7 @@ function renderPoderes(bate) {
   // classe e os gerais.
   const classeIds = ui.pick ? [minhaClasseId] : Object.keys(CLASSES);
   const grupos = [
-    ...classeIds.map(id => ({ id, label: CLASSES[id].nome, origem: `Poder de ${CLASSES[id].nome}`, poderes: CLASSES[id].poderes || [] })),
+    ...classeIds.map(id => ({ id, label: CLASSES[id].nome, origem: `Poder de ${CLASSES[id].nome}`, poderes: (CLASSES[id].poderes || []).filter(p => !ui.pick || poderValeNaRegra(p, sheet)) })),
     { id: 'gerais', label: 'Gerais', origem: 'Poder Geral', poderes: PODERES_GERAIS }
   ];
   if (!grupos.some(g => g.id === ui.grupo)) ui.grupo = 'todos';

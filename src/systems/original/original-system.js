@@ -194,7 +194,7 @@ export function poderesDisponiveis(sheet) {
   const c = classeAtual(sheet);
   const ja = new Set((sheet.poderesEscolhidos || []).map(p => p.nome));
   const daClasse = (c?.poderes || [])
-    .filter(p => p.repetivel || !ja.has(p.nome))
+    .filter(p => (p.repetivel || !ja.has(p.nome)) && poderValeNaRegra(p, sheet))
     .map(p => ({ label: p.nome, nome: p.nome, descricao: p.descricao, preRequisito: p.preRequisito, origemTipo: `Poder de ${c.nome}`, bonus: p.bonus || null }));
   const gerais = PODERES_GERAIS
     .filter(p => !ja.has(p.nome))
@@ -337,6 +337,36 @@ export function usaPD(sheet) {
   return !!sheet?.usaPD;
 }
 
+// Poderes marcados com "regra" só valem em uma das regras de recursos.
+export function poderValeNaRegra(poder, sheet) {
+  return !poder.regra || poder.regra === (usaPD(sheet) ? 'pd' : 'pesan');
+}
+
+// Troca a regra de recursos da ficha. Com PD, Sanidade Aprimorada e Esforço
+// Aprimorado viram Determinação Aprimorada; na volta, ela vira Esforço
+// Aprimorado (não há como saber qual das duas era). Os pontos recomeçam cheios.
+export function definirRegraDeRecursos(sheet, comPD) {
+  sheet.usaPD = !!comPD;
+  const c = classeAtual(sheet);
+  const trocas = sheet.usaPD
+    ? { 'Sanidade Aprimorada': 'Determinação Aprimorada', 'Esforço Aprimorado': 'Determinação Aprimorada' }
+    : { 'Determinação Aprimorada': 'Esforço Aprimorado' };
+  const vistos = new Set();
+  sheet.poderesEscolhidos = (sheet.poderesEscolhidos || []).map(p => {
+    const novo = (c.poderes || []).find(x => x.nome === trocas[p.nome]);
+    return novo ? { ...p, nome: novo.nome, descricao: novo.descricao, preRequisito: novo.preRequisito, bonus: novo.bonus || null } : p;
+  }).filter(p => {
+    if (!Object.values(trocas).includes(p.nome)) return true;
+    if (vistos.has(p.nome)) return false;
+    vistos.add(p.nome);
+    return true;
+  });
+  sheet.pv = calcPvMax(sheet);
+  sheet.pe = calcPeMax(sheet);
+  sheet.peTemp = 0;
+  sheet.san = calcSanMax(sheet);
+}
+
 export function calcPvMax(sheet) {
   const c = classeAtual(sheet);
   const steps = passosNex(sheet);
@@ -364,7 +394,9 @@ export function calcPeMax(sheet) {
   const nexBase = typeof c.nexBase === 'number' ? c.nexBase : 5;
   const recurso = usaPD(sheet) && c.pd ? c.pd : c.pe;
   const progressaoPe = steps * recurso.porNex + (c.escalaAtributoPorNex === false ? 0 : somaAtributoPorNivel(sheet, 'pre'));
-  const bonusEsforco = temPoderEscolhido(sheet, 'Esforço Aprimorado') ? 5 : 0;
+  const bonusEsforco = usaPD(sheet)
+    ? (temPoderEscolhido(sheet, 'Determinação Aprimorada') ? 3 : 0)
+    : (temPoderEscolhido(sheet, 'Esforço Aprimorado') ? 5 : 0);
   const bonus = Number(sheet.bonusTransicao?.pe) || 0;
 
   return recurso.base + (pre ? atributoNoNex(sheet, 'pre', nexBase) : 0) + progressaoPe + bonusEsforco + bonus + bonusFixoPorNex(sheet, 'pe');

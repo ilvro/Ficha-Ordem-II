@@ -3,7 +3,7 @@
 // cinco passos e só grava na ficha ao concluir. Depois disso tudo continua
 // editável pela ficha normalmente.
 import { ATRIBUTOS, PERICIAS, ORIGENS, PODERES_GERAIS, CLASSES } from '../../data/original-data.js';
-import { calcPvMax, calcPeMax, calcSanMax } from './original-system.js';
+import { calcPvMax, calcPeMax, calcSanMax, definirRegraDeRecursos, poderValeNaRegra } from './original-system.js';
 import { safe, rich } from './original-text.js';
 
 // O primeiro passo (regra de recursos) é perguntado em toda ficha nova; os
@@ -32,7 +32,9 @@ export function fecharTutorial(animado = false) {
   setTimeout(() => el.remove(), DURACAO_SAIDA);
 }
 
-const aprimoramentos = () => CLASSES.sobrevivente.poderes;
+// Os aprimoramentos dependem da regra: com PD, Sanidade e Esforço Aprimorado
+// dão lugar a Determinação Aprimorada.
+const aprimoramentos = d => CLASSES.sobrevivente.poderes.filter(p => poderValeNaRegra(p, { usaPD: !!d.usaPD }));
 const origemDe = d => ORIGENS.find(o => o.id === d.origemId) || null;
 const pericia = id => PERICIAS.find(p => p.id === id);
 const pontosRestantes = d => SOMA_ATRIBUTOS - ATRIBUTOS.reduce((acc, a) => acc + d.atributos[a.id], 0);
@@ -96,10 +98,10 @@ function renderAprimoramento(d) {
   return `
     <p class="wiz-lead">Todo personagem começa como uma pessoa comum, um <b>Sobrevivente</b> no Estágio 1. Escolha o que o diferencia.</p>
     <div class="wiz-options">
-      ${aprimoramentos().map(p => `
+      ${aprimoramentos(d).map(p => `
         <button type="button" class="wiz-option ${d.aprimoramento === p.nome ? 'selected' : ''}" data-wiz-aprimoramento="${safe(p.nome)}">
           <b>${safe(p.nome)}</b>
-          <span>${rich(p.descricao.replace(/^Habilidade inicial[^.]*\.\s*/, ''))}${d.usaPD && p.nome === 'Sanidade Aprimorada' ? ' <i class="wiz-warn">Sem efeito com Pontos de Determinação.</i>' : ''}</span>
+          <span>${rich(p.descricao.replace(/^Habilidade inicial[^.]*\.\s*/, ''))}</span>
         </button>`).join('')}
     </div>`;
 }
@@ -247,10 +249,7 @@ function desenhar() {
 
 // Grava a regra de recursos e deixa os pontos atuais cheios nessa regra.
 function aplicarRecursos(sheet, d) {
-  sheet.usaPD = !!d.usaPD;
-  sheet.pv = calcPvMax(sheet);
-  sheet.pe = calcPeMax(sheet);
-  sheet.san = calcSanMax(sheet);
+  definirRegraDeRecursos(sheet, !!d.usaPD);
 }
 
 function concluir() {
@@ -267,7 +266,7 @@ function concluir() {
   sheet.origemId = d.origemId;
   sheet.atributos = { ...d.atributos };
   [...fixas, ...d.pericias].forEach(id => { if (sheet.pericias?.[id]) sheet.pericias[id].treino = Math.max(TREINADO, sheet.pericias[id].treino || 0); });
-  const aprimoramento = aprimoramentos().find(p => p.nome === d.aprimoramento);
+  const aprimoramento = aprimoramentos(d).find(p => p.nome === d.aprimoramento);
   const geral = PODERES_GERAIS.find(p => p.nome === d.poderGeral);
   sheet.poderesEscolhidos = [
     { nome: aprimoramento.nome, descricao: aprimoramento.descricao, preRequisito: aprimoramento.preRequisito, origemTipo: `Poder de ${CLASSES.sobrevivente.nome}`, bonus: aprimoramento.bonus || null },
@@ -282,7 +281,13 @@ function aoClicar(e) {
   const { d } = atual;
   const alvo = sel => e.target.closest(sel);
   let b;
-  if ((b = alvo('[data-wiz-recursos]'))) { d.usaPD = b.dataset.wizRecursos === 'pd'; atual.fx = ['.wiz-option.selected']; }
+  if ((b = alvo('[data-wiz-recursos]'))) {
+    d.usaPD = b.dataset.wizRecursos === 'pd';
+    // O aprimoramento já escolhido pode não existir na outra regra.
+    if (!aprimoramentos(d).some(p => p.nome === d.aprimoramento)) d.aprimoramento = '';
+    ajustarPericias(d);
+    atual.fx = ['.wiz-option.selected'];
+  }
   else if ((b = alvo('[data-wiz-aprimoramento]'))) { d.aprimoramento = b.dataset.wizAprimoramento; ajustarPericias(d); atual.fx = ['.wiz-option.selected']; }
   else if ((b = alvo('[data-wiz-origem]'))) { d.origemId = b.dataset.wizOrigem; ajustarPericias(d); atual.fx = ['.wiz-detail']; }
   else if ((b = alvo('[data-wiz-attr]'))) {
