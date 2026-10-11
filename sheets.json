@@ -2093,11 +2093,11 @@
       "int": 1,
       "pre": 1
     },
-    "pv": 11,
+    "pv": 8,
     "maxPv": 18,
     "pvTemp": 0,
     "pvMarcas": 0,
-    "pe": 3,
+    "pe": 5,
     "maxPe": 5,
     "peTemp": 0,
     "san": 12,

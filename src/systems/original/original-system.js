@@ -121,6 +121,20 @@ export function temVersatilidade(sheet) {
   return Array.isArray(sheet.poderesEscolhidos) && sheet.poderesEscolhidos.some(p => p.nome === 'Versatilidade');
 }
 
+// Poderes que o jogador ESCOLHE (de classe + gerais) e que ainda não estão na
+// ficha. Habilidades de trilha não entram: são fixas e destravam por NEX.
+export function poderesDisponiveis(sheet) {
+  const c = classeAtual(sheet);
+  const ja = new Set((sheet.poderesEscolhidos || []).map(p => p.nome));
+  const daClasse = (c?.poderes || [])
+    .filter(p => !ja.has(p.nome))
+    .map(p => ({ label: p.nome, nome: p.nome, descricao: p.descricao, preRequisito: p.preRequisito, origemTipo: `Poder de ${c.nome}`, bonus: p.bonus || null }));
+  const gerais = PODERES_GERAIS
+    .filter(p => !ja.has(p.nome))
+    .map(p => ({ label: `${p.nome} (Geral)`, nome: p.nome, descricao: p.descricao, preRequisito: p.preRequisito, origemTipo: 'Poder Geral', bonus: p.bonus || null }));
+  return [...daClasse, ...gerais];
+}
+
 export function temVersatilidadeAmplificada(sheet) {
   return Array.isArray(sheet.poderesParanormais) && sheet.poderesParanormais.some(p => p.nome === 'Versatilidade Amplificada');
 }

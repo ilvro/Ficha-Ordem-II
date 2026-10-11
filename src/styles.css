@@ -2887,6 +2887,9 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .btn-add-power{background:#222436;border:1px solid #373b54;border-radius:4px;color:#d2d6ea;font:800 9px "Hanken Grotesk";padding:4px 8px;cursor:pointer}
 .btn-add-power:hover{background:var(--red);color:#fff}
 .add-inline-row{display:flex;align-items:center;gap:6px}
+.original-card .card-meta{font:800 9px "Hanken Grotesk";color:#8a8fa6;text-transform:uppercase;letter-spacing:.06em}
+.original-card .card-prereq{color:#e5b839}
+.chosen-power-card .badge-bonus{align-self:flex-start}
 
 /* Rituais */
 .rituals-header-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;background:#151726;padding:10px 12px;border:1px solid #282a3e;border-radius:6px}
@@ -2986,3 +2989,71 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .roll-die-pill.chosen { border-color: #38ef7d; color: #38ef7d; background: #153826; }
 .roll-die-pill.discarded { opacity: 0.38; text-decoration: line-through; border-style: dashed; }
 
+
+/* Compêndio do sistema original (também usado como seletor de poderes/rituais) */
+.nex-tag{font:800 8.5px "Hanken Grotesk";letter-spacing:.08em;padding:1px 6px;border-radius:3px;background:rgba(229,184,57,0.14);color:#e5b839;white-space:nowrap}
+.btn-open-picker{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0 4px;padding:9px 12px;background:transparent;border:1px dashed #3a3e58;border-radius:6px;color:#b9bdd2;font:800 9.5px "Hanken Grotesk";letter-spacing:.1em;cursor:pointer;transition:border-color .14s,color .14s,background .14s}
+.btn-open-picker:hover{border-color:var(--red);border-style:solid;background:rgba(224,21,13,0.12);color:#fff}
+.btn-open-compendium{background:transparent;border:1px solid #373b54;border-radius:3px;color:#b9bdd2;font:800 9px "Hanken Grotesk";letter-spacing:.14em;padding:2px 8px;cursor:pointer;transition:border-color .14s,color .14s}
+.btn-open-compendium:hover{border-color:var(--red);color:#fff}
+.rituals-header-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.btn-learn-ritual.btn-ghost{background:transparent;color:#b9bdd2}
+
+.oc-overlay{position:fixed;inset:0;z-index:300;display:none;place-items:center}
+.oc-overlay.open{display:grid}
+.oc-backdrop{position:absolute;inset:0;background:#070810d9;backdrop-filter:blur(3px);animation:oc-fade .16s ease both}
+.oc-box{position:relative;width:min(780px,calc(100vw - 32px));height:min(820px,calc(100vh - 48px));height:min(820px,calc(100dvh - 48px));display:flex;flex-direction:column;background:#10121d;border:1px solid #2d3044;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.85);overflow:hidden;animation:oc-in .2s cubic-bezier(.2,.75,.25,1) both}
+@keyframes oc-fade{from{opacity:0}to{opacity:1}}
+@keyframes oc-in{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.oc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:20px 22px 12px}
+.oc-head small{display:block;font:800 9px "Hanken Grotesk";letter-spacing:.18em;color:var(--red)}
+.oc-head h2{margin:4px 0 0;font:800 21px Georgia,serif;letter-spacing:.03em;color:#f3f3f7}
+.oc-close{width:30px;height:30px;display:grid;place-items:center;background:transparent;border:1px solid #2d3044;border-radius:5px;color:#9ea1b2;font-size:12px;cursor:pointer}
+.oc-close:hover{border-color:var(--red);color:#fff}
+.oc-tabs{display:flex;gap:2px;padding:0 22px;border-bottom:1px solid #25283a;overflow-x:auto;scrollbar-width:none;flex:0 0 auto}
+.oc-tabs::-webkit-scrollbar{display:none}
+.oc-tabs button{flex:0 0 auto;padding:9px 11px;background:transparent;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;color:#7f8399;font:800 9.5px "Hanken Grotesk";letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:color .14s,border-color .14s}
+.oc-tabs button:hover{color:#d5d8eb}
+.oc-tabs button.active{color:#fff;border-bottom-color:var(--red)}
+.oc-overlay.pick-mode .oc-tabs{display:none}
+.oc-search{display:flex;align-items:center;gap:8px;margin:14px 22px 0;padding:0 12px;height:38px;background:#161827;border:1px solid #2c2f45;border-radius:6px;color:#7f8399;flex:0 0 auto;transition:border-color .14s,box-shadow .14s}
+.oc-search:focus-within{border-color:var(--red);box-shadow:0 0 0 2px rgba(224,21,13,0.2)}
+.oc-search input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:0;color:#ececf2;font:600 13px "Hanken Grotesk",sans-serif}
+.oc-search input::placeholder{color:#63677e}
+.oc-filters{display:flex;flex-direction:column;gap:8px;padding:12px 22px 10px;flex:0 0 auto}
+.oc-chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.oc-chip{--chip:#e5b839;padding:4px 10px;background:#161827;border:1px solid #2c2f45;border-radius:999px;color:#a6a9be;font:800 9px "Hanken Grotesk";letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:border-color .14s,color .14s,background .14s}
+.oc-chip:hover{border-color:var(--chip);color:#fff}
+.oc-chip.active{background:color-mix(in srgb,var(--chip),transparent 80%);border-color:var(--chip);color:color-mix(in srgb,var(--chip),#fff 35%)}
+.oc-count{font:800 8.5px "Hanken Grotesk";letter-spacing:.16em;color:#63677e}
+.oc-body{flex:1;min-height:0;overflow-y:auto;padding:4px 22px 22px;scrollbar-width:thin;scrollbar-color:#33364c transparent}
+.oc-body .empty-cards{margin:0}
+.oc-card{--el:#33364c;border-left:3px solid var(--el)}
+.oc-card.owned{opacity:.62}
+.oc-card .card-head{align-items:flex-start}
+.oc-title{font:800 14px Georgia,serif;color:#f3f3f7;letter-spacing:.01em}
+.oc-element{font:800 8.5px "Hanken Grotesk";letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:color-mix(in srgb,var(--el),transparent 82%);color:color-mix(in srgb,var(--el),#fff 30%);white-space:nowrap}
+.oc-tags{display:flex;flex-wrap:wrap;gap:6px}
+.oc-tag{font:800 9px "Hanken Grotesk";letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:#1d2033;border:1px solid #2f3249;color:#c7cade}
+.oc-conditions .oc-tag{font-size:10.5px;padding:7px 12px}
+.oc-subtitle{margin:6px 0 0;font:800 9px "Hanken Grotesk";letter-spacing:.18em;color:#72758d}
+.oc-sub{display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:#10111d;border:1px solid #202235;border-radius:5px}
+.oc-sub strong{font:700 12.5px Georgia,serif;color:#e6e8f1}
+.oc-trail-power{display:flex;flex-direction:column;gap:4px;padding-top:8px;border-top:1px solid #202235}
+.oc-ritual-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px 12px;background:#10111d;border:1px solid #202235;border-radius:4px;padding:8px 10px}
+.oc-ritual-meta small{display:block;font:800 7.5px "Hanken Grotesk";letter-spacing:.1em;color:#63677e}
+.oc-ritual-meta span{font:700 11px Georgia,serif;color:#dcdfe8}
+.oc-upgrade{margin:0;padding:7px 10px;border-left:2px solid #e5b839;background:rgba(229,184,57,0.07);font-size:11.5px;line-height:1.45;color:#a6a9be;white-space:pre-line}
+.oc-upgrade b{color:#e5b839}
+.oc-add{flex:0 0 auto;background:rgba(224,21,13,0.2);border:1px solid var(--red);border-radius:4px;color:#fff;font:800 9.5px "Hanken Grotesk";letter-spacing:.08em;padding:6px 12px;white-space:nowrap;cursor:pointer;transition:background .14s}
+.oc-add:hover{background:var(--red)}
+.oc-owned{flex:0 0 auto;font:800 9px "Hanken Grotesk";letter-spacing:.1em;color:#18d370;padding:6px 2px;white-space:nowrap}
+@media (max-width:640px){
+  .oc-box{width:100vw;height:100vh;height:100dvh;border-radius:0;border:0}
+  .oc-head{padding:16px 14px 10px}
+  .oc-tabs{padding:0 14px}
+  .oc-search{margin:12px 14px 0}
+  .oc-search input{font-size:16px}
+  .oc-filters{padding:10px 14px 8px}
+  .oc-body{padding:4px 14px 18px}
+}

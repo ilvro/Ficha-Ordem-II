@@ -31,16 +31,9 @@ import {
   periciasTreinadasDaOrigem,
   getIconeRecurso
 } from './original-system.js';
+import { ELEMENT_COLORS } from './original-compendium.js';
 
 const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-const ELEMENT_COLORS = {
-  Sangue: '#e0150d',
-  Morte: '#70707a',
-  Energia: '#a230ed',
-  Conhecimento: '#e5a11c',
-  Medo: '#d5d7e0'
-};
 
 function originalIcon(name, size = 16) {
   const paths = {
@@ -124,6 +117,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
           <div class="dossier-meta-row">
             <span class="dossier-profile-pill original-system-pill">ORDEM PARANORMAL RPG · d20</span>
             <span class="dossier-meta-file">PATENTE: <b>${safe(patente)}</b></span>
+            <button type="button" class="btn-open-compendium" data-open-compendium>COMPÊNDIO</button>
           </div>
 
           <div class="dossier-name-row">
@@ -461,15 +455,13 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
               <h3 style="margin-top:16px;">HABILIDADES DE CLASSE & TRILHA</h3>
               ${renderProgressionList(state)}
 
-              <div class="powers-header-row" style="margin-top:16px;">
-                <h3>PODERES PARANORMAIS</h3>
-                <div class="add-inline-row">
-                  <select id="select-paranormal-power" class="original-select">
-                    ${PODERES_PARANORMAIS.map((p, idx) => `<option value="${idx}">[${p.elemento}] ${p.nome}</option>`).join('')}
-                  </select>
-                  <button type="button" class="btn-add-power" id="btn-add-paranormal-power">+ ADICIONAR</button>
-                </div>
+              <h3 style="margin-top:16px;">PODERES ESCOLHIDOS</h3>
+              <div class="card-list">
+                ${chosenPowerCards(state, true, '<p class="empty-cards">Nenhum poder escolhido ainda.</p>')}
               </div>
+              ${pickerButton('poderes', 'ADICIONAR PODER')}
+
+              <h3 style="margin-top:16px;">PODERES PARANORMAIS</h3>
               <div class="card-list">
                 ${(state.poderesParanormais || []).map((p, i) => `
                   <div class="original-card paranormal-card" style="border-left: 3px solid ${ELEMENT_COLORS[p.elemento] || '#e0150d'}">
@@ -481,6 +473,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                   </div>
                 `).join('') || '<p class="empty-cards">Nenhum poder paranormal aprendido.</p>'}
               </div>
+              ${pickerButton('paranormais', 'ADICIONAR PODER PARANORMAL')}
             </div>
           </section>
 
@@ -492,11 +485,9 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                   <small>DT DE RESISTÊNCIA</small>
                   <b>${dtRituais}</b>
                 </div>
-                <div class="rituals-add-block">
-                  <select id="select-ritual-to-learn" class="original-select">
-                    ${RITUAIS.map(r => `<option value="${r.id}">[${r.circulo}º Círculo · ${r.elemento}] ${r.nome} (${r.custoPE} PE)</option>`).join('')}
-                  </select>
-                  <button type="button" id="btn-learn-ritual" class="btn-learn-ritual">+ APRENDER</button>
+                <div class="rituals-header-actions">
+                  <button type="button" class="btn-learn-ritual btn-ghost" data-open-compendium="rituais">COMPÊNDIO</button>
+                  <button type="button" class="btn-learn-ritual" data-open-compendium="rituais" data-compendium-pick>+ APRENDER RITUAL</button>
                 </div>
               </div>
 
@@ -642,6 +633,26 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
       </div>
     </main>
   `;
+}
+
+// Botão que abre o Compêndio em modo escolha, já na aba certa.
+function pickerButton(tab, label) {
+  return `<button type="button" class="btn-open-picker" data-open-compendium="${tab}" data-compendium-pick>${originalIcon('plus', 13)} ${label}</button>`;
+}
+
+function chosenPowerCards(state, canRemove, emptyNote) {
+  return (state.poderesEscolhidos || []).map((p, i) => `
+    <div class="original-card chosen-power-card">
+      <div class="card-head">
+        <strong>${safe(p.nome)}</strong>
+        ${canRemove ? `<button type="button" class="btn-remove-item" data-remove-chosen-power="${i}">${originalIcon('trash', 13)}</button>` : ''}
+      </div>
+      ${p.origemTipo ? `<span class="card-meta">${safe(p.origemTipo)}</span>` : ''}
+      ${p.preRequisito ? `<span class="card-meta card-prereq">Pré-requisito: ${safe(p.preRequisito)}</span>` : ''}
+      ${p.bonus ? `<span class="badge-bonus">✦ ${safe(bonusLabel(state, p.bonus))}</span>` : ''}
+      <p class="card-desc">${safe(p.descricao)}</p>
+    </div>
+  `).join('') || emptyNote;
 }
 
 function renderProgressionList(state) {
@@ -896,6 +907,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
               </div>
               <div class="cinematic-section-body">
                 <div>
+                  ${presentationMode ? '' : `<button type="button" class="btn-open-compendium" data-open-compendium style="margin-bottom:8px;">COMPÊNDIO</button>`}
                   ${origem.poder ? `
                     <div class="original-card origin-card" style="margin-bottom:8px;">
                       <div class="card-head">
@@ -907,6 +919,9 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
 
                   ${renderProgressionList(state)}
 
+                  ${chosenPowerCards(state, editMode, '')}
+                  ${editMode ? pickerButton('poderes', 'ADICIONAR PODER') : ''}
+
                   ${(state.poderesParanormais || []).map((p, i) => `
                     <div class="original-card paranormal-card" style="border-left: 3px solid ${ELEMENT_COLORS[p.elemento] || '#e0150d'};margin-bottom:8px;">
                       <div class="card-head">
@@ -917,14 +932,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                     </div>
                   `).join('')}
 
-                  ${editMode ? `
-                    <div class="add-inline-row" style="margin-top:8px;">
-                      <select id="select-paranormal-power" class="original-select" style="background:#141624;color:#fff;border:1px solid #33364c;border-radius:3px;padding:3px 6px;font-size:11px;flex:1;">
-                        ${PODERES_PARANORMAIS.map((p, idx) => `<option value="${idx}">[${p.elemento}] ${p.nome}</option>`).join('')}
-                      </select>
-                      <button type="button" class="btn-add-power" id="btn-add-paranormal-power" style="padding:3px 8px;font-size:10px;">+ APRENDER PODER</button>
-                    </div>
-                  ` : ''}
+                  ${editMode ? pickerButton('paranormais', 'ADICIONAR PODER PARANORMAL') : ''}
                 </div>
               </div>
             </section>
@@ -960,14 +968,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                     `;
                   }).join('') || '<p class="empty-cards">Nenhum ritual conhecido.</p>'}
 
-                  ${editMode ? `
-                    <div class="add-inline-row" style="margin-top:8px;">
-                      <select id="select-ritual-to-learn" class="original-select" style="background:#141624;color:#fff;border:1px solid #33364c;border-radius:3px;padding:3px 6px;font-size:11px;flex:1;">
-                        ${RITUAIS.filter(r => !(state.rituaisConhecidos || []).includes(r.id)).map(r => `<option value="${r.id}">[${r.circulo}º Círculo / ${r.elemento}] ${r.nome}</option>`).join('')}
-                      </select>
-                      <button type="button" class="btn-add-power" id="btn-learn-ritual" style="padding:3px 8px;font-size:10px;">+ APRENDER RITUAL</button>
-                    </div>
-                  ` : ''}
+                  ${editMode ? pickerButton('rituais', 'APRENDER RITUAL') : ''}
                 </div>
               </div>
             </section>

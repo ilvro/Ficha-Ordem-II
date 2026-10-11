@@ -18,6 +18,7 @@ import {
   renderTraditionalOriginal,
   renderCinematicOriginal
 } from './systems/original/original-views.js';
+import { initOriginalCompendium } from './systems/original/original-compendium.js';
 
 let currentOriginalTab = 'habilidades';
 let originalSkillsFilter = '';
@@ -869,7 +870,7 @@ function bindRollLogItemEvents(container = document) {
 
 function render(){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" data-compendium title="Compêndio (em breve)">${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
   ${state.systemMode==='original'
     ? (isCinematic?renderCinematicOriginal(state,editMode,{safeUrl,renderBackgroundLayer,presentationMode,renderPresentationDock,accent:getSheetAccent(state),resourceShift:currentResourceShift,pageClass:`cinematic-tab-${cinematicMobileTab} ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}`}):renderTraditionalOriginal(state,editMode,{currentRight:currentOriginalTab,filterQuery:originalSkillsFilter,safeUrl,renderBackgroundLayer}))
@@ -1960,20 +1961,6 @@ function bind(){
     render();
    };
   });
-  const btnAddPower=document.querySelector('#btn-add-paranormal-power');
-  if(btnAddPower){
-   btnAddPower.onclick=()=>{
-    const sel=document.querySelector('#select-paranormal-power');
-    const idx=Number(sel?.value);
-    const power=ORIGINAL_PODERES_PARANORMAIS[idx];
-    if(power){
-     if(!Array.isArray(state.poderesParanormais)) state.poderesParanormais=[];
-     state.poderesParanormais.push(clone(power));
-     save(false);
-     render();
-    }
-   };
-  }
   document.querySelectorAll('[data-remove-paranormal]').forEach(btn=>{
    btn.onclick=()=>{
     const idx=Number(btn.dataset.removeParanormal);
@@ -1984,21 +1971,16 @@ function bind(){
     }
    };
   });
-  const btnLearnRitual=document.querySelector('#btn-learn-ritual');
-  if(btnLearnRitual){
-   btnLearnRitual.onclick=()=>{
-    const sel=document.querySelector('#select-ritual-to-learn');
-    const rId=sel?.value;
-    if(rId){
-     if(!Array.isArray(state.rituaisConhecidos)) state.rituaisConhecidos=[];
-     if(!state.rituaisConhecidos.includes(rId)){
-      state.rituaisConhecidos.push(rId);
-      save(false);
-      render();
-     }
+  document.querySelectorAll('[data-remove-chosen-power]').forEach(btn=>{
+   btn.onclick=()=>{
+    const idx=Number(btn.dataset.removeChosenPower);
+    if(!isNaN(idx)&&state.poderesEscolhidos){
+     state.poderesEscolhidos.splice(idx,1);
+     save(false);
+     render();
     }
    };
-  }
+  });
   document.querySelectorAll('[data-remove-ritual]').forEach(btn=>{
    btn.onclick=()=>{
     const rId=btn.dataset.removeRitual;
@@ -2189,4 +2171,5 @@ presentationMode = true;
 presentationIndex = Math.max(0, sheets.findIndex(sheet => sheet.id === state.id));
 state = sheets[presentationIndex];
 activeSheetId = state.id;
+initOriginalCompendium({getSheet:()=>state,isOriginal:()=>state.systemMode==='original',isLocked:()=>presentationMode,onChange:()=>{save(false);render();}});
 render();
