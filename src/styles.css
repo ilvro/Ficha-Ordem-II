@@ -3099,3 +3099,9 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .unsaved-bar button.primary{background:#e5b839;border-color:#e5b839;color:#111}
 .unsaved-bar button.primary:hover{background:#f2cb5a;border-color:#f2cb5a;color:#111}
 @media (max-width:640px){.unsaved-bar{top:auto;bottom:74px;gap:6px;padding-left:10px}.unsaved-bar span{letter-spacing:.06em}}
+
+/* No modo edição a arte do personagem é arrastável (pointer-events:auto) e fica
+   acima do cabeçalho, engolindo os cliques no perfil/classe/NEX. Sobe o
+   cabeçalho só durante a edição; áreas vazias dele continuam deixando arrastar. */
+.editing .cinematic-header{z-index:9;pointer-events:none}
+.editing .cinematic-header>*{pointer-events:auto}
