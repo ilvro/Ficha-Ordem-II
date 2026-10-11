@@ -2169,11 +2169,11 @@ const CLASSES = {
     periciasIniciaisTexto: "2 + Intelecto perícias à escolha. Além disso, todo Sobrevivente escolhe uma das habilidades gerais abaixo (na aba Habilidades) e começa com um Poder Geral.",
 
     tabelaNex: [
-      { nex: 0,  tipo: "fixo",   texto: "Estágio 1 — Empenho: gaste 1 PE para receber +2 em um teste de perícia." },
-      { nex: 5,  tipo: "trilha", texto: "Estágio 2 — Escolha uma trilha (Durão, Esperto ou Esotérico) e recebe o 1º poder dela." },
-      { nex: 10, tipo: "fixo",   texto: "Estágio 3 — Aumento de Atributo: +1 em um atributo à escolha." },
-      { nex: 15, tipo: "trilha", texto: "Estágio 4 — Recebe o 2º (e último) poder da trilha escolhida." },
-      { nex: 20, tipo: "fixo",   texto: "Estágio 5 — Cicatrizado: escolha um elemento de perigo paranormal já enfrentado; sofre –O em resistência contra ele, mas 1x/sessão pode sacrificar 1 PV perm. para ignorar dano mental/gasto de PE, ou 1 PE perm. para reduzir dano físico à metade." },
+      { nex: 0,  tipo: "fixo",   texto: "Empenho: gaste 1 PE para receber +2 em um teste de perícia." },
+      { nex: 5,  tipo: "trilha", texto: "Escolha uma trilha (Durão, Esperto ou Esotérico) e recebe o 1º poder dela." },
+      { nex: 10, tipo: "fixo",   texto: "Aumento de Atributo: +1 em um atributo à escolha." },
+      { nex: 15, tipo: "trilha", texto: "Recebe o 2º (e último) poder da trilha escolhida." },
+      { nex: 20, tipo: "fixo",   texto: "Cicatrizado: escolha um elemento de perigo paranormal já enfrentado; sofre –O em resistência contra ele, mas 1x/sessão pode sacrificar 1 PV perm. para ignorar dano mental/gasto de PE, ou 1 PE perm. para reduzir dano físico à metade." },
     ],
 
     // "Poder Geral" inicial (escolha 1) + Poder Geral mundano avulso — usados

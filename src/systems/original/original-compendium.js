@@ -15,7 +15,7 @@ import {
   poderesDisponiveis
 } from './original-system.js';
 
-const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+import { safe, rich } from './original-text.js';
 const norm = value => String(value ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 export const ELEMENT_COLORS = {
@@ -196,7 +196,7 @@ function pickControl(tipo, id, owned, label) {
 
 function bonusBadge(bonus) {
   const texto = bonus ? bonusLabel(ctx.getSheet(), bonus) : '';
-  return texto ? `<span class="badge-bonus">✦ ${safe(texto)}</span>` : '';
+  return texto ? `<span class="badge-bonus">✦ ${rich(texto)}</span>` : '';
 }
 
 function emptyNote(texto) {
@@ -210,7 +210,7 @@ function renderOrigens(bate) {
     html: itens.map(o => `
       <article class="original-card oc-card">
         <div class="card-head"><strong class="oc-title">${safe(o.nome)}</strong></div>
-        ${o.descricao ? `<p class="card-desc">${safe(o.descricao)}</p>` : ''}
+        ${o.descricao ? `<p class="card-desc">${rich(o.descricao)}</p>` : ''}
         ${(o.pericias || []).length ? `<div class="oc-tags">${o.pericias.map(pid => {
           const p = PERICIAS.find(x => x.id === pid);
           return `<span class="oc-tag">${safe(p ? p.nome : pid)}</span>`;
@@ -218,21 +218,21 @@ function renderOrigens(bate) {
         ${o.poder ? `
           <div class="oc-sub">
             <div class="card-head"><strong>${safe(o.poder.nome)}</strong>${bonusBadge(o.poder.bonus)}</div>
-            <p class="card-desc">${safe(o.poder.descricao)}</p>
+            <p class="card-desc">${rich(o.poder.descricao)}</p>
           </div>
         ` : ''}
         ${(o.poderesExtras || []).map(p => `
           <div class="oc-sub">
             <div class="card-head"><strong>${safe(p.nome)}</strong></div>
             ${p.alternativa ? `<span class="card-meta">Alternativa a ${safe(o.poder?.nome || '')} — escolha um dos dois</span>` : ''}
-            <p class="card-desc">${safe(p.descricao)}</p>
+            <p class="card-desc">${rich(p.descricao)}</p>
           </div>
         `).join('')}
         ${o.aprimoramento ? `
           <div class="oc-sub">
             <div class="card-head"><strong>Aprimoramento${o.aprimoramento.poder ? `: ${safe(o.aprimoramento.poder.nome)}` : ''}</strong></div>
             <span class="card-meta">NEX 40% · Perícia: ${safe((PERICIAS.find(x => x.id === o.aprimoramento.pericia) || {}).nome || o.aprimoramento.pericia)}</span>
-            ${o.aprimoramento.poder ? `<p class="card-desc">${safe(o.aprimoramento.poder.descricao)}</p>` : ''}
+            ${o.aprimoramento.poder ? `<p class="card-desc">${rich(o.aprimoramento.poder.descricao)}</p>` : ''}
           </div>
         ` : ''}
       </article>
@@ -263,7 +263,7 @@ function renderClasses(bate) {
       <article class="original-card oc-card ${collapsed.has(classeKey) ? 'collapsed' : ''}">
         ${collapseHead(classeKey, `<strong class="oc-title">${safe(c.nome)}</strong>`, `<span class="card-meta">${c.mundano ? 'Estágio 1–5' : `NEX ${c.nexBase || 5}%–99%`}</span>`)}
         ${collapsed.has(classeKey) ? '' : `
-          ${c.resumo || c.descricao ? `<p class="card-desc">${safe(c.resumo || c.descricao)}</p>` : ''}
+          ${c.resumo || c.descricao ? `<p class="card-desc">${rich(c.resumo || c.descricao)}</p>` : ''}
           <h4 class="oc-subtitle">TRILHAS</h4>
           ${trilhas.map(t => {
             const trilhaKey = `trilha:${c.nome}/${t.nome}`;
@@ -271,14 +271,14 @@ function renderClasses(bate) {
               <div class="oc-sub ${collapsed.has(trilhaKey) ? 'collapsed' : ''}">
                 ${collapseHead(trilhaKey, `<strong>${safe(t.nome)}</strong>`)}
                 ${collapsed.has(trilhaKey) ? '' : `
-                  ${t.descricao ? `<p class="card-desc">${safe(t.descricao)}</p>` : ''}
+                  ${t.descricao ? `<p class="card-desc">${rich(t.descricao)}</p>` : ''}
                   ${(t.poderes || []).map(p => `
                     <div class="oc-trail-power">
                       <div class="card-head">
                         <span><span class="nex-tag">${c.mundano ? `ESTÁGIO ${Math.floor(p.nex / 5) + 1}` : `NEX ${p.nex}%`}</span> <strong>${safe(p.nome)}</strong></span>
                         ${bonusBadge(p.bonus)}
                       </div>
-                      <p class="card-desc">${safe(p.descricao)}</p>
+                      <p class="card-desc">${rich(p.descricao)}</p>
                     </div>
                   `).join('')}
                 `}
@@ -324,7 +324,7 @@ function renderPoderes(bate) {
           <span class="card-meta">${safe(g.origem)}</span>
           ${p.preRequisito ? `<span class="card-meta card-prereq">Pré-requisito: ${safe(p.preRequisito)}</span>` : ''}
           ${bonusBadge(p.bonus)}
-          <p class="card-desc">${safe(p.descricao)}</p>
+          <p class="card-desc">${rich(p.descricao)}</p>
         </article>
       `;
     }).join('') || emptyNote('Nenhum poder encontrado.')
@@ -352,7 +352,7 @@ function renderParanormais(bate) {
           </div>
           ${p.custoSAN ? `<span class="card-meta">Custo: ${safe(p.custoSAN)} SAN</span>` : ''}
           ${bonusBadge(p.bonus)}
-          <p class="card-desc">${safe(p.descricao)}</p>
+          <p class="card-desc">${rich(p.descricao)}</p>
         </article>
       `;
     }).join('') || emptyNote('Nenhum poder paranormal encontrado.')
@@ -392,9 +392,9 @@ function renderRituais(bate) {
             ${pickControl('ritual', r.id, owned, 'APRENDER')}
           </div>
           ${campos.length ? `<div class="oc-ritual-meta">${campos.map(([label, valor]) => `<div><small>${label}</small><span>${safe(valor)}</span></div>`).join('')}</div>` : ''}
-          <p class="card-desc">${safe(r.descricao)}</p>
-          ${r.discente ? `<p class="oc-upgrade"><b>Discente (+${safe(r.discente.custoPE)} PE):</b> ${safe(r.discente.descricao)}</p>` : ''}
-          ${r.verdadeiro ? `<p class="oc-upgrade"><b>Verdadeiro (+${safe(r.verdadeiro.custoPE)} PE):</b> ${safe(r.verdadeiro.descricao)}</p>` : ''}
+          <p class="card-desc">${rich(r.descricao)}</p>
+          ${r.discente ? `<p class="oc-upgrade"><b>Discente (+${rich(r.discente.custoPE)} PE):</b> ${rich(r.discente.descricao)}</p>` : ''}
+          ${r.verdadeiro ? `<p class="oc-upgrade"><b>Verdadeiro (+${rich(r.verdadeiro.custoPE)} PE):</b> ${rich(r.verdadeiro.descricao)}</p>` : ''}
         </article>
       `;
     }).join('') || emptyNote('Nenhum ritual encontrado.')

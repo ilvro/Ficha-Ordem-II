@@ -22,6 +22,7 @@ import {
   recusarVersatilidade
 } from './systems/original/original-system.js';
 import { renderDecisaoTrilha, renderEscolhaDeTrilha } from './systems/original/original-views.js';
+import { die } from './dice-icon.js';
 
 // Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
 // pergunta de Versatilidade a cada NEX de habilidade de trilha.
@@ -323,14 +324,6 @@ function playModeToggleSound(enteringEdit){
 
 const getDiceApi=()=>diceApiPromise??=import('./dice3d.js');
 const app=document.querySelector('#app');
-const diceGeometry={
- 4:{points:'50,5 94,88 6,88',facets:'M50 5 L50 54 M6 88 L50 54 L94 88',highlights:'M50 5 L50 54 L6 88 Z',shadows:'M50 54 L94 88 L6 88 Z'},
- 6:{points:'50,4 94,27 94,73 50,96 6,73 6,27',facets:'M6 27 L50 50 L94 27 M50 50 V96',highlights:'M50 4 L94 27 L50 50 L6 27 Z',shadows:'M50 50 L94 27 V73 L50 96 Z'},
- 8:{points:'50,4 94,25 94,75 50,96 6,75 6,25',facets:'M50 4 L94 75 H6 Z',highlights:'M50 4 L6 75 V25 Z',shadows:'M50 4 L94 25 V75 Z M6 75 H94 L50 96 Z'},
- 10:{points:'50,4 94,34 94,66 50,96 6,66 6,34',facets:'M50 4 L82 70 L50 88 L18 70 Z M6 66 L18 70 M82 70 L94 66 M50 88 V96',highlights:'M50 4 L18 70 L6 66 V34 Z',shadows:'M50 4 L94 34 V66 L82 70 Z M6 66 L50 88 L94 66 L50 96 Z'},
- 12:{points:'50,4 77,13 94,36 94,64 77,87 50,96 23,87 6,64 6,36 23,13',facets:'M50 22 L77 42 L67 74 H33 L23 42 Z M50 4 V22 M94 36 L77 42 M77 87 L67 74 M23 87 L33 74 M6 36 L23 42',highlights:'M50 4 V22 L23 42 L6 36 L23 13 Z',shadows:'M77 42 L94 36 V64 L77 87 L67 74 Z M33 74 H67 L77 87 L50 96 L23 87 Z'},
- 20:{points:'50,4 94,25 94,75 50,96 6,75 6,25',facets:'M50 4 V12 M6 25 L50 12 L94 25 L84 74 L94 75 M84 74 L50 96 L16 74 L6 75 M6 25 L16 74 M16 74 L50 12 L84 74 Z',highlights:'M50 4 L50 12 L6 25 Z M6 25 L50 12 L16 74 Z',shadows:'M50 12 L94 25 L84 74 Z M16 74 H84 L50 96 Z M84 74 L94 25 V75 L50 96 Z'}};
-const die=(value,kind='',trained=false)=>{const g=diceGeometry[Number(value)]||diceGeometry[20];return `<span class="die-svg ${kind} ${trained?'trained':''}" data-sides="${value}"><svg viewBox="0 0 100 100" aria-label="d${value}"><polygon class="die-face" points="${g.points}"/><path class="die-highlight" d="${g.highlights}"/><path class="die-shadow" d="${g.shadows}"/><path class="die-facets" d="${g.facets}"/><text x="50" y="55" text-anchor="middle" dominant-baseline="middle">${value}</text></svg></span>`};
 function formatCardText(value){let text=safe(value);text=text.replace(/(\+?)\s*(\d*)d(4|6|8|10|12|20)\b/gi,(_,plus,count,sides)=>`${plus?'<span class="dice-plus">+</span>':''}${Array.from({length:Math.min(12,Number(count)||1)},()=>die(Number(sides),'inline-die',Number(sides)>4)).join('')}`);text=text.replace(/\*\*(.+?)\*\*/gs,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>').replace(/\[u\](.+?)\[\/u\]/gis,'<u>$1</u>').replace(/\[color=(#[0-9a-f]{6})\](.+?)\[\/color\]/gis,'<span style="color:$1">$2</span>');return text.replace(/\n/g,'<br>')}
 const displayOption=option=>option.html||safe(option.label);
 function customSelect({value,options,id,className='',disabled=false,formName=''}){const selected=options.find(option=>String(option.value)===String(value))||{label:value};return `${formName?`<input type="hidden" name="${formName}" value="${safe(value)}">`:''}<div class="custom-select ${className} ${disabled?'disabled':''}" data-select-id="${id}" ${formName?`data-form-name="${formName}"`:''}><button type="button" class="select-trigger" ${disabled?'disabled':''}><span class="select-display">${safe(selected.triggerLabel||selected.label)}</span>${icon('chevron',17)}</button><div class="select-menu">${options.map(option=>`<button type="button" class="select-option ${String(option.value)===String(value)?'selected':''}" data-select-value="${safe(option.value)}" data-trigger-label="${safe(option.triggerLabel||option.label)}"><span class="option-content">${displayOption(option)}</span><b>${String(option.value)===String(value)?'✓':''}</b></button>`).join('')}</div></div>`}

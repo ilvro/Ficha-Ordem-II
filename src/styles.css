@@ -2905,6 +2905,15 @@ button.trilha-decisao-opt:hover{border-color:var(--red);background:color-mix(in 
 /* Cards do Sistema Original (Habilidades, Rituais, Combate, Inventário) */
 .original-card{background:#151727;border:1px solid #282a3d;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .original-card .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.progression-card .card-head{justify-content:flex-start;align-items:baseline;gap:10px}
+.progression-card .card-head .nex-tag{flex:none}
+.progression-card .card-head strong{flex:1;min-width:0;text-align:left;line-height:1.4}
+.dado-bonus{white-space:nowrap;font-weight:700;color:#ececf2}
+.die-svg.text-die{display:inline-grid;width:1.2em;height:1.2em;vertical-align:-.24em;margin-left:1px;color:color-mix(in srgb,var(--red),white 40%)}
+.die-svg.text-die+.text-die{margin-left:-2px}
+.die-svg.text-die .die-face{fill:var(--red);stroke-width:5}
+.die-svg.text-die .die-facets{stroke-width:3}
+.die-svg.text-die text{display:none}
 .original-card .card-desc{margin:0;font-size:11.5px;color:#a6a9be;line-height:1.45;white-space:pre-line}
 .badge-bonus{background:rgba(218,165,32,0.18);border:1px solid rgba(218,165,32,0.4);color:#e5b839;font:800 9px "Hanken Grotesk";padding:2px 6px;border-radius:3px}
 .btn-remove-item{background:transparent;border:0;color:#ff525b;cursor:pointer;opacity:.65;padding:2px}

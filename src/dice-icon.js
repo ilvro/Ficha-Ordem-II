@@ -1,0 +1,9 @@
+// Geometria e ícone SVG dos dados (d4 a d20), usados nas duas fichas.
+export const diceGeometry={
+ 4:{points:'50,5 94,88 6,88',facets:'M50 5 L50 54 M6 88 L50 54 L94 88',highlights:'M50 5 L50 54 L6 88 Z',shadows:'M50 54 L94 88 L6 88 Z'},
+ 6:{points:'50,4 94,27 94,73 50,96 6,73 6,27',facets:'M6 27 L50 50 L94 27 M50 50 V96',highlights:'M50 4 L94 27 L50 50 L6 27 Z',shadows:'M50 50 L94 27 V73 L50 96 Z'},
+ 8:{points:'50,4 94,25 94,75 50,96 6,75 6,25',facets:'M50 4 L94 75 H6 Z',highlights:'M50 4 L6 75 V25 Z',shadows:'M50 4 L94 25 V75 Z M6 75 H94 L50 96 Z'},
+ 10:{points:'50,4 94,34 94,66 50,96 6,66 6,34',facets:'M50 4 L82 70 L50 88 L18 70 Z M6 66 L18 70 M82 70 L94 66 M50 88 V96',highlights:'M50 4 L18 70 L6 66 V34 Z',shadows:'M50 4 L94 34 V66 L82 70 Z M6 66 L50 88 L94 66 L50 96 Z'},
+ 12:{points:'50,4 77,13 94,36 94,64 77,87 50,96 23,87 6,64 6,36 23,13',facets:'M50 22 L77 42 L67 74 H33 L23 42 Z M50 4 V22 M94 36 L77 42 M77 87 L67 74 M23 87 L33 74 M6 36 L23 42',highlights:'M50 4 V22 L23 42 L6 36 L23 13 Z',shadows:'M77 42 L94 36 V64 L77 87 L67 74 Z M33 74 H67 L77 87 L50 96 L23 87 Z'},
+ 20:{points:'50,4 94,25 94,75 50,96 6,75 6,25',facets:'M50 4 V12 M6 25 L50 12 L94 25 L84 74 L94 75 M84 74 L50 96 L16 74 L6 75 M6 25 L16 74 M16 74 L50 12 L84 74 Z',highlights:'M50 4 L50 12 L6 25 Z M6 25 L50 12 L16 74 Z',shadows:'M50 12 L94 25 L84 74 Z M16 74 H84 L50 96 Z M84 74 L94 25 V75 L50 96 Z'}};
+export const die=(value,kind='',trained=false)=>{const g=diceGeometry[Number(value)]||diceGeometry[20];return `<span class="die-svg ${kind} ${trained?'trained':''}" data-sides="${value}"><svg viewBox="0 0 100 100" aria-label="d${value}"><polygon class="die-face" points="${g.points}"/><path class="die-highlight" d="${g.highlights}"/><path class="die-shadow" d="${g.shadows}"/><path class="die-facets" d="${g.facets}"/><text x="50" y="55" text-anchor="middle" dominant-baseline="middle">${value}</text></svg></span>`};

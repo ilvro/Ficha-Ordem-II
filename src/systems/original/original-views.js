@@ -42,7 +42,7 @@ import {
 } from './original-system.js';
 import { ELEMENT_COLORS } from './original-compendium.js';
 
-const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+import { safe, rich } from './original-text.js';
 
 function originalIcon(name, size = 16) {
   const paths = {
@@ -472,9 +472,9 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
               <div class="original-card origin-card">
                 <div class="card-head">
                   <strong>${safe(origem.poder?.nome || 'Habilidade de Origem')}</strong>
-                  ${origem.poder?.bonus ? `<span class="badge-bonus">✦ ${safe(bonusLabel(state, origem.poder.bonus))}</span>` : ''}
+                  ${origem.poder?.bonus ? `<span class="badge-bonus">✦ ${rich(bonusLabel(state, origem.poder.bonus))}</span>` : ''}
                 </div>
-                <p class="card-desc">${safe(origem.poder?.descricao || origem.descricao || '')}</p>
+                <p class="card-desc">${rich(origem.poder?.descricao || origem.descricao || '')}</p>
               </div>
               ${originExtraCards(state, origem)}
 
@@ -498,7 +498,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                       <strong>${safe(p.nome)} <small>(${safe(p.elemento)})</small></strong>
                       <button type="button" class="btn-remove-item" data-remove-paranormal="${i}">${originalIcon('trash', 13)}</button>
                     </div>
-                    <p class="card-desc">${safe(p.descricao)}</p>
+                    <p class="card-desc">${rich(p.descricao)}</p>
                   </div>
                 `).join('') || '<p class="empty-cards">Nenhum poder paranormal aprendido.</p>'}
               </div>
@@ -541,7 +541,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                         <div><small>DURAÇÃO</small><span>${safe(ritual.duracao || 'Instantânea')}</span></div>
                         <div><small>RESISTÊNCIA</small><span>${safe(ritual.resistencia || 'Nenhuma')}</span></div>
                       </div>
-                      <p class="card-desc">${safe(ritual.descricao)}</p>
+                      <p class="card-desc">${rich(ritual.descricao)}</p>
                       <div class="card-foot">
                         <button type="button" class="btn-cast-ritual" data-cast-ritual="${ritual.id}" data-ritual-cost="${ritual.custoPE}">
                           ${originalIcon('flame', 14)} CONJURAR (${ritual.custoPE} PE)
@@ -678,8 +678,8 @@ function chosenPowerCards(state, canRemove, emptyNote) {
       </div>
       ${p.origemTipo ? `<span class="card-meta">${safe(p.origemTipo)}</span>` : ''}
       ${p.preRequisito ? `<span class="card-meta card-prereq">Pré-requisito: ${safe(p.preRequisito)}</span>` : ''}
-      ${p.bonus ? `<span class="badge-bonus">✦ ${safe(bonusLabel(state, p.bonus))}</span>` : ''}
-      <p class="card-desc">${safe(p.descricao)}</p>
+      ${p.bonus ? `<span class="badge-bonus">✦ ${rich(bonusLabel(state, p.bonus))}</span>` : ''}
+      <p class="card-desc">${rich(p.descricao)}</p>
     </div>
   `).join('') || emptyNote;
 }
@@ -693,7 +693,7 @@ function originExtraCards(state, origem) {
         <strong>${safe(p.nome)}</strong>
       </div>
       ${p.alternativa ? `<span class="card-meta">Alternativa a ${safe(origem.poder?.nome || 'poder de origem')} — escolha um dos dois</span>` : ''}
-      <p class="card-desc">${safe(p.descricao)}</p>
+      <p class="card-desc">${rich(p.descricao)}</p>
     </div>
   `).join('');
   const ap = aprimoramentoDeOrigemAtual(state);
@@ -706,7 +706,7 @@ function originExtraCards(state, origem) {
         <span class="badge-bonus">✦ Perícia: ${safe(per ? per.nome : ap.pericia)}</span>
       </div>
       <span class="card-meta">Aprimoramento de Origem — se já for treinado na perícia, escolha outra</span>
-      ${ap.poder ? `<p class="card-desc">${safe(ap.poder.descricao)}</p>` : ''}
+      ${ap.poder ? `<p class="card-desc">${rich(ap.poder.descricao)}</p>` : ''}
     </div>
   `;
 }
@@ -781,7 +781,7 @@ function renderTrilhas(state, editMode) {
         <strong>${safe(i.poder.nome)}</strong>
       </div>
       <span class="card-meta">${safe(i.trilhaObj.nome)}</span>
-      <p class="card-desc">${safe(i.poder.descricao)}</p>
+      <p class="card-desc">${rich(i.poder.descricao)}</p>
     </div>
   `).join('');
 
@@ -839,7 +839,7 @@ function renderProgressionList(state, editMode = false) {
         <div class="original-card progression-card">
           <div class="card-head">
             <span class="nex-tag">${safe(rotuloNivel(state, item.nex).toUpperCase())}</span>
-            <strong>${safe(item.texto)}</strong>
+            <strong>${rich(item.texto)}</strong>
           </div>${aumentoSelect(item)}
         </div>
       `).join('')}
@@ -1090,7 +1090,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                       <div class="card-head">
                         <strong>${safe(origem.poder.nome || 'Habilidade de Origem')} <small>(${safe(origem.nome)})</small></strong>
                       </div>
-                      <p class="card-desc" style="font-size:11px;">${safe(origem.poder.descricao || '')}</p>
+                      <p class="card-desc" style="font-size:11px;">${rich(origem.poder.descricao || '')}</p>
                     </div>
                   ` : ''}
                   ${originExtraCards(state, origem)}
@@ -1107,7 +1107,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                         <strong style="color:${ELEMENT_COLORS[p.elemento] || '#e0150d'}">${safe(p.nome)} <small>(${safe(p.elemento)})</small></strong>
                         ${editMode ? `<button type="button" class="btn-remove-item" data-remove-paranormal="${i}">${originalIcon('trash', 13)}</button>` : ''}
                       </div>
-                      <p class="card-desc" style="font-size:11px;">${safe(p.descricao)}</p>
+                      <p class="card-desc" style="font-size:11px;">${rich(p.descricao)}</p>
                     </div>
                   `).join('')}
 
@@ -1139,7 +1139,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                             ${editMode ? `<button type="button" class="btn-remove-item" data-remove-ritual="${ritual.id}">${originalIcon('trash', 13)}</button>` : ''}
                           </div>
                         </div>
-                        <p class="card-desc" style="font-size:11px;">${safe(ritual.descricao)}</p>
+                        <p class="card-desc" style="font-size:11px;">${rich(ritual.descricao)}</p>
                         <button type="button" class="btn-cast-ritual" data-cast-ritual="${ritual.id}" data-ritual-cost="${ritual.custoPE}">
                           CONJURAR
                         </button>
