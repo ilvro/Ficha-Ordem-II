@@ -3175,3 +3175,87 @@ button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
    cabeçalho só durante a edição; áreas vazias dele continuam deixando arrastar. */
 .editing .cinematic-header{z-index:9;pointer-events:none}
 .editing .cinematic-header>*{pointer-events:auto}
+
+/* ── Tutorial de criação de ficha (Ordem 1) ─────────────────────────────── */
+.modal.wizard-modal{z-index:250}
+.modal.wizard-modal section{width:min(760px,calc(100vw - 24px));height:min(640px,calc(100vh - 32px));box-sizing:border-box;display:flex;flex-direction:column;padding:0;text-align:left;background:#13141f;border-color:#383b52;box-shadow:0 25px 90px #000;overflow:hidden}
+.wiz-head{flex:none;padding:20px 24px 14px;border-bottom:1px solid #262839}
+.wiz-head small{font:800 8.5px "Hanken Grotesk";letter-spacing:.2em;color:var(--red)}
+.wiz-head h2{margin:4px 0 12px;font:700 24px Georgia,serif;color:#fff}
+.wiz-steps{display:flex;gap:6px;margin:0;padding:0;list-style:none}
+.wiz-steps li{flex:1;min-width:0}
+.wiz-steps button{width:100%;display:flex;align-items:center;gap:7px;padding:0 0 7px;border:0;border-bottom:2px solid #2a2d42;background:transparent;color:#62657c;font:800 9px "Hanken Grotesk";letter-spacing:.08em;text-transform:uppercase;text-align:left;cursor:pointer}
+.wiz-steps button:disabled{cursor:default}
+.wiz-steps i{flex:none;width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#22253a;font-style:normal;font-size:9px;color:#8a8da3}
+.wiz-steps span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wiz-steps li.done button{border-color:color-mix(in srgb,var(--red),#13141f 45%);color:#b9bdd2}
+.wiz-steps li.done i{background:color-mix(in srgb,var(--red),#13141f 45%);color:#fff}
+.wiz-steps li.current button{border-color:var(--red);color:#fff}
+.wiz-steps li.current i{background:var(--red);color:#fff}
+.wiz-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:16px 24px;overflow-y:auto}
+.wiz-lead{margin:0;font:400 13px/1.55 Georgia,serif;color:#b9bdd2}
+.wiz-lead b{color:#fff}
+.wiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wiz-option{display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid #2f3247;border-radius:6px;background:#0f101b;color:#ececf2;text-align:left;cursor:pointer;transition:border-color .14s,background .14s}
+.wiz-option b{font:700 15px Georgia,serif}
+.wiz-option span{font:400 12px/1.45 Georgia,serif;color:#9a9db3}
+.wiz-option:hover,.wiz-row:hover,.wiz-skill:hover:not(:disabled){border-color:#4a4e6c;background:#151729}
+.wiz-option.selected,.wiz-row.selected,.wiz-skill.selected{border-color:var(--red);background:color-mix(in srgb,var(--red),#0f101b 86%);color:#fff}
+.wiz-split{flex:1;min-height:0;display:grid;grid-template-columns:230px 1fr;gap:14px}
+.wiz-list-col{min-height:0;display:flex;flex-direction:column;gap:6px}
+.wiz-search{flex:none;height:32px;padding:0 10px;box-sizing:border-box;border:1px solid #2f3247;border-radius:4px;background:#0b0c15;color:#ececf2;font:800 9.5px "Hanken Grotesk";letter-spacing:.14em;outline:none}
+.wiz-search::placeholder{color:#62657c}
+.wiz-search:focus{border-color:var(--red)}
+.wiz-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding-right:3px;scrollbar-width:thin;scrollbar-color:#3a3e58 transparent}
+.wiz-row{flex:none;display:flex;flex-direction:column;gap:2px;padding:7px 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#c3c6d8;font:700 13px/1.3 Georgia,serif;text-align:left;cursor:pointer}
+.wiz-row small{font:700 9px "Hanken Grotesk";letter-spacing:.04em;color:#7e8198}
+.wiz-detail{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid #262839;border-radius:6px;background:#0f101b;scrollbar-width:thin;scrollbar-color:#3a3e58 transparent}
+.wiz-detail h4{margin:0;font:700 18px Georgia,serif;color:#fff}
+.wiz-detail p{margin:0;font:400 12px/1.55 Georgia,serif;color:#a6a9be}
+.wiz-tags{display:flex;flex-wrap:wrap;gap:5px}
+.wiz-tags span{padding:2px 7px;border-radius:3px;background:rgba(229,184,57,.14);color:#e5b839;font:800 9px "Hanken Grotesk";letter-spacing:.06em}
+.wiz-power{display:flex;flex-direction:column;gap:4px;padding-top:10px;border-top:1px solid #262839}
+.wiz-power b{font:700 13px Georgia,serif;color:#ececf2}
+.wiz-power em{font:700 9px "Hanken Grotesk";font-style:normal;letter-spacing:.06em;color:#7e8198;text-transform:uppercase}
+.wiz-power span{font:400 12px/1.5 Georgia,serif;color:#a6a9be}
+.wiz-empty{margin:auto;font:400 12px Georgia,serif;color:#7e8198;text-align:center}
+.wiz-points{align-self:flex-start;padding:5px 10px;border:1px solid #3a3e58;border-radius:4px;font:800 10px "Hanken Grotesk";letter-spacing:.1em;text-transform:uppercase;color:#b9bdd2}
+.wiz-points b{color:#f1c15a;font-size:13px}
+.wiz-points.done{border-color:#1f6b45;color:#4fd08f}
+.wiz-points.done b{color:#4fd08f}
+.wiz-attrs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.wiz-attr{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border:1px solid #2f3247;border-radius:6px;background:#0f101b}
+.wiz-attr small{font:800 9px "Hanken Grotesk";letter-spacing:.18em;color:var(--red)}
+.wiz-attr>span{font:400 12px Georgia,serif;color:#9a9db3}
+.wiz-attr-step{display:flex;align-items:center;gap:6px;margin-top:4px}
+.wiz-attr-step b{min-width:26px;text-align:center;font:700 26px/1 Georgia,serif;color:#fff}
+.wiz-attr-step button{width:26px;height:26px;display:grid;place-items:center;padding:0;border:1px solid #3a3e58;border-radius:4px;background:#151729;color:#ececf2;font:700 16px/1 "Hanken Grotesk";cursor:pointer}
+.wiz-attr-step button:hover:not(:disabled){border-color:var(--red);background:var(--red)}
+.wiz-attr-step button:disabled{opacity:.25;cursor:default}
+.wiz-preview{display:flex;gap:18px;font:800 10px "Hanken Grotesk";letter-spacing:.14em;color:#7e8198}
+.wiz-preview b{margin-left:4px;font:700 16px Georgia,serif;letter-spacing:0;color:#ececf2}
+.wiz-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wiz-skill{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;border:1px solid #2f3247;border-radius:4px;background:#0f101b;color:#c3c6d8;font:700 12.5px Georgia,serif;text-align:left;cursor:pointer}
+.wiz-skill small{font:800 8px "Hanken Grotesk";letter-spacing:.12em;color:#62657c}
+.wiz-skill:disabled{opacity:.4;cursor:default}
+.wiz-skill.origem{opacity:1;border-color:rgba(229,184,57,.4);background:rgba(229,184,57,.08);color:#e5b839}
+.wiz-skill.origem small{color:#e5b839}
+.wiz-foot{flex:none;display:flex;align-items:center;gap:10px;padding:14px 24px;border-top:1px solid #262839}
+.wiz-foot>span{flex:1}
+.wiz-skip{padding:4px 0;border:0;background:transparent;color:#7e8198;font:700 11px "Hanken Grotesk";cursor:pointer}
+.wiz-skip:hover{color:#fff}
+.wiz-back,.wiz-next{height:36px;padding:0 18px;border-radius:4px;font:800 10px "Hanken Grotesk";letter-spacing:.14em;cursor:pointer}
+.wiz-back{border:1px solid #3a3e58;background:transparent;color:#b9bdd2}
+.wiz-back:hover{border-color:#6a6e8c;color:#fff}
+.wiz-next{border:0;background:var(--red);color:#fff}
+.wiz-next:hover:not(:disabled){filter:brightness(1.15)}
+.wiz-next:disabled{background:#2a2d42;color:#62657c;cursor:default}
+@media (max-width:700px){
+ .modal.wizard-modal section{height:calc(100vh - 16px);width:calc(100vw - 16px)}
+ .wiz-head,.wiz-body,.wiz-foot{padding-left:14px;padding-right:14px}
+ .wiz-steps span{display:none}
+ .wiz-options{grid-template-columns:1fr}
+ .wiz-split{grid-template-columns:1fr;grid-template-rows:minmax(150px,40%) 1fr}
+ .wiz-attrs{grid-template-columns:repeat(2,1fr)}
+ .wiz-skills{grid-template-columns:repeat(2,1fr)}
+}

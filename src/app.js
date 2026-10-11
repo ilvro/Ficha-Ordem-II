@@ -25,6 +25,7 @@ import {
 import { renderDecisaoTrilha, renderEscolhaDeTrilha } from './systems/original/original-views.js';
 import { die } from './dice-icon.js';
 import { enhanceSelects } from './custom-select.js';
+import { abrirTutorial, fecharTutorial } from './systems/original/original-wizard.js';
 
 // Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
 // pergunta de Versatilidade a cada NEX de habilidade de trilha.
@@ -311,6 +312,11 @@ let currentRight='abilities',currentView='stats',editMode=false,modeJustChanged=
 const CRITICAL_EFFECTS_KEY='ordem-ii-critical-effects-v1';
 let criticalEffects={pv:true,pd:true};
 try{criticalEffects={...criticalEffects,...JSON.parse(localStorage.getItem(CRITICAL_EFFECTS_KEY)||'{}')}}catch{}
+// Preferências gerais do app (fora dos efeitos críticos).
+const APP_SETTINGS_KEY='ordem-ii-app-settings-v1';
+let appSettings={tutorialOriginal:true};
+try{appSettings={...appSettings,...JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'{}')}}catch{}
+function saveAppSettings(){try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{}}
 function saveCriticalEffects(){try{localStorage.setItem(CRITICAL_EFFECTS_KEY,JSON.stringify(criticalEffects))}catch{}}
 function playModeToggleSound(enteringEdit){
  const ctx=getUiAudioContext();if(!ctx)return;
@@ -382,7 +388,7 @@ function getCriticalState(){
  return{pv,pd,active:pv.critical||pd.critical};
 }
 function renderCriticalAtmosphere(){return `<div class="critical-atmosphere" data-critical-atmosphere aria-hidden="true"><div class="critical-pd-darkness"></div><div class="critical-pv-vignette"></div><div class="critical-pd-vignette"></div><canvas class="critical-tendrils" data-critical-tendrils></canvas><div class="critical-distortion"></div></div>`}
-function renderCriticalSettings(){const row=(key,title,copy)=>`<div class="critical-setting-row"><span><b>${title}</b><small>${copy}</small></span><button type="button" class="critical-effect-toggle ${criticalEffects[key]?'active':''}" data-critical-effect="${key}" aria-pressed="${criticalEffects[key]}"><i></i><em>${criticalEffects[key]?'ATIVO':'DESATIVADO'}</em></button></div>`;return `<div class="modal critical-settings-modal" id="critical-settings-modal"><div class="backdrop critical-settings-backdrop"></div><section><button type="button" class="critical-settings-close">${icon('close')}</button><small>IMERSÃO & ACESSIBILIDADE</small><h2>EFEITOS CRÍTICOS</h2><p>Escolha quais efeitos atmosféricos podem aparecer. As cores e bordas informativas de PV e PD continuam visíveis.</p>${row('pv','ESTADO CRÍTICO DE PV','Vinheta pulsante e batimento cardíaco sincronizado.')}${row('pd','ESTADO CRÍTICO DE PD','Escurecimento, vibração e formas paranormais.')}</section></div>`}
+function renderCriticalSettings(){const row=(key,title,copy)=>`<div class="critical-setting-row"><span><b>${title}</b><small>${copy}</small></span><button type="button" class="critical-effect-toggle ${criticalEffects[key]?'active':''}" data-critical-effect="${key}" aria-pressed="${criticalEffects[key]}"><i></i><em>${criticalEffects[key]?'ATIVO':'DESATIVADO'}</em></button></div>`;return `<div class="modal critical-settings-modal" id="critical-settings-modal"><div class="backdrop critical-settings-backdrop"></div><section><button type="button" class="critical-settings-close">${icon('close')}</button><small>IMERSÃO & ACESSIBILIDADE</small><h2>EFEITOS CRÍTICOS</h2><p>Escolha quais efeitos atmosféricos podem aparecer. As cores e bordas informativas de PV e PD continuam visíveis.</p>${row('pv','ESTADO CRÍTICO DE PV','Vinheta pulsante e batimento cardíaco sincronizado.')}${row('pd','ESTADO CRÍTICO DE PD','Escurecimento, vibração e formas paranormais.')}<h2 style="margin-top:22px">CRIAÇÃO DE FICHA</h2><div class="critical-setting-row"><span><b>TUTORIAL DE ORDEM PARANORMAL 1</b><small>Ao criar uma ficha, guia a escolha de aprimoramento, origem, atributos, perícias e poder geral.</small></span><button type="button" class="critical-effect-toggle ${appSettings.tutorialOriginal?'active':''}" data-app-setting="tutorialOriginal" aria-pressed="${appSettings.tutorialOriginal}"><i></i><em>${appSettings.tutorialOriginal?'ATIVO':'DESATIVADO'}</em></button></div></section></div>`}
 
 function getCardCost(card){
  if(card.cost !== undefined && card.cost !== null) {
@@ -1839,6 +1845,7 @@ function bind(){
  document.querySelector('[data-install-app]')?.addEventListener('click',requestAppInstall);
  document.querySelector('[data-critical-settings]')?.addEventListener('click',()=>document.querySelector('#critical-settings-modal')?.classList.add('open'));
  document.querySelectorAll('.critical-settings-close,.critical-settings-backdrop').forEach(el=>el.onclick=()=>document.querySelector('#critical-settings-modal')?.classList.remove('open'));
+ document.querySelectorAll('[data-app-setting]').forEach(button=>button.onclick=()=>{const key=button.dataset.appSetting;appSettings[key]=!appSettings[key];saveAppSettings();button.classList.toggle('active',appSettings[key]);button.setAttribute('aria-pressed',String(appSettings[key]));const label=button.querySelector('em');if(label)label.textContent=appSettings[key]?'ATIVO':'DESATIVADO'});
  document.querySelectorAll('[data-critical-effect]').forEach(button=>button.onclick=()=>{const key=button.dataset.criticalEffect;criticalEffects[key]=!criticalEffects[key];saveCriticalEffects();button.classList.toggle('active',criticalEffects[key]);button.setAttribute('aria-pressed',String(criticalEffects[key]));const label=button.querySelector('em');if(label)label.textContent=criticalEffects[key]?'ATIVO':'DESATIVADO';syncCriticalAtmosphere()});
  document.querySelectorAll('[data-field]').forEach(el=>el.onchange=e=>{if(presentationMode){notifyPresentationLocked();return;}const key=e.target.dataset.field;state[key]=key==='level'?Math.max(0,Number(e.target.value)||0):e.target.value;save(false);render()});
  document.querySelectorAll('[data-set-resource]').forEach(el=>el.onclick=()=>{if(presentationMode){notifyPresentationLocked();return;}const[key,val]=el.dataset.setResource.split(':'),previous=state[key];state[key]=state[key]===Number(val)?Number(val)-1:Number(val);if(key==='pv'||key==='pd')playResourceSound(state[key]>previous);save(false);updateResourceUi(key)});
@@ -1927,10 +1934,15 @@ function bind(){
       save(false);
       editMode=false;
       const currentMode=state.viewMode||'cinematic';
-      const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`,systemMode:mode,viewMode:currentMode});
+      // Ordem 1: toda ficha nova começa como Sobrevivente no Estágio 1.
+      const inicioOriginal=mode==='original'?{classeId:'sobrevivente',nex:0,trilhaId:'durao',atributos:{for:1,agi:1,vig:1,int:1,pre:1}}:{};
+      const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`,systemMode:mode,viewMode:currentMode,...inicioOriginal});
       sheets.push(sheet);
       state=sheet;
       activeSheetId=sheet.id;
+      if(mode==='original'&&appSettings.tutorialOriginal){
+       abrirTutorial(sheet,{onFinish:()=>{if(state===sheet){save(false);render();}}});
+      }else fecharTutorial();
       presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
       if(state.viewMode==='cinematic'){
        triggerGlitchTransition(()=>render());
