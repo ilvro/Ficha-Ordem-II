@@ -968,21 +968,17 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
         <section class="cinematic-left original-cinematic-left">
           <div class="ocin-attributes">
             <h2><span>ATRIBUTOS</span></h2>
-            <div class="ocin-attr-row ${editMode ? 'editing' : ''}">
+            <div class="ocin-attr-art ${editMode ? 'editing' : ''}">
+              <i class="ocin-attr-art-img" aria-hidden="true"></i>
               ${ATRIBUTOS.map(a => {
                 const val = state.atributos?.[a.id] ?? 1;
                 return `
-                  <div class="ocin-attr">
+                  <div class="ocin-attr ocin-attr-${a.id}">
+                    ${editMode ? `<button type="button" class="ocin-attr-step" data-attr-step="${a.id}:-1" aria-label="Diminuir ${safe(a.nome)}">◀</button>` : ''}
                     <button type="button" class="ocin-attr-die" data-original-roll-attr="${a.id}" title="Rolar ${safe(a.nome || a.abrev)}">
                       <b>${val}</b>
-                      <span>${a.abrev}</span>
                     </button>
-                    ${editMode ? `
-                      <div class="attr-stepper">
-                        <button type="button" data-attr-step="${a.id}:-1">◀</button>
-                        <button type="button" data-attr-step="${a.id}:1">▶</button>
-                      </div>
-                    ` : ''}
+                    ${editMode ? `<button type="button" class="ocin-attr-step" data-attr-step="${a.id}:1" aria-label="Aumentar ${safe(a.nome)}">▶</button>` : ''}
                   </div>
                 `;
               }).join('')}

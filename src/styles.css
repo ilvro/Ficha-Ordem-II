@@ -3010,21 +3010,24 @@ button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
 .ocin-attributes{flex:0 0 auto}
 .ocin-attributes>h2{transform:rotate(-1.5deg);font-style:italic}
 /* Atributos em hexágonos, dispostos nos vértices de um pentágono (sentido horário a partir do topo) */
-.ocin-attr-row{--r:clamp(62px,9.4vh,86px);--hw:calc(var(--r)*.74);--hh:calc(var(--hw)*1.14);position:relative;width:calc(var(--r)*1.902 + var(--hw));height:calc(var(--r)*1.809 + var(--hh));margin:12px auto 0}
-.ocin-attr-row.editing{margin-bottom:24px}
-.ocin-attr{--x:0;--y:-1;position:absolute;left:calc(50% + var(--x)*var(--r));top:calc(var(--r) + var(--hh)/2 + var(--y)*var(--r));width:var(--hw);height:var(--hh);transform:translate(-50%,-50%)}
-.ocin-attr:nth-child(2){--x:.951;--y:-.309}
-.ocin-attr:nth-child(3){--x:.588;--y:.809}
-.ocin-attr:nth-child(4){--x:-.588;--y:.809}
-.ocin-attr:nth-child(5){--x:-.951;--y:-.309}
-.ocin-attr-die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);position:relative;width:100%;height:100%;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:linear-gradient(180deg,#5a5c66 0%,#3c3d44 45%,var(--cinematic-accent) 100%);clip-path:var(--hex);cursor:pointer;transition:transform .15s ease,filter .15s ease}
-.ocin-attr-die::before{content:"";position:absolute;inset:2px;clip-path:var(--hex);background:#24252bf2;transition:background .15s ease}
-.ocin-attr-die:hover{transform:scale(1.07)}
-.ocin-attr-die:hover::before{background:color-mix(in srgb,var(--cinematic-accent),#24252b 70%)}
-.ocin-attr-die b{position:relative;font:800 calc(var(--r)*.32)/1 "Hanken Grotesk",sans-serif;color:#fff}
-.ocin-attr-die span{position:relative;font:700 calc(var(--r)*.14)/1 Georgia,"Times New Roman",serif;letter-spacing:.08em;color:#c9c5bf}
-.ocin-attr .attr-stepper{position:absolute;left:50%;top:calc(100% + 2px);transform:translateX(-50%);display:flex;gap:2px;white-space:nowrap}
-.ocin-attr .attr-stepper button{font-size:9px;padding:2px 7px}
+/* Atributos: arte oficial (hexágonos, sigilos e centro) pintada na cor tema
+   por máscara, com os valores posicionados dentro de cada hexágono. */
+.ocin-attr-art{position:relative;width:min(100%,clamp(220px,31vh,290px));aspect-ratio:1036/1044;margin:10px auto 0;container-type:inline-size}
+.ocin-attr-art-img{position:absolute;inset:0;background:var(--cinematic-accent);-webkit-mask:url("/assets/original/attributes-cinematic.png") center/contain no-repeat;mask:url("/assets/original/attributes-cinematic.png") center/contain no-repeat;pointer-events:none}
+.ocin-attr{position:absolute;display:flex;align-items:center;justify-content:center;gap:1px;transform:translate(-50%,-50%)}
+.ocin-attr-agi{top:17%;left:49.6%}
+.ocin-attr-for{top:39%;left:17%}
+.ocin-attr-int{top:39%;left:80.7%}
+.ocin-attr-pre{top:76.5%;left:28%}
+.ocin-attr-vig{top:77%;left:72.5%}
+.ocin-attr-die{padding:2px 6px;border:0;background:transparent;cursor:pointer;transition:transform .12s ease}
+.ocin-attr-die b{display:block;font:700 10cqw/1 Georgia,"Times New Roman",serif;font-variant-numeric:lining-nums;color:#fff;text-shadow:0 2px 6px #000c;transition:color .15s ease}
+.ocin-attr-die:hover{transform:scale(1.12)}
+.ocin-attr-die:hover b,.ocin-attr-die:focus-visible b{color:color-mix(in srgb,var(--cinematic-accent),white 45%)}
+.ocin-attr-die:focus-visible{outline:0}
+.ocin-attr-step{width:5.5cqw;height:7cqw;min-width:14px;min-height:18px;padding:0;border:0;border-radius:3px;background:transparent;color:#c9c5bf;font-size:max(8px,3.2cqw);line-height:1;cursor:pointer;transition:color .12s,background .12s}
+.ocin-attr-step:hover{color:#fff;background:color-mix(in srgb,var(--cinematic-accent),transparent 55%)}
+.ocin-attr-art.editing .ocin-attr-die{padding:2px 1px}
 .ocin-skills{flex:1;min-height:0;display:flex;flex-direction:column}
 .ocin-skills>h2{flex:0 0 auto;margin-bottom:10px;transform:rotate(-1deg)}
 .ocin-skills-grid{container-type:inline-size;flex:1;min-height:0;display:grid;grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--ocin-skill-rows,14),minmax(20px,31px));column-gap:16px;overflow-x:hidden;overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--cinematic-accent),transparent 35%) transparent}
