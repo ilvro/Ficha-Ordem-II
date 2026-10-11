@@ -22,6 +22,9 @@ import {
   aprimoramentoDeOrigemAtual,
   classeEhMundana,
   NEX_AUMENTO_ATRIBUTO,
+  ESTAGIO_MAX,
+  rotuloNivel,
+  trilhaLiberada,
   calcPvMax,
   calcPeMax,
   calcSanMax,
@@ -94,6 +97,8 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
 
   // Slider anda de 5 em 5; a última posição (100) representa NEX 99%.
   const nexSlider = nex >= 99 ? 100 : Math.max(0, Math.min(95, Math.round(nex / 5) * 5));
+  const mundana = classeEhMundana(classe);
+  const estagioPct = ((estagio - 1) / (ESTAGIO_MAX - 1)) * 100;
 
   const iconPv = getIconeRecurso('pv', pvAtual, pvMax);
   const iconPe = getIconeRecurso('pe', peAtual, peMax);
@@ -151,16 +156,26 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
             </div>
             <div class="dossier-field">
               <small>TRILHA</small>
+              ${trilhaLiberada(state) ? `
               <select data-original-field="trilhaId" ${editMode ? '' : 'disabled'} class="original-select">
                 ${trilhasList.map(t => `<option value="${t.id}" ${t.id === state.trilhaId ? 'selected' : ''}>${t.nome}</option>`).join('')}
-              </select>
+              </select>` : `
+              <select data-original-field="trilhaId" disabled class="original-select" title="A trilha ainda não pode ser escolhida">
+                <option value="${safe(state.trilhaId || '')}" selected>${mundana ? '— a partir do Estágio 2 —' : '— a partir de NEX 10% —'}</option>
+              </select>`}
             </div>
             <div class="dossier-field field-nex-control">
+              ${mundana ? `
+              <small>ESTÁGIO</small>
+              <div class="nex-slider-wrap">
+                <input type="range" min="1" max="${ESTAGIO_MAX}" step="1" data-original-field="estagio" value="${estagio}" class="original-nex-slider" style="--nex-pct:${estagioPct}%;${editMode ? '' : 'pointer-events:none;'}" ${editMode ? '' : 'tabindex="-1" aria-disabled="true"'}>
+                <span class="nex-badge-pill">${estagio}/${ESTAGIO_MAX}</span>
+              </div>` : `
               <small>NEX (NÍVEL DE EXPOSIÇÃO)</small>
               <div class="nex-slider-wrap">
-                <input type="range" min="0" max="100" step="5" data-original-field="nex" value="${nexSlider}" class="original-nex-slider" style="--nex-pct:${nexSlider}%;${editMode ? '' : 'pointer-events:none;'}" ${editMode ? '' : 'tabindex="-1" aria-disabled="true"'}>
+                <input type="range" min="5" max="100" step="5" data-original-field="nex" value="${nexSlider}" class="original-nex-slider" style="--nex-pct:${nexSlider}%;${editMode ? '' : 'pointer-events:none;'}" ${editMode ? '' : 'tabindex="-1" aria-disabled="true"'}>
                 <span class="nex-badge-pill">${nex}%</span>
-              </div>
+              </div>`}
             </div>
           </div>
 
@@ -712,7 +727,7 @@ function renderTrilhas(state, editMode) {
   const cards = alvo => itens.filter(i => i.alvo === alvo).map(i => `
     <div class="original-card progression-card">
       <div class="card-head">
-        <span class="nex-tag">NEX ${i.poder.nex}%</span>
+        <span class="nex-tag">${safe(rotuloNivel(state, i.poder.nex).toUpperCase())}</span>
         <strong>${safe(i.poder.nome)}</strong>
       </div>
       <span class="card-meta">${safe(i.trilhaObj.nome)}</span>
@@ -720,7 +735,10 @@ function renderTrilhas(state, editMode) {
     </div>
   `).join('');
 
-  let html = `<div class="progression-cards">${cards('principal') || '<p class="empty-cards">Nenhuma habilidade de trilha destravada no NEX atual.</p>'}</div>`;
+  const semTrilha = trilhaLiberada(state)
+    ? 'Nenhuma habilidade de trilha destravada ainda.'
+    : (classeEhMundana(classe) ? 'A trilha é escolhida no Estágio 2.' : 'A trilha é escolhida em NEX 10%.');
+  let html = `<div class="progression-cards">${cards('principal') || `<p class="empty-cards">${semTrilha}</p>`}</div>`;
   if (!extras) return html;
 
   html += `
@@ -763,14 +781,14 @@ function renderProgressionList(state, editMode = false) {
   };
 
   const list = (classe.tabelaNex || []).filter(item => item.nex <= nex);
-  if (!list.length) return '<p class="empty-cards">Nenhuma habilidade destravada no NEX atual.</p>';
+  if (!list.length) return '<p class="empty-cards">Nenhuma habilidade destravada ainda.</p>';
 
   return `
     <div class="progression-cards">
       ${list.map(item => `
         <div class="original-card progression-card">
           <div class="card-head">
-            <span class="nex-tag">NEX ${item.nex}%</span>
+            <span class="nex-tag">${safe(rotuloNivel(state, item.nex).toUpperCase())}</span>
             <strong>${safe(item.texto)}</strong>
           </div>${aumentoSelect(item)}
         </div>
@@ -814,9 +832,13 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                 ${Object.keys(CLASSES).map(cId => `<option value="${cId}" ${cId === state.classeId ? 'selected' : ''}>${CLASSES[cId].nome}</option>`).join('')}
               </select>
               <i></i>
+              ${classeEhMundana(classe) ? `
+              <em>ESTÁGIO</em>
+              <input type="number" data-original-field="estagio" value="${estagioAtual(state)}" min="1" max="${ESTAGIO_MAX}" step="1" inputmode="numeric">
+              ` : `
               <em>NEX</em>
-              <input type="number" data-original-field="nex" value="${nex}" min="0" max="99" step="5" inputmode="numeric">
-              <em>%</em>
+              <input type="number" data-original-field="nex" value="${nex}" min="5" max="99" step="5" inputmode="numeric">
+              <em>%</em>`}
             </div>
           ` : `
             <div class="cinematic-identity-read ocin-identity">
@@ -824,8 +846,9 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
               <i></i>
               <span>${safe(origem.nome)}</span>
               <i></i>
-              <em>NEX</em>
-              <b>${nex}%</b>
+              ${classeEhMundana(classe) ? `<em>ESTÁGIO</em>
+              <b>${estagioAtual(state)}</b>` : `<em>NEX</em>
+              <b>${nex}%</b>`}
             </div>
           `}
         </header>

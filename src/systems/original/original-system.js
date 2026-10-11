@@ -102,6 +102,36 @@ export function snapNex(value) {
   return n > 95 ? 99 : Math.round(n / 5) * 5;
 }
 
+// Sobreviventes não têm NEX: evoluem em estágios (1 a 5). Internamente o
+// estágio N é guardado como nex = (N - 1) * 5, alinhado à tabelaNex da classe.
+export const ESTAGIO_MAX = 5;
+
+export function nexDoEstagio(estagio) {
+  return (Math.max(1, Math.min(ESTAGIO_MAX, Math.round(Number(estagio) || 1))) - 1) * 5;
+}
+
+// Mantém o NEX dentro da faixa da classe: estágios 1–5 para sobreviventes,
+// NEX 5%–99% para as demais (quem deixa de ser sobrevivente vira NEX 5%).
+export function ajustarNexDaClasse(sheet) {
+  const c = classeAtual(sheet);
+  const nex = Number(sheet.nex) || 0;
+  if (classeEhMundana(c)) sheet.nex = nexDoEstagio(Math.floor(nex / 5) + 1);
+  else sheet.nex = Math.max(5, snapNex(nex));
+  return sheet.nex;
+}
+
+// "Estágio 3" para sobreviventes, "NEX 40%" para as demais classes.
+export function rotuloNivel(sheet, nex = sheet.nex) {
+  const n = Number(nex) || 0;
+  return classeEhMundana(classeAtual(sheet)) ? `Estágio ${Math.floor(n / 5) + 1}` : `NEX ${n}%`;
+}
+
+// A trilha só é escolhida em NEX 10% (sobreviventes: no 2º estágio).
+export function trilhaLiberada(sheet) {
+  const nex = Number(sheet.nex) || 0;
+  return nex >= (classeEhMundana(classeAtual(sheet)) ? nexDoEstagio(2) : TIERS_TRILHA[0]);
+}
+
 export function passosNex(sheet) {
   const c = classeAtual(sheet);
   const nexBase = (c && typeof c.nexBase === 'number') ? c.nexBase : 5;
@@ -120,7 +150,7 @@ export function origemAtual(sheet) {
 
 export function trilhaAtual(sheet) {
   const c = classeAtual(sheet);
-  if (!c || !c.trilhas) return null;
+  if (!c || !c.trilhas || !trilhaLiberada(sheet)) return null;
   return c.trilhas.find(t => t.id === sheet.trilhaId) || c.trilhas[0] || null;
 }
 
@@ -401,6 +431,7 @@ export function normalizeOriginalSheet(raw = {}) {
   sheet.aumentosAtributo = (raw.aumentosAtributo && typeof raw.aumentosAtributo === 'object') ? { ...raw.aumentosAtributo } : {};
   delete sheet.trilhaTierAtribuicoes;
   sheet.nex = Math.max(0, Math.min(99, Number(raw.nex ?? 5)));
+  ajustarNexDaClasse(sheet);
 
   sheet.maxPv = calcPvMax(sheet);
   sheet.pv = raw.pv !== undefined ? Number(raw.pv) : sheet.maxPv;

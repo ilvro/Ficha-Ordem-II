@@ -12,7 +12,10 @@ import {
   calcPeMax as originalCalcPeMax,
   calcSanMax as originalCalcSanMax,
   calcDtRituais as originalCalcDtRituais,
-  snapNex
+  snapNex,
+  nexDoEstagio,
+  ajustarNexDaClasse,
+  rotuloNivel
 } from './systems/original/original-system.js';
 import {
   renderTraditionalOriginal,
@@ -586,9 +589,9 @@ function renderPresentationDock(){
   return `<span class="cp-stat-pill">FÍS <b>${s.attributes?.['Físico']||4}</b></span><span class="cp-stat-pill">MEN <b>${s.attributes?.['Mente']||4}</b></span><span class="cp-stat-pill">EMO <b>${s.attributes?.['Emoção']||4}</b></span><span class="cp-res-pill pv">PV ${s.pv}/${s.maxPv}</span><span class="cp-res-pill pd">PD ${s.pd}/${s.maxPd}</span>`;
  };
 
- const getSub = (s) => s.systemMode === 'original' ? `${safe(classeAtual(s).nome)} · NEX ${s.nex || 5}%` : `${safe(s.occupation||'Investigador')} · ${safe(s.profile)}`;
+ const getSub = (s) => s.systemMode === 'original' ? `${safe(classeAtual(s).nome)} · ${rotuloNivel(s)}` : `${safe(s.occupation||'Investigador')} · ${safe(s.profile)}`;
  const getProfileTag = (s) => s.systemMode === 'original' ? 'ORDEM RPG' : safe(s.profile);
- const getLevelTag = (s) => s.systemMode === 'original' ? `NEX ${s.nex || 5}%` : `NV ${s.level||1}`;
+ const getLevelTag = (s) => s.systemMode === 'original' ? rotuloNivel(s).toUpperCase() : `NV ${s.level||1}`;
 
  return `<section class="cinematic-presentation-dock" style="--agent-accent:${currAccent}"><header class="cp-dock-top"><span class="cp-dock-badge">${icon('dossier',11)} SELEÇÃO DE RECEPTÁCULO</span><span class="cp-dock-hint"><kbd>←</kbd> <kbd>→</kbd> Navegar · <b>Duplo clique</b> para Confirmar</span><span class="cp-dock-counter">${currIdx+1} / ${total}</span></header><div class="cp-dock-carousel ${dirClass}" id="presentation-stage" style="--prev-accent:${prevAccent};--curr-accent:${currAccent};--next-accent:${nextAccent};">${hasMultiple?`<button type="button" class="cp-arrow prev" data-presentation-prev title="Receptáculo anterior (←)">${icon('chevron-left',18)}</button><article class="cp-card card-side card-prev" data-presentation-pick="${prevIdx}" style="--agent-accent:${prevAccent}" title="Ver ${safe(prevSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">ANTERIOR</span><span class="cp-card-profile ${prevSheet.systemMode==='original'?'original':''}">${getProfileTag(prevSheet)}</span></div><div class="cp-card-thumb">${prevSheet.tokenImage?`<img src="${safeUrl(prevSheet.tokenImage)}" alt="${safe(prevSheet.name)}">`:`<div class="cp-avatar-ph">${safe((prevSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(prevSheet.name)}</strong><small>${getSub(prevSheet)}</small></div></article>`:''}<article class="cp-card card-curr ${presentationLockingIn?'locking-in':''}" data-presentation-curr style="--agent-accent:${currAccent}"><div class="cp-card-topbar"><span class="cp-card-tag" title="Duplo clique para confirmar receptáculo">DUPLO CLIQUE PARA CONFIRMAR</span><span class="cp-card-profile ${currSheet.systemMode==='original'?'original':''}">${getProfileTag(currSheet)}</span></div><div class="cp-card-thumb">${currSheet.tokenImage?`<img src="${safeUrl(currSheet.tokenImage)}" alt="${safe(currSheet.name)}">`:`<div class="cp-avatar-ph">${safe((currSheet.name||'?').slice(0,1))}</div>`}${presentationLockingIn?`<div class="pcard-lockin-overlay"><div class="pcard-lockin-stamp"><strong>✓ RECEPTÁCULO CONFIRMADO</strong><small>SINCRONIZANDO FICHA...</small></div></div>`:''}</div><div class="cp-card-summary"><div class="cp-summary-header"><strong>${safe(currSheet.name)}</strong><span class="cp-level-badge">${getLevelTag(currSheet)}</span></div><small>${getSub(currSheet)}</small><div class="cp-pill-row ${currSheet.systemMode==='original'?'original-pills':''}">${renderPills(currSheet)}</div><button type="button" class="btn-select-cp-agent" data-confirm-agent="${currSheet.id}" title="Confirmar receptáculo (Duplo clique ou Enter)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span>CONFIRMAR RECEPTÁCULO</span></button></div></article>${hasMultiple?`<article class="cp-card card-side card-next" data-presentation-pick="${nextIdx}" style="--agent-accent:${nextAccent}" title="Ver ${safe(nextSheet.name)}"><div class="cp-card-topbar"><span class="cp-card-tag">PRÓXIMO</span><span class="cp-card-profile ${nextSheet.systemMode==='original'?'original':''}">${getProfileTag(nextSheet)}</span></div><div class="cp-card-thumb">${nextSheet.tokenImage?`<img src="${safeUrl(nextSheet.tokenImage)}" alt="${safe(nextSheet.name)}">`:`<div class="cp-avatar-ph">${safe((nextSheet.name||'?').slice(0,1))}</div>`}</div><div class="cp-card-summary"><strong>${safe(nextSheet.name)}</strong><small>${getSub(nextSheet)}</small></div></article><button type="button" class="cp-arrow next" data-presentation-next title="Próximo receptáculo (→)">${icon('chevron-right',18)}</button>`:''}</div></section>`;
 }
@@ -940,6 +943,9 @@ function collectActiveInputs(){
   if(key&&el.value!==undefined){
    if(key==='nex'){
     state.nex=snapNex(el.value);
+    ajustarNexDaClasse(state);
+   }else if(key==='estagio'){
+    state.nex=nexDoEstagio(el.value);
    }else if(['defesaOutros','pvTemp','peTemp','sanTemp'].includes(key)){
     state[key]=Number(el.value)||0;
    }else{
@@ -1971,11 +1977,14 @@ function bind(){
   if(nexRange){
    nexRange.oninput=()=>{
     const pill=document.querySelector('.field-nex-control .nex-badge-pill');
-    if(pill) pill.textContent=`${snapNex(nexRange.value)}%`;
-    nexRange.style.setProperty('--nex-pct',`${Number(nexRange.value)||0}%`);
+    const porEstagio=nexRange.dataset.originalField==='estagio';
+    const min=Number(nexRange.min)||0,max=Number(nexRange.max)||100,val=Number(nexRange.value)||0;
+    if(pill) pill.textContent=porEstagio?`${val}/${max}`:`${snapNex(val)}%`;
+    nexRange.style.setProperty('--nex-pct',`${porEstagio?((val-min)/(max-min))*100:val}%`);
    };
    nexRange.onchange=()=>{
-    state.nex=snapNex(nexRange.value);
+    if(nexRange.dataset.originalField==='estagio') state.nex=nexDoEstagio(nexRange.value);
+    else{state.nex=snapNex(nexRange.value);ajustarNexDaClasse(state);}
     save(false);
     render();
    };
@@ -2197,6 +2206,9 @@ function bind(){
     const key=e.target.dataset.originalField;
     if(key==='nex'){
      state.nex=snapNex(e.target.value);
+     ajustarNexDaClasse(state);
+    }else if(key==='estagio'){
+     state.nex=nexDoEstagio(e.target.value);
     }else if(['defesaOutros','pvTemp','peTemp','sanTemp'].includes(key)){
      state[key]=Number(e.target.value)||0;
     }else{
@@ -2207,6 +2219,7 @@ function bind(){
      state.trilhaId=cls.trilhas?.[0]?.id||'';
      state.trilhaSecundariaId='';
      state.trilhaTerciariaId='';
+     ajustarNexDaClasse(state);
     }
     if(key==='trilhaId'){
      if(state.trilhaSecundariaId===state.trilhaId) state.trilhaSecundariaId='';
