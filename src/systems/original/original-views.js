@@ -678,7 +678,7 @@ function renderProgressionList(state) {
 }
 
 export function renderCinematicOriginal(state, editMode, options = {}) {
-  const { safeUrl, renderBackgroundLayer, presentationMode, renderPresentationDock, pageClass = '', accent = '#e0150d', resourceShift = 120 } = options;
+  const { safeUrl, renderBackgroundLayer, presentationMode, renderPresentationDock, die, pageClass = '', accent = '#e0150d', resourceShift = 120 } = options;
   const bgIsVideo = !!(state.backgroundImage && state.backgroundImage.startsWith('data:video/'));
 
   const origem = origemAtual(state) || ORIGENS[0];
@@ -732,14 +732,14 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
         <section class="cinematic-left original-cinematic-left">
           <div class="ocin-attributes">
             <h2><span>ATRIBUTOS</span></h2>
-            <div class="ocin-attr-row">
+            <div class="ocin-attr-row ${editMode ? 'editing' : ''}">
               ${ATRIBUTOS.map(a => {
                 const val = state.atributos?.[a.id] ?? 1;
                 return `
                   <div class="ocin-attr">
-                    <span>${a.abrev}</span>
                     <button type="button" class="ocin-attr-die" data-original-roll-attr="${a.id}" title="Rolar ${safe(a.nome || a.abrev)}">
                       <b>${val}</b>
+                      <span>${a.abrev}</span>
                     </button>
                     ${editMode ? `
                       <div class="attr-stepper">
@@ -765,7 +765,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                 return `
                   <div class="ocin-skill treino-${treinoClass}" data-roll-skill="${p.id}" role="button" tabindex="0" title="${safe(p.nome)} · ${attrVal > 0 ? `${attrVal}d20` : '2d20 (menor)'} ${total >= 0 ? '+' : '−'}${Math.abs(total)}">
                     <span class="ocin-skill-name">${safe(p.nome)}</span>
-                    <em>${p.atributo.toUpperCase()}</em>
+                    <em class="ocin-skill-dice ${attrVal > 0 ? '' : 'pior'}"><small>${p.atributo.toUpperCase()}</small><span>${die(20, 'ocin-skill-die').repeat(attrVal > 0 ? attrVal : 2)}</span>${attrVal > 0 ? '' : '<i>▾</i>'}</em>
                     <b>${total >= 0 ? '+' : '−'}${Math.abs(total)}</b>
                   </div>
                 `;

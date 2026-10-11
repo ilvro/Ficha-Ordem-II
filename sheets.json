@@ -531,7 +531,7 @@
     "backgroundBlur": 0,
     "backgroundZoom": 100,
     "diceColor": "",
-    "viewMode": "traditional",
+    "viewMode": "cinematic",
     "cinematicTokenX": 44.82931280656319,
     "cinematicTokenY": 58.75696009453432,
     "cinematicTokenScale": 100,
@@ -2080,8 +2080,8 @@
     "name": "AGENTE 9",
     "jogador": "",
     "origemId": "acadêmico",
-    "classeId": "ocultista",
-    "trilhaId": "conduite",
+    "classeId": "combatente",
+    "trilhaId": "agente-secreto",
     "trilhaSecundariaId": "",
     "trilhaTerciariaId": "",
     "trilhaTierAtribuicoes": {},
@@ -2093,12 +2093,12 @@
       "int": 1,
       "pre": 1
     },
-    "pv": 8,
-    "maxPv": 18,
+    "pv": 18,
+    "maxPv": 22,
     "pvTemp": 0,
     "pvMarcas": 0,
     "pe": 5,
-    "maxPe": 5,
+    "maxPe": 3,
     "peTemp": 0,
     "san": 12,
     "maxSan": 12,
@@ -2112,15 +2112,15 @@
         "extra": 0
       },
       "adestramento": {
-        "treino": 0,
+        "treino": 5,
         "extra": 0
       },
       "artes": {
-        "treino": 0,
+        "treino": 5,
         "extra": 0
       },
       "atletismo": {
-        "treino": 0,
+        "treino": 5,
         "extra": 0
       },
       "atualidades": {
@@ -2132,11 +2132,11 @@
         "extra": 0
       },
       "crime": {
-        "treino": 0,
+        "treino": 10,
         "extra": 0
       },
       "diplomacia": {
-        "treino": 0,
+        "treino": 10,
         "extra": 0
       },
       "enganacao": {
@@ -2148,7 +2148,7 @@
         "extra": 0
       },
       "furtividade": {
-        "treino": 0,
+        "treino": 5,
         "extra": 0
       },
       "intimidacao": {
@@ -2231,7 +2231,7 @@
     "backgroundBlur": 0,
     "backgroundZoom": 100,
     "diceColor": "",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 50,
     "cinematicTokenY": 52,
     "cinematicTokenScale": 100,
