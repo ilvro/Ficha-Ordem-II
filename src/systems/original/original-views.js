@@ -875,6 +875,10 @@ function renderProgressionList(state, editMode = false) {
   `;
 }
 
+// Na lista de perícias cinematográfica a coluna de dados tem largura fixa;
+// acima deste número de dados mostra-se um dado com "×N".
+const OCIN_DADOS_MAX = 3;
+
 export function renderCinematicOriginal(state, editMode, options = {}) {
   const { safeUrl, renderBackgroundLayer, presentationMode, renderPresentationDock, die, pageClass = '', accent = '#e0150d', resourceShift = 120 } = options;
   const bgIsVideo = !!(state.backgroundImage && state.backgroundImage.startsWith('data:video/'));
@@ -968,7 +972,7 @@ export function renderCinematicOriginal(state, editMode, options = {}) {
                 return `
                   <div class="ocin-skill treino-${treinoClass}" data-roll-skill="${p.id}" role="button" tabindex="0" title="${safe(p.nome)} · ${attrVal > 0 ? `${attrVal}d20` : '2d20 (menor)'} ${total >= 0 ? '+' : '−'}${Math.abs(total)}">
                     <span class="ocin-skill-name">${safe(p.nome)}</span>
-                    <em class="ocin-skill-dice ${attrVal > 0 ? '' : 'pior'}"><small>${p.atributo.toUpperCase()}</small><span>${die(20, 'ocin-skill-die').repeat(attrVal > 0 ? attrVal : 2)}</span>${attrVal > 0 ? '' : '<i>▾</i>'}</em>
+                    <em class="ocin-skill-dice ${attrVal > 0 ? '' : 'pior'}"><small>${p.atributo.toUpperCase()}</small><span>${attrVal > OCIN_DADOS_MAX ? `${die(20, 'ocin-skill-die')}<i class="vezes">×${attrVal}</i>` : die(20, 'ocin-skill-die').repeat(attrVal > 0 ? attrVal : 2)}${attrVal > 0 ? '' : '<i>▾</i>'}</span></em>
                     <b>${total >= 0 ? '+' : '−'}${Math.abs(total)}</b>
                   </div>
                 `;

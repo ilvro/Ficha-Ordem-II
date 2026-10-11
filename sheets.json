@@ -2463,7 +2463,7 @@
     "cinematicCollapsed": {
       "abilities": false,
       "combat": false,
-      "rituals": false,
+      "rituals": true,
       "items": true,
       "history": true
     },
