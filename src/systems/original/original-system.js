@@ -194,7 +194,7 @@ export function poderesDisponiveis(sheet) {
   const c = classeAtual(sheet);
   const ja = new Set((sheet.poderesEscolhidos || []).map(p => p.nome));
   const daClasse = (c?.poderes || [])
-    .filter(p => (p.repetivel || !ja.has(p.nome)) && poderValeNaRegra(p, sheet))
+    .filter(p => (p.repetivel || !ja.has(p.nome)) && poderPodeSerEscolhido(p, sheet))
     .map(p => ({ label: p.nome, nome: p.nome, descricao: p.descricao, preRequisito: p.preRequisito, origemTipo: `Poder de ${c.nome}`, bonus: p.bonus || null }));
   const gerais = PODERES_GERAIS
     .filter(p => !ja.has(p.nome))
@@ -340,6 +340,15 @@ export function usaPD(sheet) {
 // Poderes marcados com "regra" só valem em uma das regras de recursos.
 export function poderValeNaRegra(poder, sheet) {
   return !poder.regra || poder.regra === (usaPD(sheet) ? 'pd' : 'pesan');
+}
+
+// Um poder de classe pode ser escolhido se vale na regra da ficha e se ela
+// ainda não tem outro poder do mesmo "grupoUnico".
+export function poderPodeSerEscolhido(poder, sheet) {
+  if (!poderValeNaRegra(poder, sheet)) return false;
+  if (!poder.grupoUnico) return true;
+  const doGrupo = new Set((classeAtual(sheet).poderes || []).filter(p => p.grupoUnico === poder.grupoUnico).map(p => p.nome));
+  return !(sheet.poderesEscolhidos || []).some(p => doGrupo.has(p.nome));
 }
 
 // Troca a regra de recursos da ficha. Com PD, Sanidade Aprimorada e Esforço

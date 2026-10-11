@@ -2183,13 +2183,15 @@ const CLASSES = {
     // "Poder Geral" inicial (escolha 1) + Poder Geral mundano avulso — usados
     // através do mesmo seletor de poderes de classe da aba Habilidades.
     poderes: [
-      { nome: "Saúde Aprimorada", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PV iniciais." },
+      { nome: "Saúde Aprimorada", preRequisito: null, grupoUnico: "aprimoramento", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PV iniciais." },
+      // "grupoUnico": a ficha só pode ter UM poder de cada grupo (o
+      // aprimoramento inicial do sobrevivente é uma escolha única).
       // "regra": só existe na regra de recursos indicada — "pesan" (PE e
       // Sanidade) ou "pd" (Pontos de Determinação, onde os dois viram um só).
-      { nome: "Sanidade Aprimorada", preRequisito: null, regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 SAN iniciais." },
-      { nome: "Esforço Aprimorado", preRequisito: null, regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PE iniciais." },
-      { nome: "Determinação Aprimorada", preRequisito: null, regra: "pd", descricao: "Habilidade inicial (escolha 1 entre as 3). Você recebe +3 PD iniciais." },
-      { nome: "Treinamento Aprimorado", preRequisito: null, descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe uma quantidade de perícias treinadas igual ao seu Intelecto." },
+      { nome: "Sanidade Aprimorada", preRequisito: null, grupoUnico: "aprimoramento", regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 SAN iniciais." },
+      { nome: "Esforço Aprimorado", preRequisito: null, grupoUnico: "aprimoramento", regra: "pesan", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe +5 PE iniciais." },
+      { nome: "Determinação Aprimorada", preRequisito: null, grupoUnico: "aprimoramento", regra: "pd", descricao: "Habilidade inicial (escolha 1 entre as 3). Você recebe +3 PD iniciais." },
+      { nome: "Treinamento Aprimorado", preRequisito: null, grupoUnico: "aprimoramento", descricao: "Habilidade inicial (escolha 1 entre as 4). Você recebe uma quantidade de perícias treinadas igual ao seu Intelecto." },
     ],
 
     trilhas: [
