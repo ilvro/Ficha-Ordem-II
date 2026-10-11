@@ -39,6 +39,8 @@ const TABS = [
 let ctx = null;
 let overlay = null;
 const ui = { tab: 'origens', busca: '', elemento: 'todos', circulo: 'todos', grupo: 'todos', pick: false };
+// Classes e trilhas recolhidas na aba "Classes & Trilhas" (chaves de collapseKey).
+const collapsed = new Set();
 
 // options: { getSheet, isOriginal, isLocked, onChange }
 export function initOriginalCompendium(options) {
@@ -109,10 +111,19 @@ function ensureOverlay() {
   });
 
   overlay.addEventListener('click', e => {
-    const el = e.target.closest('[data-oc-close],[data-oc-tab],[data-oc-el],[data-oc-circ],[data-oc-grupo],[data-oc-add]');
+    const el = e.target.closest('[data-oc-close],[data-oc-tab],[data-oc-el],[data-oc-circ],[data-oc-grupo],[data-oc-add],[data-oc-toggle]');
     if (!el) return;
     if (el.hasAttribute('data-oc-close')) { closeOriginalCompendium(); return; }
     if (el.dataset.ocAdd) { addToSheet(el.dataset.ocAdd); return; }
+    if (el.dataset.ocToggle) {
+      const key = el.dataset.ocToggle;
+      if (collapsed.has(key)) collapsed.delete(key); else collapsed.add(key);
+      const body = overlay.querySelector('.oc-body');
+      const scroll = body.scrollTop;
+      renderCompendium();
+      body.scrollTop = scroll;
+      return;
+    }
     if (el.dataset.ocTab) {
       ui.tab = el.dataset.ocTab;
       ui.elemento = 'todos';
@@ -215,6 +226,17 @@ function renderOrigens(bate) {
   };
 }
 
+// Cabeçalho clicável com seta, que recolhe/expande uma classe ou trilha.
+function collapseHead(key, titleHtml, metaHtml = '') {
+  const isCollapsed = collapsed.has(key);
+  return `
+    <button type="button" class="card-head oc-collapse-head" data-oc-toggle="${safe(key)}" aria-expanded="${!isCollapsed}">
+      <span class="oc-collapse-title"><i class="oc-arrow" aria-hidden="true"></i>${titleHtml}</span>
+      ${metaHtml}
+    </button>
+  `;
+}
+
 function renderClasses(bate) {
   let count = 0;
   const html = Object.values(CLASSES).map(c => {
@@ -222,29 +244,34 @@ function renderClasses(bate) {
     const trilhas = (c.trilhas || []).filter(t => classeBate || bate(t.nome) || (t.poderes || []).some(p => bate(p.nome)));
     if (!classeBate && !trilhas.length) return '';
     count += 1;
+    const classeKey = `classe:${c.nome}`;
     return `
-      <article class="original-card oc-card">
-        <div class="card-head">
-          <strong class="oc-title">${safe(c.nome)}</strong>
-          <span class="card-meta">${c.mundano ? 'Estágio 1–5' : `NEX ${c.nexBase || 5}%–99%`}</span>
-        </div>
-        ${c.resumo || c.descricao ? `<p class="card-desc">${safe(c.resumo || c.descricao)}</p>` : ''}
-        <h4 class="oc-subtitle">TRILHAS</h4>
-        ${trilhas.map(t => `
-          <div class="oc-sub">
-            <div class="card-head"><strong>${safe(t.nome)}</strong></div>
-            ${t.descricao ? `<p class="card-desc">${safe(t.descricao)}</p>` : ''}
-            ${(t.poderes || []).map(p => `
-              <div class="oc-trail-power">
-                <div class="card-head">
-                  <span><span class="nex-tag">${c.mundano ? `ESTÁGIO ${Math.floor(p.nex / 5) + 1}` : `NEX ${p.nex}%`}</span> <strong>${safe(p.nome)}</strong></span>
-                  ${bonusBadge(p.bonus)}
-                </div>
-                <p class="card-desc">${safe(p.descricao)}</p>
+      <article class="original-card oc-card ${collapsed.has(classeKey) ? 'collapsed' : ''}">
+        ${collapseHead(classeKey, `<strong class="oc-title">${safe(c.nome)}</strong>`, `<span class="card-meta">${c.mundano ? 'Estágio 1–5' : `NEX ${c.nexBase || 5}%–99%`}</span>`)}
+        ${collapsed.has(classeKey) ? '' : `
+          ${c.resumo || c.descricao ? `<p class="card-desc">${safe(c.resumo || c.descricao)}</p>` : ''}
+          <h4 class="oc-subtitle">TRILHAS</h4>
+          ${trilhas.map(t => {
+            const trilhaKey = `trilha:${c.nome}/${t.nome}`;
+            return `
+              <div class="oc-sub ${collapsed.has(trilhaKey) ? 'collapsed' : ''}">
+                ${collapseHead(trilhaKey, `<strong>${safe(t.nome)}</strong>`)}
+                ${collapsed.has(trilhaKey) ? '' : `
+                  ${t.descricao ? `<p class="card-desc">${safe(t.descricao)}</p>` : ''}
+                  ${(t.poderes || []).map(p => `
+                    <div class="oc-trail-power">
+                      <div class="card-head">
+                        <span><span class="nex-tag">${c.mundano ? `ESTÁGIO ${Math.floor(p.nex / 5) + 1}` : `NEX ${p.nex}%`}</span> <strong>${safe(p.nome)}</strong></span>
+                        ${bonusBadge(p.bonus)}
+                      </div>
+                      <p class="card-desc">${safe(p.descricao)}</p>
+                    </div>
+                  `).join('')}
+                `}
               </div>
-            `).join('')}
-          </div>
-        `).join('') || emptyNote('Nenhuma trilha encontrada.')}
+            `;
+          }).join('') || emptyNote('Nenhuma trilha encontrada.')}
+        `}
       </article>
     `;
   }).join('');
