@@ -17,10 +17,16 @@ const TREINADO = 5;
 
 let atual = null;
 
-export function fecharTutorial() {
+const DURACAO_SAIDA = 180;
+
+// `animado`: deixa a janela sair com a animação de fechamento antes de removê-la.
+export function fecharTutorial(animado = false) {
   if (!atual) return;
-  atual.el.remove();
+  const { el } = atual;
   atual = null;
+  if (!animado) { el.remove(); return; }
+  el.classList.add('closing');
+  setTimeout(() => el.remove(), DURACAO_SAIDA);
 }
 
 const aprimoramentos = () => CLASSES.sobrevivente.poderes;
@@ -119,7 +125,7 @@ function renderAtributos(d) {
         const podeDescer = v > 0 && (v > 1 || !temZero);
         const podeSubir = v < ATRIBUTO_MAX_CRIACAO && resto > 0;
         return `
-          <div class="wiz-attr">
+          <div class="wiz-attr" data-attr="${a.id}">
             <small>${safe(a.abrev)}</small>
             <span>${safe(a.nome)}</span>
             <div class="wiz-attr-step">
@@ -180,22 +186,29 @@ function renderPoderGeral(d) {
 
 const RENDER = [renderAprimoramento, renderOrigem, renderAtributos, renderPericias, renderPoderGeral];
 
+// O conteúdo é redesenhado a cada interação, então as animações são aplicadas
+// só ao que acabou de mudar: a troca de passo (com direção) e o item tocado.
 function desenhar() {
   const { el, d } = atual;
   const ultimo = d.passo === PASSOS.length - 1;
+  const anterior = atual.passoDesenhado;
+  const mudouPasso = anterior !== d.passo;
+  const { fx } = atual;
+  atual.passoDesenhado = d.passo;
+  atual.fx = null;
   // Preserva o campo de busca e a rolagem das listas entre os redesenhos.
   const foco = el.querySelector('[data-wiz-busca]:focus');
   const cursor = foco ? foco.selectionStart : null;
   const rolagem = el.querySelector('.wiz-list')?.scrollTop || 0;
   el.querySelector('section').innerHTML = `
-    <header class="wiz-head">
+    <header class="wiz-head ${mudouPasso ? 'fx-step' : ''}">
       <small>NOVA FICHA · PASSO ${d.passo + 1} DE ${PASSOS.length}</small>
       <h2>${safe(PASSOS[d.passo])}</h2>
       <ol class="wiz-steps">
         ${PASSOS.map((nome, i) => `<li class="${i === d.passo ? 'current' : ''} ${i < d.passo ? 'done' : ''}"><button type="button" data-wiz-ir="${i}" ${i <= d.passo ? '' : 'disabled'} title="${safe(nome)}"><i>${i + 1}</i><span>${safe(nome)}</span></button></li>`).join('')}
       </ol>
     </header>
-    <div class="wiz-body">${RENDER[d.passo](d)}</div>
+    <div class="wiz-body ${mudouPasso && anterior !== undefined ? (d.passo > anterior ? 'fx-next' : 'fx-prev') : ''}">${RENDER[d.passo](d)}</div>
     <footer class="wiz-foot">
       <button type="button" class="wiz-skip" data-wiz-pular>Pular tutorial</button>
       <span></span>
@@ -203,7 +216,8 @@ function desenhar() {
       <button type="button" class="wiz-next" data-wiz-avancar ${passoValido(d, d.passo) ? '' : 'disabled'}>${ultimo ? 'CRIAR PERSONAGEM' : 'CONTINUAR'}</button>
     </footer>`;
   const lista = el.querySelector('.wiz-list');
-  if (lista) lista.scrollTop = rolagem;
+  if (lista && !mudouPasso) lista.scrollTop = rolagem;
+  (fx || []).forEach(seletor => el.querySelectorAll(seletor).forEach(alvo => alvo.classList.add('fx-pick')));
   if (foco) {
     const novo = el.querySelector(`[data-wiz-busca="${foco.dataset.wizBusca}"]`);
     if (novo) { novo.focus(); novo.setSelectionRange(cursor, cursor); }
@@ -227,7 +241,7 @@ function concluir() {
   sheet.pv = calcPvMax(sheet);
   sheet.pe = calcPeMax(sheet);
   sheet.san = calcSanMax(sheet);
-  fecharTutorial();
+  fecharTutorial(true);
   onFinish?.();
 }
 
@@ -235,19 +249,21 @@ function aoClicar(e) {
   const { d } = atual;
   const alvo = sel => e.target.closest(sel);
   let b;
-  if ((b = alvo('[data-wiz-aprimoramento]'))) { d.aprimoramento = b.dataset.wizAprimoramento; ajustarPericias(d); }
-  else if ((b = alvo('[data-wiz-origem]'))) { d.origemId = b.dataset.wizOrigem; ajustarPericias(d); }
+  if ((b = alvo('[data-wiz-aprimoramento]'))) { d.aprimoramento = b.dataset.wizAprimoramento; ajustarPericias(d); atual.fx = ['.wiz-option.selected']; }
+  else if ((b = alvo('[data-wiz-origem]'))) { d.origemId = b.dataset.wizOrigem; ajustarPericias(d); atual.fx = ['.wiz-detail']; }
   else if ((b = alvo('[data-wiz-attr]'))) {
     const [id, delta] = b.dataset.wizAttr.split(':');
     d.atributos[id] = Math.max(0, Math.min(ATRIBUTO_MAX_CRIACAO, d.atributos[id] + Number(delta)));
     ajustarPericias(d);
+    atual.fx = [`.wiz-attr[data-attr="${id}"] .wiz-attr-step b`, '.wiz-points', '.wiz-preview'];
   }
   else if ((b = alvo('[data-wiz-pericia]'))) {
     const id = b.dataset.wizPericia;
     if (d.pericias.includes(id)) d.pericias = d.pericias.filter(x => x !== id);
     else if (d.pericias.length < totalDeEscolhas(d)) d.pericias.push(id);
+    atual.fx = [`.wiz-skill.selected[data-wiz-pericia="${id}"]`, '.wiz-points'];
   }
-  else if ((b = alvo('[data-wiz-poder]'))) d.poderGeral = b.dataset.wizPoder;
+  else if ((b = alvo('[data-wiz-poder]'))) { d.poderGeral = b.dataset.wizPoder; atual.fx = ['.wiz-detail']; }
   else if ((b = alvo('[data-wiz-ir]'))) d.passo = Number(b.dataset.wizIr);
   else if (alvo('[data-wiz-voltar]')) d.passo = Math.max(0, d.passo - 1);
   else if (alvo('[data-wiz-avancar]')) {
@@ -255,7 +271,7 @@ function aoClicar(e) {
     if (d.passo === PASSOS.length - 1) { concluir(); return; }
     d.passo += 1;
   }
-  else if (alvo('[data-wiz-pular]')) { const { onSkip } = atual; fecharTutorial(); onSkip?.(); return; }
+  else if (alvo('[data-wiz-pular]')) { const { onSkip } = atual; fecharTutorial(true); onSkip?.(); return; }
   else return;
   desenhar();
 }

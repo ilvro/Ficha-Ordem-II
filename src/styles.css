@@ -3259,3 +3259,32 @@ button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
  .wiz-attrs{grid-template-columns:repeat(2,1fr)}
  .wiz-skills{grid-template-columns:repeat(2,1fr)}
 }
+
+/* Tutorial: transições e animações leves */
+.wizard-modal .backdrop{animation:wiz-fade .22s ease-out both}
+.wizard-modal section{animation:wiz-open .26s cubic-bezier(.2,.8,.25,1) both}
+.wizard-modal.closing{pointer-events:none}
+.wizard-modal.closing .backdrop{animation:wiz-fade .18s ease-in reverse both}
+.wizard-modal.closing section{animation:wiz-close .18s ease-in both}
+.wiz-body.fx-next>*{animation:wiz-slide-next .24s cubic-bezier(.2,.8,.25,1) both}
+.wiz-body.fx-prev>*{animation:wiz-slide-prev .24s cubic-bezier(.2,.8,.25,1) both}
+.wiz-body.fx-next>*:nth-child(2),.wiz-body.fx-prev>*:nth-child(2){animation-delay:.04s}
+.wiz-body.fx-next>*:nth-child(n+3),.wiz-body.fx-prev>*:nth-child(n+3){animation-delay:.08s}
+.wiz-head.fx-step h2{animation:wiz-fade-up .22s ease-out both}
+.wiz-head.fx-step .wiz-steps li.current button{animation:wiz-step-line .3s ease-out both}
+.wiz-head.fx-step .wiz-steps li.current i{animation:wiz-pop .28s ease-out both}
+.wiz-detail.fx-pick>*{animation:wiz-fade-up .2s ease-out both}
+.wiz-option.fx-pick,.wiz-skill.fx-pick{animation:wiz-pop .2s ease-out both}
+.wiz-attr-step b.fx-pick{animation:wiz-pop .2s ease-out both}
+.wiz-points.fx-pick b,.wiz-preview.fx-pick b{display:inline-block;animation:wiz-pop .22s ease-out both}
+.wiz-option,.wiz-row,.wiz-skill,.wiz-attr-step button,.wiz-back,.wiz-next,.wiz-skip,.wiz-search{transition:border-color .14s,background-color .14s,color .14s,filter .14s,transform .1s}
+.wiz-option:active,.wiz-skill:active:not(:disabled),.wiz-attr-step button:active:not(:disabled),.wiz-back:active,.wiz-next:active:not(:disabled){transform:scale(.97)}
+@keyframes wiz-fade{from{opacity:0}}
+@keyframes wiz-open{from{opacity:0;transform:translateY(10px) scale(.975)}}
+@keyframes wiz-close{to{opacity:0;transform:translateY(6px) scale(.985)}}
+@keyframes wiz-slide-next{from{opacity:0;transform:translateX(18px)}}
+@keyframes wiz-slide-prev{from{opacity:0;transform:translateX(-18px)}}
+@keyframes wiz-fade-up{from{opacity:0;transform:translateY(5px)}}
+@keyframes wiz-pop{0%{transform:scale(.94)}60%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes wiz-step-line{from{border-bottom-color:#2a2d42}}
+@media (prefers-reduced-motion:reduce){.wizard-modal *,.wizard-modal .backdrop,.wizard-modal section{animation:none!important;transition:none!important}}
