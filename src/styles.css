@@ -2736,18 +2736,42 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 .original-system-pill{background:rgba(212,175,55,0.15)!important;color:#e5b839!important;border:1px solid rgba(212,175,55,0.4)!important}
 .original-creds-grid{grid-template-columns:1fr 1fr 1fr!important}
 @media (max-width: 900px){.original-creds-grid{grid-template-columns:1fr 1fr!important}}
-.original-select,.styled-select select,.ocin-identity-edit select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239a9db3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:10px 6px}
-.original-select{width:100%;height:30px;border:1px solid #2f3247;border-radius:4px;background-color:#0f101b;outline:none;padding:0 28px 0 9px;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer;text-overflow:ellipsis;transition:border-color .14s,background-color .14s,box-shadow .14s}
-.original-select:hover:not(:disabled){border-color:#4a4e6c;background-color:#141627}
-.original-select:focus-visible{border-color:var(--red);box-shadow:0 0 0 2px color-mix(in srgb,var(--red),transparent 78%)}
-.original-select:disabled{cursor:default;opacity:1;border-color:transparent;background-color:transparent;background-image:none;padding:0;height:auto}
-.original-select option,.styled-select option{background:#161827;color:#ececf2;font-family:Georgia,serif}
-.progression-card>.original-select{height:26px;font-size:11.5px}
-.progression-card>.original-select:disabled{color:#9a9db3;font-size:11px}
-.ocin-identity-edit select{padding-right:26px}
+.original-select{width:100%;border:0;background:transparent;outline:none;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer}
+.original-select option,.styled-select option{background:#161827;color:#ececf2}
+select.cselect-native{position:absolute!important;left:0;bottom:0;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;border:0!important;opacity:0!important;pointer-events:none!important}
+.cselect{position:relative;display:block;width:100%;min-width:0}
+.cselect-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:30px;box-sizing:border-box;padding:0 9px;border:1px solid #2f3247;border-radius:4px;background:#0f101b;color:#ececf2;font:700 13px Georgia,serif;text-align:left;cursor:pointer;transition:border-color .14s,background-color .14s}
+.cselect-btn svg{flex:none;color:#8a8da3;transition:transform .16s,color .14s}
+.cselect-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cselect-btn:hover:not(:disabled){border-color:#4a4e6c;background:#141627}
+.cselect-btn:focus-visible,.cselect-btn[aria-expanded="true"]{outline:none;border-color:var(--cinematic-accent,var(--red))}
+.cselect-btn[aria-expanded="true"] svg{transform:rotate(180deg);color:var(--cinematic-accent,var(--red))}
+.cselect-btn:disabled{height:auto;padding:0;border-color:transparent;background:transparent;cursor:default;color:#ececf2;opacity:1}
+.cselect-btn:disabled svg{display:none}
+.progression-card>.cselect{margin-top:2px}
+.progression-card>.cselect .cselect-btn{height:26px;font-size:11.5px}
+.progression-card>.cselect .cselect-btn:disabled{height:auto;font-size:11px;color:#9a9db3}
+.styled-select .cselect-btn{height:36px;padding:0 11px;border-color:#3a3e58;border-radius:5px}
+.ocin-identity-edit .cselect{display:inline-block;width:auto;max-width:190px}
+.ocin-identity-edit .cselect-btn{height:34px;border-color:#ffffff24;border-radius:3px;background:#0f1119cc;text-transform:uppercase}
+.cselect-pop{position:fixed;z-index:400;display:flex;flex-direction:column;box-sizing:border-box;padding:5px;background:#12131f;border:1px solid #383b52;border-radius:6px;box-shadow:0 14px 34px rgba(0,0,0,.6);outline:none;--cs-accent:var(--red);animation:cselect-in .12s ease-out}
+.cselect-pop.para-cima{animation-name:cselect-in-up}
+@keyframes cselect-in{from{opacity:0;transform:translateY(-4px)}}
+@keyframes cselect-in-up{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){.cselect-pop{animation:none}}
+.cselect-search{flex:none;height:30px;margin-bottom:5px;padding:0 9px;box-sizing:border-box;border:1px solid #2f3247;border-radius:4px;background:#0b0c15;color:#ececf2;font:800 9.5px "Hanken Grotesk";letter-spacing:.14em;outline:none}
+.cselect-search::placeholder{color:#62657c}
+.cselect-search:focus{border-color:var(--cs-accent)}
+.cselect-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:1px;scrollbar-width:thin;scrollbar-color:#3a3e58 transparent}
+.cselect-list.sem-resultado::after{content:"Nada encontrado";padding:10px;font:400 12px Georgia,serif;color:#7e8198;text-align:center}
+.cselect-opt{position:relative;flex:none;display:block;width:100%;padding:7px 10px 7px 13px;border:0;border-radius:4px;background:transparent;color:#c3c6d8;font:700 13px/1.3 Georgia,serif;text-align:left;cursor:pointer}
+.cselect-opt[hidden]{display:none}
+.cselect-opt.vazio{color:#7e8198;font-style:italic;font-weight:400}
+.cselect-opt.active{background:#1f2134;color:#fff}
+.cselect-opt.selected{color:#fff;background:color-mix(in srgb,var(--cs-accent),#12131f 86%)}
+.cselect-opt.selected::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--cs-accent)}
+.cselect-opt.selected.active{background:color-mix(in srgb,var(--cs-accent),#12131f 76%)}
 .styled-select{display:block}
-.styled-select select{width:100%;height:36px;border:1px solid #3a3e58;border-radius:5px;background-color:#0f101b;outline:none;padding:0 30px 0 11px;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer;text-overflow:ellipsis}
-.styled-select select:focus-visible{border-color:var(--red)}
 .trilha-decisao{display:flex;flex-direction:column;gap:8px;text-align:left}
 .trilha-decisao.original-card{border-color:color-mix(in srgb,var(--red),transparent 45%);background:color-mix(in srgb,var(--red),#151727 90%)}
 .trilha-decisao small{font:800 8.5px "Hanken Grotesk";letter-spacing:.18em;color:var(--red)}

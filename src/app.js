@@ -24,6 +24,7 @@ import {
 } from './systems/original/original-system.js';
 import { renderDecisaoTrilha, renderEscolhaDeTrilha } from './systems/original/original-views.js';
 import { die } from './dice-icon.js';
+import { enhanceSelects } from './custom-select.js';
 
 // Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
 // pergunta de Versatilidade a cada NEX de habilidade de trilha.
@@ -66,6 +67,7 @@ function syncPromptDeTrilha(){
    render();
   };
  });
+ enhanceSelects();
  const selInicial=document.querySelector('[data-trilha-inicial-select]');
  if(selInicial){
   selInicial.onchange=()=>{
