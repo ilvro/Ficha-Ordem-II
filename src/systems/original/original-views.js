@@ -24,6 +24,7 @@ import {
   NEX_AUMENTO_ATRIBUTO,
   ESTAGIO_MAX,
   rotuloNivel,
+  niveisDaClasse,
   trilhaLiberada,
   pendenciaDeTrilha,
   calcPvMax,
@@ -96,10 +97,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
   const pePct = peMax > 0 ? Math.max(0, Math.min(100, (peAtual / peMax) * 100)) : 0;
   const sanPct = sanMax > 0 ? Math.max(0, Math.min(100, (sanAtual / sanMax) * 100)) : 0;
 
-  // Slider anda de 5 em 5; a última posição (100) representa NEX 99%.
-  const nexSlider = nex >= 99 ? 100 : Math.max(0, Math.min(95, Math.round(nex / 5) * 5));
   const mundana = classeEhMundana(classe);
-  const estagioPct = ((estagio - 1) / (ESTAGIO_MAX - 1)) * 100;
 
   const iconPv = getIconeRecurso('pv', pvAtual, pvMax);
   const iconPe = getIconeRecurso('pe', peAtual, peMax);
@@ -165,19 +163,7 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
                 <option value="${safe(state.trilhaId || '')}" selected>${mundana ? '— a partir do Estágio 2 —' : '— a partir de NEX 10% —'}</option>
               </select>`}
             </div>
-            <div class="dossier-field field-nex-control">
-              ${mundana ? `
-              <small>ESTÁGIO</small>
-              <div class="nex-slider-wrap">
-                <input type="range" min="1" max="${ESTAGIO_MAX}" step="1" data-original-field="estagio" value="${estagio}" class="original-nex-slider" style="--nex-pct:${estagioPct}%;${editMode ? '' : 'pointer-events:none;'}" ${editMode ? '' : 'tabindex="-1" aria-disabled="true"'}>
-                <span class="nex-badge-pill">${estagio}/${ESTAGIO_MAX}</span>
-              </div>` : `
-              <small>NEX (NÍVEL DE EXPOSIÇÃO)</small>
-              <div class="nex-slider-wrap">
-                <input type="range" min="5" max="100" step="5" data-original-field="nex" value="${nexSlider}" class="original-nex-slider" style="--nex-pct:${nexSlider}%;${editMode ? '' : 'pointer-events:none;'}" ${editMode ? '' : 'tabindex="-1" aria-disabled="true"'}>
-                <span class="nex-badge-pill">${nex}%</span>
-              </div>`}
-            </div>
+            ${renderNexTrack(state, editMode)}
           </div>
 
           <!-- SUB-BARRA DE COMBATE DERIVADO -->
@@ -662,6 +648,48 @@ export function renderTraditionalOriginal(state, editMode, options = {}) {
       </div>
     </main>
   `;
+}
+
+// Trilho de NEX (ou de estágios, para sobreviventes): um segmento por nível,
+// com os níveis de habilidade de trilha em destaque. Sobe-se um nível por vez
+// nos botões − / +, ou clicando direto no segmento desejado.
+function renderNexTrack(state, editMode) {
+  const classe = classeAtual(state);
+  const mundana = classeEhMundana(classe);
+  const nex = Number(state.nex) || 0;
+  const niveis = niveisDaClasse(state);
+  const idx = Math.max(0, niveis.indexOf(nex));
+  const ganho = n => (classe.tabelaNex || []).find(item => item.nex === n)?.texto || '';
+  const marcos = new Set((classe.tabelaNex || []).filter(item => /trilha/i.test(item.texto)).map(item => item.nex));
+  const proximo = niveis[idx + 1];
+  const passo = (delta, rotulo, simbolo) => editMode
+    ? `<button type="button" class="nex-step-btn" data-nex-step="${delta}" aria-label="${rotulo}" ${niveis[idx + delta] === undefined ? 'disabled' : ''}>${simbolo}</button>`
+    : '';
+  return `
+    <div class="dossier-field field-nex-control ${editMode ? 'is-editing' : ''}">
+      <div class="nex-readout">
+        <small>${mundana ? 'ESTÁGIO' : 'NEX · NÍVEL DE EXPOSIÇÃO'}</small>
+        <div class="nex-stepper">
+          ${passo(-1, 'Descer um nível', '−')}
+          <b class="nex-value">${mundana ? `${idx + 1}<i>/${niveis.length}</i>` : `${nex}<i>%</i>`}</b>
+          ${passo(1, 'Subir um nível', '+')}
+        </div>
+      </div>
+      <div class="nex-track-wrap">
+        <div class="nex-track" style="--nex-segs:${niveis.length}">
+          ${niveis.map((n, i) => {
+            const cls = `nex-seg ${i < idx ? 'filled' : ''} ${i === idx ? 'current' : ''} ${marcos.has(n) ? 'marco' : ''}`;
+            const dica = safe(`${rotuloNivel(state, n)}${ganho(n) ? ` — ${ganho(n).replace(/([+–−-])(O+)(?![A-Za-zÀ-ú0-9])/g, (_, sinal, dados) => `${sinal}${dados.length}d20`)}` : ''}`);
+            return editMode
+              ? `<button type="button" class="${cls}" data-nex-set="${n}" title="${dica}" aria-label="${dica}"></button>`
+              : `<span class="${cls}" title="${dica}"></span>`;
+          }).join('')}
+        </div>
+        <p class="nex-next">${proximo === undefined
+          ? 'NÍVEL MÁXIMO'
+          : `PRÓXIMO <b>${safe(rotuloNivel(state, proximo).toUpperCase())}</b> ${rich(ganho(proximo))}`}</p>
+      </div>
+    </div>`;
 }
 
 // Botão que abre o Compêndio em modo escolha, já na aba certa.

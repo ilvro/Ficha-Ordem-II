@@ -2257,7 +2257,7 @@
     "backgroundZoom": 100,
     "diceColor": "",
     "themeColor": "#ffffff",
-    "viewMode": "cinematic",
+    "viewMode": "traditional",
     "cinematicTokenX": 50,
     "cinematicTokenY": 52,
     "cinematicTokenScale": 100,

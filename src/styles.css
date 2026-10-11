@@ -2734,7 +2734,7 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
 
 /* Header & Creds do Sistema Original */
 .original-system-pill{background:rgba(212,175,55,0.15)!important;color:#e5b839!important;border:1px solid rgba(212,175,55,0.4)!important}
-.original-creds-grid{grid-template-columns:1fr 1fr 1fr 140px!important}
+.original-creds-grid{grid-template-columns:1fr 1fr 1fr!important}
 @media (max-width: 900px){.original-creds-grid{grid-template-columns:1fr 1fr!important}}
 .original-select,.styled-select select,.ocin-identity-edit select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239a9db3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:10px 6px}
 .original-select{width:100%;height:30px;border:1px solid #2f3247;border-radius:4px;background-color:#0f101b;outline:none;padding:0 28px 0 9px;font:700 13px Georgia,serif;color:#ececf2;cursor:pointer;text-overflow:ellipsis;transition:border-color .14s,background-color .14s,box-shadow .14s}
@@ -2764,18 +2764,29 @@ button.trilha-decisao-opt:hover{border-color:var(--red);background:color-mix(in 
 .trilha-decisao-later{align-self:center;background:transparent;border:0;color:#8a8da3;font:700 11px "Hanken Grotesk";cursor:pointer;padding:4px 8px}
 .trilha-decisao-later:hover{color:#fff}
 .modal.trilha-decisao-modal section{width:min(440px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;box-sizing:border-box;text-align:left;padding:22px}
-.field-nex-control .nex-slider-wrap{display:flex;align-items:center;gap:10px;margin-top:5px}
-.field-nex-control .original-nex-slider{-webkit-appearance:none;appearance:none;width:100%;flex:1;height:10px;border-radius:5px;background:linear-gradient(to right,#e5a11c 0%,#e5a11c var(--nex-pct,0%),#2b2f47 var(--nex-pct,0%),#2b2f47 100%);border:1px solid #474c6b;box-shadow:inset 0 1px 2px #000a;outline:none;cursor:pointer;margin:0;padding:0;transition:border-color .15s ease}
-.field-nex-control .original-nex-slider:hover,.field-nex-control .original-nex-slider:focus-visible{border-color:#e5a11c}
-.original-nex-slider::-webkit-slider-runnable-track{height:8px;background:transparent;border:none}
-.original-nex-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;margin-top:-4px;border-radius:50%;background:#e5a11c;border:2px solid #0c0d15;box-shadow:0 1px 4px rgba(0,0,0,0.8);cursor:pointer;transition:transform .12s ease,background .15s ease}
-.original-nex-slider::-webkit-slider-thumb:hover{background:#f5bb3c;transform:scale(1.15)}
-.original-nex-slider::-webkit-slider-thumb:active{transform:scale(1.22)}
-.original-nex-slider::-moz-range-track{height:8px;background:transparent;border:none}
-.original-nex-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#e5a11c;border:2px solid #0c0d15;box-shadow:0 1px 4px rgba(0,0,0,0.8);cursor:pointer;transition:transform .12s ease,background .15s ease}
-.original-nex-slider::-moz-range-thumb:hover{background:#f5bb3c;transform:scale(1.15)}
-.original-nex-slider::-moz-range-thumb:active{transform:scale(1.22)}
-.nex-badge-pill{font:900 13px "Hanken Grotesk";color:#e5a11c;letter-spacing:.04em;white-space:nowrap;min-width:38px;text-align:right}
+.original-creds-grid .field-nex-control{grid-column:1/-1;flex-direction:row;align-items:center;gap:20px;padding:10px 14px}
+.nex-readout{flex:none}
+.nex-stepper{display:flex;align-items:center;gap:6px}
+.nex-value{min-width:74px;text-align:center;font:700 28px/1 Georgia,serif;color:#f1c15a;font-variant-numeric:tabular-nums}
+.nex-value i{font:700 14px Georgia,serif;font-style:normal;color:#a98a3e;margin-left:1px}
+.field-nex-control:not(.is-editing) .nex-value{min-width:0;text-align:left}
+.nex-step-btn{width:28px;height:28px;flex:none;display:grid;place-items:center;padding:0;border:1px solid #3a3e58;border-radius:4px;background:#0f101b;color:#e5a11c;font:700 17px/1 "Hanken Grotesk";cursor:pointer;transition:border-color .12s,background .12s,color .12s}
+.nex-step-btn:hover:not(:disabled){border-color:#e5a11c;background:#e5a11c;color:#14100a}
+.nex-step-btn:active:not(:disabled){transform:translateY(1px)}
+.nex-step-btn:disabled{opacity:.3;cursor:default}
+.nex-track-wrap{flex:1;min-width:0}
+.nex-track{display:grid;grid-template-columns:repeat(var(--nex-segs,20),1fr);gap:3px;height:16px}
+.nex-seg{position:relative;height:100%;padding:0;border:0;background:transparent}
+button.nex-seg{cursor:pointer}
+.nex-seg::before{content:"";position:absolute;inset:0;border-radius:2px;background:#2a2e46;transition:background .12s}
+.nex-seg.filled::before{background:#d2931a}
+.nex-seg.current::before{background:#f5c563}
+button.nex-seg:hover::before{background:#6d5a2b}
+button.nex-seg.filled:hover::before,button.nex-seg.current:hover::before{background:#ffd98c}
+button.nex-seg:focus-visible{outline:1px solid #f5c563;outline-offset:1px}
+.nex-next{margin:7px 0 0;font:700 9.5px/1.4 "Hanken Grotesk";letter-spacing:.08em;color:#7e8198;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nex-next b{color:#e5a11c;margin:0 4px 0 2px}
+@media (max-width:700px){.original-creds-grid .field-nex-control{flex-direction:column;align-items:stretch;gap:10px}.nex-stepper{justify-content:space-between}.nex-next{white-space:normal}}
 
 /* Barra de Estatísticas Derivadas de Combate */
 .original-derived-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:10px;border-top:1px dashed #282a3d}

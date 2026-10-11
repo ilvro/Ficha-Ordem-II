@@ -126,6 +126,13 @@ export function ajustarNexDaClasse(sheet) {
   return sheet.nex;
 }
 
+// Todos os níveis que a classe percorre, como valores de NEX: estágios 1–5
+// (0, 5, …, 20) para sobreviventes; 5%, 10%, …, 95%, 99% para as demais.
+export function niveisDaClasse(sheet) {
+  if (classeEhMundana(classeAtual(sheet))) return Array.from({ length: ESTAGIO_MAX }, (_, i) => i * 5);
+  return [...Array.from({ length: 19 }, (_, i) => (i + 1) * 5), 99];
+}
+
 // "Estágio 3" para sobreviventes, "NEX 40%" para as demais classes.
 export function rotuloNivel(sheet, nex = sheet.nex) {
   const n = Number(nex) || 0;

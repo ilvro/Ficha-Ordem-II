@@ -16,6 +16,7 @@ import {
   nexDoEstagio,
   ajustarNexDaClasse,
   rotuloNivel,
+  niveisDaClasse,
   trilhaLiberada,
   pendenciaDeTrilha,
   aplicarVersatilidade,
@@ -2029,24 +2030,17 @@ function bind(){
     render();
    };
   });
-  const nexRange=document.querySelector('.field-nex-control input[type="range"]');
-  if(nexRange){
-   nexRange.oninput=()=>{
-    const pill=document.querySelector('.field-nex-control .nex-badge-pill');
-    const porEstagio=nexRange.dataset.originalField==='estagio';
-    const min=Number(nexRange.min)||0,max=Number(nexRange.max)||100,val=Number(nexRange.value)||0;
-    if(pill) pill.textContent=porEstagio?`${val}/${max}`:`${snapNex(val)}%`;
-    nexRange.style.setProperty('--nex-pct',`${porEstagio?((val-min)/(max-min))*100:val}%`);
-   };
-   nexRange.onchange=()=>{
-    mudarNexOriginal(()=>{
-     if(nexRange.dataset.originalField==='estagio') state.nex=nexDoEstagio(nexRange.value);
-     else{state.nex=snapNex(nexRange.value);ajustarNexDaClasse(state);}
-    });
+  document.querySelectorAll('[data-nex-step],[data-nex-set]').forEach(btn=>{
+   btn.onclick=()=>{
+    if(presentationMode){notifyPresentationLocked();return;}
+    const niveis=niveisDaClasse(state);
+    const alvo=btn.dataset.nexSet!==undefined?Number(btn.dataset.nexSet):niveis[niveis.indexOf(Number(state.nex)||0)+Number(btn.dataset.nexStep)];
+    if(alvo===undefined||!niveis.includes(alvo)||alvo===state.nex) return;
+    mudarNexOriginal(()=>{state.nex=alvo;ajustarNexDaClasse(state);});
     save(false);
     render();
    };
-  }
+  });
   document.querySelectorAll('[data-consume-temp]').forEach(btn=>{
    btn.onclick=(e)=>{
     e.stopPropagation();
