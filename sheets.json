@@ -3351,5 +3351,128 @@
     "id": "threat-mv5i62a1-5zxr",
     "createdAt": 1791824709385,
     "updatedAt": 1791824709385
+  },
+  {
+    "name": "AMEAÇA 8",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "padrao-1",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "coluna": "esquerda",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv5iyx9v-gdae",
+    "createdAt": 1791826055923,
+    "updatedAt": 1791826055923
   }
 ]
