@@ -1,3 +1,4 @@
+@import './workspace/workspace-sidebar.css';
 @font-face{font-family:"Hanken Grotesk";src:url('/fonts/hanken-grotesk.woff2') format('woff2');font-weight:300 800;font-style:normal;font-display:swap}@font-face{font-family:"Hanken Grotesk";src:url('/fonts/hanken-grotesk-ext.woff2') format('woff2');font-weight:300 800;font-style:normal;font-display:swap;unicode-range:U+0100-024F,U+1E00-1EFF}
 :root{color-scheme:dark;--bg:#10111b;--nav:#12121b;--panel:#151625;--panel2:#1d1e2e;--row:#292a38;--line:#343647;--red:#e91d25;--red-dark:#b70f19;--text:#ececf1;--muted:#9495a1;--green:#18d370}
 *{box-sizing:border-box}html,body,#app{margin:0;min-height:100%;background:var(--bg)}body{font-family:"Hanken Grotesk","Segoe UI",sans-serif;color:var(--text);font-size:14px;overflow:hidden}button,input,select,textarea{font:inherit;color:inherit}button{border:0;cursor:pointer}svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2713,17 +2714,20 @@ body.mobile-cinematic-tight .cinematic-scroll{padding-bottom:42px!important}
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Modal de Seleção de Sistema (Ao Criar Nova Ficha) */
-.system-select-modal section{width:min(640px,calc(100vw - 32px));padding:32px 28px;text-align:left;background:#10121d;border:1px solid #2d3044;box-shadow:0 20px 60px rgba(0,0,0,0.85);border-radius:10px}
+.system-select-modal section{width:min(880px,calc(100vw - 32px));padding:32px 28px;text-align:left;background:#10121d;border:1px solid #2d3044;box-shadow:0 20px 60px rgba(0,0,0,0.85);border-radius:10px}
 .system-select-modal h2{margin:6px 0 16px;font:800 22px Georgia,serif;color:#f3f3f7;letter-spacing:.02em}
 .system-select-modal p{color:#9ea1b2;font-size:13px;line-height:1.5;margin-bottom:24px}
-.system-options-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.system-options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 @media (max-width: 600px){.system-options-grid{grid-template-columns:1fr}}
 .system-option-card{position:relative;background:#161827;border:1px solid #2c2f45;border-radius:8px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
 .system-option-card:hover{border-color:var(--red);background:#1d1f33;transform:translateY(-2px);box-shadow:0 8px 25px rgba(224,21,13,0.18)}
+.system-option-card.card-threat:hover{border-color:#993ce8;background:#1b1429;box-shadow:0 8px 25px rgba(153,60,232,0.22)}
 .system-option-card .badge-system-sigil{display:inline-block;padding:2px 8px;border-radius:4px;font:900 10px "Hanken Grotesk";letter-spacing:.12em;width:fit-content}
 .system-option-card.card-v2 .badge-system-sigil{background:rgba(224,21,13,0.2);color:#ff3b30;border:1px solid #ff3b30}
 .system-option-card.card-original .badge-system-sigil{background:rgba(218,165,32,0.2);color:#e5b839;border:1px solid #e5b839}
+.system-option-card.card-threat .badge-system-sigil{background:rgba(153,60,232,0.2);color:#d19eff;border:1px solid #993ce8}
 .system-option-card h3{margin:0;font:800 16px Georgia,serif;color:#fff}
+.system-option-card.card-threat h3{color:#d19eff}
 .system-option-card p{margin:0;font-size:11.5px;color:#8f92a6;line-height:1.45}
 
 /* Tags de Sistema no Switcher da Barra Lateral */

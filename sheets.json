@@ -220,7 +220,9 @@
       }
     ],
     "id": "sheet-1789933906659-msnzp",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "CLARA",
@@ -514,7 +516,9 @@
       }
     ],
     "id": "sheet-1789935686382-iplu3",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "CLARA",
@@ -808,7 +812,9 @@
       }
     ],
     "id": "sheet-1790292112563-5tjih",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "EDGAR",
@@ -1028,7 +1034,9 @@
       }
     ],
     "id": "sheet-1789935462676-fbt69",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "EDMUND",
@@ -1295,7 +1303,9 @@
       }
     ],
     "id": "sheet-1789936171837-fv94u",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "KÊNIA",
@@ -1537,7 +1547,9 @@
       }
     ],
     "id": "sheet-1789934192511-ffzfi",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "MOIRA",
@@ -1822,7 +1834,9 @@
     ],
     "impeto": 0,
     "id": "sheet-1789933894738-hp4ge",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "name": "VICTOR",
@@ -2081,7 +2095,9 @@
       }
     ],
     "id": "sheet-1789934661352-pwiz0",
-    "systemMode": "ordem2"
+    "systemMode": "ordem2",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "systemMode": "original",
@@ -2273,7 +2289,9 @@
       "items": true,
       "history": true
     },
-    "id": "sheet-1791409120413-7oj8u"
+    "id": "sheet-1791409120413-7oj8u",
+    "folderId": "folder-characters",
+    "favorite": false
   },
   {
     "systemMode": "original",
@@ -2454,7 +2472,7 @@
     "backgroundZoom": 100,
     "diceColor": "",
     "themeColor": "",
-    "viewMode": "traditional",
+    "viewMode": "cinematic",
     "cinematicTokenX": 50,
     "cinematicTokenY": 52,
     "cinematicTokenScale": 100,
@@ -2469,6 +2487,131 @@
       "items": true,
       "history": true
     },
-    "id": "sheet-1791744539288-x7lra"
+    "id": "sheet-1791744539288-x7lra",
+    "folderId": "folder-characters",
+    "favorite": false
+  },
+  {
+    "name": "AMEAÇA 1",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "padrao-1",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "coluna": "esquerda",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv5g9e7n-268d",
+    "createdAt": 1791821505587,
+    "updatedAt": 1791821505587
   }
 ]

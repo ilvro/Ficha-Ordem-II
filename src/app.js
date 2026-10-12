@@ -27,6 +27,7 @@ import { renderDecisaoTrilha, renderEscolhaDeTrilha } from './systems/original/o
 import { die } from './dice-icon.js';
 import { enhanceSelects } from './custom-select.js';
 import { abrirTutorial, fecharTutorial } from './systems/original/original-wizard.js';
+import { icon } from './icons.js';
 
 // Pop-ups de trilha da ficha de Ordem 1: escolha da trilha ao liberá-la e a
 // pergunta de Versatilidade a cada NEX de habilidade de trilha.
@@ -108,9 +109,22 @@ import {
   normalizeFolders,
   migrateSheetsFolders,
   loadFoldersFromStorage,
-  persistFoldersToStorage
+  persistFoldersToStorage,
+  createFolder,
+  updateFolder,
+  deleteFolder,
+  moveFolder
 } from './workspace/folders.js';
-import { visibleSheets, isCharacterSheet, isThreatSheet } from './workspace/selectors.js';
+import { visibleSheets, buildFolderTree, isCharacterSheet, isThreatSheet } from './workspace/selectors.js';
+import {
+  renderRailScopePills,
+  renderRailSwitcher,
+  renderWorkspaceNavigator,
+  renderNavigatorTreeContent,
+  renderQuickSwitcherModal,
+  renderQuickSwitcherResults,
+  renderMobileSheetDrawer
+} from './workspace/workspace-sidebar.js';
 
 let currentOriginalTab = 'habilidades';
 let originalSkillsFilter = '';
@@ -126,31 +140,7 @@ window.addEventListener('appinstalled',()=>{
  document.querySelector('[data-install-app]')?.setAttribute('hidden','');
 });
 
-const icon=(name,size=19)=>{const paths={
-  sheet:'<path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
-  book:'<path d="M4 5a4 4 0 0 1 4-2h4v17H8a4 4 0 0 0-4 2Z"/><path d="M20 5a4 4 0 0 0-4-2h-4v17h4a4 4 0 0 1 4 2Z"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>',save:'<path d="M5 3h12l3 3v15H4V3Z"/><path d="M8 3v6h8V3M8 21v-8h8v8"/>',
-  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',filter:'<path d="M4 5h16l-6 7v6l-4 2v-8Z"/>',
-  chevron:'<path d="m8 10 4 4 4-4"/>','chevron-left':'<path d="m15 18-6-6 6-6"/>','chevron-right':'<path d="m9 18 6-6-6-6"/>',info:'<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/>',
-  edit:'<path d="m14 5 5 5L8 21H3v-5Z"/>',chat:'<path d="M4 5h16v12H9l-5 4Z"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',
-  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-5 4 4 2-2 5 4"/>',
-  trash:'<path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/>',
-  film:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/>',
-  grid:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
-  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
-  sparkles:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
-  copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
-  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.37.37.7.67.96.3.26.68.4 1.08.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>',
-  history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
-  camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/>',
-  presentation:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8l5 4 5-4"/>',
-  dossier:'<path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>',
-  lock:'<rect class="lock-body" x="4" y="11" width="16" height="11" rx="2"/><path class="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4"/><path class="lock-keyhole" d="M12 15v2.5"/>',
-  d20:'<path d="m12 2 8 4.5v11L12 22l-8-4.5v-11L12 2Z"/><path d="M12 22V12M12 2v10M20 6.5 12 12 4 6.5M20 17.5 12 12 4 17.5"/>'};
-
-  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||''}</svg>`};
+export { icon } from './icons.js';
 
 const DICE_STEPS=[4,6,8,10,12,20];
 const TRAINING=[['DESTREINADO',4],['TREINADO',6],['ESPECIALISTA',8],['MESTRE',10],['GRÃO MESTRE',12]];
@@ -346,9 +336,25 @@ let criticalEffects={pv:true,pd:true};
 try{criticalEffects={...criticalEffects,...JSON.parse(localStorage.getItem(CRITICAL_EFFECTS_KEY)||'{}')}}catch{}
 // Preferências gerais do app (fora dos efeitos críticos).
 const APP_SETTINGS_KEY='ordem-ii-app-settings-v1';
-let appSettings={tutorialOriginal:true};
+let appSettings={tutorialOriginal:true, sidebarScope:'all', sidebarNavigatorOpen:false, sidebarNavigatorPinned:false, sidebarVisibleFolderIds:[], recentSheetIds:[]};
 try{appSettings={...appSettings,...JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'{}')}}catch{}
 function saveAppSettings(){try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{}}
+
+let sidebarNavigatorOpen = Boolean(appSettings.sidebarNavigatorOpen);
+let sidebarNavigatorPinned = Boolean(appSettings.sidebarNavigatorPinned);
+let sidebarScope = appSettings.sidebarScope || 'all';
+let sidebarSearchQuery = '';
+let quickSwitcherOpen = false;
+let quickSwitcherQuery = '';
+let quickSwitcherIndex = 0;
+let mobileSearchQuery = '';
+let targetFolderForNewSheet = null;
+
+function trackRecentSheet(id){
+ if(!id) return;
+ appSettings.recentSheetIds = [id, ...(appSettings.recentSheetIds || []).filter(x => x !== id)].slice(0, 8);
+ saveAppSettings();
+}
 function saveCriticalEffects(){try{localStorage.setItem(CRITICAL_EFFECTS_KEY,JSON.stringify(criticalEffects))}catch{}}
 function playModeToggleSound(enteringEdit){
  const ctx=getUiAudioContext();if(!ctx)return;
@@ -998,9 +1004,12 @@ function bindRollLogItemEvents(container = document) {
  });
 }
 
-function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
+function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());document.body.classList.toggle('navigator-pinned',Boolean(sidebarNavigatorPinned&&sidebarNavigatorOpen));const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button type="button" class="nav-btn ${sidebarNavigatorOpen?'active':''}" data-toggle-navigator title="Navegador de pastas e fichas">${icon('folder',18)}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div>${renderRailScopePills(sidebarScope,sheets)}${renderRailSwitcher(sheets,folders,state.id,{scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,safeUrl})}<span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+
+   ${renderWorkspaceNavigator(folders,sheets,state.id,{open:sidebarNavigatorOpen,pinned:sidebarNavigatorPinned,searchQuery:sidebarSearchQuery,scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,recentSheetIds:appSettings.recentSheetIds,safeUrl})}
+   ${quickSwitcherOpen?renderQuickSwitcherModal(sheets,folders,quickSwitcherQuery,quickSwitcherIndex,safeUrl):''}
 
   ${state.systemMode==='threat'
     ? renderThreatPlaceholder(state, editMode)
@@ -1020,9 +1029,9 @@ function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll
   <div class="modal card-editor" id="card-editor"><div class="backdrop editor-backdrop"></div><form id="card-form"><header><div><small>EDITOR DE CARD</small><h2 id="editor-title">NOVA HABILIDADE</h2></div><button type="button" class="editor-close">${icon('close')}</button></header><div class="editor-grid"><label class="span-2">TÍTULO<input name="title" maxlength="64" required></label><label>COLEÇÃO${customSelect({value:'abilities',options:[{value:'abilities',label:'Habilidades'},{value:'items',label:'Itens'}],id:'editor-schema',formName:'schema',className:'editor-select'})}</label><label>TIPO<input name="type" placeholder="Habilidade"></label><label>CUSTO<input name="cost" placeholder="Ex: 2 PD ou 1d4 PV"></label><label>ÍCONE<input name="icon" maxlength="3" placeholder="◆"></label><label>COR<input name="accent" type="color" value="#e91d25"></label><label>USAR COR${customSelect({value:'profile',options:[{value:'profile',label:'Do perfil'},{value:'custom',label:'Personalizada'}],id:'editor-color-mode',formName:'colorMode',className:'editor-select'})}</label><label>APRESENTAÇÃO${customSelect({value:'standard',options:[{value:'standard',label:'Padrão'},{value:'compact',label:'Compacto'},{value:'featured',label:'Destaque'}],id:'editor-layout',formName:'layout',className:'editor-select'})}</label><label>INICIAR${customSelect({value:'false',options:[{value:'false',label:'Expandido'},{value:'true',label:'Recolhido'}],id:'editor-collapsed',formName:'collapsed',className:'editor-select'})}</label><label class="span-2">URL DA IMAGEM<input name="imageUrl" type="url" placeholder="https://..."></label><label class="span-2 content-editor-label">CONTEÚDO<div class="rich-toolbar"><button type="button" data-format="bold"><b>B</b></button><button type="button" data-format="italic"><i>I</i></button><button type="button" data-format="underline"><u>U</u></button><span class="color-picker" title="Cor do texto"><input id="content-color" type="color" value="#67a2ff"><span>A</span></span><button type="button" data-format="color">APLICAR COR</button></div><textarea name="content" rows="5" placeholder="Descrição e regras do card..."></textarea></label>
   <section class="span-2 builder-section"><header><div><b>MARCADORES</b><small>Contador, barra, cargas ou liga/desliga. Fórmulas aceitam @{level}, @{pv} e atributos.</small></div><button type="button" data-add-marker>+ ADICIONAR</button></header><div id="marker-builder"></div></section>
    <section class="span-2 builder-section"><header><div><b>AÇÕES</b><small>Expressões como 2d6 + 1d8 + @{level}.</small></div><button type="button" data-add-action>+ ADICIONAR</button></header><div id="action-builder"></div></section></div><footer><button type="button" class="delete-card">EXCLUIR</button><span></span><button type="button" class="editor-close secondary">CANCELAR</button><button type="submit">SALVAR CARD</button></footer></form></div>
-  <div class="modal system-select-modal" id="system-select-modal" style="display:none;"><div class="backdrop" data-close-system-modal></div><section><button type="button" class="skill-info-close" data-close-system-modal>${icon('close')}</button><small style="color:var(--red);font-weight:800;letter-spacing:.15em;">NOVO AGENTE</small><h2>ESCOLHA O SISTEMA DE REGRAS</h2><p>Selecione a base mecânica para esta nova ficha de personagem. Ambas as fichas coexistem na sua base de dados.</p><div class="system-options-grid"><div class="system-option-card card-v2" data-create-system="ordem2"><span class="badge-system-sigil">SISTEMA II</span><h3>ORDEM PARANORMAL II</h3><p>Playtest Alpha de "A Maldição do Ídolo de Pedra". Atributos em dados (Físico, Mente, Emoção), Pontos de Determinação, Perfis táticos e cards interativos.</p></div><div class="system-option-card card-original" data-create-system="original"><span class="badge-system-sigil">SISTEMA ORIGINAL</span><h3>ORDEM PARANORMAL RPG</h3><p>Sistema clássico de regras d20. 5 Atributos (AGI, FOR, INT, PRE, VIG), Classes, Trilhas, NEX% (0-99%), Sanidade, Esforço, 28 Perícias d20, Rituais e Inventário.</p></div></div></section></div>
+  <div class="modal system-select-modal" id="system-select-modal" style="display:none;"><div class="backdrop" data-close-system-modal></div><section><button type="button" class="skill-info-close" data-close-system-modal>${icon('close')}</button><small style="color:var(--red);font-weight:800;letter-spacing:.15em;">NOVA FICHA</small><h2>ESCOLHA O TIPO DE FICHA</h2><p>Selecione a base mecânica para esta nova ficha. Todas as fichas coexistem na sua base de dados organizada por pastas.</p><div class="system-options-grid"><div class="system-option-card card-v2" data-create-system="ordem2"><span class="badge-system-sigil">SISTEMA II</span><h3>ORDEM PARANORMAL II</h3><p>Playtest Alpha de "A Maldição do Ídolo de Pedra". Atributos em dados (Físico, Mente, Emoção), Pontos de Determinação, Perfis táticos e cards interativos.</p></div><div class="system-option-card card-original" data-create-system="original"><span class="badge-system-sigil">SISTEMA ORIGINAL</span><h3>ORDEM PARANORMAL RPG</h3><p>Sistema clássico de regras d20. 5 Atributos (AGI, FOR, INT, PRE, VIG), Classes, Trilhas, NEX% (0-99%), Sanidade, Esforço, 28 Perícias d20, Rituais e Inventário.</p></div><div class="system-option-card card-threat" data-create-system="threat"><span class="badge-system-sigil">AMEAÇA DA REALIDADE</span><h3>AMEAÇA / CRIATURA</h3><p>Ficha de criatura paranormal ou inimigo com VD (Valor de Desafio), Elementos do Outro Lado, Ações padrão/livre, Ataques e Habilidades de combate.</p></div></div></section></div>
   ${renderBottomNav()}
-  ${renderSheetDrawer()}
+  ${renderMobileSheetDrawer(sheets,folders,state.id,{open:sheetDrawerOpen,searchQuery:mobileSearchQuery,rollLogCount:rollLog.length,safeUrl})}
   ${renderRollLogDrawer()}
   ${isCinematic?renderMobileOrientationPrompt():''}
 	 `;bind();syncMobilePresentationViewport();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl&&state.backgroundImage){if(!bgVideoEl.src)bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),traditionalPage=app.querySelector('.traditional-dossier-page'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(traditionalPage)traditionalPage.scrollTop=previousScroll.traditionalPage;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
@@ -1306,6 +1315,7 @@ let activeContextMenuSheetId = null;
 function showSheetContextMenu(e, sheetId) {
  e.preventDefault();
  e.stopPropagation();
+ closeFolderContextMenu();
  activeContextMenuSheetId = sheetId;
  let menu = document.querySelector('#sheet-context-menu');
  if (!menu) {
@@ -1320,49 +1330,103 @@ function showSheetContextMenu(e, sheetId) {
  const canMoveUp = targetIndex > 0;
  const canMoveDown = targetIndex >= 0 && targetIndex < sheets.length - 1;
 
- menu.innerHTML = `
-  <div class="custom-context-menu-header">${safe(name)}</div>
-  ${canMoveUp ? `<button type="button" data-action="move-up-sheet">↑ <span>Mover para cima</span></button>` : ''}
-  ${canMoveDown ? `<button type="button" data-action="move-down-sheet">↓ <span>Mover para baixo</span></button>` : ''}
-  ${(canMoveUp || canMoveDown) ? `<div class="custom-context-menu-separator"></div>` : ''}
-  <button type="button" data-action="clone-sheet">${icon('copy', 14)} <span>Clonar ficha</span></button>
-  <div class="custom-context-menu-separator"></div>
-  <button type="button" data-action="delete-sheet" class="menu-danger">${icon('trash', 14)} <span>Deletar ficha</span></button>
- `;
+ function renderDefaultMenu() {
+  menu.innerHTML = `
+   <div class="custom-context-menu-header">${safe(name)}</div>
+   <button type="button" data-action="toggle-fav-sheet">${icon(target?.favorite ? 'star-filled' : 'star', 13)} <span>${target?.favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}</span></button>
+   <button type="button" data-action="open-move-folder-menu">${icon('folder', 13)} <span>Mover para pasta...</span></button>
+   ${canMoveUp ? `<button type="button" data-action="move-up-sheet">↑ <span>Mover para cima</span></button>` : ''}
+   ${canMoveDown ? `<button type="button" data-action="move-down-sheet">↓ <span>Mover para baixo</span></button>` : ''}
+   ${(canMoveUp || canMoveDown) ? `<div class="custom-context-menu-separator"></div>` : ''}
+   <button type="button" data-action="clone-sheet">${icon('copy', 13)} <span>Clonar ficha</span></button>
+   <div class="custom-context-menu-separator"></div>
+   <button type="button" data-action="delete-sheet" class="menu-danger">${icon('trash', 13)} <span>Deletar ficha</span></button>
+  `;
+
+  menu.querySelector('[data-action="toggle-fav-sheet"]').onclick = (ev) => {
+   ev.stopPropagation();
+   closeSheetContextMenu();
+   if (target) {
+    target.favorite = !target.favorite;
+    save(false);
+    render();
+   }
+  };
+
+  menu.querySelector('[data-action="open-move-folder-menu"]').onclick = (ev) => {
+   ev.stopPropagation();
+   renderMoveFolderMenu();
+  };
+
+  const btnUp = menu.querySelector('[data-action="move-up-sheet"]');
+  if (btnUp) {
+   btnUp.onclick = (ev) => {
+    ev.stopPropagation();
+    closeSheetContextMenu();
+    moveSheet(sheetId, -1);
+   };
+  }
+  const btnDown = menu.querySelector('[data-action="move-down-sheet"]');
+  if (btnDown) {
+   btnDown.onclick = (ev) => {
+    ev.stopPropagation();
+    closeSheetContextMenu();
+    moveSheet(sheetId, 1);
+   };
+  }
+
+  menu.querySelector('[data-action="clone-sheet"]').onclick = (ev) => {
+   ev.stopPropagation();
+   closeSheetContextMenu();
+   cloneSheet(sheetId);
+  };
+
+  menu.querySelector('[data-action="delete-sheet"]').onclick = (ev) => {
+   ev.stopPropagation();
+   closeSheetContextMenu();
+   deleteSheet(sheetId);
+  };
+ }
+
+ function renderMoveFolderMenu() {
+  menu.innerHTML = `
+   <div class="custom-context-menu-header">MOVER PARA PASTA</div>
+   <div class="custom-context-menu-folder-list" style="max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;">
+    ${folders.map(f => `
+      <button type="button" data-move-to-fld="${f.id}" style="${target?.folderId === f.id ? 'color:#60a5fa;font-weight:800;' : ''}">
+        ${icon(f.icon || 'folder', 13)} <span>${safe(f.name)}${target?.folderId === f.id ? ' (Atual)' : ''}</span>
+      </button>
+    `).join('')}
+   </div>
+   <div class="custom-context-menu-separator"></div>
+   <button type="button" data-action="back-default-menu">← <span>Voltar</span></button>
+  `;
+
+  menu.querySelectorAll('[data-move-to-fld]').forEach(btn => {
+   btn.onclick = (ev) => {
+    ev.stopPropagation();
+    closeSheetContextMenu();
+    const newFldId = btn.dataset.moveToFld;
+    if (target && target.folderId !== newFldId) {
+     target.folderId = newFldId;
+     save(true, 'FICHA MOVIDA PARA PASTA');
+     render();
+    }
+   };
+  });
+
+  menu.querySelector('[data-action="back-default-menu"]').onclick = (ev) => {
+   ev.stopPropagation();
+   renderDefaultMenu();
+  };
+ }
+
+ renderDefaultMenu();
  menu.hidden = false;
- const x = Math.min(window.innerWidth - 180, Math.max(10, e.clientX + 4));
- const y = Math.min(window.innerHeight - 150, Math.max(10, e.clientY + 4));
+ const x = Math.min(window.innerWidth - 190, Math.max(10, e.clientX + 4));
+ const y = Math.min(window.innerHeight - 220, Math.max(10, e.clientY + 4));
  menu.style.left = `${x}px`;
  menu.style.top = `${y}px`;
-
- const btnUp = menu.querySelector('[data-action="move-up-sheet"]');
- if (btnUp) {
-  btnUp.onclick = (ev) => {
-   ev.stopPropagation();
-   closeSheetContextMenu();
-   moveSheet(sheetId, -1);
-  };
- }
- const btnDown = menu.querySelector('[data-action="move-down-sheet"]');
- if (btnDown) {
-  btnDown.onclick = (ev) => {
-   ev.stopPropagation();
-   closeSheetContextMenu();
-   moveSheet(sheetId, 1);
-  };
- }
-
- menu.querySelector('[data-action="clone-sheet"]').onclick = (ev) => {
-  ev.stopPropagation();
-  closeSheetContextMenu();
-  cloneSheet(sheetId);
- };
-
- menu.querySelector('[data-action="delete-sheet"]').onclick = (ev) => {
-  ev.stopPropagation();
-  closeSheetContextMenu();
-  deleteSheet(sheetId);
- };
 }
 
 function moveSheet(sheetId, delta) {
@@ -1383,6 +1447,441 @@ function closeSheetContextMenu() {
  const menu = document.querySelector('#sheet-context-menu');
  if (menu) menu.hidden = true;
  activeContextMenuSheetId = null;
+}
+
+let activeContextMenuFolderId = null;
+function showFolderContextMenu(e, folderId) {
+ e.preventDefault();
+ e.stopPropagation();
+ closeSheetContextMenu();
+ activeContextMenuFolderId = folderId;
+ let menu = document.querySelector('#folder-context-menu');
+ if (!menu) {
+  menu = document.createElement('div');
+  menu.id = 'folder-context-menu';
+  menu.className = 'custom-context-menu';
+  document.body.appendChild(menu);
+ }
+ const folder = folders.find(f => f.id === folderId);
+ if (!folder) return;
+ const isVisibleInRail = appSettings.sidebarVisibleFolderIds.length === 0 || appSettings.sidebarVisibleFolderIds.includes(folderId);
+
+ menu.innerHTML = `
+  <div class="custom-context-menu-header">${safe(folder.name)}</div>
+  <button type="button" data-action="new-sheet-folder">${icon('plus', 13)} <span>Nova ficha nesta pasta</span></button>
+  <button type="button" data-action="toggle-rail-visibility">${icon(isVisibleInRail ? 'eye-off' : 'eye', 13)} <span>${isVisibleInRail ? 'Ocultar no Rail lateral' : 'Exibir no Rail lateral'}</span></button>
+  ${!folder.system ? `
+    <div class="custom-context-menu-separator"></div>
+    <button type="button" data-action="rename-folder">${icon('edit', 13)} <span>Renomear pasta</span></button>
+    <button type="button" data-action="delete-folder" class="menu-danger">${icon('trash', 13)} <span>Excluir pasta</span></button>
+  ` : ''}
+ `;
+ menu.hidden = false;
+ const x = Math.min(window.innerWidth - 190, Math.max(10, e.clientX + 4));
+ const y = Math.min(window.innerHeight - 170, Math.max(10, e.clientY + 4));
+ menu.style.left = `${x}px`;
+ menu.style.top = `${y}px`;
+
+ menu.querySelector('[data-action="new-sheet-folder"]').onclick = (ev) => {
+  ev.stopPropagation();
+  closeFolderContextMenu();
+  targetFolderForNewSheet = folderId;
+  const modal = document.querySelector('#system-select-modal');
+  if (modal) modal.style.display = 'flex';
+ };
+
+ menu.querySelector('[data-action="toggle-rail-visibility"]').onclick = (ev) => {
+  ev.stopPropagation();
+  closeFolderContextMenu();
+  toggleFolderRailVisibility(folderId);
+ };
+
+ const btnRename = menu.querySelector('[data-action="rename-folder"]');
+ if (btnRename) {
+  btnRename.onclick = (ev) => {
+   ev.stopPropagation();
+   closeFolderContextMenu();
+   const newName = prompt('Novo nome para a pasta:', folder.name);
+   if (newName && newName.trim() && newName.trim() !== folder.name) {
+    folders = updateFolder(folders, folderId, { name: newName.trim() });
+    persistFoldersToStorage(folders, { idbSet });
+    render();
+   }
+  };
+ }
+
+ const btnDelete = menu.querySelector('[data-action="delete-folder"]');
+ if (btnDelete) {
+  btnDelete.onclick = (ev) => {
+   ev.stopPropagation();
+   closeFolderContextMenu();
+   if (confirm(`Deseja excluir a pasta "${folder.name}"? As fichas não serão apagadas.`)) {
+    const res = deleteFolder(folders, sheets, folderId);
+    folders = res.folders;
+    sheets = res.sheets;
+    persistFoldersToStorage(folders, { idbSet });
+    save(false);
+    render();
+   }
+  };
+ }
+}
+
+function closeFolderContextMenu() {
+ const menu = document.querySelector('#folder-context-menu');
+ if (menu) menu.hidden = true;
+ activeContextMenuFolderId = null;
+}
+
+function toggleFolderRailVisibility(folderId) {
+ if (!appSettings.sidebarVisibleFolderIds || appSettings.sidebarVisibleFolderIds.length === 0) {
+  appSettings.sidebarVisibleFolderIds = folders.map(f => f.id).filter(id => id !== folderId);
+ } else if (appSettings.sidebarVisibleFolderIds.includes(folderId)) {
+  appSettings.sidebarVisibleFolderIds = appSettings.sidebarVisibleFolderIds.filter(id => id !== folderId);
+  if (appSettings.sidebarVisibleFolderIds.length === folders.length) {
+   appSettings.sidebarVisibleFolderIds = [];
+  }
+ } else {
+  appSettings.sidebarVisibleFolderIds.push(folderId);
+  if (appSettings.sidebarVisibleFolderIds.length === folders.length) {
+   appSettings.sidebarVisibleFolderIds = [];
+  }
+ }
+ saveAppSettings();
+ render();
+}
+
+function switchToSheet(targetId) {
+ if (!targetId) return;
+ trackRecentSheet(targetId);
+ sheetDrawerOpen = false;
+ if (!sidebarNavigatorPinned) {
+  sidebarNavigatorOpen = false;
+  appSettings.sidebarNavigatorOpen = false;
+  saveAppSettings();
+ }
+ if (targetId === state.id) { render(); return; }
+ save(false);
+ editMode = false;
+ const doSwitch = () => {
+  state = sheets.find(sheet => sheet.id === targetId) || state;
+  activeSheetId = state.id;
+  if (presentationMode) {
+   presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
+   state.viewMode = 'cinematic';
+  }
+  render();
+ };
+ if (state.viewMode === 'cinematic' || presentationMode) {
+  triggerGlitchTransition(doSwitch);
+ } else {
+  doSwitch();
+ }
+}
+
+function updateNavigatorTreeOnly() {
+ const container = document.querySelector('#workspace-navigator .nav-tree-scroll');
+ if (!container) return;
+ container.innerHTML = renderNavigatorTreeContent(folders, sheets, state.id, {
+  searchQuery: sidebarSearchQuery,
+  scope: sidebarScope,
+  visibleFolderIds: appSettings.sidebarVisibleFolderIds,
+  recentSheetIds: appSettings.recentSheetIds,
+  safeUrl
+ });
+ bindNavigatorTreeEvents(container);
+}
+
+function updateMobileDrawerOnly() {
+ const container = document.querySelector('.sheet-drawer .sheet-drawer-list');
+ if (!container) return;
+ const isSearching = Boolean(mobileSearchQuery && mobileSearchQuery.trim());
+ if (isSearching) {
+  container.innerHTML = renderNavigatorTreeContent(folders, sheets, state.id, {
+   searchQuery: mobileSearchQuery,
+   scope: 'all',
+   safeUrl
+  });
+ } else {
+  container.innerHTML = renderNavigatorTreeContent(folders, sheets, state.id, {
+   searchQuery: '',
+   scope: 'all',
+   safeUrl
+  });
+ }
+ bindNavigatorTreeEvents(container);
+}
+
+function bindNavigatorTreeEvents(container = document) {
+ container.querySelectorAll('[data-toggle-folder-id], [data-folder-click-toggle]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   const folderId = el.dataset.toggleFolderId || el.dataset.folderClickToggle;
+   const f = folders.find(item => item.id === folderId);
+   if (f) {
+    f.collapsed = !f.collapsed;
+    persistFoldersToStorage(folders, { idbSet });
+    updateNavigatorTreeOnly();
+    updateMobileDrawerOnly();
+   }
+  };
+ });
+
+ container.querySelectorAll('[data-select-sheet-id]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   switchToSheet(el.dataset.selectSheetId);
+  };
+ });
+
+ container.querySelectorAll('[data-toggle-fav-sheet]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   const sId = el.dataset.toggleFavSheet;
+   const s = sheets.find(item => item.id === sId);
+   if (s) {
+    s.favorite = !s.favorite;
+    save(false);
+    render();
+   }
+  };
+ });
+
+ container.querySelectorAll('[data-toggle-visibility-folder]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   toggleFolderRailVisibility(el.dataset.toggleVisibilityFolder);
+  };
+ });
+
+ container.querySelectorAll('[data-sheet-menu-btn]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   showSheetContextMenu(e, el.dataset.sheetMenuBtn);
+  };
+ });
+
+ container.querySelectorAll('.nav-sheet-item').forEach(el => {
+  el.oncontextmenu = (e) => {
+   e.stopPropagation();
+   showSheetContextMenu(e, el.dataset.navSheetRow);
+  };
+ });
+
+ container.querySelectorAll('[data-folder-menu-btn]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   showFolderContextMenu(e, el.dataset.folderMenuBtn);
+  };
+ });
+
+ container.querySelectorAll('.nav-folder-header').forEach(el => {
+  el.oncontextmenu = (e) => {
+   e.stopPropagation();
+   showFolderContextMenu(e, el.dataset.folderHeaderId);
+  };
+ });
+
+ container.querySelectorAll('.nav-sheet-item').forEach(item => {
+  item.ondragstart = (e) => {
+   const sheetId = item.dataset.navSheetRow;
+   draggedSheetId = sheetId;
+   isDraggingSheet = true;
+   try {
+    e.dataTransfer.setData('text/sheet-id', sheetId);
+    e.dataTransfer.setData('text/plain', sheetId);
+   } catch {}
+   e.dataTransfer.effectAllowed = 'move';
+   item.classList.add('dragging');
+  };
+  item.ondragend = () => {
+   item.classList.remove('dragging');
+   setTimeout(() => {
+    isDraggingSheet = false;
+    draggedSheetId = null;
+   }, 100);
+  };
+ });
+
+ container.querySelectorAll('[data-folder-drop-zone], [data-folder-header-id]').forEach(zone => {
+  zone.ondragover = (e) => {
+   e.preventDefault();
+   e.stopPropagation();
+   e.dataTransfer.dropEffect = 'move';
+   zone.classList.add('folder-drag-over');
+  };
+  zone.ondragleave = (e) => {
+   e.stopPropagation();
+   zone.classList.remove('folder-drag-over');
+  };
+  zone.ondrop = (e) => {
+   e.preventDefault();
+   e.stopPropagation();
+   zone.classList.remove('folder-drag-over');
+   const targetFolderId = zone.dataset.folderDropZone || zone.dataset.folderHeaderId;
+   const sheetId = e.dataTransfer.getData('text/sheet-id') || draggedSheetId;
+   if (sheetId && targetFolderId) {
+    const sheet = sheets.find(s => s.id === sheetId);
+    if (sheet && sheet.folderId !== targetFolderId) {
+     sheet.folderId = targetFolderId;
+     save(true, 'FICHA MOVIDA PARA PASTA');
+     render();
+    }
+   }
+  };
+ });
+}
+
+function bindQuickSwitcherEvents() {
+ if (!quickSwitcherOpen) return;
+ const modal = document.querySelector('#quick-switcher-modal');
+ if (!modal) return;
+
+ modal.querySelectorAll('[data-close-quick-switcher]').forEach(el => {
+  el.onclick = () => {
+   quickSwitcherOpen = false;
+   render();
+  };
+ });
+
+ const qsInput = modal.querySelector('[data-qs-input]');
+ if (qsInput) {
+  qsInput.oninput = (e) => {
+   quickSwitcherQuery = e.target.value;
+   quickSwitcherIndex = 0;
+   const { count, html } = renderQuickSwitcherResults(sheets, folders, quickSwitcherQuery, quickSwitcherIndex, safeUrl);
+   const rBox = modal.querySelector('.quick-switcher-results');
+   if (rBox) rBox.innerHTML = html;
+   const cBox = modal.querySelector('.quick-switcher-count');
+   if (cBox) cBox.textContent = `${count} fichas`;
+   bindQuickSwitcherItemEvents();
+  };
+ }
+ bindQuickSwitcherItemEvents();
+}
+
+function bindQuickSwitcherItemEvents() {
+ const container = document.querySelector('.quick-switcher-results');
+ if (!container) return;
+ container.querySelectorAll('.quick-switcher-item').forEach(item => {
+  item.onclick = (e) => {
+   e.stopPropagation();
+   const sheetId = item.dataset.qsSheetId;
+   if (sheetId) {
+    quickSwitcherOpen = false;
+    switchToSheet(sheetId);
+   }
+  };
+ });
+}
+
+function bindWorkspaceSidebarEvents() {
+ document.querySelectorAll('[data-toggle-navigator]').forEach(btn => {
+  btn.onclick = () => {
+   sidebarNavigatorOpen = !sidebarNavigatorOpen;
+   appSettings.sidebarNavigatorOpen = sidebarNavigatorOpen;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-close-navigator]').forEach(btn => {
+  btn.onclick = () => {
+   sidebarNavigatorOpen = false;
+   appSettings.sidebarNavigatorOpen = false;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-nav-pin]').forEach(btn => {
+  btn.onclick = () => {
+   sidebarNavigatorPinned = !sidebarNavigatorPinned;
+   appSettings.sidebarNavigatorPinned = sidebarNavigatorPinned;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-sidebar-scope], [data-nav-scope-tab]').forEach(btn => {
+  btn.onclick = () => {
+   const nextScope = btn.dataset.sidebarScope || btn.dataset.navScopeTab || 'all';
+   if (nextScope === sidebarScope) return;
+   sidebarScope = nextScope;
+   appSettings.sidebarScope = sidebarScope;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-nav-search-input]').forEach(input => {
+  input.oninput = (e) => {
+   sidebarSearchQuery = e.target.value;
+   updateNavigatorTreeOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-nav-clear-search]').forEach(btn => {
+  btn.onclick = () => {
+   sidebarSearchQuery = '';
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-nav-create-folder]').forEach(btn => {
+  btn.onclick = () => {
+   const name = prompt('Nome da nova pasta:');
+   if (name && name.trim()) {
+    const res = createFolder(folders, { name: name.trim() });
+    folders = res.folders;
+    persistFoldersToStorage(folders, { idbSet });
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-nav-collapse-all]').forEach(btn => {
+  btn.onclick = () => {
+   folders.forEach(f => f.collapsed = true);
+   persistFoldersToStorage(folders, { idbSet });
+   updateNavigatorTreeOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-nav-expand-all]').forEach(btn => {
+  btn.onclick = () => {
+   folders.forEach(f => f.collapsed = false);
+   persistFoldersToStorage(folders, { idbSet });
+   updateNavigatorTreeOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-open-quick-switcher]').forEach(btn => {
+  btn.onclick = () => {
+   quickSwitcherOpen = true;
+   quickSwitcherQuery = '';
+   quickSwitcherIndex = 0;
+   render();
+   setTimeout(() => document.querySelector('[data-qs-input]')?.focus(), 25);
+  };
+ });
+
+ document.querySelectorAll('[data-mobile-search-input]').forEach(input => {
+  input.oninput = (e) => {
+   mobileSearchQuery = e.target.value;
+   updateMobileDrawerOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-mobile-clear-search]').forEach(btn => {
+  btn.onclick = () => {
+   mobileSearchQuery = '';
+   render();
+  };
+ });
+
+ bindNavigatorTreeEvents(document);
+ bindQuickSwitcherEvents();
 }
 
 function cloneSheet(sheetId) {
@@ -1956,25 +2455,7 @@ function bind(){
       e.stopPropagation();
       return;
      }
-     const targetId=el.dataset.sheetId;
-     sheetDrawerOpen=false;
-     if(targetId===state.id){render();return;}
-     save(false);
-     editMode=false;
-     const doSwitch=()=>{
-      state=sheets.find(sheet=>sheet.id===targetId)||state;
-      activeSheetId=state.id;
-      if(presentationMode){
-       presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
-       state.viewMode='cinematic';
-      }
-      render();
-     };
-     if(state.viewMode==='cinematic'||presentationMode){
-      triggerGlitchTransition(doSwitch);
-     }else{
-      doSwitch();
-     }
+     switchToSheet(el.dataset.sheetId);
     });
     document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{
      if(presentationMode){notifyPresentationLocked();return;}
@@ -1993,13 +2474,19 @@ function bind(){
       save(false);
       editMode=false;
       const currentMode=state.viewMode||'cinematic';
-      // Ordem 1: toda ficha nova começa como Sobrevivente no Estágio 1.
-      const inicioOriginal=mode==='original'?{classeId:'sobrevivente',nex:0,trilhaId:'durao',atributos:{for:1,agi:1,vig:1,int:1,pre:1}}:{};
-      const sheet=normalizeSheet({name:`AGENTE ${sheets.length+1}`,systemMode:mode,viewMode:currentMode,...inicioOriginal});
+      const defaultFolderId=targetFolderForNewSheet||(mode==='threat'?'folder-threats':'folder-characters');
+      targetFolderForNewSheet=null;
+      const inicioOriginal=mode==='original'
+        ?{classeId:'sobrevivente',nex:0,trilhaId:'durao',atributos:{for:1,agi:1,vig:1,int:1,pre:1}}
+        :(mode==='threat'?{vd:60,elementos:['sangue'],pv:120,maxPv:120}:{});
+      const sheetName=mode==='threat'
+        ?`AMEAÇA ${sheets.filter(isThreatSheet).length+1}`
+        :`AGENTE ${sheets.filter(isCharacterSheet).length+1}`;
+      const sheet=normalizeSheet({name:sheetName,systemMode:mode,folderId:defaultFolderId,viewMode:currentMode,...inicioOriginal});
       sheets.push(sheet);
       state=sheet;
       activeSheetId=sheet.id;
-      // Com o tutorial desligado ainda se pergunta a regra de recursos (PE/SAN ou PD).
+      trackRecentSheet(sheet.id);
       if(mode==='original'){
        abrirTutorial(sheet,{soRecursos:!appSettings.tutorialOriginal,onFinish:()=>{if(state===sheet){save(false);render();}}});
       }else fecharTutorial();
@@ -2027,7 +2514,7 @@ function bind(){
   // ── Modo de Apresentação (Dossiês de Agentes) ───────────────────────────────
   bindPresentationEvents();
 
-  bindCinematicToken();bindSheetInteractions();
+  bindCinematicToken();bindSheetInteractions();bindWorkspaceSidebarEvents();
 
   // ── Interações do Sistema Original (d20) ───────────────────────────────────
   document.querySelectorAll('[data-original-tab]').forEach(btn=>{
@@ -2402,9 +2889,58 @@ function bind(){
  });
  bindRollLogItemEvents();
 }
-document.addEventListener('click',e=>{closeSheetContextMenu();if(!viewSwitchCollapsed&&!e.target.closest('.view-mode-switch')){viewSwitchCollapsed=true;const sw=document.querySelector('.view-mode-switch');if(sw){sw.className='view-mode-switch collapsed';sw.innerHTML=`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`;const trig=sw.querySelector('[data-toggle-view-switch]');if(trig)trig.onclick=ev=>{ev.stopPropagation();viewSwitchCollapsed=!viewSwitchCollapsed;render()}}}});
+document.addEventListener('click',e=>{closeSheetContextMenu();closeFolderContextMenu();if(!viewSwitchCollapsed&&!e.target.closest('.view-mode-switch')){viewSwitchCollapsed=true;const sw=document.querySelector('.view-mode-switch');if(sw){sw.className='view-mode-switch collapsed';sw.innerHTML=`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${state.viewMode==='cinematic'?icon('film',14):icon('grid',14)}<span>${state.viewMode==='cinematic'?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`;const trig=sw.querySelector('[data-toggle-view-switch]');if(trig)trig.onclick=ev=>{ev.stopPropagation();viewSwitchCollapsed=!viewSwitchCollapsed;render()}}}});
 
 document.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){
+  e.preventDefault();
+  quickSwitcherOpen=!quickSwitcherOpen;
+  quickSwitcherQuery='';
+  quickSwitcherIndex=0;
+  render();
+  if(quickSwitcherOpen){
+   setTimeout(()=>document.querySelector('[data-qs-input]')?.focus(),25);
+  }
+  return;
+ }
+
+ if(quickSwitcherOpen){
+  if(e.key==='Escape'){
+   e.preventDefault();
+   quickSwitcherOpen=false;
+   render();
+   return;
+  }
+  const items=Array.from(document.querySelectorAll('.quick-switcher-item'));
+  if(e.key==='ArrowDown'){
+   e.preventDefault();
+   if(items.length>0){
+    quickSwitcherIndex=(quickSwitcherIndex+1)%items.length;
+    items.forEach((it,idx)=>it.classList.toggle('selected',idx===quickSwitcherIndex));
+    items[quickSwitcherIndex]?.scrollIntoView({block:'nearest'});
+   }
+   return;
+  }
+  if(e.key==='ArrowUp'){
+   e.preventDefault();
+   if(items.length>0){
+    quickSwitcherIndex=(quickSwitcherIndex-1+items.length)%items.length;
+    items.forEach((it,idx)=>it.classList.toggle('selected',idx===quickSwitcherIndex));
+    items[quickSwitcherIndex]?.scrollIntoView({block:'nearest'});
+   }
+   return;
+  }
+  if(e.key==='Enter'){
+   e.preventDefault();
+   const selectedItem=items[quickSwitcherIndex]||items[0];
+   if(selectedItem?.dataset?.qsSheetId){
+    quickSwitcherOpen=false;
+    switchToSheet(selectedItem.dataset.qsSheetId);
+   }
+   return;
+  }
+ }
+
  if(presentationMode){
   if(e.key==='Escape'){closePresentationMode();return;}
   if(e.key==='ArrowLeft'){cyclePresentation(-1);return;}
@@ -2412,13 +2948,31 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===' '){e.preventDefault();const pres=getPresentationSheets();confirmPresentationAgent(pres[presentationIndex]||pres[0]);return;}
   return;
  }
- if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false);document.querySelector('#critical-settings-modal')?.classList.remove('open');const m=document.querySelector('#system-select-modal');if(m)m.style.display='none';}
+ if(e.key==='Escape'){
+  closeSheetContextMenu();
+  closeFolderContextMenu();
+  if(sidebarNavigatorOpen&&!sidebarNavigatorPinned){
+   sidebarNavigatorOpen=false;
+   appSettings.sidebarNavigatorOpen=false;
+   saveAppSettings();
+   render();
+   return;
+  }
+  closeSlotModal();
+  closeCardEditor();
+  closeSkillInfo();
+  toggleRollLog(false);
+  document.querySelector('#critical-settings-modal')?.classList.remove('open');
+  const m=document.querySelector('#system-select-modal');
+  if(m)m.style.display='none';
+ }
  if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}
 });
 
 let resizeRaf=0;
 window.addEventListener('resize',()=>{
  closeSheetContextMenu();
+ closeFolderContextMenu();
  if(resizeRaf)cancelAnimationFrame(resizeRaf);
  resizeRaf=requestAnimationFrame(()=>{
   resizeRaf=0;

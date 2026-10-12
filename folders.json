@@ -1,0 +1,24 @@
+[
+  {
+    "id": "folder-characters",
+    "name": "Personagens",
+    "kind": "characters",
+    "parentId": null,
+    "color": "#e0150d",
+    "icon": "user",
+    "collapsed": false,
+    "order": 0,
+    "system": true
+  },
+  {
+    "id": "folder-threats",
+    "name": "Ameaças",
+    "kind": "threats",
+    "parentId": null,
+    "color": "#993ce8",
+    "icon": "skull",
+    "collapsed": false,
+    "order": 1,
+    "system": true
+  }
+]
