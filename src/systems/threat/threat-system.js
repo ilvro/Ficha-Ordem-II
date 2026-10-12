@@ -53,6 +53,17 @@ export function formatPool(pool) {
 }
 
 /**
+ * Formata um pool de dados com glifo de hexágono/d20 como no livro: "3⬡+10" ou "2⬡".
+ */
+export function formatPoolGlyph(pool) {
+  if (!pool) return '1⬡';
+  const d = Math.max(1, Number(pool.dados) || 1);
+  const b = Number(pool.bonus) || 0;
+  if (b === 0) return `${d}⬡`;
+  return `${d}⬡${b > 0 ? `+${b}` : b}`;
+}
+
+/**
  * Faz o parse de strings como "3d20+10", "3⬡+10", "2d20-5", "4d20" em { dados, bonus }.
  */
 export function parsePool(str) {
@@ -168,17 +179,23 @@ export function normalizeThreatSheet(raw = {}) {
 
   // Atributos
   const aRaw = raw.atributos || {};
+  const parseAttr = (v, defaultVal = 2) => {
+    if (v === 0 || v === '0' || v === '-' || v === null) return 0;
+    const n = Number(v);
+    return isNaN(n) ? defaultVal : Math.max(0, n);
+  };
   sheet.atributos = {
-    agi: Math.max(0, Number(aRaw.agi) || 2),
-    for: Math.max(0, Number(aRaw.for) || 2),
-    int: Math.max(0, Number(aRaw.int) || 1),
-    pre: Math.max(0, Number(aRaw.pre) || 2),
-    vig: Math.max(0, Number(aRaw.vig) || 2)
+    agi: parseAttr(aRaw.agi, 2),
+    for: parseAttr(aRaw.for, (aRaw.for === 0 || aRaw.for === '0' || aRaw.for === '-' || aRaw.for === null ? 0 : 2)),
+    int: parseAttr(aRaw.int, 1),
+    pre: parseAttr(aRaw.pre, 2),
+    vig: parseAttr(aRaw.vig, 2)
   };
 
   // Deslocamento
   const dRaw = raw.deslocamento || {};
   sheet.deslocamento = {
+    tipo: String(dRaw.tipo || '').trim(),
     metros: Math.max(0, Number(dRaw.metros) || 12),
     extras: Array.isArray(dRaw.extras)
       ? dRaw.extras.map(e => ({ tipo: String(e.tipo || ''), metros: Number(e.metros) || 0 }))
@@ -202,7 +219,8 @@ export function normalizeThreatSheet(raw = {}) {
         id: s.id || makeId('sec'),
         titulo: String(s.titulo || '').trim(),
         corpo: String(s.corpo || '').trim(),
-        estilo: s.estilo === 'enigma' ? 'enigma' : 'normal'
+        estilo: s.estilo === 'enigma' ? 'enigma' : 'normal',
+        coluna: s.coluna === 'direita' ? 'direita' : 'esquerda'
       }))
     : [];
 
@@ -214,6 +232,7 @@ export function normalizeThreatSheet(raw = {}) {
         nome: String(a.nome || 'Ação').trim(),
         gatilho: String(a.gatilho || '').trim(),
         custo: String(a.custo || '').trim(),
+        coluna: a.coluna === 'esquerda' ? 'esquerda' : 'direita',
         usos: a.usos ? { atual: Number(a.usos.atual) || 0, max: Number(a.usos.max) || 1 } : null,
         ataques: Array.isArray(a.ataques)
           ? a.ataques.map(atk => ({

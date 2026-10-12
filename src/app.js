@@ -1460,6 +1460,8 @@ function bindThreatBookEvents() {
   form.querySelector('#threat-action-name-input').value = action ? action.nome : '';
   form.querySelector('#threat-action-trigger').value = action ? (action.gatilho || '') : '';
   form.querySelector('#threat-action-hurt').value = action ? (action.ativaQuando || '') : '';
+  const colInput = form.querySelector('#threat-action-column');
+  if (colInput) colInput.value = action ? (action.coluna || 'direita') : 'direita';
   form.querySelector('#threat-action-text-input').value = action ? (action.texto || '') : '';
 
   attacksContainer.innerHTML = '';
@@ -1565,6 +1567,7 @@ function bindThreatBookEvents() {
    const nome = actionForm.querySelector('#threat-action-name-input').value.trim() || 'Ação';
    const gatilho = actionForm.querySelector('#threat-action-trigger').value.trim();
    const ativaQuando = actionForm.querySelector('#threat-action-hurt').value || null;
+   const coluna = actionForm.querySelector('#threat-action-column')?.value || 'direita';
    const texto = actionForm.querySelector('#threat-action-text-input').value.trim();
 
    const attacks = [];
@@ -1595,7 +1598,7 @@ function bindThreatBookEvents() {
     usos: null,
     ataques: attacks,
     texto,
-    coluna: 'esquerda',
+    coluna,
     ativaQuando,
     fase: null
    };
@@ -1658,6 +1661,8 @@ function bindThreatBookEvents() {
   modal.querySelector('#threat-section-modal-title').textContent = section ? 'EDITAR SEÇÃO' : 'NOVA SEÇÃO / ENIGMA';
   form.querySelector('#threat-section-id').value = section ? section.id : '';
   form.querySelector('#threat-section-style').value = section ? section.estilo : 'normal';
+  const colInput = form.querySelector('#threat-section-column');
+  if (colInput) colInput.value = section ? (section.coluna || 'esquerda') : 'esquerda';
   form.querySelector('#threat-section-title-input').value = section ? section.titulo : '';
   form.querySelector('#threat-section-body-input').value = section ? section.corpo : '';
   modal.style.display = 'grid';
@@ -1695,6 +1700,7 @@ function bindThreatBookEvents() {
    e.preventDefault();
    const sectionId = sectionForm.querySelector('#threat-section-id').value;
    const estilo = sectionForm.querySelector('#threat-section-style').value;
+   const coluna = sectionForm.querySelector('#threat-section-column')?.value || 'esquerda';
    const titulo = sectionForm.querySelector('#threat-section-title-input').value.trim() || 'Seção';
    const corpo = sectionForm.querySelector('#threat-section-body-input').value.trim();
 
@@ -1704,7 +1710,8 @@ function bindThreatBookEvents() {
     id: sectionId || `sec-${Date.now()}`,
     titulo,
     corpo,
-    estilo
+    estilo,
+    coluna
    };
 
    if (existingIdx >= 0) {

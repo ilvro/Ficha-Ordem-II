@@ -47,45 +47,150 @@
 .threat-dossier-card {
   position: relative;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1080px;
   background: #090a0f;
-  border: 1px solid #1a1c29;
-  border-top: 5px solid #ffffff;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.04);
   overflow: hidden;
   z-index: 2;
+  padding: 16px 22px 24px 22px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ── Banner / Cabeçalho do Livro ─────────────────────────────────────────── */
+/* ── Barra Superior Branca do Livro ──────────────────────────────────────── */
+.threat-book-top-bar {
+  width: 100%;
+  height: 6px;
+  background: #ffffff;
+  margin-bottom: 18px;
+}
+
+/* ── Marca d'água / Arte da Criatura no Fundo ────────────────────────────── */
+.threat-creature-watermark {
+  position: absolute;
+  right: -5%;
+  bottom: 0;
+  width: 60%;
+  height: 80%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.16;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  mask-image: radial-gradient(ellipse at 70% 70%, black 15%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 70% 70%, black 15%, transparent 75%);
+}
+
+/* ── Temas de Fundo por Elemento da Criatura (Fidelidade Máxima ao Livro) ── */
+.threat-dossier-card.element-theme-sangue {
+  background-color: #0f0305;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(200, 15, 22, 0.38) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(140, 8, 14, 0.42) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(35, 6, 9, 0.65) 0%, rgba(10, 3, 4, 0.98) 100%),
+    linear-gradient(135deg, rgba(220, 20, 20, 0.05) 0%, transparent 50%);
+  border-color: rgba(224, 21, 13, 0.28);
+}
+.threat-dossier-card.element-theme-morte {
+  background-color: #0a0b10;
+  background-image: 
+    radial-gradient(circle at 80% 20%, rgba(85, 90, 110, 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 20% 85%, rgba(40, 42, 55, 0.45) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(18, 19, 28, 0.6) 0%, rgba(8, 8, 12, 0.98) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.threat-dossier-card.element-theme-energia {
+  background-color: #121e29;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(65, 175, 230, 0.38) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(130, 45, 210, 0.32) 0%, transparent 55%),
+    radial-gradient(circle at 50% 40%, rgba(30, 65, 90, 0.65) 0%, rgba(14, 25, 36, 0.98) 100%),
+    linear-gradient(135deg, rgba(200, 235, 255, 0.09) 0%, transparent 40%, rgba(120, 40, 200, 0.1) 100%);
+  border-color: rgba(130, 210, 255, 0.28);
+}
+.threat-dossier-card.element-theme-conhecimento {
+  background-color: #0f0c05;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(235, 160, 20, 0.38) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(160, 100, 10, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(30, 22, 10, 0.6) 0%, rgba(10, 8, 3, 0.98) 100%),
+    linear-gradient(135deg, rgba(240, 180, 40, 0.06) 0%, transparent 50%);
+  border-color: rgba(229, 161, 28, 0.28);
+}
+.threat-dossier-card.element-theme-medo {
+  background-color: #070b0e;
+  background-image: 
+    radial-gradient(circle at 80% 15%, rgba(190, 225, 240, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 20% 85%, rgba(45, 70, 85, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(15, 25, 32, 0.6) 0%, rgba(6, 10, 13, 0.98) 100%),
+    linear-gradient(135deg, rgba(210, 235, 245, 0.06) 0%, transparent 50%);
+  border-color: rgba(200, 230, 245, 0.25);
+}
+.threat-dossier-card.element-theme-mundana {
+  background: #0d0f15;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Banner / Cabeçalho do Livro (Na Coluna Esquerda) ────────────────────── */
 .threat-banner-header {
   position: relative;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, var(--threat-elem-dark, #1f0709) 0%, #0d0f18 75%);
-  border-bottom: 2.5px solid var(--threat-elem-color, #e0150d);
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  margin-bottom: 6px;
+  z-index: 3;
 }
 
 .threat-banner-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
   flex: 1;
+  padding: 8px 18px 8px 10px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+}
+
+.threat-banner-left.element-banner-sangue {
+  background: linear-gradient(90deg, #780a0a 0%, #9e1212 55%, #580404 100%);
+}
+.threat-banner-left.element-banner-morte {
+  background: linear-gradient(90deg, #111218 0%, #1c1d28 55%, #0e0f14 100%);
+}
+.threat-banner-left.element-banner-energia {
+  background: linear-gradient(90deg, #741ca0 0%, #9226c7 55%, #59107e 100%);
+}
+.threat-banner-left.element-banner-conhecimento {
+  background: linear-gradient(90deg, #b87508 0%, #d48b11 55%, #8c5603 100%);
+}
+.threat-banner-left.element-banner-medo {
+  background: linear-gradient(90deg, #16242c 0%, #253d4a 55%, #101a1f 100%);
+}
+.threat-banner-left.element-banner-mundana {
+  background: linear-gradient(90deg, #181b26 0%, #232738 55%, #13151f 100%);
 }
 
 .threat-sigil-icon {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
   color: #ffffff;
-  filter: drop-shadow(0 0 8px var(--threat-elem-color, rgba(255, 255, 255, 0.5)));
+}
+
+.threat-element-sigil-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+  user-select: none;
+  pointer-events: none;
 }
 
 .threat-name-wrap {
@@ -104,9 +209,9 @@
   margin: 0;
   font-family: var(--font-display, 'Cinzel', Georgia, serif);
   font-weight: 900;
-  font-size: 32px;
+  font-size: 24px;
   color: #ffffff;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.1;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
@@ -118,7 +223,7 @@
 
 .threat-subtitle-tag {
   font-family: var(--font-display, 'Cinzel', sans-serif);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.15em;
   color: #ffffff;
@@ -129,31 +234,50 @@
 .threat-book-vd-stamp {
   background: #ffffff;
   color: #000000;
-  padding: 3px 14px 4px 12px;
-  clip-path: polygon(3% 0%, 97% 2%, 100% 90%, 94% 100%, 4% 96%, 0% 10%);
-  transform: rotate(-2.5deg);
+  padding: 4px 14px 4px 18px;
+  clip-path: polygon(14px 0, calc(100% - 3px) 0, 100% 8px, calc(100% - 2px) 18px, 100% 28px, calc(100% - 3px) 38px, calc(100% - 5px) 100%, 0 100%);
+  margin-left: -12px;
   display: flex;
-  align-items: baseline;
-  gap: 5px;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
   user-select: none;
 }
 
 .threat-book-vd-stamp .vd-text {
-  font-family: var(--font-display, 'Cinzel', sans-serif);
-  font-weight: 800;
-  font-size: 15px;
+  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-weight: 900;
+  font-size: 14px;
   letter-spacing: 0.5px;
-  color: #111111;
+  color: #000000;
+}
+
+.vd-number-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+}
+
+.vd-circle-svg {
+  position: absolute;
+  inset: -4px -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 8px);
+  pointer-events: none;
 }
 
 .threat-book-vd-stamp .vd-number {
   font-family: var(--font-display, 'Cinzel', Georgia, serif);
   font-weight: 900;
-  font-size: 32px;
-  line-height: 1;
+  font-size: 28px;
+  line-height: 0.95;
   letter-spacing: -1px;
   color: #000000;
+  position: relative;
+  z-index: 1;
 }
 
 .threat-vd-input {
@@ -162,27 +286,31 @@
   color: #000000;
   font-family: var(--font-display, 'Cinzel', Georgia, serif);
   font-weight: 900;
-  font-size: 28px;
-  width: 60px;
+  font-size: 26px;
+  width: 55px;
   line-height: 1;
   text-align: right;
   outline: none;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Linha de Tags / Metadados (CRIATURA • TAMANHO) ───────────────────────── */
 .threat-meta-line {
-  padding: 8px 24px;
+  position: relative;
+  padding: 4px 2px 6px 2px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #08090d;
-  font-size: 12px;
+  background: transparent;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   color: #ffffff;
   text-transform: uppercase;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  z-index: 2;
 }
 
 .threat-meta-tags-group {
@@ -197,6 +325,50 @@
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 1.2px;
+}
+
+/* Pílulas de Elementos Secundários (Idênticas ao Memento Mori no livro) */
+.threat-meta-elem-pill {
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 1.5px 7px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.threat-pill-sigil-icon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  user-select: none;
+  pointer-events: none;
+}
+.element-pill-conhecimento {
+  background: #e5a11c;
+  color: #000000;
+}
+.element-pill-medo {
+  background: #181920;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+.element-pill-sangue {
+  background: #e0150d;
+  color: #ffffff;
+}
+.element-pill-energia {
+  background: #993ce8;
+  color: #ffffff;
+}
+.element-pill-morte {
+  background: #4a4b59;
+  color: #ffffff;
 }
 
 .threat-book-elem-tag {
@@ -253,9 +425,12 @@
 }
 
 .threat-book-top-divider {
-  height: 2px;
+  position: relative;
+  height: 1.5px;
   background: #ffffff;
-  margin: 0 24px 16px 24px;
+  opacity: 0.85;
+  margin: 2px 0 14px 0;
+  z-index: 2;
 }
 
 /* ── Layout de Colunas do Livro ──────────────────────────────────────────── */
@@ -263,7 +438,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
-  padding: 0 24px 24px 24px;
+  padding: 0;
 }
 
 @media (max-width: 860px) {
@@ -293,18 +468,48 @@
 
 /* ── Marca Registrada: Título em Caixa Branca com Texto Preto ────────────── */
 .threat-book-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   background: #ffffff;
   color: #000000;
-  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 900;
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.25;
-  letter-spacing: 0.8px;
-  padding: 2px 7px;
+  letter-spacing: 0.6px;
+  padding: 2.5px 8px;
   text-transform: uppercase;
-  border-radius: 1px;
+  border-radius: 0;
   user-select: none;
+}
+
+/* ── Valor em Caixa Branca com Texto Preto (DEFESA, PV, DESLOCAMENTO) ────── */
+.threat-book-badge-val {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  color: #000000;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1.25;
+  letter-spacing: 0.5px;
+  padding: 2.5px 8px;
+  text-transform: uppercase;
+  border-radius: 0;
+  user-select: none;
+}
+
+.threat-book-hp-sub {
+  font-size: 13px;
+  color: #ffffff;
+  margin-left: 4px;
+}
+
+.threat-hp-max-sub {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  margin-left: 2px;
 }
 
 .threat-book-divider {
@@ -394,27 +599,74 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Tokens de Rolagem (D20 / Facetados) ──────────────────────────────────── */
+/* ── Tokens de Rolagem (D20 / Facetados no Livro) ─────────────────────────── */
 .threat-die-token {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  gap: 2px;
+  background: transparent;
+  border: none;
   color: #ffffff;
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 0 4px;
+  border-radius: 2px;
   font-family: inherit;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .threat-die-token:hover {
-  background: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.threat-pool-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5px;
+  letter-spacing: 0.3px;
+}
+
+.die-svg.threat-inline-die {
+  display: inline-flex !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  vertical-align: -1.5px !important;
+  margin: 0 1px !important;
+  padding: 0 !important;
+  color: #ffffff !important;
+}
+
+.die-svg.threat-inline-die svg {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
+}
+
+.die-svg.threat-inline-die .die-face {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.die-svg.threat-inline-die text {
+  font-family: var(--font-display, 'Cinzel', Georgia, serif) !important;
+  font-weight: 900 !important;
+  fill: #000000 !important;
+  font-size: 38px !important;
+}
+
+.die-svg.threat-inline-die .die-facets,
+.die-svg.threat-inline-die .die-highlight,
+.die-svg.threat-inline-die .die-shadow {
+  stroke: #000000 !important;
+  stroke-width: 5px !important;
+  fill: none !important;
 }
 
 /* ── Pontos de Vida ──────────────────────────────────────────────────────── */
@@ -445,26 +697,26 @@
 
 .threat-book-hp-bar-wrap {
   margin: 6px 0 8px 0;
+  transition: all 0.2s ease;
 }
 
 .threat-hp-track-book {
   position: relative;
   width: 100%;
-  height: 8px;
-  background: #191b26;
-  border: 1px solid #2d3042;
-  border-radius: 2px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
   overflow: hidden;
 }
 
 .threat-hp-fill-book {
   height: 100%;
-  background: #d4171d;
+  background: #e0150d;
   transition: width 0.3s ease;
 }
 
 .threat-hp-fill-book.is-hurt {
-  background: #ff2228;
+  background: #ff2a2a;
 }
 
 .threat-hp-machucado-line-book {
@@ -472,7 +724,7 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 2px;
+  width: 1.5px;
   background: #ffffff;
   transform: translateX(-50%);
   z-index: 2;
@@ -481,42 +733,40 @@
 .threat-hp-steppers-book {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   margin-top: 4px;
   flex-wrap: wrap;
 }
 
 .threat-hp-steppers-book .stepper-label {
-  font-size: 9.5px;
-  font-weight: 800;
-  color: #7b809e;
+  font-size: 9px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.5px;
 }
 
 .btn-step-dmg,
 .btn-step-heal,
 .btn-temp {
-  background: #141724;
-  border: 1px solid #2b2f44;
-  color: #e2e5f5;
-  font-size: 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 9.5px;
   font-weight: 800;
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-step-dmg:hover {
-  background: #7a1216;
-  border-color: #d4171d;
-  color: #ffffff;
+  background: #8a0c0c;
+  border-color: #e0150d;
 }
 
 .btn-step-heal:hover {
-  background: #125e2e;
+  background: #116832;
   border-color: #27ae60;
-  color: #ffffff;
 }
 
 .btn-temp.active {
@@ -578,9 +828,9 @@
 }
 
 .threat-book-attr-col .attr-label {
-  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 900;
-  font-size: 14px;
+  font-size: 13.5px;
   color: #ffffff;
   letter-spacing: 0.5px;
 }
@@ -591,11 +841,13 @@
   justify-content: center;
   background: #ffffff;
   color: #000000;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 900;
-  font-size: 15px;
-  width: 25px;
-  height: 25px;
-  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  font-size: 14px;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 6px;
+  clip-path: polygon(5px 0%, calc(100% - 5px) 0%, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0% 50%);
   user-select: none;
 }
 
@@ -636,9 +888,10 @@
 
 /* ── Seções Livres e Enigma de Medo ──────────────────────────────────────── */
 .threat-book-text-body {
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 13px;
   line-height: 1.55;
-  color: #d6d9e8;
+  color: #e5e8f4;
   text-align: justify;
   margin-top: 4px;
 }
@@ -692,6 +945,10 @@
 }
 
 .action-entry-header .action-type-label {
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 900;
+  font-size: 13.5px;
+  letter-spacing: 0.6px;
   color: #ffffff;
 }
 
@@ -764,34 +1021,45 @@
 .attack-roll-line {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 3px;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.attack-roll-label {
+  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  user-select: none;
 }
 
 .threat-chip-roll-test,
 .threat-chip-roll-dmg {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  border: 1px solid transparent;
   color: #ffffff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 3px;
+  padding: 0 4px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .threat-chip-roll-test:hover,
 .threat-chip-roll-dmg:hover {
-  background: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 .action-entry-text {
-  margin: 4px 0 8px 14px;
-  color: #d6d9e8;
+  margin: 4px 0 8px 8px;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #e5e8f4;
   font-size: 13px;
   line-height: 1.55;
   text-align: justify;
@@ -799,9 +1067,9 @@
 
 /* ── Barra Branca Decorativa Inferior do Livro ───────────────────────────── */
 .threat-book-bottom-bar {
-  height: 5px;
+  height: 6px;
   background: #ffffff;
-  margin-top: 16px;
+  margin-top: 20px;
   width: 100%;
 }
 

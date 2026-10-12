@@ -4,11 +4,13 @@
  */
 
 import { icon } from '../../icons.js';
+import { die } from '../../dice-icon.js';
 import {
   calcMachucado,
   estaMachucada,
   calcQuadrados,
   formatPool,
+  formatPoolGlyph,
   normalizeThreatSheet
 } from './threat-system.js';
 import {
@@ -19,6 +21,14 @@ import {
   CREATURE_TYPES_PARANORMAL,
   CREATURE_TYPES_MUNDANE
 } from './threat-data.js';
+
+function formatDiePool(pool) {
+  if (!pool) return `1${die(20, 'threat-inline-die')}`;
+  const d = Math.max(1, Number(pool.dados) || 1);
+  const b = Number(pool.bonus) || 0;
+  const bStr = b > 0 ? `+${b}` : (b < 0 ? String(b) : '');
+  return `<span class="threat-pool-group">${d}${die(20, 'threat-inline-die')}${bStr}</span>`;
+}
 
 function safe(str) {
   if (str === null || str === undefined) return '';
@@ -40,6 +50,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const isMundane = sheet.categoria === 'mundana';
   const elemDestaqueKey = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
   const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || THREAT_ELEMENTS.sangue;
+  const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey);
 
   const elemColor = isMundane ? '#ffffff' : elemDestaque.cor;
   const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#181920' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#271905')));
@@ -50,124 +61,146 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const quadrados = calcQuadrados(sheet.deslocamento?.metros || 12);
   const hpPct = Math.max(0, Math.min(100, Math.round(((sheet.pv || 0) / (sheet.pvMax || 1)) * 100)));
 
-  // Separação de ações por tipo/coluna
-  const acoesEsquerda = (sheet.acoes || []).filter(a => a.coluna !== 'direita');
-  const acoesDireita = (sheet.acoes || []).filter(a => a.coluna === 'direita');
-  // Se não houver ações na direita, mostra todas na coluna de ações
-  const acoesList = sheet.acoes || [];
+  // Separação de seções e ações por coluna do livro
+  const secoesEsquerda = (sheet.secoes || []).filter(s => s.coluna !== 'direita');
+  const secoesDireita = (sheet.secoes || []).filter(s => s.coluna === 'direita');
+  const acoesEsquerda = (sheet.acoes || []).filter(a => a.coluna === 'esquerda');
+  const acoesDireita = (sheet.acoes || []).filter(a => a.coluna !== 'esquerda');
 
   return `
-    <main class="threat-book-page ${editMode ? 'mode-edit' : ''}" 
+    <main class="threat-book-page threat-page-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''}" 
+      data-element="${elemDestaqueKey}"
       style="--threat-elem-color:${elemColor};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
       
       ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
 
-      <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
+      <article class="threat-dossier-card element-theme-${elemDestaqueKey}" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
-        <!-- ── BANNER / CABEÇALHO DO LIVRO ── -->
-        <header class="threat-banner-header">
-          <div class="threat-banner-left">
-            <div class="threat-sigil-icon" title="${safe(elemDestaque.nome)}">
-              ${icon('threat-sigil', 36)}
-            </div>
-            <div class="threat-name-wrap">
-              <div class="threat-title-row">
-                ${editMode ? `
-                  <input type="text" class="threat-editable-input threat-name-title" 
-                    data-threat-field="name" value="${safe(sheet.name)}" placeholder="NOME DA AMEAÇA" style="font-size:26px;width:100%;max-width:380px;">
-                ` : `
-                  <h1 class="threat-name-title">${safe(sheet.name)}</h1>
-                `}
-              </div>
-              <div class="threat-subtitle-row">
-                ${editMode ? `
-                  <input type="text" class="threat-editable-input threat-subtitle-tag" 
-                    data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: MORTE)" style="width:200px;">
-                ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(isMundane ? 'REALIDADE' : elemDestaque.nome.toUpperCase())}</span>`)}
-              </div>
-            </div>
-          </div>
+        <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
+        ${sheet.tokenImage || sheet.backgroundImage ? `
+          <div class="threat-creature-watermark" style="background-image:url('${safeUrl(sheet.tokenImage || sheet.backgroundImage)}');" aria-hidden="true"></div>
+        ` : ''}
 
-          <!-- VD BRUSH STAMP (CHALK / DISTRESSED BADGE) -->
-          <div class="threat-book-vd-stamp" title="Valor de Desafio: ${sheet.vd}">
-            <span class="vd-text">VD</span>
-            ${editMode ? `
-              <input type="number" class="threat-vd-input" min="0" max="999" 
-                data-threat-field="vd" value="${sheet.vd}">
-            ` : `
-              <strong class="vd-number">${sheet.vd}</strong>
-            `}
-          </div>
-        </header>
-
-        <!-- ── BARRA DE TAGS E METADADOS DO LIVRO (CRIATURA • TAMANHO) ── -->
-        <div class="threat-meta-line">
-          <div class="threat-meta-tags-group">
-            ${!isMundane ? `
-              ${Object.values(THREAT_ELEMENTS).map(el => {
-                const isActive = (sheet.elementos || []).includes(el.id);
-                const isDestaque = sheet.elementoDestaque === el.id;
-                if (!isActive && !editMode) return '';
-                return `
-                  <button type="button" 
-                    class="threat-book-elem-tag ${isDestaque ? 'highlighted' : ''} ${isActive ? 'active' : ''}" 
-                    style="--elem-color:${el.cor};" 
-                    data-threat-select-elem="${el.id}"
-                    title="${isDestaque ? 'Elemento principal' : 'Clique para destacar este elemento'}">
-                    ${safe(el.nome.toUpperCase())}
-                  </button>
-                  <span class="tag-bullet">•</span>
-                `;
-              }).join('')}
-            ` : `
-              <span class="threat-book-plain-tag">MUNDANA</span>
-              <span class="tag-bullet">•</span>
-            `}
-
-            ${editMode ? `
-              <select class="threat-book-select" data-threat-field="tipo">
-                ${(isMundane ? CREATURE_TYPES_MUNDANE : CREATURE_TYPES_PARANORMAL).map(t => `
-                  <option value="${safe(t)}" ${sheet.tipo === t ? 'selected' : ''}>${safe(t.toUpperCase())}</option>
-                `).join('')}
-              </select>
-              <span class="tag-bullet">•</span>
-              <select class="threat-book-select" data-threat-field="tamanho">
-                ${THREAT_SIZES.map(s => `
-                  <option value="${safe(s)}" ${sheet.tamanho === s ? 'selected' : ''}>${safe(s.toUpperCase())}</option>
-                `).join('')}
-              </select>
-            ` : `
-              <span class="threat-book-plain-tag">${safe(sheet.tipo?.toUpperCase() || 'CRIATURA')}</span>
-              <span class="tag-bullet">•</span>
-              <span class="threat-book-plain-tag">${safe(sheet.tamanho?.toUpperCase() || 'MÉDIO')}</span>
-            `}
-          </div>
-
-          ${editMode ? `
-            <div class="threat-meta-actions">
-              <button type="button" class="threat-meta-toggle-btn" data-threat-toggle-categoria>
-                ${isMundane ? 'MUDAR PARA PARANORMAL' : 'MUDAR PARA MUNDANA'}
-              </button>
-            </div>
-          ` : ''}
-        </div>
-
-        <div class="threat-book-top-divider"></div>
+        <!-- ── BARRA BRANCA DECORATIVA SUPERIOR DO LIVRO ── -->
+        <div class="threat-book-top-bar" aria-hidden="true"></div>
 
         <!-- ── CORPO EDITORIAL EM 2 COLUNAS DO LIVRO ── -->
         <div class="threat-book-columns-layout">
           
-          <!-- ── COLUNA ESQUERDA: ESTATÍSTICAS E REGRAS ── -->
+          <!-- ── COLUNA ESQUERDA: CABEÇALHO, ESTATÍSTICAS E REGRAS ── -->
           <div class="threat-book-col-left">
+
+            <!-- ── BANNER / CABEÇALHO DO LIVRO (INTEGRADO NO TOPO DA COLUNA ESQUERDA) ── -->
+            <header class="threat-banner-header">
+              <div class="threat-banner-left element-banner-${elemDestaqueKey}">
+                <div class="threat-sigil-icon" title="${safe(elemDestaque.nome)}">
+                  ${!isMundane ? `
+                    <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
+                  ` : icon('shield', 36)}
+                </div>
+                <div class="threat-name-wrap">
+                  <div class="threat-title-row">
+                    ${editMode ? `
+                      <input type="text" class="threat-editable-input threat-name-title" 
+                        data-threat-field="name" value="${safe(sheet.name)}" placeholder="NOME DA AMEAÇA">
+                    ` : `
+                      <h1 class="threat-name-title">${safe(sheet.name)}</h1>
+                    `}
+                  </div>
+                  <div class="threat-subtitle-row">
+                    ${editMode ? `
+                      <input type="text" class="threat-editable-input threat-subtitle-tag" 
+                        data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
+                    ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(isMundane ? 'REALIDADE' : elemDestaque.nome.toUpperCase())}</span>`)}
+                  </div>
+                </div>
+              </div>
+
+              <!-- VD BRUSH STAMP (DISTRESSED STAMP COM ANEL RÚSTICO) -->
+              <div class="threat-book-vd-stamp" title="Valor de Desafio: ${sheet.vd}">
+                <span class="vd-text">VD</span>
+                <div class="vd-number-ring">
+                  <svg class="vd-circle-svg" viewBox="0 0 80 50" aria-hidden="true">
+                    <path d="M 12 25 C 10 9, 70 7, 72 25 C 74 42, 10 43, 12 25 Z" fill="none" stroke="#000000" stroke-width="2.6" stroke-dasharray="35,3,15,3,40,2" opacity="0.88"/>
+                  </svg>
+                  ${editMode ? `
+                    <input type="number" class="threat-vd-input" min="0" max="999" 
+                      data-threat-field="vd" value="${sheet.vd}">
+                  ` : `
+                    <strong class="vd-number">${sheet.vd}</strong>
+                  `}
+                </div>
+              </div>
+            </header>
+
+            <!-- ── BARRA DE TAGS E METADADOS DO LIVRO (CRIATURA • TAMANHO) ── -->
+            <div class="threat-meta-line">
+              <div class="threat-meta-tags-group">
+                ${!isMundane ? `
+                  ${editMode ? `
+                    ${Object.values(THREAT_ELEMENTS).map(el => {
+                      const isActive = (sheet.elementos || []).includes(el.id);
+                      const isDestaque = sheet.elementoDestaque === el.id;
+                      return `
+                        <button type="button" 
+                          class="threat-book-elem-tag ${isDestaque ? 'highlighted' : ''} ${isActive ? 'active' : ''}" 
+                          style="--elem-color:${el.cor};" 
+                          data-threat-select-elem="${el.id}"
+                          title="${isDestaque ? 'Elemento principal' : 'Clique para selecionar'}">
+                          ${safe(el.nome.toUpperCase())}
+                        </button>
+                      `;
+                    }).join('')}
+                    <span class="tag-bullet">•</span>
+                  ` : `
+                    ${secondaryElements.map(elKey => {
+                      const el = THREAT_ELEMENTS[elKey];
+                      if (!el) return '';
+                      const isMedo = el.id === 'medo';
+                      return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
+                    }).join('')}
+                    ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
+                  `}
+                ` : `
+                  <span class="threat-book-plain-tag">MUNDANA</span>
+                  <span class="tag-bullet">•</span>
+                `}
+
+                ${editMode ? `
+                  <select class="threat-book-select" data-threat-field="tipo">
+                    ${(isMundane ? CREATURE_TYPES_MUNDANE : CREATURE_TYPES_PARANORMAL).map(t => `
+                      <option value="${safe(t)}" ${sheet.tipo === t ? 'selected' : ''}>${safe(t.toUpperCase())}</option>
+                    `).join('')}
+                  </select>
+                  <span class="tag-bullet">•</span>
+                  <select class="threat-book-select" data-threat-field="tamanho">
+                    ${THREAT_SIZES.map(s => `
+                      <option value="${safe(s)}" ${sheet.tamanho === s ? 'selected' : ''}>${safe(s.toUpperCase())}</option>
+                    `).join('')}
+                  </select>
+                ` : `
+                  <span class="threat-book-plain-tag">${safe(sheet.tipo?.toUpperCase() || 'CRIATURA')}</span>
+                  <span class="tag-bullet">•</span>
+                  <span class="threat-book-plain-tag">${safe(sheet.tamanho?.toUpperCase() || 'MÉDIO')}</span>
+                `}
+              </div>
+
+              ${editMode ? `
+                <div class="threat-meta-actions">
+                  <button type="button" class="threat-meta-toggle-btn" data-threat-toggle-categoria>
+                    ${isMundane ? 'MUDAR PARA PARANORMAL' : 'MUDAR PARA MUNDANA'}
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="threat-book-top-divider"></div>
             
             <!-- PRESENÇA PERTURBADORA (Apenas Paranormal ou se ativado) -->
             ${(!isMundane && sheet.presenca?.ativa) ? `
               <div class="threat-book-block">
                 <div class="threat-book-heading-row">
                   <span class="threat-book-badge">PRESENÇA PERTURBADORA</span>
-                  <button type="button" class="threat-book-mini-roll-btn" data-threat-roll-presence title="Rolar dano mental da presença">
-                    ${icon('d20', 11)} ROLAR DANO
-                  </button>
                 </div>
                 <div class="threat-book-stat-line">
                   ${editMode ? `
@@ -176,7 +209,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     <span><input type="text" class="threat-mini-input" data-threat-field="presenca.tipoDano" value="${safe(sheet.presenca.tipoDano)}"></span>
                     <span>• NEX <input type="number" class="threat-mini-input" data-threat-field="presenca.imuneNex" value="${sheet.presenca.imuneNex}">%+ é imune</span>
                   ` : `
-                    <span>DT ${sheet.presenca.dt} • ${safe(sheet.presenca.dano)} ${safe(sheet.presenca.tipoDano)} • NEX ${sheet.presenca.imuneNex}%+ é imune</span>
+                    <span>DT ${sheet.presenca.dt} • <button type="button" class="threat-chip-roll-dmg threat-presence-chip" data-threat-roll-presence title="Rolar Dano Mental (${safe(sheet.presenca.dano)})">${safe(sheet.presenca.dano)} ${safe(sheet.presenca.tipoDano)}</button> • NEX ${sheet.presenca.imuneNex}%+ é imune</span>
                   `}
                 </div>
                 ${sheet.presenca.texto ? `<div class="threat-book-prose">${safe(sheet.presenca.texto)}</div>` : ''}
@@ -189,9 +222,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <div class="threat-book-heading-row">
                 <span class="threat-book-badge">SENTIDOS</span>
                 <div class="threat-book-inline-stats">
-                  <span>Percepção <button type="button" class="threat-die-token" data-threat-roll-sense="percepcao" title="Rolar Percepção">⬡ ${formatPool(sheet.sentidos?.percepcao)}</button></span>
+                  <span>Percepção <button type="button" class="threat-die-token" data-threat-roll-sense="percepcao" title="Rolar Percepção">${formatDiePool(sheet.sentidos?.percepcao)}</button></span>
                   <span class="threat-pipe">|</span>
-                  <span>Iniciativa <button type="button" class="threat-die-token" data-threat-roll-sense="iniciativa" title="Rolar Iniciativa">⬡ ${formatPool(sheet.sentidos?.iniciativa)}</button></span>
+                  <span>Iniciativa <button type="button" class="threat-die-token" data-threat-roll-sense="iniciativa" title="Rolar Iniciativa">${formatDiePool(sheet.sentidos?.iniciativa)}</button></span>
                   ${editMode ? `
                     <button type="button" class="threat-mini-btn" data-threat-edit-senses title="Editar Sentidos">
                       ${icon('edit', 10)}
@@ -200,7 +233,6 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 </div>
               </div>
               ${sheet.sentidos?.extra ? `<div class="threat-book-upper-note">${safe(sheet.sentidos.extra)}</div>` : ''}
-              <div class="threat-book-divider"></div>
             </div>
 
             <!-- DEFESA E SALVAGUARDAS -->
@@ -210,7 +242,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ${editMode ? `
                   <input type="number" class="threat-mini-input threat-def-input" data-threat-field="defesa" value="${sheet.defesa}">
                 ` : `
-                  <strong class="threat-book-big-stat">${sheet.defesa}</strong>
+                  <span class="threat-book-badge-val">${sheet.defesa}</span>
                 `}
                 ${editMode ? `
                   <button type="button" class="threat-mini-btn" data-threat-edit-saves style="margin-left:auto;" title="Editar Salvaguardas">
@@ -219,9 +251,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ` : ''}
               </div>
               <div class="threat-book-saves-row">
-                <div class="threat-save-entry">FORTITUDE <button type="button" class="threat-die-token" data-threat-roll-save="fortitude">⬡ ${formatPool(sheet.salvaguardas?.fortitude)}</button></div>
-                <div class="threat-save-entry">REFLEXOS <button type="button" class="threat-die-token" data-threat-roll-save="reflexos">⬡ ${formatPool(sheet.salvaguardas?.reflexos)}</button></div>
-                <div class="threat-save-entry">VONTADE <button type="button" class="threat-die-token" data-threat-roll-save="vontade">⬡ ${formatPool(sheet.salvaguardas?.vontade)}</button></div>
+                <div class="threat-save-entry">FORTITUDE <button type="button" class="threat-die-token" data-threat-roll-save="fortitude">${formatDiePool(sheet.salvaguardas?.fortitude)}</button></div>
+                <div class="threat-save-entry">REFLEXOS <button type="button" class="threat-die-token" data-threat-roll-save="reflexos">${formatDiePool(sheet.salvaguardas?.reflexos)}</button></div>
+                <div class="threat-save-entry">VONTADE <button type="button" class="threat-die-token" data-threat-roll-save="vontade">${formatDiePool(sheet.salvaguardas?.vontade)}</button></div>
               </div>
               <div class="threat-book-divider"></div>
             </div>
@@ -230,8 +262,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             <div class="threat-book-block">
               <div class="threat-book-heading-row">
                 <span class="threat-book-badge">PONTOS DE VIDA</span>
-                <span class="threat-book-hp-label">
-                  <b>${sheet.pv}</b> / ${sheet.pvMax} <span class="threat-pipe">|</span> Machucado <b>${machucado}</b>
+                <span class="threat-book-badge-val">${sheet.pv}</span>
+                <span class="threat-book-hp-sub">
+                  <span class="threat-pipe">|</span> Machucado <b>${machucado}</b>
+                  ${sheet.pv !== sheet.pvMax ? `<span class="threat-hp-max-sub">/ ${sheet.pvMax}</span>` : ''}
                 </span>
                 ${hurt ? `
                   <span class="threat-book-hurt-stamp">! MACHUCADA</span>
@@ -263,13 +297,6 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
               <!-- Defesas textuais idênticas ao livro -->
               <div class="threat-book-defenses-list">
-                ${sheet.imunidades?.length ? `
-                  <div class="defense-row">
-                    <strong>IMUNIDADES</strong>
-                    <span>${sheet.imunidades.join(', ')}</span>
-                  </div>
-                ` : ''}
-
                 ${sheet.resistencias?.length ? `
                   <div class="defense-row">
                     <strong>RESISTÊNCIAS</strong>
@@ -281,6 +308,13 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <div class="defense-row">
                     <strong>VULNERABILIDADES</strong>
                     <span>${sheet.vulnerabilidades.join(', ')}</span>
+                  </div>
+                ` : ''}
+
+                ${sheet.imunidades?.length ? `
+                  <div class="defense-row">
+                    <strong>IMUNIDADES</strong>
+                    <span>${sheet.imunidades.join(', ')}</span>
                   </div>
                 ` : ''}
 
@@ -298,18 +332,22 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <div class="threat-book-heading-row">
                 <span class="threat-book-badge">DESLOCAMENTO</span>
                 ${editMode ? `
-                  <span class="threat-book-stat-val">
+                  <span class="threat-book-badge-val">
+                    <input type="text" class="threat-mini-input" style="width:50px;text-align:left;" data-threat-field="deslocamento.tipo" value="${safe(sheet.deslocamento?.tipo || '')}" placeholder="Tipo">
                     <input type="number" class="threat-mini-input" min="0" data-threat-field="deslocamento.metros" value="${sheet.deslocamento?.metros || 9}">m
                     <span class="threat-pipe">|</span> ${quadrados}□
                   </span>
                 ` : `
-                  <span class="threat-book-stat-val"><b>${sheet.deslocamento?.metros || 9}m</b> <span class="threat-pipe">|</span> <b>${quadrados}□</b></span>
+                  <span class="threat-book-badge-val">${sheet.deslocamento?.tipo ? `${safe(sheet.deslocamento.tipo)} ` : ''}${sheet.deslocamento?.metros || 9}m | ${quadrados}□</span>
                 `}
               </div>
-              ${(sheet.deslocamento?.extras || []).map(e => `
+              ${(sheet.deslocamento?.extras || []).filter(e => {
+                const sameType = (e.tipo || '').toLowerCase() === (sheet.deslocamento?.tipo || '').toLowerCase();
+                const sameMetros = Number(e.metros) === Number(sheet.deslocamento?.metros);
+                return !(sameType && sameMetros);
+              }).map(e => `
                 <div class="threat-book-subtext" style="text-transform:uppercase;">${safe(e.tipo)} ${e.metros}m <span class="threat-pipe">|</span> ${Math.round(e.metros / 1.5)}□</div>
               `).join('')}
-              <div class="threat-book-divider"></div>
             </div>
 
             <!-- ATRIBUTOS EM LINHA HORIZONTAL IDÊNTICA AO LIVRO -->
@@ -321,19 +359,24 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   { key: 'int', label: 'INT', full: 'Intelecto' },
                   { key: 'pre', label: 'PRE', full: 'Presença' },
                   { key: 'vig', label: 'VIG', full: 'Vigor' }
-                ].map(a => `
-                  <div class="threat-book-attr-col" data-threat-roll-attr="${a.key}" title="Rolar ${a.full} (${sheet.atributos?.[a.key] || 0}d20)">
-                    <span class="attr-label">${a.label}</span>
-                    <span class="attr-hex">
-                      ${editMode ? `
-                        <input type="number" class="threat-attr-input" min="0" max="15" 
-                          data-threat-attr-input="${a.key}" value="${sheet.atributos?.[a.key] ?? 2}" onclick="event.stopPropagation();">
-                      ` : `
-                        <b>${sheet.atributos?.[a.key] ?? 2}</b>
-                      `}
-                    </span>
-                  </div>
-                `).join('')}
+                ].map(a => {
+                  const val = sheet.atributos?.[a.key];
+                  const isForZero = (a.key === 'for' && (val === 0 || val === '-' || val === null || val === undefined));
+                  const displayVal = isForZero ? '-' : (val ?? 2);
+                  return `
+                    <div class="threat-book-attr-col" data-threat-roll-attr="${a.key}" title="Rolar ${a.full} (${sheet.atributos?.[a.key] || 0}d20)">
+                      <span class="attr-label">${a.label}</span>
+                      <span class="attr-hex">
+                        ${editMode ? `
+                          <input type="number" class="threat-attr-input" min="0" max="15" 
+                            data-threat-attr-input="${a.key}" value="${sheet.atributos?.[a.key] ?? 2}" onclick="event.stopPropagation();">
+                        ` : `
+                          <b>${displayVal}</b>
+                        `}
+                      </span>
+                    </div>
+                  `;
+                }).join('')}
               </div>
               <div class="threat-book-divider"></div>
             </div>
@@ -341,14 +384,17 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             <!-- PERÍCIAS (OPCIONAL) -->
             ${(sheet.pericias?.length || editMode) ? `
               <div class="threat-book-block">
-                <div class="threat-book-heading-row">
+                <div class="threat-book-heading-row" style="align-items:flex-start;">
                   <span class="threat-book-badge">PERÍCIAS</span>
                   <div class="threat-book-skills-inline">
-                    ${(sheet.pericias || []).map(p => `
-                      <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
-                        ${safe(p.nome)} <span class="die-token">⬡ ${p.dados}d20${p.bonus >= 0 ? `+${p.bonus}` : p.bonus}</span>
-                      </button>
-                    `).join('')}
+                    ${(sheet.pericias || []).map(p => {
+                      const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${die(20, 'threat-inline-die')}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
+                      return `
+                        <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
+                          ${safe(p.nome)} <span class="die-token">${formatDiePool(p)}</span>${condHtml}
+                        </button>
+                      `;
+                    }).join(', ')}
                     ${sheet.pericias?.length === 0 ? `<em style="color:#777;font-size:12px;">Nenhuma</em>` : ''}
                     ${editMode ? `<button type="button" class="threat-mini-btn" data-threat-add-skill>+ ADICIONAR</button>` : ''}
                   </div>
@@ -358,7 +404,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             ` : ''}
 
             <!-- SEÇÕES LIVRES / HABILIDADES COLUNA ESQUERDA (Ex: Membros Longos, Parte do Cenário, O Sino) -->
-            ${(sheet.secoes || []).map(sec => `
+            ${secoesEsquerda.map(sec => `
               <div class="threat-book-block ${sec.estilo === 'enigma' ? 'is-enigma-card' : ''}">
                 <div class="threat-book-heading-row" style="justify-content:space-between;">
                   <span class="threat-book-badge ${sec.estilo === 'enigma' ? 'tag-enigma' : ''}">${safe(sec.titulo)}</span>
@@ -374,6 +420,17 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               </div>
             `).join('')}
 
+            <!-- AÇÕES DA COLUNA ESQUERDA (SE HOUVER) -->
+            ${acoesEsquerda.length ? `
+              <div class="threat-book-block">
+                <div class="threat-book-heading-row">
+                  <span class="threat-book-badge">AÇÕES</span>
+                </div>
+                <div class="threat-book-divider"></div>
+                ${renderActionGroups(acoesEsquerda, hurt, editMode)}
+              </div>
+            ` : ''}
+
             ${editMode ? `
               <button type="button" class="threat-mini-btn" data-threat-add-section style="margin-top:8px;">
                 + ADICIONAR SEÇÃO OU ENIGMA DE MEDO
@@ -382,8 +439,26 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
           </div>
 
-          <!-- ── COLUNA DIREITA: AÇÕES E HABILIDADES DO LIVRO ── -->
+          <!-- ── COLUNA DIREITA: SEÇÕES E AÇÕES DO LIVRO ── -->
           <div class="threat-book-col-right">
+            
+            <!-- SEÇÕES LIVRES DA COLUNA DIREITA (Ex: INEVITÁVEL FIM, O SINO, FRENESI DE SANGUE) -->
+            ${secoesDireita.map(sec => `
+              <div class="threat-book-block ${sec.estilo === 'enigma' ? 'is-enigma-card' : ''}">
+                <div class="threat-book-heading-row" style="justify-content:space-between;">
+                  <span class="threat-book-badge ${sec.estilo === 'enigma' ? 'tag-enigma' : ''}">${safe(sec.titulo)}</span>
+                  ${editMode ? `
+                    <div class="threat-ctrl-btns">
+                      <button type="button" class="threat-mini-btn" data-threat-edit-section="${sec.id}">${icon('edit', 10)}</button>
+                      <button type="button" class="threat-mini-btn danger" data-threat-del-section="${sec.id}">${icon('trash', 10)}</button>
+                    </div>
+                  ` : ''}
+                </div>
+                <div class="threat-book-text-body">${formatCardText(sec.corpo)}</div>
+                ${sec.estilo !== 'enigma' ? `<div class="threat-book-divider"></div>` : ''}
+              </div>
+            `).join('')}
+
             <div class="threat-book-block">
               <div class="threat-book-heading-row" style="justify-content:space-between;">
                 <span class="threat-book-badge">AÇÕES</span>
@@ -397,9 +472,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             </div>
 
             <!-- LISTAGEM DE AÇÕES NO ESTILO TIPOGRÁFICO DO LIVRO -->
-            ${renderActionGroups(acoesList, hurt, editMode)}
+            ${renderActionGroups(acoesDireita, hurt, editMode)}
 
-            ${acoesList.length === 0 ? `
+            ${(acoesDireita.length === 0 && acoesEsquerda.length === 0) ? `
               <div style="padding:28px 12px;text-align:center;color:#6d718a;border:1px dashed #2b2e45;border-radius:4px;">
                 <p style="margin:0 0 4px 0;font-weight:700;">Nenhuma ação cadastrada</p>
                 <small>Clique em "+ NOVA AÇÃO" para adicionar ataques e habilidades.</small>
@@ -448,23 +523,33 @@ function renderActionCard(action, isHurt = false, editMode = false) {
   const isActive = isHurtTrigger && isHurt;
 
   const actionSymMap = {
-    padrao: '◆',
+    padrao: (action.ataques && action.ataques.length) ? '◆' : '❖',
     movimento: '❖',
-    reacao: '✦',
-    completa: '◈',
-    livre: '◇',
+    reacao: '❖',
+    completa: '❖',
+    livre: '❖',
     passiva: '○'
   };
-  const sym = actionSymMap[action.tipoAcao] || '◆';
+  const sym = actionSymMap[action.tipoAcao] || '❖';
+
+  const actionLabelMap = {
+    padrao: 'PADRÃO',
+    movimento: 'MOVIMENTO',
+    completa: 'COMPLETA',
+    reacao: 'REAÇÃO',
+    livre: 'LIVRE',
+    passiva: 'PASSIVA'
+  };
+  const actionLabel = actionLabelMap[action.tipoAcao] || safe(action.tipoAcao?.toUpperCase() || 'PADRÃO');
 
   return `
     <article class="threat-book-action-entry ${isActive ? 'is-frenesi-active' : ''}" 
       data-threat-action-card="${action.id}">
       
       <div class="action-entry-header">
-        <span class="action-type-label">${safe(action.tipoAcao?.toUpperCase() || 'PADRÃO')}</span>
+        <span class="action-type-label">${actionLabel}</span>
         <span class="action-symbol">${sym}</span>
-        <h3 class="action-entry-title">${safe(action.nome)}</h3>
+        <h3 class="action-entry-title">${safe(action.nome?.toUpperCase())}</h3>
         
         ${isActive ? `
           <span class="action-frenesi-badge">ATIVO (FRENESI)</span>
@@ -488,16 +573,18 @@ function renderActionCard(action, isHurt = false, editMode = false) {
       ${(action.ataques || []).map(atk => `
         <div class="action-attack-block">
           <div class="attack-title-line">
-            <strong class="attack-name">${safe(atk.nome)}</strong>
-            <span class="attack-reach">${safe(atk.alcance || 'Corpo a corpo')}${atk.multiplicador > 1 ? ` x${atk.multiplicador}` : ''}</span>
+            <strong class="attack-name">${safe(atk.nome?.toUpperCase())}</strong>
+            <em class="attack-reach">${safe(atk.alcance || 'Corpo a corpo')}${atk.multiplicador > 1 ? ` x${atk.multiplicador}` : ''}</em>
           </div>
           <div class="attack-roll-line">
+            <span class="attack-roll-label">TESTE</span>
             <button type="button" class="threat-chip-roll-test" data-threat-roll-atk-test="${action.id}:${atk.id}" title="Rolar Teste de Ataque">
-              TESTE <b>${atk.teste?.dados || 3}d20${atk.teste?.bonus >= 0 ? `+${atk.teste.bonus}` : atk.teste.bonus}</b>
+              ${formatDiePool(atk.teste)}
             </button>
             <span class="threat-pipe">|</span>
+            <span class="attack-roll-label">DANO</span>
             <button type="button" class="threat-chip-roll-dmg" data-threat-roll-atk-dmg="${action.id}:${atk.id}" title="Rolar Dano">
-              DANO <b>${safe(atk.dano)} ${safe(atk.tipoDano || '')}</b> ${atk.critico ? `<small>(${safe(atk.critico)})</small>` : ''}
+              ${safe(atk.dano)} ${safe(atk.tipoDano || '')}${atk.critico ? ` <small>(${safe(atk.critico)})</small>` : ''}
             </button>
           </div>
         </div>
@@ -553,6 +640,14 @@ function renderThreatModals(sheet) {
                 <option value="machucado">Ativar automaticamente quando Machucada (Frenesi)</option>
               </select>
             </div>
+          </div>
+
+          <div class="threat-form-group">
+            <label>COLUNA NO LIVRO</label>
+            <select name="coluna" id="threat-action-column">
+              <option value="direita">Coluna Direita (Ações - Padrão)</option>
+              <option value="esquerda">Coluna Esquerda (Abaixo das Estatísticas)</option>
+            </select>
           </div>
 
           <!-- Construtor de Ataques dentro da ação -->
@@ -616,12 +711,21 @@ function renderThreatModals(sheet) {
         </header>
         <form id="threat-section-form" class="threat-modal-body">
           <input type="hidden" name="sectionId" id="threat-section-id">
-          <div class="threat-form-group">
-            <label>ESTILO DA SEÇÃO</label>
-            <select name="estilo" id="threat-section-style">
-              <option value="normal">Seção Comum (Ex: Consumir, Habitat, Comportamento)</option>
-              <option value="enigma">Enigma de Medo (Caixa de Papel Envelhecido / Regra Especial)</option>
-            </select>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>ESTILO DA SEÇÃO</label>
+              <select name="estilo" id="threat-section-style">
+                <option value="normal">Seção Comum (Ex: Consumir, Habitat, Comportamento)</option>
+                <option value="enigma">Enigma de Medo (Caixa de Papel Envelhecido / Regra Especial)</option>
+              </select>
+            </div>
+            <div class="threat-form-group">
+              <label>COLUNA NO LIVRO</label>
+              <select name="coluna" id="threat-section-column">
+                <option value="esquerda">Coluna Esquerda (Abaixo das Estatísticas - Padrão)</option>
+                <option value="direita">Coluna Direita (Acima de Ações)</option>
+              </select>
+            </div>
           </div>
           <div class="threat-form-group">
             <label>TÍTULO DA SEÇÃO</label>
