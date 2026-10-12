@@ -101,6 +101,16 @@ import {
   renderCinematicOriginal
 } from './systems/original/original-views.js';
 import { initOriginalCompendium } from './systems/original/original-compendium.js';
+import { normalizeThreatSheet } from './systems/threat/threat-system.js';
+import { renderThreatPlaceholder } from './systems/threat/threat-views.js';
+import {
+  DEFAULT_FOLDERS,
+  normalizeFolders,
+  migrateSheetsFolders,
+  loadFoldersFromStorage,
+  persistFoldersToStorage
+} from './workspace/folders.js';
+import { visibleSheets, isCharacterSheet, isThreatSheet } from './workspace/selectors.js';
 
 let currentOriginalTab = 'habilidades';
 let originalSkillsFilter = '';
@@ -229,8 +239,13 @@ function normalizeSheet(raw={}){
  if(raw && raw.systemMode === 'original'){
   return normalizeOriginalSheet(raw);
  }
+ if(raw && raw.systemMode === 'threat'){
+  return normalizeThreatSheet(raw);
+ }
  const sheet={...clone(defaults),...raw}; sheet.id=raw.id||makeId('sheet');
  sheet.systemMode = 'ordem2';
+ sheet.folderId = raw.folderId || 'folder-characters';
+ sheet.favorite = Boolean(raw.favorite);
  sheet.attributes={...defaults.attributes,...raw.attributes};
  sheet.skills=Array.isArray(raw.skills)?raw.skills:clone(defaultSkills);
  sheet.skills=sheet.skills.map(skill=>{let name=skill.name==='APTIDÃO'?'APTIDÃO (HUMANAS)':skill.name;let training=skill.training;if(training==='VETERANO')training='ESPECIALISTA';if(training==='EXPERT')training='MESTRE';if(training==='MESTRE'&&Number(skill.skillDie)===12)training='GRÃO MESTRE';const found=TRAINING.find(([label])=>label===training)||TRAINING.find(([,die])=>die===Number(skill.skillDie))||TRAINING[0];return {...skill,name,training:found[0],skillDie:found[1],extra:Number(skill.extra)||0}});
@@ -280,11 +295,17 @@ async function idbSet(key,value){
  }catch{return false}
 }
 const SHEETS_KEY='ordem-ii-sheets-v1';
+let folders=normalizeFolders(DEFAULT_FOLDERS);
 let sheets=[];
 let state=normalizeSheet();
 let activeSheetId=state.id;
 
 async function loadInitialSheets(){
+ try{
+  folders=await loadFoldersFromStorage({ idbGet });
+ }catch{
+  folders=normalizeFolders(DEFAULT_FOLDERS);
+ }
  let loaded=null;
  // Tenta carregar do servidor local (só funciona no dev / self-hosted)
  try{
@@ -312,7 +333,7 @@ async function loadInitialSheets(){
  if(!loaded||!loaded.length){
   loaded=DEFAULT_SHEETS.map(normalizeSheet);
  }
- sheets=loaded;
+ sheets=migrateSheetsFolders(loaded.map(normalizeSheet));
  let storedActiveId=null;
  try{storedActiveId=await idbGet('activeSheetId')||localStorage.getItem('ordem-ii-active-sheet')}catch{}
  state=sheets.find(sheet=>sheet.id===storedActiveId)||sheets[0];
@@ -383,12 +404,15 @@ function getSheetAccent(sheet) {
   if (!sheet) return '#e0150d';
   // Cor tema escolhida pelo jogador tem prioridade sobre a cor da classe/perfil.
   if (/^#[0-9a-f]{6}$/i.test(sheet.themeColor || '')) return sheet.themeColor;
+  if (sheet.systemMode === 'threat') {
+    return sheet.elementoPrincipalCor || '#993ce8';
+  }
   if (sheet.systemMode === 'original') {
     return ORIGINAL_CLASS_COLORS[sheet.classeId] || '#e0150d';
   }
   return PROFILE_COLORS[sheet.profile] || PROFILE_COLORS.Executor;
 }
-function applyTheme(){const accent=editMode?'#d98b19':(state.themeColor?getSheetAccent(state):(state.diceColor||getSheetAccent(state)));document.documentElement.style.setProperty('--red',accent);document.documentElement.style.setProperty('--red-dark',accent);document.documentElement.style.setProperty('--red-ink',inkFor(accent));document.documentElement.style.setProperty('--cinematic-accent-ink',inkFor(getSheetAccent(state)));document.body.dataset.profile=(state.systemMode==='original'?(state.classeId||'combatente'):(state.profile||'executor')).toLowerCase();document.body.classList.toggle('editing',editMode);syncTokenOutlineFilter()}
+function applyTheme(){const accent=editMode?'#d98b19':(state.themeColor?getSheetAccent(state):(state.diceColor||getSheetAccent(state)));document.documentElement.style.setProperty('--red',accent);document.documentElement.style.setProperty('--red-dark',accent);document.documentElement.style.setProperty('--red-ink',inkFor(accent));document.documentElement.style.setProperty('--cinematic-accent-ink',inkFor(getSheetAccent(state)));document.body.dataset.profile=(state.systemMode==='original'?(state.classeId||'combatente'):(state.systemMode==='threat'?(state.elementos?.[0]||'sangue'):(state.profile||'executor'))).toLowerCase();document.body.classList.toggle('editing',editMode);syncTokenOutlineFilter()}
 
 function getCriticalState(){
  const resource=(current,maximum)=>{const max=Math.max(0,Number(maximum)||0),value=Math.max(0,Number(current)||0),ratio=max>0?Math.min(1,value/max):1,warning=max>0&&ratio<=.5,vignette=max>0&&ratio<=.35,special=max>0&&ratio<=.25,progress=(threshold,floor)=>ratio<=threshold?Math.min(1,floor+(threshold-ratio)/threshold*(1-floor)):0;return{value,max,ratio,warning,vignette,special,critical:special,warningIntensity:progress(.5,.12),vignetteIntensity:progress(.35,.08),specialIntensity:progress(.25,.08)}};
@@ -576,15 +600,21 @@ function playPresentationOpenSound(){
  }catch(e){}
 }
 
+function getPresentationSheets(){
+ return visibleSheets(sheets,folders,{apenasPersonagens:true});
+}
+
 let presentationDirection=0;
 function openPresentationMode(){
  if(presentationLockingIn)return;
- presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+ const presSheets=getPresentationSheets();
+ if(!presSheets.length)return;
+ presentationIndex=Math.max(0,presSheets.findIndex(s=>s.id===state.id));
  presentationMode=true;
  presentationEntering=true;
  presentationLockingIn=false;
  presentationDirection=0;
- state=sheets[presentationIndex];
+ state=presSheets[presentationIndex];
  state.viewMode='cinematic';
  activeSheetId=state.id;
  playPresentationOpenSound();
@@ -597,14 +627,16 @@ function openPresentationMode(){
 }
 function closePresentationMode(){
  if(presentationLockingIn)return;
- confirmPresentationAgent(sheets[presentationIndex]);
+ const presSheets=getPresentationSheets();
+ confirmPresentationAgent(presSheets[presentationIndex]||presSheets[0]);
 }
 function cyclePresentation(direction){
- if(presentationLockingIn||sheets.length<=1)return;
+ const presSheets=getPresentationSheets();
+ if(presentationLockingIn||presSheets.length<=1)return;
  presentationDirection=direction;
- presentationIndex=(presentationIndex+direction+sheets.length)%sheets.length;
+ presentationIndex=(presentationIndex+direction+presSheets.length)%presSheets.length;
  triggerGlitchTransition(()=>{
-  state=sheets[presentationIndex];
+  state=presSheets[presentationIndex];
   state.viewMode='cinematic';
   activeSheetId=state.id;
   render();
@@ -645,10 +677,11 @@ function confirmPresentationAgent(chosenSheet){
 }
 
 function renderPresentationDock(){
- const total=sheets.length;
+ const presSheets=getPresentationSheets();
+ const total=presSheets.length;
  if(!total)return '';
  const prevIdx=(presentationIndex-1+total)%total,currIdx=presentationIndex,nextIdx=(presentationIndex+1+total)%total;
- const prevSheet=sheets[prevIdx],currSheet=sheets[currIdx],nextSheet=sheets[nextIdx];
+ const prevSheet=presSheets[prevIdx],currSheet=presSheets[currIdx],nextSheet=presSheets[nextIdx];
  const prevAccent=getSheetAccent(prevSheet);
  const currAccent=getSheetAccent(currSheet);
  const nextAccent=getSheetAccent(nextSheet);
@@ -686,12 +719,13 @@ function bindPresentationEvents(){
   card.onclick=e=>{
    e.stopPropagation();
    if(presentationLockingIn)return;
+   const presSheets=getPresentationSheets();
    const idx=Number(card.dataset.presentationPick);
    if(!isNaN(idx)){
     if(card.classList.contains('card-next'))cyclePresentation(1);
     else if(card.classList.contains('card-prev'))cyclePresentation(-1);
     else{
-     const diff=(idx-presentationIndex+sheets.length)%sheets.length;
+     const diff=(idx-presentationIndex+presSheets.length)%presSheets.length;
      cyclePresentation(diff===1?1:-1);
     }
    }
@@ -700,7 +734,8 @@ function bindPresentationEvents(){
  document.querySelectorAll('[data-confirm-agent]').forEach(btn=>{
   btn.onclick=e=>{
    e.stopPropagation();
-   const id=btn.dataset.confirmAgent,target=sheets.find(s=>s.id===id)||sheets[presentationIndex];
+   const presSheets=getPresentationSheets();
+   const id=btn.dataset.confirmAgent,target=presSheets.find(s=>s.id===id)||presSheets[presentationIndex];
    confirmPresentationAgent(target);
   };
  });
@@ -708,7 +743,8 @@ function bindPresentationEvents(){
  if(currCard){
   currCard.ondblclick=e=>{
    e.stopPropagation();
-   confirmPresentationAgent(sheets[presentationIndex]);
+   const presSheets=getPresentationSheets();
+   confirmPresentationAgent(presSheets[presentationIndex]);
   };
  }
  const stage=document.querySelector('#presentation-stage');
@@ -966,9 +1002,12 @@ function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll
 
 	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div><div class="sheet-switcher">${sheets.map(sheet=>`<button type="button" class="sheet-avatar ${sheet.id===state.id?'active':''}" data-sheet-id="${sheet.id}" draggable="true" title="${safe(sheet.name)} (${sheet.systemMode==='original'?'Ordem Original':'Ordem II'})">${sheet.tokenImage?`<img src="${safeUrl(sheet.tokenImage)}" alt="${safe(sheet.name)}" draggable="false">`:safe((sheet.name||'?').slice(0,1).toUpperCase())}</button>`).join('')}<button class="nav-btn dashed" data-new-sheet title="Adicionar ficha">${icon('plus')}</button></div><span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
-  ${state.systemMode==='original'
-    ? (isCinematic?renderCinematicOriginal(state,editMode,{safeUrl,renderBackgroundLayer,presentationMode,renderPresentationDock,die,accent:getSheetAccent(state),resourceShift:currentResourceShift,pageClass:`cinematic-tab-${cinematicMobileTab} ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}`}):renderTraditionalOriginal(state,editMode,{accent:getSheetAccent(state),currentRight:currentOriginalTab,filterQuery:originalSkillsFilter,safeUrl,renderBackgroundLayer}))
-    : (isCinematic?renderCinematic(trainingOptions,bgIsVideo):renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount))
+  ${state.systemMode==='threat'
+    ? renderThreatPlaceholder(state, editMode)
+    : (state.systemMode==='original'
+        ? (isCinematic?renderCinematicOriginal(state,editMode,{safeUrl,renderBackgroundLayer,presentationMode,renderPresentationDock,die,accent:getSheetAccent(state),resourceShift:currentResourceShift,pageClass:`cinematic-tab-${cinematicMobileTab} ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}`}):renderTraditionalOriginal(state,editMode,{accent:getSheetAccent(state),currentRight:currentOriginalTab,filterQuery:originalSkillsFilter,safeUrl,renderBackgroundLayer}))
+        : (isCinematic?renderCinematic(trainingOptions,bgIsVideo):renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount))
+    )
   }
 	 ${isCinematic?renderCriticalAtmosphere():''}
 	 <div class="view-mode-switch ${viewSwitchCollapsed?'collapsed':'expanded'}">${viewSwitchCollapsed?`<button type="button" class="view-mode-trigger" data-toggle-view-switch title="Alternar modo de exibição (Clique para expandir)">${isCinematic?icon('film',14):icon('grid',14)}<span>${isCinematic?'CINEMA':'PADRÃO'}</span><i class="switch-arrow">▾</i></button>`:`<button type="button" class="${!isCinematic?'active':''}" data-display-mode="traditional">${icon('grid',14)}<span>TRADICIONAL</span></button><button type="button" class="${isCinematic&&!presentationMode?'active':''}" data-display-mode="cinematic">${icon('film',14)}<span>CINEMATOGRÁFICO</span></button><button type="button" class="${presentationMode?'active':''}" data-open-presentation title="Modo de Apresentação">${icon('presentation',14)}<span>APRESENTAÇÃO</span></button><button type="button" class="btn-collapse-switch" data-toggle-view-switch title="Recolher menu">${icon('chevron',12)}</button>`}</div>
@@ -1156,6 +1195,10 @@ function persistSheetsNow(){
  }catch{}
 
  try{
+  persistFoldersToStorage(folders, { idbSet });
+ }catch{}
+
+ try{
   idbSet('sheets',out);
   idbSet('activeSheetId',state.id);
  }catch{}
@@ -1226,8 +1269,12 @@ function importJsonSheet(file){
   try{
    const parsed=JSON.parse(reader.result);
    const prepareImport=item=>{
-    if(item&&!item.systemMode&&(item.atributos?.for!==undefined||item.classeId!==undefined||(item.nex!==undefined&&item.pd===undefined))){
-     item.systemMode='original';
+    if(item&&!item.systemMode){
+     if(item.vd!==undefined||item.tamanho!==undefined||item.acoes!==undefined){
+      item.systemMode='threat';
+     }else if(item.atributos?.for!==undefined||item.classeId!==undefined||(item.nex!==undefined&&item.pd===undefined)){
+      item.systemMode='original';
+     }
     }
     return normalizeSheet(item);
    };
@@ -2362,7 +2409,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closePresentationMode();return;}
   if(e.key==='ArrowLeft'){cyclePresentation(-1);return;}
   if(e.key==='ArrowRight'){cyclePresentation(1);return;}
-  if(e.key==='Enter'||e.key===' '){e.preventDefault();confirmPresentationAgent(sheets[presentationIndex]);return;}
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();const pres=getPresentationSheets();confirmPresentationAgent(pres[presentationIndex]||pres[0]);return;}
   return;
  }
  if(e.key==='Escape'){closeSheetContextMenu();closeSlotModal();closeCardEditor();closeSkillInfo();toggleRollLog(false);document.querySelector('#critical-settings-modal')?.classList.remove('open');const m=document.querySelector('#system-select-modal');if(m)m.style.display='none';}

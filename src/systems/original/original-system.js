@@ -510,6 +510,8 @@ export function normalizeOriginalSheet(raw = {}) {
   const sheet = { ...DEFAULT_ORIGINAL_SHEET, ...raw };
   sheet.id = raw.id || `sheet-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   sheet.systemMode = 'original';
+  sheet.folderId = raw.folderId || 'folder-characters';
+  sheet.favorite = Boolean(raw.favorite);
 
   sheet.atributos = {
     for: Number(raw.atributos?.for ?? 2),

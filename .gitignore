@@ -9,4 +9,5 @@ src/default-sheets.js
 # sheets.json é a "fonte da verdade" local; o GitHub Actions o usa para gerar o default-sheets.js
 # Comente a linha abaixo se quiser versionar as fichas padrão junto ao repo
 # sheets.json
+# folders.json
 
