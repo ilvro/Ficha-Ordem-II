@@ -1,0 +1,1074 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SISTEMA DE AMEAÇAS — FICHA MODO LIVRO (Ordem Paranormal RPG)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.threat-book-page {
+  position: relative;
+  min-height: 100vh;
+  margin-left: 80px;
+  background-color: #080910;
+  color: #e2e4ef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 20px 80px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #2b2e45 transparent;
+  user-select: text;
+}
+
+.threat-book-page::-webkit-scrollbar {
+  width: 6px;
+}
+.threat-book-page::-webkit-scrollbar-thumb {
+  background: #2b2e45;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .threat-book-page {
+    margin-left: 0;
+    padding: 12px 10px 80px 10px;
+  }
+}
+
+@media (min-width: 1200px) {
+  body.navigator-pinned .threat-book-page {
+    margin-left: 400px;
+    width: calc(100vw - 400px);
+  }
+}
+
+/* Container do Livro / Grimório */
+.threat-dossier-card {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  background: #0f111c;
+  border: 1px solid #23263b;
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  z-index: 2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ── Cabeçalho do Livro (Banner com Clip-Path Rasgado) ─────────────────────── */
+.threat-banner-header {
+  position: relative;
+  padding: 20px 28px 18px 28px;
+  background: linear-gradient(135deg, var(--threat-elem-dark, #1f0709) 0%, #121422 65%, #0e101a 100%);
+  border-bottom: 2px solid var(--threat-elem-color, #e0150d);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.threat-banner-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 8px;
+  background: var(--threat-elem-color, #e0150d);
+}
+
+.threat-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.threat-sigil-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1.5px solid var(--threat-elem-color, #e0150d);
+  display: grid;
+  place-items: center;
+  color: var(--threat-elem-color, #e0150d);
+  box-shadow: 0 0 20px var(--threat-elem-glow, rgba(224, 21, 13, 0.25));
+}
+
+.threat-name-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.threat-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.threat-name-title {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-weight: 900;
+  font-size: 28px;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.15;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.threat-subtitle-tag {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--threat-elem-color, #ff5e67);
+  text-transform: uppercase;
+}
+
+/* VD Badge Grande Estilo Pincel / Tag */
+.threat-vd-badge-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background: #090a12;
+  border: 1.5px solid var(--threat-elem-color, #e0150d);
+  border-radius: 6px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), inset 0 0 12px var(--threat-elem-glow, rgba(224, 21, 13, 0.15));
+}
+
+.threat-vd-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #8b90aa;
+  text-transform: uppercase;
+}
+
+.threat-vd-number {
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--threat-elem-color, #ff5e67);
+  letter-spacing: 0.04em;
+}
+
+/* ── Linha de Tags / Metadados ─────────────────────────────────────────────── */
+.threat-tags-bar {
+  padding: 10px 28px;
+  background: #121422;
+  border-bottom: 1px solid #1f2236;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.threat-tags-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-elem-pill {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #181b2b;
+  border: 1px solid #2b2f48;
+  color: #9da3c2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-elem-pill.highlighted {
+  background: var(--elem-color, #e0150d);
+  border-color: var(--elem-color, #e0150d);
+  color: #fff;
+  box-shadow: 0 2px 10px var(--elem-glow, rgba(224, 21, 13, 0.3));
+}
+
+.threat-meta-pill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #161828;
+  border: 1px solid #272a42;
+  color: #b0b5d0;
+}
+
+/* ── Grid Principal de 2 Colunas do Livro ─────────────────────────────────── */
+.threat-columns-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px 28px;
+  background: #0f111c;
+}
+
+@media (max-width: 960px) {
+  .threat-columns-layout {
+    grid-template-columns: 1fr;
+    padding: 18px 14px;
+    gap: 20px;
+  }
+}
+
+.threat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ── Cabeçalhos de Seções Rasgados ─────────────────────────────────────────── */
+.threat-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #090a13;
+  border-left: 4px solid var(--threat-elem-color, #e0150d);
+  padding: 6px 12px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 8px;
+}
+
+.threat-section-head h2,
+.threat-section-head h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.threat-section-head .head-action-btn {
+  font-size: 10px;
+  font-weight: 800;
+  color: #7f84a4;
+  background: transparent;
+  border: 1px solid #282c44;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-section-head .head-action-btn:hover {
+  background: #20243b;
+  color: #fff;
+}
+
+/* ── Bloco de Presença Perturbadora ───────────────────────────────────────── */
+.threat-presenca-card {
+  background: #141626;
+  border: 1px solid #2d304a;
+  border-left: 4px solid var(--threat-elem-color, #993ce8);
+  border-radius: 6px;
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.threat-presenca-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.threat-presenca-header strong {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #f1f3fd;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.threat-presenca-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #c9cde2;
+}
+
+.threat-presenca-stats .stat-badge {
+  background: #1c1e33;
+  border: 1px solid #333754;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.threat-presenca-roll-btn {
+  background: #252844;
+  border: 1px solid #3d426d;
+  color: #d19eff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.12s ease;
+}
+
+.threat-presenca-roll-btn:hover {
+  background: #343861;
+  color: #fff;
+  border-color: #993ce8;
+  box-shadow: 0 2px 10px rgba(153, 60, 232, 0.3);
+}
+
+/* ── Sentidos e Defesa ─────────────────────────────────────────────────────── */
+.threat-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #131524;
+  border: 1px solid #23263c;
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.threat-info-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #898ea8;
+  text-transform: uppercase;
+  min-width: 80px;
+}
+
+.threat-roll-chip {
+  background: #1b1e33;
+  border: 1px solid #313656;
+  color: #e2e5f8;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.12s ease;
+}
+
+.threat-roll-chip:hover {
+  background: #272c4c;
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.threat-roll-chip b {
+  color: var(--threat-elem-color, #ff5e67);
+}
+
+/* ── Pontos de Vida (PV) e Estado Machucado ────────────────────────────────── */
+.threat-vitals-card {
+  background: #131524;
+  border: 1px solid #292d47;
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.threat-vitals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.threat-vitals-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #9aa0bf;
+  text-transform: uppercase;
+}
+
+.threat-pv-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.threat-pv-current {
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ff5e67;
+  line-height: 1;
+}
+
+.threat-pv-max {
+  font-size: 15px;
+  color: #797f9e;
+  font-weight: 700;
+}
+
+.threat-machucado-threshold {
+  font-size: 11px;
+  color: #b0b5d2;
+  font-weight: 700;
+  background: #1e2136;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #333857;
+}
+
+/* Selo de Alerta de Machucado */
+.threat-hurt-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #3d0e12;
+  border: 1.5px solid #ff3b47;
+  color: #ff6e75;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  animation: hurtPulse 1.4s infinite alternate;
+}
+
+@keyframes hurtPulse {
+  from { box-shadow: 0 0 4px rgba(255, 59, 71, 0.3); }
+  to { box-shadow: 0 0 16px rgba(255, 59, 71, 0.7); }
+}
+
+/* Barra de Vida com Marcação de Machucado */
+.threat-hp-track {
+  position: relative;
+  height: 14px;
+  background: #1c1f30;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #2e334f;
+}
+
+.threat-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #991218, #e0150d);
+  transition: width 0.25s ease;
+}
+
+.threat-hp-fill.is-hurt {
+  background: linear-gradient(90deg, #59090d, #ad131a);
+}
+
+.threat-hp-machucado-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: #ffffff;
+  opacity: 0.8;
+  z-index: 2;
+  box-shadow: 0 0 6px #fff;
+}
+
+/* Controles de Ajuste de PV */
+.threat-pv-steppers {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.threat-step-btn {
+  background: #1b1d30;
+  border: 1px solid #2f3452;
+  color: #a4abbf;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.threat-step-btn:hover {
+  background: #272b47;
+  color: #fff;
+  border-color: #484f7a;
+}
+
+.threat-step-btn.btn-heal:hover {
+  border-color: #26b36a;
+  color: #55f09f;
+}
+
+.threat-step-btn.btn-damage:hover {
+  border-color: #e0150d;
+  color: #ff6b72;
+}
+
+/* ── Resistências, Imunidades e Vulnerabilidades ──────────────────────────── */
+.threat-defenses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.threat-defense-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.threat-defense-line strong {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #8388a4;
+  text-transform: uppercase;
+  min-width: 100px;
+}
+
+.threat-defense-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.threat-defense-chip {
+  background: #1a1c2e;
+  border: 1px solid #2b2f4a;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #cfd3e8;
+}
+
+.threat-defense-chip.resist {
+  border-color: #3b426b;
+  color: #93b5ff;
+}
+
+.threat-defense-chip.vuln {
+  border-color: #5e282d;
+  color: #ff9196;
+}
+
+.threat-defense-chip.immune {
+  border-color: #4e4026;
+  color: #ffdf85;
+}
+
+/* ── Atributos em Hexágonos (AGI, FOR, INT, PRE, VIG) ─────────────────────── */
+.threat-attributes-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.threat-attr-hex {
+  background: #131524;
+  border: 1px solid #2c304c;
+  border-radius: 6px;
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.threat-attr-hex:hover {
+  background: #1d2038;
+  border-color: var(--threat-elem-color, #e0150d);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.threat-attr-hex small {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #848aab;
+  text-transform: uppercase;
+}
+
+.threat-attr-hex b {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+/* ── Deslocamento ─────────────────────────────────────────────────────────── */
+.threat-speed-box {
+  background: #131524;
+  border: 1px solid #23263b;
+  border-radius: 6px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.threat-speed-main b {
+  font-size: 15px;
+  color: #fff;
+}
+
+.threat-speed-squares {
+  color: #7d83a1;
+  font-weight: 700;
+}
+
+/* ── Seções Livres e Enigma de Medo ────────────────────────────────────────── */
+.threat-section-card {
+  background: #131525;
+  border: 1px solid #292d47;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.threat-section-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #e4e7f8;
+  text-transform: uppercase;
+}
+
+.threat-section-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #aeb3ce;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+/* Enigma de Medo Estilo Papel Envelhecido */
+.threat-enigma-card {
+  background: #17161b;
+  border: 1.5px dashed #473822;
+  border-radius: 6px;
+  padding: 14px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.threat-enigma-card::before {
+  content: "ENIGMA DE MEDO";
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  background: #2b2111;
+  color: #e5a93b;
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  padding: 1px 7px;
+  border-radius: 3px;
+  border: 1px solid #57431e;
+}
+
+.threat-enigma-card h3 {
+  margin: 0 0 6px 0;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: #f3cca0;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.threat-enigma-card p {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 12.5px;
+  color: #c9b497;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ── Coluna Direita: Ações & Habilidades ───────────────────────────────────── */
+.threat-actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.threat-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.threat-action-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #8c92b2;
+  text-transform: uppercase;
+  border-bottom: 1px solid #1f2238;
+  padding-bottom: 4px;
+}
+
+.threat-action-group-heading span.sym {
+  color: var(--threat-elem-color, #e0150d);
+  font-size: 13px;
+}
+
+/* Card Individual de Ação */
+.threat-action-card {
+  background: #141626;
+  border: 1px solid #272a42;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.threat-action-card:hover {
+  background: #181a2e;
+  border-color: #383c5e;
+}
+
+.threat-action-card.action-hurt-triggered {
+  border-color: #801d24;
+  background: #1a1219;
+}
+
+.threat-action-card.action-hurt-triggered.is-active {
+  border-color: #e0150d;
+  box-shadow: 0 0 16px rgba(224, 21, 13, 0.25);
+}
+
+.threat-action-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-action-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.threat-action-type-pill {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: #20243b;
+  color: #a4abd0;
+}
+
+.threat-action-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.threat-action-badge-active {
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: #e0150d;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 3px;
+  animation: hurtPulse 1.2s infinite alternate;
+}
+
+/* Ataques dentro da Ação */
+.threat-attack-item {
+  background: #1a1c2e;
+  border: 1px solid #2e334e;
+  border-radius: 5px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.threat-attack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.threat-attack-title {
+  font-weight: 800;
+  color: #e2e5f8;
+}
+
+.threat-attack-range {
+  font-size: 10px;
+  font-weight: 700;
+  color: #898ea8;
+}
+
+.threat-attack-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-attack-roll-btn {
+  background: #252945;
+  border: 1px solid #3c426f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.12s ease;
+}
+
+.threat-attack-roll-btn:hover {
+  background: #343a62;
+  border-color: var(--threat-elem-color, #e0150d);
+  transform: translateY(-1px);
+}
+
+.threat-attack-roll-btn.damage-btn {
+  background: #301f28;
+  border-color: #5c3046;
+  color: #ff91ad;
+}
+
+.threat-attack-roll-btn.damage-btn:hover {
+  background: #462537;
+  border-color: #ff3b69;
+  color: #fff;
+}
+
+.threat-action-text {
+  font-size: 11.5px;
+  color: #adb2cc;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Fraquezas ou itálicos dentro do texto */
+.threat-action-text em,
+.threat-action-text i {
+  color: #e5b839;
+  font-style: italic;
+}
+
+/* ── Modo Edição (WYSIWYG) ─────────────────────────────────────────────────── */
+body.mode-edit .threat-editable-input {
+  background: #1c1f33 !important;
+  border: 1px solid #d4952c !important;
+  color: #fff !important;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font: inherit;
+  outline: none;
+}
+
+body.mode-edit .threat-editable-input:focus {
+  border-color: #f7b844 !important;
+  box-shadow: 0 0 0 2px rgba(212, 149, 44, 0.25);
+}
+
+.threat-edit-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.threat-edit-btn {
+  background: #24283f;
+  border: 1px solid #3d436b;
+  color: #bcc1db;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.12s ease;
+}
+
+.threat-edit-btn:hover {
+  background: #323859;
+  color: #fff;
+  border-color: #5b649e;
+}
+
+.threat-edit-btn.danger:hover {
+  background: #4a191f;
+  border-color: #e0150d;
+  color: #ff6e75;
+}
+
+/* ── Modal de Edição de Ação da Ameaça ─────────────────────────────────────── */
+.threat-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.threat-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 4, 8, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.threat-modal-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #111322;
+  border: 1px solid #2d314c;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+}
+
+.threat-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #20243b;
+  background: #15182a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.threat-modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.threat-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.threat-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.threat-form-group label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #8c92b2;
+  text-transform: uppercase;
+}
+
+.threat-form-group input,
+.threat-form-group select,
+.threat-form-group textarea {
+  background: #181b2e;
+  border: 1px solid #2b304f;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.threat-form-group input:focus,
+.threat-form-group select:focus,
+.threat-form-group textarea:focus {
+  border-color: #5d669c;
+  box-shadow: 0 0 0 2px rgba(93, 102, 156, 0.25);
+}
+
+.threat-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #20243b;
+  background: #15182a;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+

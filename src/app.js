@@ -103,7 +103,7 @@ import {
 } from './systems/original/original-views.js';
 import { initOriginalCompendium } from './systems/original/original-compendium.js';
 import { normalizeThreatSheet } from './systems/threat/threat-system.js';
-import { renderThreatPlaceholder } from './systems/threat/threat-views.js';
+import { renderThreatBook } from './systems/threat/threat-views.js';
 import {
   DEFAULT_FOLDERS,
   normalizeFolders,
@@ -377,7 +377,7 @@ function customSelect({value,options,id,className='',disabled=false,formName=''}
 function tornTitle(text,wide=false){return `<div class="section-line"><h2 class="torn ${wide?'wide':''}">${text}</h2></div>`}
 function pips(current,max,key,temp=0){const regular=Array.from({length:max},(_,i)=>`<button type="button" class="pip ${i<current?'filled':''}" data-set-resource="${key}:${i+1}" aria-label="${i+1}"></button>`).join('');const temporary=Array.from({length:temp},(_,i)=>`<button type="button" class="pip temporary filled" data-consume-temp="${key}:${i+1}" title="${key.toUpperCase()} temporário ${i+1}/${temp} (Clique para extinguir, Botão direito para todos)"></button>`).join('');return regular+temporary}
 const formulaKey=value=>String(value).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-function formulaVariables(){return{level:state.level,pv:state.pv,pd:state.pd,maxpv:state.maxPv,maxpd:state.maxPd,fisico:state.attributes.Físico,mente:state.attributes.Mente,emocao:state.attributes.Emoção}}
+function formulaVariables(){const attrs=state.attributes||{},threatAttrs=state.atributos||{};return{level:state.level??0,pv:state.pv??state.pvAtual??0,pd:state.pd??0,maxpv:state.maxPv??state.pvMax??0,maxpd:state.maxPd??0,fisico:attrs.Físico??0,mente:attrs.Mente??0,emocao:attrs.Emoção??0,agi:threatAttrs.agi??0,for:threatAttrs.for??0,int:threatAttrs.int??0,pre:threatAttrs.pre??0,vig:threatAttrs.vig??0,vd:state.vd??0}}
 function evaluateFormula(expression){const vars=formulaVariables(),expanded=String(expression||'0').replace(/@\{([^}]+)\}/g,(_,key)=>String(vars[formulaKey(key)]??0));if(!/^[\d+\-*/().\s]+$/.test(expanded))return 0;try{return Math.max(0,Math.floor(Function(`"use strict";return (${expanded})`)()))}catch{return 0}}
 function markerMax(marker){return Math.min(100,evaluateFormula(marker.maxFormula||'0'))}
 function renderMarker(card,marker){const max=markerMax(marker),current=Math.min(Number(marker.current)||0,max||999),id=`${card.id}:${marker.id}`,displayStyle=marker.displayStyle||'default';if(marker.type==='toggle')return `<div class="card-marker marker-toggle style-${displayStyle}"><span>${safe(marker.label)}</span><button class="toggle-switch ${current?'on':''}" data-card-marker="${id}:toggle"><i></i>${current?'LIGADO':'DESLIGADO'}</button></div>`;if(marker.type==='bar'&&displayStyle!=='rectangles')return `<div class="card-marker marker-bar style-${displayStyle}"><div><span>${safe(marker.label)}</span><strong>${current}/${max}</strong></div><button class="progress-track" data-card-marker="${id}:1"><i style="width:${max?current/max*100:0}%"></i></button><div class="marker-buttons"><button data-card-marker="${id}:-1">−</button><button data-card-marker="${id}:1">+</button></div></div>`;if(marker.type==='slots'){const slots=Array.isArray(marker.slots)?marker.slots:[],costRes=(marker.fillCostResource||'pd').toLowerCase(),costAmt=Number(marker.fillCostAmount)||0;if(displayStyle==='rectangles'){const slotItems=Array.from({length:max},(_,i)=>{const val=slots[i],filled=val!==undefined&&val!==null&&val!=='';return `<button type="button" class="value-slot ${filled?'filled':'empty'}" data-use-slot="${id}:${i}" title="${filled?`Espaço ${i+1}: [ ${val} ] (Clique para gastar)`:'Espaço vazio (Clique para preencher)'}"><b class="slot-val">${filled?val:''}</b></button>`}).join('');return `<div class="card-marker marker-value-slots style-rectangles"><span>${safe(marker.label)}</span><div class="value-slots-row">${slotItems}</div></div>`}const fillBtn=costAmt>0?`<button type="button" class="btn-slot-fill" data-fill-marker="${id}" title="Gastar ${costAmt} ${costRes.toUpperCase()} para preencher um espaço">+ PREENCHER (${costAmt} ${costRes.toUpperCase()})</button>`:'';const slotItems=Array.from({length:max},(_,i)=>{const val=slots[i],filled=val!==undefined&&val!==null&&val!=='';return `<button type="button" class="value-slot ${filled?'filled':'empty'}" data-use-slot="${id}:${i}" title="${filled?`Espaço ${i+1}: ${val} (Clique para gastar)`:'Espaço vazio (Clique para preencher)'}"><span class="slot-idx">${i+1}</span><b class="slot-val">${filled?val:'−'}</b></button>`}).join('');return `<div class="card-marker marker-value-slots style-${displayStyle}"><div class="value-slots-top"><span>${safe(marker.label)}</span>${fillBtn}</div><div class="value-slots-row">${slotItems}</div></div>`}if(marker.type==='pips'||(marker.type==='bar'&&displayStyle==='rectangles'))return `<div class="card-marker marker-pips style-${displayStyle}"><span>${safe(marker.label)}</span><div class="marker-pips-track marker-slots">${Array.from({length:max},(_,i)=>`<button class="charge ${i<current?'on':''}" data-card-marker-set="${id}:${i+1}"></button>`).join('')}</div><strong>${current}/${max}</strong></div>`;return `<div class="card-marker style-${displayStyle}"><span>${safe(marker.label)}</span><button data-card-marker="${id}:-1">−</button><strong>${current}${max?`/${max}`:''}</strong><button data-card-marker="${id}:1">+</button></div>`}
@@ -886,13 +886,14 @@ function addRollLogEntry(entry) {
  const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
  rollLog.unshift({
   id: makeId('roll'),
-  characterName: state.name || 'Agente',
+  characterName: state.name || (state.systemMode === 'threat' ? 'Ameaça' : 'Agente'),
   accent: getSheetAccent(state),
-  profile: state.profile || 'Executor',
+  profile: state.systemMode === 'threat' ? (state.elementos?.[0] || 'Ameaça') : (state.profile || 'Executor'),
   title: entry.title || 'Rolagem',
   dice: entry.dice || [],
   modifier: Number(entry.modifier) || 0,
   total: entry.total,
+  rollMode: entry.rollMode,
   timestamp: timeStr
  });
  if (rollLog.length > 50) rollLog.length = 50;
@@ -1012,7 +1013,7 @@ function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll
    ${quickSwitcherOpen?renderQuickSwitcherModal(sheets,folders,quickSwitcherQuery,quickSwitcherIndex,safeUrl):''}
 
   ${state.systemMode==='threat'
-    ? renderThreatPlaceholder(state, editMode)
+    ? renderThreatBook(state, editMode, { safeUrl, renderBackgroundLayer })
     : (state.systemMode==='original'
         ? (isCinematic?renderCinematicOriginal(state,editMode,{safeUrl,renderBackgroundLayer,presentationMode,renderPresentationDock,die,accent:getSheetAccent(state),resourceShift:currentResourceShift,pageClass:`cinematic-tab-${cinematicMobileTab} ${presentationMode?'presentation-active':''} ${presentationLockingIn?'presentation-locking-in':''} ${presentationEntering?'presentation-entering':''} ${editTransitionMode?`edit-trans-${editTransitionMode}`:''} ${modeJustChanged?'mode-enter':''}`}):renderTraditionalOriginal(state,editMode,{accent:getSheetAccent(state),currentRight:currentOriginalTab,filterQuery:originalSkillsFilter,safeUrl,renderBackgroundLayer}))
         : (isCinematic?renderCinematic(trainingOptions,bgIsVideo):renderTraditional(trainingOptions,bgIsVideo,aptidaoOptions,aptidaoCount))
@@ -1250,6 +1251,476 @@ function save(showToast=true,toastMsg='SALVO',commit=false){
   }
  }
 }
+
+function setNestedProperty(obj, path, value) {
+ if (!obj || !path) return;
+ const parts = path.split('.');
+ let curr = obj;
+ for (let i = 0; i < parts.length - 1; i++) {
+  if (!curr[parts[i]]) curr[parts[i]] = {};
+  curr = curr[parts[i]];
+ }
+ curr[parts[parts.length - 1]] = value;
+}
+
+function bindThreatBookEvents() {
+ if (state.systemMode !== 'threat') return;
+
+ document.querySelectorAll('[data-threat-roll-attr]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const attrKey = el.dataset.threatRollAttr;
+   const attrVal = Number(state.atributos?.[attrKey] ?? 2);
+   const count = attrVal > 0 ? attrVal : 2;
+   const rollMode = attrVal > 0 ? 'highest' : 'lowest';
+   const attrNames = { agi: 'Agilidade', for: 'Força', int: 'Intelecto', pre: 'Presença', vig: 'Vigor' };
+   roll(`Atributo: ${attrNames[attrKey] || attrKey.toUpperCase()} [${safe(state.name)}]`, Array(count).fill(20), 0, rollMode);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-save]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const key = el.dataset.threatRollSave;
+   const saveObj = state.salvaguardas?.[key] || { dados: 2, bonus: 0 };
+   const dados = Math.max(1, Number(saveObj.dados) || 1);
+   const bonus = Number(saveObj.bonus) || 0;
+   const saveNames = { fortitude: 'Fortitude', reflexos: 'Reflexos', vontade: 'Vontade' };
+   roll(`Resistência: ${saveNames[key] || key.toUpperCase()} [${safe(state.name)}]`, Array(dados).fill(20), bonus, 'highest');
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-sense]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const key = el.dataset.threatRollSense;
+   const senseObj = state.sentidos?.[key] || { dados: 2, bonus: 0 };
+   const dados = Math.max(1, Number(senseObj.dados) || 1);
+   const bonus = Number(senseObj.bonus) || 0;
+   const senseNames = { percepcao: 'Percepção', iniciativa: 'Iniciativa' };
+   roll(`Sentidos: ${senseNames[key] || key.toUpperCase()} [${safe(state.name)}]`, Array(dados).fill(20), bonus, 'highest');
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-presence]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const dano = state.presenca?.dano || '3d6';
+   const tipo = state.presenca?.tipoDano || 'mental';
+   rollExpression(`Presença Perturbadora: ${dano} ${tipo} [${safe(state.name)}]`, dano);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-atk-test]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const [actionId, atkId] = el.dataset.threatRollAtkTest.split(':');
+   const action = (state.acoes || []).find(a => a.id === actionId);
+   const attack = (action?.ataques || []).find(atk => atk.id === atkId);
+   if (!attack) return;
+   const dados = Math.max(1, Number(attack.teste?.dados) || 1);
+   const bonus = Number(attack.teste?.bonus) || 0;
+   roll(`Ataque: ${attack.nome || action.nome} [${safe(state.name)}]`, Array(dados).fill(20), bonus, 'highest');
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-atk-dmg]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const [actionId, atkId] = el.dataset.threatRollAtkDmg.split(':');
+   const action = (state.acoes || []).find(a => a.id === actionId);
+   const attack = (action?.ataques || []).find(atk => atk.id === atkId);
+   if (!attack || !attack.dano) return;
+   rollExpression(`Dano: ${attack.nome || action.nome} (${attack.tipoDano || ''}) [${safe(state.name)}]`, attack.dano);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-roll-pericia]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const pId = el.dataset.threatRollPericia;
+   const p = (state.pericias || []).find(item => item.id === pId);
+   if (!p) return;
+   const dados = Math.max(1, Number(p.dados) || 1);
+   const bonus = Number(p.bonus) || 0;
+   roll(`Perícia: ${p.nome} [${safe(state.name)}]`, Array(dados).fill(20), bonus, 'highest');
+  };
+ });
+
+ document.querySelectorAll('[data-threat-pv-delta]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const delta = Number(el.dataset.threatPvDelta) || 0;
+   const prev = state.pv;
+   state.pv = Math.max(0, Math.min(state.pvMax, (Number(state.pv) || 0) + delta));
+   if (prev !== state.pv) playResourceSound(delta > 0);
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-add-temp]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   const val = prompt('Quantidade de PV Temporário:', '10');
+   if (val !== null) {
+    state.pvTemp = Math.max(0, Number(val) || 0);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-threat-clear-temp]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   if (presentationMode) return;
+   state.pvTemp = 0;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-select-elem]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   state.elementoDestaque = el.dataset.threatSelectElem;
+   if (!Array.isArray(state.elementos)) state.elementos = [];
+   if (!state.elementos.includes(state.elementoDestaque)) {
+    state.elementos.push(state.elementoDestaque);
+   }
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-toggle-categoria]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   state.categoria = state.categoria === 'mundana' ? 'paranormal' : 'mundana';
+   if (state.categoria === 'mundana') {
+    state.tipo = 'Humano';
+   } else {
+    state.tipo = 'Criatura';
+    if (!state.elementos || !state.elementos.length) state.elementos = ['sangue'];
+    state.elementoDestaque = state.elementos[0];
+   }
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-field]').forEach(input => {
+  input.onchange = (e) => {
+   const path = input.dataset.threatField;
+   let val = input.value;
+   if (input.type === 'number' || path === 'vd' || path === 'defesa') val = Number(val) || 0;
+   setNestedProperty(state, path, val);
+   if (path === 'pvMax' && state.pv > val) state.pv = val;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-attr-input]').forEach(input => {
+  input.onchange = (e) => {
+   const attrKey = input.dataset.threatAttrInput;
+   if (!state.atributos) state.atributos = {};
+   state.atributos[attrKey] = Math.max(0, Number(input.value) || 0);
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-close-threat-modal]').forEach(btn => {
+  btn.onclick = () => {
+   document.querySelectorAll('.threat-modal').forEach(m => m.style.display = 'none');
+  };
+ });
+
+ function openThreatActionModal(action = null) {
+  const modal = document.querySelector('#threat-action-modal');
+  if (!modal) return;
+  const form = modal.querySelector('#threat-action-form');
+  const attacksContainer = modal.querySelector('#threat-attacks-container');
+  const modalTitle = modal.querySelector('#threat-action-modal-title');
+  
+  if (modalTitle) modalTitle.textContent = action ? 'EDITAR AÇÃO' : 'NOVA AÇÃO';
+  form.querySelector('#threat-action-id').value = action ? action.id : '';
+  form.querySelector('#threat-action-type').value = action ? action.tipoAcao : 'padrao';
+  form.querySelector('#threat-action-name-input').value = action ? action.nome : '';
+  form.querySelector('#threat-action-trigger').value = action ? (action.gatilho || '') : '';
+  form.querySelector('#threat-action-hurt').value = action ? (action.ativaQuando || '') : '';
+  form.querySelector('#threat-action-text-input').value = action ? (action.texto || '') : '';
+
+  attacksContainer.innerHTML = '';
+  const attacks = action ? (action.ataques || []) : [];
+  if (attacks.length > 0) {
+   attacks.forEach((atk, idx) => addAttackRow(attacksContainer, atk, idx));
+  } else {
+   addAttackRow(attacksContainer, null, 0);
+  }
+
+  modal.style.display = 'grid';
+  form.querySelector('#threat-action-name-input').focus();
+ }
+
+ function addAttackRow(container, atk = null, idx = 0) {
+  const row = document.createElement('div');
+  row.className = 'threat-attack-row-builder';
+  row.style.cssText = 'background:#121424;border:1px solid #2d314f;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;';
+  row.innerHTML = `
+   <div style="display:flex;align-items:center;justify-content:space-between;">
+    <b style="font-size:11px;color:#cfd3eb;">Ataque #${container.children.length + 1}</b>
+    <button type="button" class="threat-edit-btn danger" data-remove-attack-row style="padding:1px 6px;">✕</button>
+   </div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+    <input type="text" data-atk-name value="${safe(atk?.nome || 'Ataque')}" placeholder="Nome do ataque" style="background:#191c30;border:1px solid #2b304f;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;">
+    <select data-atk-range style="background:#191c30;border:1px solid #2b304f;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;">
+     <option value="corpo" ${atk?.alcance === 'corpo' ? 'selected' : ''}>Corpo a corpo</option>
+     <option value="curto" ${atk?.alcance === 'curto' ? 'selected' : ''}>Curto</option>
+     <option value="medio" ${atk?.alcance === 'medio' ? 'selected' : ''}>Médio</option>
+     <option value="longo" ${atk?.alcance === 'longo' ? 'selected' : ''}>Longo</option>
+     <option value="extremo" ${atk?.alcance === 'extremo' ? 'selected' : ''}>Extremo</option>
+    </select>
+   </div>
+   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+    <div>
+     <label style="font-size:9px;color:#787e9c;display:block;">TESTE DADOS</label>
+     <input type="number" min="1" max="10" data-atk-dados value="${atk?.teste?.dados ?? 3}" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
+    </div>
+    <div>
+     <label style="font-size:9px;color:#787e9c;display:block;">TESTE BÔNUS</label>
+     <input type="number" data-atk-bonus value="${atk?.teste?.bonus ?? 10}" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
+    </div>
+    <div>
+     <label style="font-size:9px;color:#787e9c;display:block;">CRÍTICO</label>
+     <input type="text" data-atk-critico value="${safe(atk?.critico || '20/x2')}" placeholder="20/x2" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
+    </div>
+   </div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+    <div>
+     <label style="font-size:9px;color:#787e9c;display:block;">DANO (EX: 2d8+6)</label>
+     <input type="text" data-atk-dano value="${safe(atk?.dano || '2d8+6')}" placeholder="2d8+6" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
+    </div>
+    <div>
+     <label style="font-size:9px;color:#787e9c;display:block;">TIPO DE DANO</label>
+     <input type="text" data-atk-tipo value="${safe(atk?.tipoDano || 'Impacto')}" placeholder="Impacto, Corte..." style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
+    </div>
+   </div>
+  `;
+
+  row.querySelector('[data-remove-attack-row]').onclick = () => row.remove();
+  container.appendChild(row);
+ }
+
+ document.querySelectorAll('[data-threat-add-action]').forEach(btn => {
+  btn.onclick = () => openThreatActionModal(null);
+ });
+
+ document.querySelectorAll('[data-threat-edit-action]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const actionId = btn.dataset.threatEditAction;
+   const action = (state.acoes || []).find(a => a.id === actionId);
+   if (action) openThreatActionModal(action);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-action]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const actionId = btn.dataset.threatDelAction;
+   if (confirm('Tem certeza que deseja excluir esta ação?')) {
+    state.acoes = (state.acoes || []).filter(a => a.id !== actionId);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ const btnAddAttackRow = document.querySelector('#btn-threat-add-attack-row');
+ if (btnAddAttackRow) {
+  btnAddAttackRow.onclick = () => {
+   const container = document.querySelector('#threat-attacks-container');
+   if (container) addAttackRow(container);
+  };
+ }
+
+ const actionForm = document.querySelector('#threat-action-form');
+ if (actionForm) {
+  actionForm.onsubmit = (e) => {
+   e.preventDefault();
+   const actionId = actionForm.querySelector('#threat-action-id').value;
+   const tipoAcao = actionForm.querySelector('#threat-action-type').value;
+   const nome = actionForm.querySelector('#threat-action-name-input').value.trim() || 'Ação';
+   const gatilho = actionForm.querySelector('#threat-action-trigger').value.trim();
+   const ativaQuando = actionForm.querySelector('#threat-action-hurt').value || null;
+   const texto = actionForm.querySelector('#threat-action-text-input').value.trim();
+
+   const attacks = [];
+   document.querySelectorAll('.threat-attack-row-builder').forEach((row, i) => {
+    attacks.push({
+     id: `atk-${Date.now()}-${i}`,
+     nome: row.querySelector('[data-atk-name]').value.trim() || 'Ataque',
+     alcance: row.querySelector('[data-atk-range]').value,
+     multiplicador: 1,
+     teste: {
+      dados: Math.max(1, Number(row.querySelector('[data-atk-dados]').value) || 2),
+      bonus: Number(row.querySelector('[data-atk-bonus]').value) || 0
+     },
+     dano: row.querySelector('[data-atk-dano]').value.trim() || '1d8',
+     tipoDano: row.querySelector('[data-atk-tipo]').value.trim() || 'Impacto',
+     critico: row.querySelector('[data-atk-critico]').value.trim() || '20/x2'
+    });
+   });
+
+   if (!Array.isArray(state.acoes)) state.acoes = [];
+   const existingIdx = state.acoes.findIndex(a => a.id === actionId);
+   const actionObj = {
+    id: actionId || `act-${Date.now()}`,
+    tipoAcao,
+    nome,
+    gatilho,
+    custo: '',
+    usos: null,
+    ataques: attacks,
+    texto,
+    coluna: 'esquerda',
+    ativaQuando,
+    fase: null
+   };
+
+   if (existingIdx >= 0) {
+    state.acoes[existingIdx] = actionObj;
+   } else {
+    state.acoes.push(actionObj);
+   }
+
+   const modal = document.querySelector('#threat-action-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
+
+ document.querySelectorAll('[data-threat-manage-defenses]').forEach(btn => {
+  btn.onclick = () => {
+   const modal = document.querySelector('#threat-defenses-modal');
+   if (modal) modal.style.display = 'grid';
+  };
+ });
+
+ const defensesForm = document.querySelector('#threat-defenses-form');
+ if (defensesForm) {
+  defensesForm.onsubmit = (e) => {
+   e.preventDefault();
+   const imunidadesStr = defensesForm.querySelector('#threat-defenses-imunidades').value;
+   const vulnerabilidadesStr = defensesForm.querySelector('#threat-defenses-vulnerabilidades').value;
+   const resistenciasStr = defensesForm.querySelector('#threat-defenses-resistencias').value;
+
+   state.imunidades = imunidadesStr.split(',').map(s => s.trim()).filter(Boolean);
+   state.vulnerabilidades = vulnerabilidadesStr.split(',').map(s => s.trim()).filter(Boolean);
+   
+   const resItems = [];
+   resistenciasStr.split(',').forEach(part => {
+    const trimmed = part.trim();
+    if (!trimmed) return;
+    const match = trimmed.match(/^([A-Za-zÀ-ÖØ-öø-ÿ\s]+)\s+(\d+)$/);
+    if (match) {
+     resItems.push({ tipo: match[1].trim(), valor: Number(match[2]) || 0 });
+    } else {
+     resItems.push({ tipo: trimmed, valor: 10 });
+    }
+   });
+   state.resistencias = resItems;
+
+   const modal = document.querySelector('#threat-defenses-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
+
+ function openThreatSectionModal(section = null) {
+  const modal = document.querySelector('#threat-section-modal');
+  if (!modal) return;
+  const form = modal.querySelector('#threat-section-form');
+  modal.querySelector('#threat-section-modal-title').textContent = section ? 'EDITAR SEÇÃO' : 'NOVA SEÇÃO / ENIGMA';
+  form.querySelector('#threat-section-id').value = section ? section.id : '';
+  form.querySelector('#threat-section-style').value = section ? section.estilo : 'normal';
+  form.querySelector('#threat-section-title-input').value = section ? section.titulo : '';
+  form.querySelector('#threat-section-body-input').value = section ? section.corpo : '';
+  modal.style.display = 'grid';
+  form.querySelector('#threat-section-title-input').focus();
+ }
+
+ document.querySelectorAll('[data-threat-add-section]').forEach(btn => {
+  btn.onclick = () => openThreatSectionModal(null);
+ });
+
+ document.querySelectorAll('[data-threat-edit-section]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const secId = btn.dataset.threatEditSection;
+   const sec = (state.secoes || []).find(s => s.id === secId);
+   if (sec) openThreatSectionModal(sec);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-section]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const secId = btn.dataset.threatDelSection;
+   if (confirm('Excluir esta seção?')) {
+    state.secoes = (state.secoes || []).filter(s => s.id !== secId);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ const sectionForm = document.querySelector('#threat-section-form');
+ if (sectionForm) {
+  sectionForm.onsubmit = (e) => {
+   e.preventDefault();
+   const sectionId = sectionForm.querySelector('#threat-section-id').value;
+   const estilo = sectionForm.querySelector('#threat-section-style').value;
+   const titulo = sectionForm.querySelector('#threat-section-title-input').value.trim() || 'Seção';
+   const corpo = sectionForm.querySelector('#threat-section-body-input').value.trim();
+
+   if (!Array.isArray(state.secoes)) state.secoes = [];
+   const existingIdx = state.secoes.findIndex(s => s.id === sectionId);
+   const secObj = {
+    id: sectionId || `sec-${Date.now()}`,
+    titulo,
+    corpo,
+    estilo
+   };
+
+   if (existingIdx >= 0) {
+    state.secoes[existingIdx] = secObj;
+   } else {
+    state.secoes.push(secObj);
+   }
+
+   const modal = document.querySelector('#threat-section-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
+}
+
 
 function exportJsonSheet(){
  collectActiveInputs();
@@ -1567,8 +2038,12 @@ function switchToSheet(targetId) {
   state = sheets.find(sheet => sheet.id === targetId) || state;
   activeSheetId = state.id;
   if (presentationMode) {
-   presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
-   state.viewMode = 'cinematic';
+   if (state.systemMode === 'threat') {
+    presentationMode = false;
+   } else {
+    presentationIndex = Math.max(0, sheets.findIndex(s => s.id === state.id));
+    state.viewMode = 'cinematic';
+   }
   }
   render();
  };
@@ -2490,8 +2965,12 @@ function bind(){
       if(mode==='original'){
        abrirTutorial(sheet,{soRecursos:!appSettings.tutorialOriginal,onFinish:()=>{if(state===sheet){save(false);render();}}});
       }else fecharTutorial();
-      presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
-      if(state.viewMode==='cinematic'){
+      if(mode==='threat'){
+       presentationMode=false;
+      }else{
+       presentationIndex=Math.max(0,sheets.findIndex(s=>s.id===state.id));
+      }
+      if(state.viewMode==='cinematic'&&presentationMode){
        triggerGlitchTransition(()=>render());
       }else{
        render();
@@ -2514,7 +2993,7 @@ function bind(){
   // ── Modo de Apresentação (Dossiês de Agentes) ───────────────────────────────
   bindPresentationEvents();
 
-  bindCinematicToken();bindSheetInteractions();bindWorkspaceSidebarEvents();
+  bindCinematicToken();bindSheetInteractions();bindWorkspaceSidebarEvents();bindThreatBookEvents();
 
   // ── Interações do Sistema Original (d20) ───────────────────────────────────
   document.querySelectorAll('[data-original-tab]').forEach(btn=>{
@@ -2965,6 +3444,7 @@ document.addEventListener('keydown',e=>{
   document.querySelector('#critical-settings-modal')?.classList.remove('open');
   const m=document.querySelector('#system-select-modal');
   if(m)m.style.display='none';
+  document.querySelectorAll('.threat-modal').forEach(modal=>modal.style.display='none');
  }
  if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}
 });
