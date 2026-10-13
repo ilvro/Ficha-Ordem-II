@@ -23,11 +23,16 @@ import {
 } from './threat-data.js';
 
 function formatDiePool(pool) {
-  if (!pool) return `1${die(20, 'threat-inline-die')}`;
+  if (!pool) return `<span class="threat-pool-group"><b>1</b>${die(20, 'threat-tabletop-die')}</span>`;
   const d = Math.max(1, Number(pool.dados) || 1);
   const b = Number(pool.bonus) || 0;
-  const bStr = b > 0 ? `+${b}` : (b < 0 ? String(b) : '');
-  return `<span class="threat-pool-group">${d}${die(20, 'threat-inline-die')}${bStr}</span>`;
+  const bStr = b > 0 ? `+${b}` : (b < 0 ? `${b}` : '');
+  return `<span class="threat-pool-group"><b>${d}</b>${die(20, 'threat-tabletop-die')}${bStr ? `<b class="threat-bonus-val">${bStr}</b>` : ''}</span>`;
+}
+
+function formatDamageFormula(formula) {
+  if (!formula) return '';
+  return safe(formula);
 }
 
 function safe(str) {
@@ -68,13 +73,13 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const acoesDireita = (sheet.acoes || []).filter(a => a.coluna !== 'esquerda');
 
   return `
-    <main class="threat-book-page threat-page-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''}" 
+    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''}" 
       data-element="${elemDestaqueKey}"
       style="--threat-elem-color:${elemColor};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
       
       ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
 
-      <article class="threat-dossier-card element-theme-${elemDestaqueKey}" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
+      <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
         <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
         ${sheet.tokenImage || sheet.backgroundImage ? `
@@ -116,20 +121,15 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 </div>
               </div>
 
-              <!-- VD BRUSH STAMP (DISTRESSED STAMP COM ANEL RÚSTICO) -->
+              <!-- VD STAMP DO LIVRO (SEM CÍRCULO ESTRANHO) -->
               <div class="threat-book-vd-stamp" title="Valor de Desafio: ${sheet.vd}">
                 <span class="vd-text">VD</span>
-                <div class="vd-number-ring">
-                  <svg class="vd-circle-svg" viewBox="0 0 80 50" aria-hidden="true">
-                    <path d="M 12 25 C 10 9, 70 7, 72 25 C 74 42, 10 43, 12 25 Z" fill="none" stroke="#000000" stroke-width="2.6" stroke-dasharray="35,3,15,3,40,2" opacity="0.88"/>
-                  </svg>
-                  ${editMode ? `
-                    <input type="number" class="threat-vd-input" min="0" max="999" 
-                      data-threat-field="vd" value="${sheet.vd}">
-                  ` : `
-                    <strong class="vd-number">${sheet.vd}</strong>
-                  `}
-                </div>
+                ${editMode ? `
+                  <input type="number" class="threat-vd-input" min="0" max="999" 
+                    data-threat-field="vd" value="${sheet.vd}">
+                ` : `
+                  <strong class="vd-number">${sheet.vd}</strong>
+                `}
               </div>
             </header>
 
@@ -222,9 +222,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <div class="threat-book-heading-row">
                 <span class="threat-book-badge">SENTIDOS</span>
                 <div class="threat-book-inline-stats">
-                  <span>Percepção <button type="button" class="threat-die-token" data-threat-roll-sense="percepcao" title="Rolar Percepção">${formatDiePool(sheet.sentidos?.percepcao)}</button></span>
+                  <span class="threat-sense-entry" onclick="if(event.target.closest('[data-threat-roll-sense]'))return;this.querySelector('[data-threat-roll-sense]')?.click();" title="Rolar Percepção"><span>Percepção</span> <button type="button" class="threat-die-token" data-threat-roll-sense="percepcao" title="Rolar Percepção">${formatDiePool(sheet.sentidos?.percepcao)}</button></span>
                   <span class="threat-pipe">|</span>
-                  <span>Iniciativa <button type="button" class="threat-die-token" data-threat-roll-sense="iniciativa" title="Rolar Iniciativa">${formatDiePool(sheet.sentidos?.iniciativa)}</button></span>
+                  <span class="threat-sense-entry" onclick="if(event.target.closest('[data-threat-roll-sense]'))return;this.querySelector('[data-threat-roll-sense]')?.click();" title="Rolar Iniciativa"><span>Iniciativa</span> <button type="button" class="threat-die-token" data-threat-roll-sense="iniciativa" title="Rolar Iniciativa">${formatDiePool(sheet.sentidos?.iniciativa)}</button></span>
                   ${editMode ? `
                     <button type="button" class="threat-mini-btn" data-threat-edit-senses title="Editar Sentidos">
                       ${icon('edit', 10)}
@@ -251,9 +251,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ` : ''}
               </div>
               <div class="threat-book-saves-row">
-                <div class="threat-save-entry">FORTITUDE <button type="button" class="threat-die-token" data-threat-roll-save="fortitude">${formatDiePool(sheet.salvaguardas?.fortitude)}</button></div>
-                <div class="threat-save-entry">REFLEXOS <button type="button" class="threat-die-token" data-threat-roll-save="reflexos">${formatDiePool(sheet.salvaguardas?.reflexos)}</button></div>
-                <div class="threat-save-entry">VONTADE <button type="button" class="threat-die-token" data-threat-roll-save="vontade">${formatDiePool(sheet.salvaguardas?.vontade)}</button></div>
+                <div class="threat-save-entry" onclick="if(event.target.closest('[data-threat-roll-save]'))return;this.querySelector('[data-threat-roll-save]')?.click();" title="Rolar Fortitude"><span>FORTITUDE</span> <button type="button" class="threat-die-token" data-threat-roll-save="fortitude" title="Rolar Fortitude">${formatDiePool(sheet.salvaguardas?.fortitude)}</button></div>
+                <div class="threat-save-entry" onclick="if(event.target.closest('[data-threat-roll-save]'))return;this.querySelector('[data-threat-roll-save]')?.click();" title="Rolar Reflexos"><span>REFLEXOS</span> <button type="button" class="threat-die-token" data-threat-roll-save="reflexos" title="Rolar Reflexos">${formatDiePool(sheet.salvaguardas?.reflexos)}</button></div>
+                <div class="threat-save-entry" onclick="if(event.target.closest('[data-threat-roll-save]'))return;this.querySelector('[data-threat-roll-save]')?.click();" title="Rolar Vontade"><span>VONTADE</span> <button type="button" class="threat-die-token" data-threat-roll-save="vontade" title="Rolar Vontade">${formatDiePool(sheet.salvaguardas?.vontade)}</button></div>
               </div>
               <div class="threat-book-divider"></div>
             </div>
@@ -272,11 +272,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ` : ''}
               </div>
 
-              <!-- Barra discreta de PV com linha central e controles rápidos -->
+              <!-- Barra discreta de PV do livro e controles rápidos -->
               <div class="threat-book-hp-bar-wrap">
                 <div class="threat-hp-track-book" title="Vida: ${sheet.pv}/${sheet.pvMax} (${hpPct}%)">
                   <div class="threat-hp-fill-book ${hurt ? 'is-hurt' : ''}" style="width:${hpPct}%;"></div>
-                  <div class="threat-hp-machucado-line-book" title="Limiar de Machucado (${machucado} PV)"></div>
                 </div>
                 <div class="threat-hp-steppers-book">
                   <span class="stepper-label">DANO:</span>
@@ -388,7 +387,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <span class="threat-book-badge">PERÍCIAS</span>
                   <div class="threat-book-skills-inline">
                     ${(sheet.pericias || []).map(p => {
-                      const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${die(20, 'threat-inline-die')}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
+                      const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${die(20, 'threat-tabletop-die')}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
                       return `
                         <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
                           ${safe(p.nome)} <span class="die-token">${formatDiePool(p)}</span>${condHtml}
@@ -584,7 +583,7 @@ function renderActionCard(action, isHurt = false, editMode = false) {
             <span class="threat-pipe">|</span>
             <span class="attack-roll-label">DANO</span>
             <button type="button" class="threat-chip-roll-dmg" data-threat-roll-atk-dmg="${action.id}:${atk.id}" title="Rolar Dano">
-              ${safe(atk.dano)} ${safe(atk.tipoDano || '')}${atk.critico ? ` <small>(${safe(atk.critico)})</small>` : ''}
+              ${formatDamageFormula(atk.dano)} ${safe(atk.tipoDano || '')}${atk.critico ? ` <small>(${safe(atk.critico)})</small>` : ''}
             </button>
           </div>
         </div>
