@@ -55,18 +55,13 @@ export const DAMAGE_TYPES = [
 
 export const CREATURE_TYPES_PARANORMAL = [
   'Criatura',
-  'Espírito',
-  'Constructo',
-  'Anomalia',
-  'Outro'
+  'Relíquia'
 ];
 
 export const CREATURE_TYPES_MUNDANE = [
   'Humano',
   'Animal',
-  'Veículo',
-  'Construção',
-  'Outro'
+  'Veículo'
 ];
 
 export const DEFAULT_THREAT_SHEET = {
