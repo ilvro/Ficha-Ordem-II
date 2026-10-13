@@ -41,6 +41,24 @@ import puppeteer from 'puppeteer';
   await page.screenshot({ path: 'screenshot_uivar_hover.png' });
   console.log('✓ screenshot_uivar_hover.png salvo');
 
+  // Test scrolling down on .threat-book-page
+  console.log('Capturing O UIVAR (Scrolled down)...');
+  const scrollResult = await page.evaluate(() => {
+    const el = document.querySelector('.threat-book-page');
+    if (!el) return { found: false };
+    el.scrollTop = 550;
+    return {
+      found: true,
+      scrollTop: el.scrollTop,
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight
+    };
+  });
+  console.log('Scroll metrics:', scrollResult);
+  await new Promise(r => setTimeout(r, 400));
+  await page.screenshot({ path: 'screenshot_uivar_scrolled.png' });
+  console.log('✓ screenshot_uivar_scrolled.png salvo');
+
   await browser.close();
 })();
 

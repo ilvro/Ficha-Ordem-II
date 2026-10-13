@@ -6,7 +6,8 @@
 
 .threat-book-page {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   margin-left: 80px;
   background-color: #07080d;
   color: #f1f2f8;
@@ -15,7 +16,7 @@
   align-items: center;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 24px 20px 80px 20px;
+  padding: 24px 20px 120px 20px;
   scrollbar-width: thin;
   scrollbar-color: #2b2e45 transparent;
   user-select: text;
@@ -34,7 +35,9 @@
 @media (max-width: 768px) {
   .threat-book-page {
     margin-left: 0;
-    padding: 12px 8px 80px 8px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 12px 8px 120px 8px;
   }
 }
 
@@ -657,37 +660,39 @@
 .threat-pool-group {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
+  gap: 2px;
   font-family: Georgia, 'Times New Roman', serif;
   font-weight: 700;
   vertical-align: middle;
 }
 
 .threat-pool-group > b:first-child {
-  font-size: 13.5px;
+  font-size: 15.5px;
   font-weight: 700;
   color: #ffffff;
+  line-height: 1;
 }
 
 .threat-bonus-val {
   font-family: Georgia, 'Times New Roman', serif;
   font-weight: 700;
-  font-size: 13.5px;
+  font-size: 15px;
   color: #ffffff;
-  margin-left: 1px;
+  margin-left: 2px;
   white-space: nowrap;
+  line-height: 1;
 }
 
 /* ── Dados Tabletop RPG 3D (Com Facetas, Sombras e Destaques) ─────────────── */
 .die-svg.threat-tabletop-die {
   display: inline-flex !important;
-  width: 17px !important;
-  height: 18px !important;
-  min-width: 17px !important;
-  min-height: 18px !important;
-  vertical-align: -3px !important;
-  margin: 0 1px !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) !important;
+  width: 22px !important;
+  height: 23px !important;
+  min-width: 22px !important;
+  min-height: 23px !important;
+  vertical-align: -4.5px !important;
+  margin: 0 2px !important;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)) !important;
   color: var(--threat-elem-color, #e0150d) !important;
   transition: transform 0.12s ease;
 }
