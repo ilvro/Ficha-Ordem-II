@@ -104,6 +104,8 @@ import {
 import { initOriginalCompendium } from './systems/original/original-compendium.js';
 import { normalizeThreatSheet } from './systems/threat/threat-system.js';
 import { renderThreatBook } from './systems/threat/threat-views.js';
+import { abrirThreatWizard, fecharThreatWizard } from './systems/threat/threat-wizard.js';
+import { getBalance, evaluateSheet } from './systems/threat/threat-balance.js';
 import {
   DEFAULT_FOLDERS,
   normalizeFolders,
@@ -421,6 +423,10 @@ function getSheetAccent(sheet) {
 function applyTheme(){const accent=editMode?'#d98b19':(state.themeColor?getSheetAccent(state):(state.diceColor||getSheetAccent(state)));document.documentElement.style.setProperty('--red',accent);document.documentElement.style.setProperty('--red-dark',accent);document.documentElement.style.setProperty('--red-ink',inkFor(accent));document.documentElement.style.setProperty('--cinematic-accent-ink',inkFor(getSheetAccent(state)));document.body.dataset.profile=(state.systemMode==='original'?(state.classeId||'combatente'):(state.systemMode==='threat'?(state.elementos?.[0]||'sangue'):(state.profile||'executor'))).toLowerCase();document.body.classList.toggle('editing',editMode);syncTokenOutlineFilter()}
 
 function getCriticalState(){
+ if (state.systemMode === 'threat') {
+  const dummy = { value: 0, max: 0, ratio: 1, warning: false, vignette: false, special: false, critical: false, warningIntensity: 0, vignetteIntensity: 0, specialIntensity: 0 };
+  return { pv: dummy, pd: dummy, active: false };
+ }
  const resource=(current,maximum)=>{const max=Math.max(0,Number(maximum)||0),value=Math.max(0,Number(current)||0),ratio=max>0?Math.min(1,value/max):1,warning=max>0&&ratio<=.5,vignette=max>0&&ratio<=.35,special=max>0&&ratio<=.25,progress=(threshold,floor)=>ratio<=threshold?Math.min(1,floor+(threshold-ratio)/threshold*(1-floor)):0;return{value,max,ratio,warning,vignette,special,critical:special,warningIntensity:progress(.5,.12),vignetteIntensity:progress(.35,.08),specialIntensity:progress(.25,.08)}};
  const pv=resource(state.pv,state.maxPv);
  // Ordem 1: o estado crítico mental acompanha a Sanidade, ou o PD na regra opcional.
@@ -1616,38 +1622,118 @@ function bindThreatBookEvents() {
   };
  }
 
- document.querySelectorAll('[data-threat-manage-defenses]').forEach(btn => {
-  btn.onclick = () => {
-   const modal = document.querySelector('#threat-defenses-modal');
-   if (modal) modal.style.display = 'grid';
+ // ── DEFESAS INTERATIVAS: CARDS, TAGS & RD INLINE ──
+ document.querySelectorAll('[data-threat-edit-res-idx]').forEach(input => {
+  input.oninput = (e) => {
+   const idx = Number(e.target.dataset.threatEditResIdx);
+   if (Array.isArray(state.resistencias) && state.resistencias[idx]) {
+    state.resistencias[idx].valor = Math.max(0, Number(e.target.value) || 0);
+    save(false);
+   }
   };
  });
 
- const defensesForm = document.querySelector('#threat-defenses-form');
- if (defensesForm) {
-  defensesForm.onsubmit = (e) => {
+ document.querySelectorAll('[data-threat-del-res]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const idx = Number(btn.dataset.threatDelRes);
+   if (Array.isArray(state.resistencias)) {
+    state.resistencias.splice(idx, 1);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-vuln]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const idx = Number(btn.dataset.threatDelVuln);
+   if (Array.isArray(state.vulnerabilidades)) {
+    state.vulnerabilidades.splice(idx, 1);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-imun]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const idx = Number(btn.dataset.threatDelImun);
+   if (Array.isArray(state.imunidades)) {
+    state.imunidades.splice(idx, 1);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ const DEFENSE_PRESET_TAGS = {
+  res: ['Balístico', 'Impacto', 'Perfuração', 'Corte', 'Fogo', 'Frio', 'Eletricidade', 'Químico', 'Sangue', 'Morte', 'Energia', 'Conhecimento', 'Mental', 'Dano Geral'],
+  vuln: ['Sangue', 'Morte', 'Energia', 'Conhecimento', 'Medo', 'Fogo', 'Frio', 'Eletricidade', 'Químico', 'Balístico', 'Impacto', 'Perfuração', 'Corte'],
+  imun: ['Condições de Medo', 'Dano Mental', 'Hemorragia', 'Atordoamento', 'Paralisia', 'Veneno', 'Frio', 'Fogo', 'Efeitos de Idade']
+ };
+
+ function openThreatDefenseCardModal(category = 'res') {
+  const modal = document.querySelector('#threat-defense-card-modal');
+  if (!modal) return;
+  const catInput = modal.querySelector('#threat-def-card-category');
+  const titleEl = modal.querySelector('#threat-def-card-modal-title');
+  const valGroup = modal.querySelector('#threat-def-card-val-group');
+  const tagInput = modal.querySelector('#threat-def-card-tag-input');
+  const tagsPicker = modal.querySelector('#threat-def-quick-tags');
+
+  catInput.value = category;
+  titleEl.textContent = category === 'res' ? 'ADICIONAR RESISTÊNCIA A DANO' : (category === 'vuln' ? 'ADICIONAR VULNERABILIDADE' : 'ADICIONAR IMUNIDADE');
+  valGroup.style.display = category === 'res' ? 'block' : 'none';
+  tagInput.value = '';
+
+  const tags = DEFENSE_PRESET_TAGS[category] || [];
+  tagsPicker.innerHTML = tags.map(t => `<button type="button" class="threat-def-tag-chip" data-quick-tag="${t}">${t}</button>`).join('');
+  tagsPicker.querySelectorAll('[data-quick-tag]').forEach(chip => {
+   chip.onclick = () => {
+    tagInput.value = chip.dataset.quickTag;
+    tagInput.focus();
+   };
+  });
+
+  modal.style.display = 'grid';
+  tagInput.focus();
+ }
+
+ document.querySelectorAll('[data-threat-add-defense-trigger]').forEach(btn => {
+  btn.onclick = () => openThreatDefenseCardModal(btn.dataset.threatAddDefenseTrigger || 'res');
+ });
+
+ document.querySelectorAll('[data-def-quick-rd]').forEach(btn => {
+  btn.onclick = () => {
+   const input = document.querySelector('#threat-def-card-val-input');
+   if (input) input.value = btn.dataset.defQuickRd;
+  };
+ });
+
+ const defCardForm = document.querySelector('#threat-defense-card-form');
+ if (defCardForm) {
+  defCardForm.onsubmit = (e) => {
    e.preventDefault();
-   const imunidadesStr = defensesForm.querySelector('#threat-defenses-imunidades').value;
-   const vulnerabilidadesStr = defensesForm.querySelector('#threat-defenses-vulnerabilidades').value;
-   const resistenciasStr = defensesForm.querySelector('#threat-defenses-resistencias').value;
+   const cat = defCardForm.querySelector('#threat-def-card-category').value;
+   const tag = defCardForm.querySelector('#threat-def-card-tag-input').value.trim();
+   const val = Number(defCardForm.querySelector('#threat-def-card-val-input').value) || 10;
+   if (!tag) return;
 
-   state.imunidades = imunidadesStr.split(',').map(s => s.trim()).filter(Boolean);
-   state.vulnerabilidades = vulnerabilidadesStr.split(',').map(s => s.trim()).filter(Boolean);
-   
-   const resItems = [];
-   resistenciasStr.split(',').forEach(part => {
-    const trimmed = part.trim();
-    if (!trimmed) return;
-    const match = trimmed.match(/^([A-Za-zÀ-ÖØ-öø-ÿ\s]+)\s+(\d+)$/);
-    if (match) {
-     resItems.push({ tipo: match[1].trim(), valor: Number(match[2]) || 0 });
-    } else {
-     resItems.push({ tipo: trimmed, valor: 10 });
-    }
-   });
-   state.resistencias = resItems;
+   if (cat === 'res') {
+    if (!Array.isArray(state.resistencias)) state.resistencias = [];
+    state.resistencias.push({ tipo: tag, valor: val });
+   } else if (cat === 'vuln') {
+    if (!Array.isArray(state.vulnerabilidades)) state.vulnerabilidades = [];
+    if (!state.vulnerabilidades.includes(tag)) state.vulnerabilidades.push(tag);
+   } else if (cat === 'imun') {
+    if (!Array.isArray(state.imunidades)) state.imunidades = [];
+    if (!state.imunidades.includes(tag)) state.imunidades.push(tag);
+   }
 
-   const modal = document.querySelector('#threat-defenses-modal');
+   const modal = document.querySelector('#threat-defense-card-modal');
    if (modal) modal.style.display = 'none';
    save(false);
    render();
@@ -1721,6 +1807,286 @@ function bindThreatBookEvents() {
    }
 
    const modal = document.querySelector('#threat-section-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
+
+ // ── WIZARD DE CRIAÇÃO E RECALIBRAÇÃO ──
+ document.querySelectorAll('[data-threat-open-wizard]').forEach(btn => {
+  btn.onclick = () => {
+   abrirThreatWizard(state, {
+    onFinish: () => {
+     save(false);
+     render();
+    }
+   });
+  };
+ });
+
+ // ── ASSISTENTE DE BALANCEAMENTO ──
+ let balModalVd = Number(state.vd) || 60;
+ let balModalPreset = 'equilibrada';
+ let balModalSlider = 0;
+
+ function updateBalanceModalUI() {
+  const modal = document.querySelector('#threat-balance-modal');
+  if (!modal) return;
+  const bal = getBalance(balModalVd, balModalPreset, balModalSlider);
+  const evalRes = evaluateSheet(state, balModalPreset);
+
+  const elVdInput = modal.querySelector('#threat-bal-vd-input');
+  if (elVdInput) elVdInput.value = balModalVd;
+
+  modal.querySelectorAll('.threat-bal-vd-pill').forEach(pill => {
+   pill.classList.toggle('active', Number(pill.dataset.balQuickVd) === balModalVd);
+  });
+
+  modal.querySelectorAll('.threat-bal-preset-btn').forEach(b => {
+   b.classList.toggle('active', b.dataset.threatBalPreset === balModalPreset);
+  });
+
+  const sliderValEl = modal.querySelector('#threat-bal-slider-val');
+  if (sliderValEl) {
+   const sign = balModalSlider > 0 ? `+${balModalSlider}% (Mais Difícil)` : (balModalSlider < 0 ? `${balModalSlider}% (Mais Fácil)` : '0% (Padrão)');
+   sliderValEl.textContent = sign;
+  }
+
+  const setEl = (id, val) => { const el = modal.querySelector(id); if (el) el.textContent = val; };
+  setEl('#bal-modal-pv', bal.pv);
+  setEl('#bal-modal-machucado', bal.machucado);
+  setEl('#bal-modal-defesa', bal.defesa);
+  setEl('#bal-modal-res-forte', `+${bal.resForte.bonus}`);
+  setEl('#bal-modal-res-media', `+${bal.resMedia.bonus}`);
+  setEl('#bal-modal-res-fraca', `+${bal.resFraca.bonus}`);
+  setEl('#bal-modal-dt', `DT ${bal.dt}`);
+  setEl('#bal-modal-dmg', bal.presenca ? `${bal.presenca.dados}d${bal.presenca.faces}` : '3d6');
+  setEl('#bal-modal-nex', `NEX ${bal.imuneNex}%`);
+  setEl('#bal-modal-nex-status', bal.imuneNex);
+  setEl('#bal-modal-atk', `+${bal.ataque.bonus}`);
+  setEl('#bal-modal-dano-medio', `~${bal.danoMedio}`);
+
+  const pvStat = modal.querySelector('#bal-modal-pv-status');
+  if (pvStat) {
+   pvStat.className = `threat-bal-status status-${evalRes.pv.status}`;
+   pvStat.textContent = evalRes.pv.status === 'dentro' ? 'DENTRO DA FAIXA' : (evalRes.pv.status === 'abaixo' ? 'ABAIXO DA MÉDIA' : 'ACIMA DA MÉDIA');
+  }
+
+  const defStat = modal.querySelector('#bal-modal-defesa-status');
+  if (defStat) {
+   defStat.className = `threat-bal-status status-${evalRes.defesa.status}`;
+   defStat.textContent = evalRes.defesa.status === 'dentro' ? 'DENTRO DA FAIXA' : (evalRes.defesa.status === 'abaixo' ? 'ABAIXO DA MÉDIA' : 'ACIMA DA MÉDIA');
+  }
+
+  const formulasContainer = modal.querySelector('#bal-modal-formulas-container');
+  if (formulasContainer) {
+   formulasContainer.innerHTML = (bal.sugestoesDano || []).map(f => `
+     <button type="button" class="threat-bal-formula-pill" data-threat-copy-formula="${f}" title="Aplicar no primeiro ataque">${f}</button>
+   `).join('');
+   formulasContainer.querySelectorAll('[data-threat-copy-formula]').forEach(b => {
+    b.onclick = () => {
+     const formStr = b.dataset.threatCopyFormula;
+     if (state.acoes?.[0]?.ataques?.[0]) {
+      state.acoes[0].ataques[0].dano = formStr;
+      save(false);
+      render();
+     }
+    };
+   });
+  }
+ }
+
+ document.querySelectorAll('[data-threat-open-balance]').forEach(btn => {
+  btn.onclick = () => {
+   const modal = document.querySelector('#threat-balance-modal');
+   if (modal) {
+    balModalVd = Number(state.vd) || 60;
+    balModalPreset = 'equilibrada';
+    balModalSlider = 0;
+    modal.style.display = 'grid';
+    updateBalanceModalUI();
+   }
+  };
+ });
+
+ const balVdInput = document.querySelector('#threat-bal-vd-input');
+ if (balVdInput) {
+  balVdInput.onchange = (e) => {
+   balModalVd = Math.max(10, Math.min(400, Number(e.target.value) || 10));
+   updateBalanceModalUI();
+  };
+ }
+
+ document.querySelectorAll('[data-bal-quick-vd]').forEach(btn => {
+  btn.onclick = () => {
+   balModalVd = Number(btn.dataset.balQuickVd) || 60;
+   updateBalanceModalUI();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-bal-preset]').forEach(btn => {
+  btn.onclick = () => {
+   balModalPreset = btn.dataset.threatBalPreset;
+   updateBalanceModalUI();
+  };
+ });
+
+ const balSlider = document.querySelector('#threat-bal-slider');
+ if (balSlider) {
+  balSlider.oninput = (e) => {
+   balModalSlider = Number(e.target.value) || 0;
+   updateBalanceModalUI();
+  };
+ }
+
+ document.querySelectorAll('[data-threat-apply-bal]').forEach(btn => {
+  btn.onclick = () => {
+   const field = btn.dataset.threatApplyBal;
+   const bal = getBalance(balModalVd, balModalPreset, balModalSlider);
+
+   if (field === 'pv' || field === 'tudo') {
+    state.pvMax = bal.pv;
+    state.pv = bal.pv;
+   }
+   if (field === 'defesa' || field === 'tudo') {
+    state.defesa = bal.defesa;
+   }
+   if (field === 'salvaguardas' || field === 'tudo') {
+    state.salvaguardas = {
+     fortitude: { dados: bal.resForte.dados, bonus: bal.resForte.bonus },
+     reflexos: { dados: bal.resMedia.dados, bonus: bal.resMedia.bonus },
+     vontade: { dados: bal.resFraca.dados, bonus: bal.resFraca.bonus }
+    };
+   }
+   if (field === 'presenca' || field === 'tudo') {
+    if (!state.presenca) state.presenca = {};
+    state.presenca.ativa = true;
+    state.presenca.dt = bal.dt;
+    state.presenca.dano = bal.presenca ? `${bal.presenca.dados}d${bal.presenca.faces}` : '3d6';
+    state.presenca.imuneNex = bal.imuneNex;
+   }
+   if (field === 'tudo') {
+    state.vd = balModalVd;
+    const modal = document.querySelector('#threat-balance-modal');
+    if (modal) modal.style.display = 'none';
+   }
+
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-copy-formula]').forEach(b => {
+  b.onclick = () => {
+   const formStr = b.dataset.threatCopyFormula;
+   if (state.acoes?.[0]?.ataques?.[0]) {
+    state.acoes[0].ataques[0].dano = formStr;
+    save(false);
+    render();
+   }
+  };
+ });
+
+ // ── INLINE SUGGESTION CHIPS ──
+ document.querySelectorAll('[data-threat-apply-sug]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const [type, ...rest] = btn.dataset.threatApplySug.split(':');
+   if (type === 'pv') {
+    const val = Number(rest[0]) || 100;
+    state.pvMax = val;
+    state.pv = val;
+   } else if (type === 'defesa') {
+    state.defesa = Number(rest[0]) || 20;
+   } else if (type === 'presence') {
+    if (!state.presenca) state.presenca = {};
+    state.presenca.dt = Number(rest[0]) || 19;
+    state.presenca.dano = rest[1] || '3d6';
+    state.presenca.imuneNex = Number(rest[2]) || 35;
+   } else if (type === 'saves') {
+    state.salvaguardas = {
+     fortitude: { dados: Number(rest[0]) || 3, bonus: Number(rest[1]) || 10 },
+     reflexos: { dados: Number(rest[2]) || 2, bonus: Number(rest[3]) || 5 },
+     vontade: { dados: Number(rest[4]) || 2, bonus: Number(rest[5]) || 0 }
+    };
+   }
+   save(false);
+   render();
+  };
+ });
+
+ // ── FRAQUEZA ELEMENTAL ──
+ document.querySelectorAll('[data-threat-add-vuln]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const vuln = btn.dataset.threatAddVuln;
+   if (!Array.isArray(state.vulnerabilidades)) state.vulnerabilidades = [];
+   if (!state.vulnerabilidades.includes(vuln)) {
+    state.vulnerabilidades.push(vuln);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ // ── SALVAGUARDAS MODAL ──
+ document.querySelectorAll('[data-threat-edit-saves]').forEach(btn => {
+  btn.onclick = () => {
+   const modal = document.querySelector('#threat-saves-modal');
+   if (modal) modal.style.display = 'grid';
+  };
+ });
+
+ const savesForm = document.querySelector('#threat-saves-form');
+ if (savesForm) {
+  savesForm.onsubmit = (e) => {
+   e.preventDefault();
+   state.salvaguardas = {
+    fortitude: {
+     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-fort-dados').value) || 3),
+     bonus: Number(savesForm.querySelector('#threat-save-fort-bonus').value) || 0
+    },
+    reflexos: {
+     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-ref-dados').value) || 2),
+     bonus: Number(savesForm.querySelector('#threat-save-ref-bonus').value) || 0
+    },
+    vontade: {
+     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-von-dados').value) || 2),
+     bonus: Number(savesForm.querySelector('#threat-save-von-bonus').value) || 0
+    }
+   };
+   const modal = document.querySelector('#threat-saves-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
+
+ // ── SENTIDOS MODAL ──
+ document.querySelectorAll('[data-threat-edit-senses]').forEach(btn => {
+  btn.onclick = () => {
+   const modal = document.querySelector('#threat-senses-modal');
+   if (modal) modal.style.display = 'grid';
+  };
+ });
+
+ const sensesForm = document.querySelector('#threat-senses-form');
+ if (sensesForm) {
+  sensesForm.onsubmit = (e) => {
+   e.preventDefault();
+   state.sentidos = {
+    percepcao: {
+     dados: Math.max(1, Number(sensesForm.querySelector('#threat-sense-perc-dados').value) || 3),
+     bonus: Number(sensesForm.querySelector('#threat-sense-perc-bonus').value) || 0
+    },
+    iniciativa: {
+     dados: Math.max(1, Number(sensesForm.querySelector('#threat-sense-inic-dados').value) || 3),
+     bonus: Number(sensesForm.querySelector('#threat-sense-inic-bonus').value) || 0
+    },
+    extra: sensesForm.querySelector('#threat-sense-extra').value.trim()
+   };
+   const modal = document.querySelector('#threat-senses-modal');
    if (modal) modal.style.display = 'none';
    save(false);
    render();
@@ -2971,7 +3337,13 @@ function bind(){
       trackRecentSheet(sheet.id);
       if(mode==='original'){
        abrirTutorial(sheet,{soRecursos:!appSettings.tutorialOriginal,onFinish:()=>{if(state===sheet){save(false);render();}}});
-      }else fecharTutorial();
+      }else if(mode==='threat'){
+       fecharTutorial();
+       abrirThreatWizard(sheet,{onFinish:()=>{if(state===sheet){save(false);render();}}});
+      }else{
+       fecharTutorial();
+       fecharThreatWizard();
+      }
       if(mode==='threat'){
        presentationMode=false;
       }else{

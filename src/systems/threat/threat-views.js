@@ -21,6 +21,11 @@ import {
   CREATURE_TYPES_PARANORMAL,
   CREATURE_TYPES_MUNDANE
 } from './threat-data.js';
+import {
+  getBalance,
+  evaluateSheet,
+  ELEMENT_VULNERABILITY_HINTS
+} from './threat-balance.js';
 
 function formatDiePool(pool) {
   if (!pool) return `<span class="threat-pool-group"><b>1</b>${die(20, 'threat-tabletop-die')}</span>`;
@@ -66,6 +71,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const quadrados = calcQuadrados(sheet.deslocamento?.metros || 12);
   const hpPct = Math.max(0, Math.min(100, Math.round(((sheet.pv || 0) / (sheet.pvMax || 1)) * 100)));
 
+  const balSug = getBalance(sheet.vd || 60, 'equilibrada');
+  const evalBal = evaluateSheet(sheet, 'equilibrada');
+  const elemWeakHint = (!isMundane && ELEMENT_VULNERABILITY_HINTS[elemDestaqueKey]) ? ELEMENT_VULNERABILITY_HINTS[elemDestaqueKey] : null;
+
   // Separação de seções e ações por coluna do livro
   const secoesEsquerda = (sheet.secoes || []).filter(s => s.coluna !== 'direita');
   const secoesDireita = (sheet.secoes || []).filter(s => s.coluna === 'direita');
@@ -88,6 +97,25 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
         <!-- ── BARRA BRANCA DECORATIVA SUPERIOR DO LIVRO ── -->
         <div class="threat-book-top-bar" aria-hidden="true"></div>
+
+        ${editMode ? `
+          <!-- ── BARRA DO ASSISTENTE DE BALANCEAMENTO E WIZARD (MODO EDIÇÃO) ── -->
+          <div class="threat-assistant-bar">
+            <div class="threat-assistant-left">
+              <button type="button" class="threat-assistant-btn btn-balance" data-threat-open-balance title="Abrir Assistente de Balanceamento por VD">
+                ⚖️ BALANCEAMENTO (VD ${sheet.vd})
+              </button>
+              <button type="button" class="threat-assistant-btn btn-wizard" data-threat-open-wizard title="Abrir Wizard de Criação / Recalibração">
+                🧙 WIZARD DE CRIAÇÃO
+              </button>
+            </div>
+            <div class="threat-assistant-right">
+              <span class="threat-assistant-summary">
+                4 agentes NEX ~<b>${Math.max(5, Math.round(sheet.vd / 4))}%</b> • PV Sugerido: <b>${balSug.pv}</b> • Defesa: <b>${balSug.defesa}</b> • DT: <b>${balSug.dt}</b>
+              </span>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- ── CORPO EDITORIAL EM 2 COLUNAS DO LIVRO ── -->
         <div class="threat-book-columns-layout">
@@ -201,6 +229,11 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <div class="threat-book-block">
                 <div class="threat-book-heading-row">
                   <span class="threat-book-badge">PRESENÇA PERTURBADORA</span>
+                  ${editMode ? `
+                    <button type="button" class="threat-chip-sug" data-threat-apply-sug="presence:${balSug.dt}:${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'}:${balSug.imuneNex}" title="Aplicar DT ${balSug.dt}, Dano ${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'} e NEX ${balSug.imuneNex}% sugeridos para VD ${sheet.vd}">
+                      💡 DT ${balSug.dt} (${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'})
+                    </button>
+                  ` : ''}
                 </div>
                 <div class="threat-book-stat-line">
                   ${editMode ? `
@@ -241,13 +274,21 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 <span class="threat-book-badge">DEFESA</span>
                 ${editMode ? `
                   <input type="number" class="threat-mini-input threat-def-input" data-threat-field="defesa" value="${sheet.defesa}">
+                  <button type="button" class="threat-chip-sug" data-threat-apply-sug="defesa:${balSug.defesa}" title="Aplicar Defesa ${balSug.defesa} sugerida pelo VD ${sheet.vd}">
+                    💡 ${balSug.defesa}
+                  </button>
                 ` : `
                   <span class="threat-book-badge-val">${sheet.defesa}</span>
                 `}
                 ${editMode ? `
-                  <button type="button" class="threat-mini-btn" data-threat-edit-saves style="margin-left:auto;" title="Editar Salvaguardas">
-                    ${icon('edit', 10)}
-                  </button>
+                  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+                    <button type="button" class="threat-chip-sug" data-threat-apply-sug="saves:${balSug.resForte.dados}:${balSug.resForte.bonus}:${balSug.resMedia.dados}:${balSug.resMedia.bonus}:${balSug.resFraca.dados}:${balSug.resFraca.bonus}" title="Sugerir Salvaguardas (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})">
+                      💡 Sugerir (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})
+                    </button>
+                    <button type="button" class="threat-mini-btn" data-threat-edit-saves title="Editar Salvaguardas">
+                      ${icon('edit', 10)}
+                    </button>
+                  </div>
                 ` : ''}
               </div>
               <div class="threat-book-saves-row">
@@ -262,10 +303,19 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             <div class="threat-book-block">
               <div class="threat-book-heading-row">
                 <span class="threat-book-badge">PONTOS DE VIDA</span>
-                <span class="threat-book-badge-val">${sheet.pv}</span>
+                ${editMode ? `
+                  <span class="threat-book-badge-val" style="display:flex;align-items:center;gap:4px;">
+                    <input type="number" class="threat-mini-input" style="width:65px;" data-threat-field="pvMax" value="${sheet.pvMax || sheet.pv}" title="PV Máximo">
+                    <button type="button" class="threat-chip-sug" data-threat-apply-sug="pv:${balSug.pv}" title="Aplicar PV ${balSug.pv} sugerido pelo VD ${sheet.vd}">
+                      💡 ${balSug.pv} PV
+                    </button>
+                  </span>
+                ` : `
+                  <span class="threat-book-badge-val">${sheet.pv}</span>
+                `}
                 <span class="threat-book-hp-sub">
                   <span class="threat-pipe">|</span> Machucado <b>${machucado}</b>
-                  ${sheet.pv !== sheet.pvMax ? `<span class="threat-hp-max-sub">/ ${sheet.pvMax}</span>` : ''}
+                  ${(!editMode && sheet.pv !== sheet.pvMax) ? `<span class="threat-hp-max-sub">/ ${sheet.pvMax}</span>` : ''}
                 </span>
                 ${hurt ? `
                   <span class="threat-book-hurt-stamp">! MACHUCADA</span>
@@ -294,35 +344,85 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 </div>
               </div>
 
-              <!-- Defesas textuais idênticas ao livro -->
-              <div class="threat-book-defenses-list">
-                ${sheet.resistencias?.length ? `
-                  <div class="defense-row">
-                    <strong>RESISTÊNCIAS</strong>
-                    <span>${sheet.resistencias.map(r => `${r.tipo} ${r.valor}`).join(', ')}</span>
-                  </div>
-                ` : ''}
+              <!-- Defesas do Livro ou Cards Interativos no Modo Edição -->
+              ${!editMode ? `
+                <div class="threat-book-defenses-list">
+                  ${sheet.resistencias?.length ? `
+                    <div class="defense-row">
+                      <strong>RESISTÊNCIAS</strong>
+                      <span>${sheet.resistencias.map(r => `${r.tipo} ${r.valor}`).join(', ')}</span>
+                    </div>
+                  ` : ''}
 
-                ${sheet.vulnerabilidades?.length ? `
-                  <div class="defense-row">
-                    <strong>VULNERABILIDADES</strong>
-                    <span>${sheet.vulnerabilidades.join(', ')}</span>
-                  </div>
-                ` : ''}
+                  ${sheet.vulnerabilidades?.length ? `
+                    <div class="defense-row">
+                      <strong>VULNERABILIDADES</strong>
+                      <span>${sheet.vulnerabilidades.join(', ')}</span>
+                    </div>
+                  ` : ''}
 
-                ${sheet.imunidades?.length ? `
-                  <div class="defense-row">
-                    <strong>IMUNIDADES</strong>
-                    <span>${sheet.imunidades.join(', ')}</span>
+                  ${sheet.imunidades?.length ? `
+                    <div class="defense-row">
+                      <strong>IMUNIDADES</strong>
+                      <span>${sheet.imunidades.join(', ')}</span>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <div class="threat-book-defenses-list edit-mode">
+                  <!-- Resistências -->
+                  <div class="threat-defense-group">
+                    <div class="threat-defense-group-header">
+                      <strong>RESISTÊNCIAS</strong>
+                      <button type="button" class="threat-mini-btn" data-threat-add-defense-trigger="res">+ ADICIONAR</button>
+                    </div>
+                    <div class="threat-defense-cards-row">
+                      ${(sheet.resistencias || []).map((r, idx) => `
+                        <div class="threat-defense-card card-res">
+                          <span class="threat-card-tag">${safe(r.tipo)}</span>
+                          <input type="number" class="threat-card-num-input" min="0" max="99" value="${r.valor || 0}" data-threat-edit-res-idx="${idx}" title="Valor de RD">
+                          <button type="button" class="threat-card-del-btn" data-threat-del-res="${idx}" title="Remover resistência">×</button>
+                        </div>
+                      `).join('')}
+                      ${!(sheet.resistencias?.length) ? `<span class="threat-defense-empty">Nenhuma</span>` : ''}
+                    </div>
                   </div>
-                ` : ''}
 
-                ${editMode ? `
-                  <button type="button" class="threat-mini-btn" data-threat-manage-defenses style="margin-top:6px;">
-                    ${icon('shield', 10)} GERENCIAR RESISTÊNCIAS & IMUNIDADES
-                  </button>
-                ` : ''}
-              </div>
+                  <!-- Vulnerabilidades -->
+                  <div class="threat-defense-group">
+                    <div class="threat-defense-group-header">
+                      <strong>VULNERABILIDADES</strong>
+                      <button type="button" class="threat-mini-btn" data-threat-add-defense-trigger="vuln">+ ADICIONAR</button>
+                    </div>
+                    <div class="threat-defense-cards-row">
+                      ${(sheet.vulnerabilidades || []).map((v, idx) => `
+                        <div class="threat-defense-card card-vuln">
+                          <span class="threat-card-tag">${safe(v)}</span>
+                          <button type="button" class="threat-card-del-btn" data-threat-del-vuln="${idx}" title="Remover vulnerabilidade">×</button>
+                        </div>
+                      `).join('')}
+                      ${!(sheet.vulnerabilidades?.length) ? `<span class="threat-defense-empty">Nenhuma</span>` : ''}
+                    </div>
+                  </div>
+
+                  <!-- Imunidades -->
+                  <div class="threat-defense-group">
+                    <div class="threat-defense-group-header">
+                      <strong>IMUNIDADES</strong>
+                      <button type="button" class="threat-mini-btn" data-threat-add-defense-trigger="imun">+ ADICIONAR</button>
+                    </div>
+                    <div class="threat-defense-cards-row">
+                      ${(sheet.imunidades || []).map((imun, idx) => `
+                        <div class="threat-defense-card card-imun">
+                          <span class="threat-card-tag">${safe(imun)}</span>
+                          <button type="button" class="threat-card-del-btn" data-threat-del-imun="${idx}" title="Remover imunidade">×</button>
+                        </div>
+                      `).join('')}
+                      ${!(sheet.imunidades?.length) ? `<span class="threat-defense-empty">Nenhuma</span>` : ''}
+                    </div>
+                  </div>
+                </div>
+              `}
               <div class="threat-book-divider"></div>
             </div>
 
@@ -671,30 +771,43 @@ function renderThreatModals(sheet) {
       </div>
     </div>
 
-    <!-- Modal de Gerenciamento de Resistências / Imunidades -->
-    <div class="threat-modal" id="threat-defenses-modal" style="display:none;">
+    <!-- Modal para Adicionar Card de Resistência / Vulnerabilidade / Imunidade -->
+    <div class="threat-modal" id="threat-defense-card-modal" style="display:none;">
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
-      <div class="threat-modal-card">
+      <div class="threat-modal-card" style="max-width:480px;">
         <header class="threat-modal-header">
-          <h2>RESISTÊNCIAS, IMUNIDADES E VULNERABILIDADES</h2>
-          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+          <h2 id="threat-def-card-modal-title">ADICIONAR RESISTÊNCIA</h2>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal>${icon('close', 13)}</button>
         </header>
-        <form id="threat-defenses-form" class="threat-modal-body">
-          <div class="threat-form-group">
-            <label>IMUNIDADES (SEPARADAS POR VÍRGULA)</label>
-            <input type="text" name="imunidades" id="threat-defenses-imunidades" value="${safe((sheet.imunidades || []).join(', '))}" placeholder="Ex: Morte, Dano Mental, Condições...">
+        <form id="threat-defense-card-form" class="threat-modal-body">
+          <input type="hidden" id="threat-def-card-category" value="res">
+          
+          <label style="font:800 10.5px 'Hanken Grotesk',sans-serif;color:#a3a7c2;letter-spacing:.08em;margin-bottom:6px;display:block;">
+            TAGS RÁPIDAS
+          </label>
+          <div class="threat-defense-tags-picker" id="threat-def-quick-tags"></div>
+
+          <div class="threat-form-group" style="margin-top:14px;">
+            <label>NOME / TAG PERSONALIZADA</label>
+            <input type="text" id="threat-def-card-tag-input" required placeholder="Ex: Balístico, Fogo, Dano Mental...">
           </div>
-          <div class="threat-form-group">
-            <label>VULNERABILIDADES (SEPARADAS POR VÍRGULA)</label>
-            <input type="text" name="vulnerabilidades" id="threat-defenses-vulnerabilidades" value="${safe((sheet.vulnerabilidades || []).join(', '))}" placeholder="Ex: Energia, Fogo...">
+
+          <div class="threat-form-group" id="threat-def-card-val-group">
+            <label>VALOR DE RESISTÊNCIA (RD)</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="number" id="threat-def-card-val-input" min="1" max="99" value="10" style="width:90px;">
+              <div class="threat-vd-chips-row">
+                <button type="button" class="threat-vd-chip" data-def-quick-rd="5">RD 5</button>
+                <button type="button" class="threat-vd-chip" data-def-quick-rd="10">RD 10</button>
+                <button type="button" class="threat-vd-chip" data-def-quick-rd="15">RD 15</button>
+                <button type="button" class="threat-vd-chip" data-def-quick-rd="20">RD 20</button>
+              </div>
+            </div>
           </div>
-          <div class="threat-form-group">
-            <label>RESISTÊNCIAS (TIPO E VALOR, EX: Balístico 10, Sangue 20)</label>
-            <textarea name="resistencias" id="threat-defenses-resistencias" rows="3" placeholder="Balístico 10, Impacto 10, Perfuração 10">${safe((sheet.resistencias || []).map(r => `${r.tipo} ${r.valor}`).join(', '))}</textarea>
-          </div>
+
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR DEFESAS</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:800;">+ ADICIONAR CARD</button>
           </footer>
         </form>
       </div>
@@ -739,6 +852,287 @@ function renderThreatModals(sheet) {
             <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SEÇÃO</button>
           </footer>
         </form>
+      </div>
+    </div>
+
+    <!-- Modal de Salvaguardas -->
+    <div class="threat-modal" id="threat-saves-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card">
+        <header class="threat-modal-header">
+          <h2>EDITAR SALVAGUARDAS</h2>
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+        </header>
+        <form id="threat-saves-form" class="threat-modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>FORTITUDE (DADOS)</label>
+              <input type="number" min="1" max="10" id="threat-save-fort-dados" value="${sheet.salvaguardas?.fortitude?.dados ?? 3}">
+            </div>
+            <div class="threat-form-group">
+              <label>FORTITUDE (BÔNUS)</label>
+              <input type="number" id="threat-save-fort-bonus" value="${sheet.salvaguardas?.fortitude?.bonus ?? 10}">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>REFLEXOS (DADOS)</label>
+              <input type="number" min="1" max="10" id="threat-save-ref-dados" value="${sheet.salvaguardas?.reflexos?.dados ?? 2}">
+            </div>
+            <div class="threat-form-group">
+              <label>REFLEXOS (BÔNUS)</label>
+              <input type="number" id="threat-save-ref-bonus" value="${sheet.salvaguardas?.reflexos?.bonus ?? 5}">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>VONTADE (DADOS)</label>
+              <input type="number" min="1" max="10" id="threat-save-von-dados" value="${sheet.salvaguardas?.vontade?.dados ?? 2}">
+            </div>
+            <div class="threat-form-group">
+              <label>VONTADE (BÔNUS)</label>
+              <input type="number" id="threat-save-von-bonus" value="${sheet.salvaguardas?.vontade?.bonus ?? 0}">
+            </div>
+          </div>
+          <footer class="threat-modal-footer">
+            <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SALVAGUARDAS</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Sentidos -->
+    <div class="threat-modal" id="threat-senses-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card">
+        <header class="threat-modal-header">
+          <h2>EDITAR SENTIDOS</h2>
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+        </header>
+        <form id="threat-senses-form" class="threat-modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>PERCEPÇÃO (DADOS)</label>
+              <input type="number" min="1" max="10" id="threat-sense-perc-dados" value="${sheet.sentidos?.percepcao?.dados ?? 3}">
+            </div>
+            <div class="threat-form-group">
+              <label>PERCEPÇÃO (BÔNUS)</label>
+              <input type="number" id="threat-sense-perc-bonus" value="${sheet.sentidos?.percepcao?.bonus ?? 10}">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>INICIATIVA (DADOS)</label>
+              <input type="number" min="1" max="10" id="threat-sense-inic-dados" value="${sheet.sentidos?.iniciativa?.dados ?? 3}">
+            </div>
+            <div class="threat-form-group">
+              <label>INICIATIVA (BÔNUS)</label>
+              <input type="number" id="threat-sense-inic-bonus" value="${sheet.sentidos?.iniciativa?.bonus ?? 0}">
+            </div>
+          </div>
+          <div class="threat-form-group">
+            <label>SENTIDOS ESPECIAIS (EX: Percepção às cegas, Faro aguçado)</label>
+            <input type="text" id="threat-sense-extra" value="${safe(sheet.sentidos?.extra || '')}">
+          </div>
+          <footer class="threat-modal-footer">
+            <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SENTIDOS</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal do Assistente de Balanceamento -->
+    ${renderBalanceModal(sheet)}
+  `;
+}
+
+/**
+ * Renderiza o modal completo do Assistente de Balanceamento
+ */
+function renderBalanceModal(sheet) {
+  const bal = getBalance(sheet.vd || 60, 'equilibrada');
+  const evalBal = evaluateSheet(sheet, 'equilibrada');
+  const elemWeak = ELEMENT_VULNERABILITY_HINTS[sheet.elementoDestaque];
+
+  return `
+    <div class="threat-modal" id="threat-balance-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card threat-balance-modal-card">
+        
+        <header class="threat-modal-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">⚖️</span>
+            <div>
+              <h2 style="margin:0;font-size:16px;">ASSISTENTE DE BALANCEAMENTO</h2>
+              <small style="color:#8c92b2;display:block;font-size:11px;">Parâmetros matemáticos calibrados para Valor de Desafio (VD)</small>
+            </div>
+          </div>
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+        </header>
+
+        <div class="threat-modal-body threat-bal-modal-body">
+          
+          <!-- CONTROLES SUPERIORES: VD, PRESET E SLIDER -->
+          <div class="threat-bal-top-controls">
+            
+            <div class="threat-bal-control-group">
+              <label>VALOR DE DESAFIO (VD)</label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="threat-bal-vd-input" min="10" max="400" value="${sheet.vd}" class="threat-bal-vd-field">
+                <span class="threat-bal-vd-note">(4 agentes NEX ~${Math.max(5, Math.round(sheet.vd / 4))}%)</span>
+              </div>
+              <div class="threat-bal-vd-quick-chips">
+                ${[20, 40, 60, 80, 100, 140, 180, 240, 320, 400].map(v => `
+                  <button type="button" class="threat-bal-vd-pill ${sheet.vd === v ? 'active' : ''}" data-bal-quick-vd="${v}">${v}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="threat-bal-control-group">
+              <label>BALANCEAMENTO</label>
+              <div class="threat-bal-preset-toggles">
+                <button type="button" class="threat-bal-preset-btn" data-threat-bal-preset="leve">
+                  Fácil (Narrativo)
+                </button>
+                <button type="button" class="threat-bal-preset-btn active" data-threat-bal-preset="equilibrada">
+                  Equilibrado (Recomendado)
+                </button>
+                <button type="button" class="threat-bal-preset-btn" data-threat-bal-preset="editora">
+                  Difícil (Tabela Oficial de Balanceamento da Jambô)
+                </button>
+              </div>
+            </div>
+
+            <div class="threat-bal-control-group">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <label>AJUSTE DE DIFICULDADE</label>
+                <b id="threat-bal-slider-val" style="color:var(--threat-elem-color,#e0150d);font-size:11px;">0% (Padrão)</b>
+              </div>
+              <input type="range" id="threat-bal-slider" min="-20" max="20" step="5" value="0" class="threat-bal-slider">
+            </div>
+
+          </div>
+
+          <!-- COMPARATIVO VISUAL DAS ESTATÍSTICAS -->
+          <div class="threat-bal-dashboard">
+            
+            <!-- PV -->
+            <div class="threat-bal-card">
+              <div class="threat-bal-card-head">
+                <span class="threat-bal-card-title">PONTOS DE VIDA</span>
+                <span id="bal-modal-pv-status" class="threat-bal-status status-${evalBal.pv.status}">
+                  ${evalBal.pv.status === 'dentro' ? 'DENTRO DA FAIXA' : (evalBal.pv.status === 'abaixo' ? 'ABAIXO DA MÉDIA' : 'ACIMA DA MÉDIA')}
+                </span>
+              </div>
+              <div class="threat-bal-card-nums">
+                <div class="num-col">
+                  <small>ATUAL</small>
+                  <strong>${sheet.pvMax || sheet.pv}</strong>
+                </div>
+                <div class="num-sep">➔</div>
+                <div class="num-col highlight">
+                  <small>SUGERIDO</small>
+                  <strong id="bal-modal-pv">${bal.pv}</strong>
+                </div>
+              </div>
+              <div class="threat-bal-card-foot">
+                <small>Machucado: <b id="bal-modal-machucado">${bal.machucado}</b></small>
+                <button type="button" class="threat-mini-btn" data-threat-apply-bal="pv">APLICAR PV</button>
+              </div>
+            </div>
+
+            <!-- DEFESA -->
+            <div class="threat-bal-card">
+              <div class="threat-bal-card-head">
+                <span class="threat-bal-card-title">DEFESA</span>
+                <span id="bal-modal-defesa-status" class="threat-bal-status status-${evalBal.defesa.status}">
+                  ${evalBal.defesa.status === 'dentro' ? 'DENTRO DA FAIXA' : (evalBal.defesa.status === 'abaixo' ? 'ABAIXO DA MÉDIA' : 'ACIMA DA MÉDIA')}
+                </span>
+              </div>
+              <div class="threat-bal-card-nums">
+                <div class="num-col">
+                  <small>ATUAL</small>
+                  <strong>${sheet.defesa}</strong>
+                </div>
+                <div class="num-sep">➔</div>
+                <div class="num-col highlight">
+                  <small>SUGERIDO</small>
+                  <strong id="bal-modal-defesa">${bal.defesa}</strong>
+                </div>
+              </div>
+              <div class="threat-bal-card-foot">
+                <small>Acerto agentes ~55%</small>
+                <button type="button" class="threat-mini-btn" data-threat-apply-bal="defesa">APLICAR DEFESA</button>
+              </div>
+            </div>
+
+            <!-- SALVAGUARDAS -->
+            <div class="threat-bal-card">
+              <div class="threat-bal-card-head">
+                <span class="threat-bal-card-title">SALVAGUARDAS</span>
+                <span class="threat-bal-status status-dentro">3 PATAMARES</span>
+              </div>
+              <div class="threat-bal-saves-breakdown">
+                <div><span>Forte:</span> <b id="bal-modal-res-forte">+${bal.resForte.bonus}</b> (${bal.resForte.dados}d20)</div>
+                <div><span>Média:</span> <b id="bal-modal-res-media">+${bal.resMedia.bonus}</b> (${bal.resMedia.dados}d20)</div>
+                <div><span>Fraca:</span> <b id="bal-modal-res-fraca">+${bal.resFraca.bonus}</b> (${bal.resFraca.dados}d20)</div>
+              </div>
+              <div class="threat-bal-card-foot">
+                <small>Atual: +${sheet.salvaguardas?.fortitude?.bonus || 0} / +${sheet.salvaguardas?.reflexos?.bonus || 0} / +${sheet.salvaguardas?.vontade?.bonus || 0}</small>
+                <button type="button" class="threat-mini-btn" data-threat-apply-bal="salvaguardas">APLICAR SALVAGUARDAS</button>
+              </div>
+            </div>
+
+            <!-- PRESENÇA PERTURBADORA & DT -->
+            <div class="threat-bal-card">
+              <div class="threat-bal-card-head">
+                <span class="threat-bal-card-title">PRESENÇA & DT GERAL</span>
+                <span class="threat-bal-status status-dentro">NEX <span id="bal-modal-nex-status">${bal.imuneNex}</span>%+</span>
+              </div>
+              <div class="threat-bal-saves-breakdown">
+                <div><span>DT Recomendada:</span> <b id="bal-modal-dt">DT ${bal.dt}</b></div>
+                <div><span>Dano Mental:</span> <b id="bal-modal-dmg">${bal.presenca ? `${bal.presenca.dados}d${bal.presenca.faces}` : '3d6'}</b></div>
+                <div><span>Imunidade:</span> <b id="bal-modal-nex">NEX ${bal.imuneNex}%</b></div>
+              </div>
+              <div class="threat-bal-card-foot">
+                <small>Atual: DT ${sheet.presenca?.dt || '-'}</small>
+                <button type="button" class="threat-mini-btn" data-threat-apply-bal="presenca">APLICAR PRESENÇA</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- DANO E ATAQUE RECOMENDADO -->
+          <div class="threat-bal-combat-row">
+            <div class="combat-col">
+              <small>ATAQUE PRINCIPAL SUGERIDO</small>
+              <strong id="bal-modal-atk">+${bal.ataque.bonus} <span style="font-size:12px;font-weight:400;color:#9aa0bc;">(${bal.ataque.dados}d20)</span></strong>
+            </div>
+            <div class="combat-col">
+              <small>DANO MÉDIO POR TURNO</small>
+              <strong id="bal-modal-dano-medio">~${bal.danoMedio}</strong>
+            </div>
+            <div class="combat-col wide">
+              <small>FÓRMULAS DE DADOS RECOMENDADAS (CLIQUE PARA APLICAR NO 1º ATAQUE)</small>
+              <div class="threat-bal-formulas-row" id="bal-modal-formulas-container">
+                ${(bal.sugestoesDano || []).map(f => `
+                  <button type="button" class="threat-bal-formula-pill" data-threat-copy-formula="${f}" title="Aplicar no primeiro ataque">${f}</button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <footer class="threat-modal-footer" style="justify-content:space-between;">
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>FECHAR</button>
+          <button type="submit" class="threat-edit-btn" data-threat-apply-bal="tudo" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:900;">
+            ⚡ APLICAR TODAS AS SUGESTÕES
+          </button>
+        </footer>
+
       </div>
     </div>
   `;

@@ -1330,3 +1330,894 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* ── BARRA DO ASSISTENTE & WIZARD (MODO EDIÇÃO) ──────────────────────────── */
+.threat-assistant-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 14px;
+  margin: 10px 0 16px;
+  background: linear-gradient(90deg, #161829 0%, #1a1e35 100%);
+  border: 1px solid #2f3454;
+  border-left: 3px solid var(--threat-elem-color, #e0150d);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.threat-assistant-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-assistant-btn {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #3d436c;
+  background: #20243d;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.threat-assistant-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.threat-assistant-btn.btn-balance {
+  background: #262a48;
+  border-color: #464e7a;
+  color: #f1f3fc;
+}
+
+.threat-assistant-btn.btn-wizard {
+  background: #311c28;
+  border-color: #632d4a;
+  color: #fcd5e5;
+}
+
+.threat-assistant-right {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 11.5px;
+  color: #9aa0be;
+}
+
+.threat-assistant-summary b {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* ── SUGGESTION CHIPS (💡 CHIPS DE EQUILÍBRIO NO MODO EDIÇÃO) ─────────────── */
+.threat-chip-sug {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(224, 21, 13, 0.12);
+  border: 1px solid rgba(224, 21, 13, 0.35);
+  color: #ff9d99;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.threat-chip-sug:hover {
+  background: rgba(224, 21, 13, 0.25);
+  border-color: #e0150d;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.threat-hint-vuln-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.threat-hint-text {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 11.5px;
+  color: #d1d5eb;
+  line-height: 1.35;
+}
+
+.threat-hint-applied {
+  font-size: 10px;
+  font-weight: 800;
+  color: #4ade80;
+  letter-spacing: 0.05em;
+}
+
+/* ── MODAL DO ASSISTENTE DE BALANCEAMENTO ─────────────────────────────────── */
+.threat-balance-modal-card {
+  width: min(780px, calc(100vw - 24px));
+  max-height: min(720px, calc(100vh - 32px));
+}
+
+.threat-bal-modal-body {
+  padding: 18px 22px;
+  gap: 16px;
+}
+
+.threat-bal-top-controls {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  gap: 14px;
+  padding: 14px;
+  background: #141728;
+  border: 1px solid #292e47;
+  border-radius: 6px;
+}
+
+.threat-bal-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.threat-bal-control-group label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #8c92b2;
+  letter-spacing: 0.06em;
+}
+
+.threat-bal-vd-field {
+  width: 70px;
+  background: #1c2035;
+  border: 1px solid #383f61;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.threat-bal-vd-note {
+  font-size: 11px;
+  color: #858baf;
+}
+
+.threat-bal-vd-quick-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.threat-bal-vd-pill {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #1c2035;
+  border: 1px solid #2d3454;
+  color: #a5abce;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-bal-vd-pill:hover,
+.threat-bal-vd-pill.active {
+  background: var(--threat-elem-color, #e0150d);
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+}
+
+.threat-bal-preset-toggles {
+  display: flex;
+  gap: 4px;
+}
+
+.threat-bal-preset-btn {
+  flex: 1;
+  padding: 6px 4px;
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: #1a1e33;
+  border: 1px solid #2e3454;
+  color: #8e95bd;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.threat-bal-preset-btn.active {
+  background: #2b3259;
+  border-color: #555f94;
+  color: #ffffff;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.threat-bal-slider {
+  width: 100%;
+  accent-color: var(--threat-elem-color, #e0150d);
+  cursor: pointer;
+}
+
+/* ── DASHBOARD DE ESTATÍSTICAS ───────────────────────────────────────────── */
+.threat-bal-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.threat-bal-card {
+  background: #141628;
+  border: 1px solid #282d47;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.threat-bal-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.threat-bal-card-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #cfd3eb;
+  letter-spacing: 0.05em;
+}
+
+.threat-bal-status {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.threat-bal-status.status-dentro {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.threat-bal-status.status-abaixo {
+  background: rgba(250, 204, 21, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.threat-bal-status.status-acima {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.threat-bal-card-nums {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.num-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.num-col small {
+  font-size: 9px;
+  color: #797f9e;
+  font-weight: 700;
+}
+
+.num-col strong {
+  font-size: 18px;
+  color: #b0b5cf;
+  font-family: Georgia, serif;
+}
+
+.num-col.highlight strong {
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.num-sep {
+  color: #555b7d;
+  font-size: 14px;
+}
+
+.threat-bal-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #20243b;
+  padding-top: 6px;
+  margin-top: 4px;
+}
+
+.threat-bal-card-foot small {
+  font-size: 10.5px;
+  color: #8c92b0;
+}
+
+.threat-bal-saves-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: #b0b5cf;
+}
+
+.threat-bal-saves-breakdown b {
+  color: #ffffff;
+}
+
+.threat-bal-combat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #141728;
+  border: 1px solid #282d47;
+  border-radius: 6px;
+}
+
+.combat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.combat-col small {
+  font-size: 9px;
+  font-weight: 800;
+  color: #8c92b2;
+}
+
+.combat-col strong {
+  font-size: 16px;
+  color: #ffffff;
+  font-family: Georgia, serif;
+}
+
+.threat-bal-formulas-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.threat-bal-formula-pill {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #1c2038;
+  border: 1px solid #353c61;
+  color: #ff9d99;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-bal-formula-pill:hover {
+  background: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.threat-bal-hint-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #1a1726;
+  border: 1px solid #3f2a36;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e2c0ce;
+}
+
+/* ── WIZARD DE CRIAÇÃO (Fase 4) ───────────────────────────────────────────── */
+.modal.wizard-modal.threat-wizard-modal section {
+  width: min(850px, calc(100vw - 24px));
+  height: min(740px, calc(100vh - 32px));
+  border-color: #2e3352;
+  box-shadow: 0 25px 90px rgba(0, 0, 0, 0.8), 0 0 30px var(--threat-elem-glow, rgba(0, 0, 0, 0.4));
+  transition: box-shadow 0.3s ease;
+}
+
+.threat-wizard-modal .wiz-body {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #383c5e transparent;
+  padding: 18px 24px 20px;
+}
+
+.threat-wizard-modal .wiz-head small {
+  color: var(--threat-elem-color, var(--red, #e0150d));
+  transition: color 0.2s ease;
+}
+
+.threat-wiz-elements-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.threat-wiz-elem-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 6px;
+  background: #17192c;
+  border: 1px solid #2c304d;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.threat-wiz-elem-card:hover {
+  border-color: var(--elem-border, #e0150d);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.threat-wiz-elem-card.selected {
+  background: #232035;
+  border: 2px solid var(--elem-border, #e0150d);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+}
+
+.elem-card-icon img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.threat-wiz-elem-card small {
+  font-size: 9.5px;
+  color: #8c90ad;
+  line-height: 1.25;
+}
+
+.threat-vd-chips-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.threat-vd-chip {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #1c2035;
+  border: 1px solid #333959;
+  color: #cfd3eb;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-vd-chip:hover,
+.threat-vd-chip.selected {
+  background: var(--threat-elem-color, var(--red, #e0150d));
+  border-color: var(--threat-elem-color, var(--red, #e0150d));
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.threat-archetypes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.threat-archetype-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: #16182c;
+  border: 1px solid #2d3252;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.threat-archetype-card:hover {
+  border-color: #555d8f;
+  transform: translateY(-1px);
+}
+
+.threat-archetype-card.selected {
+  background: #21243d;
+  border: 2px solid var(--threat-elem-color, var(--red, #e0150d));
+}
+
+.archetype-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archetype-icon {
+  font-size: 18px;
+}
+
+.archetype-top b {
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.archetype-desc {
+  font-size: 11px;
+  color: #9aa0bd;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.archetype-stats-preview {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: #cfd3eb;
+  border-top: 1px solid #282c47;
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+.archetype-stats-preview b {
+  color: #ffffff;
+}
+
+/* Review Card */
+.threat-review-card {
+  background: #16182c;
+  border: 1px solid #2d3252;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.threat-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #111322;
+  border-bottom: 1px solid #262942;
+}
+
+.threat-review-vd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+.threat-review-vd small {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.threat-review-vd strong {
+  font-size: 18px;
+  font-family: Georgia, serif;
+}
+
+.threat-review-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.review-stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-stat-col .label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #8c92b2;
+  letter-spacing: 0.05em;
+}
+
+.review-stat-col b {
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.review-stat-col .val-pv {
+  color: #4ade80;
+}
+
+.review-stat-col .val-def {
+  color: #38bdf8;
+}
+
+.review-stat-col small {
+  font-size: 11px;
+  color: #8c92b2;
+}
+
+@media (max-width: 680px) {
+  .threat-bal-top-controls {
+    grid-template-columns: 1fr;
+  }
+  .threat-bal-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .threat-bal-combat-row {
+    grid-template-columns: 1fr;
+  }
+  .threat-wiz-elements-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .threat-archetypes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── BOTÃO DE FECHAR SLEEK & AMBIENTADO ── */
+.threat-modal-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #9ea3be;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+}
+
+.threat-modal-close-btn:hover {
+  background: var(--threat-elem-color, #e0150d);
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+  transform: rotate(90deg) scale(1.08);
+  box-shadow: 0 0 14px var(--threat-elem-glow, rgba(224, 21, 13, 0.5));
+}
+
+/* ── ELEMENTOS COMPLEMENTARES PILLS (WIZARD) ── */
+.threat-comp-pills-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-comp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: #17192c;
+  border: 1px solid #2e3352;
+  color: #cfd3eb;
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.threat-comp-pill img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.threat-comp-pill:hover {
+  border-color: var(--elem-pill-color, #e0150d);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+.threat-comp-pill.selected {
+  background: #232039;
+  border: 2px solid var(--elem-pill-color, #e0150d);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+/* ── CARDS DE DEFESAS INTERATIVOS (MODO EDIÇÃO) ── */
+.threat-book-defenses-list.edit-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0 4px;
+}
+
+.threat-defense-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.threat-defense-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.threat-defense-group-header strong {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #b0b5cf;
+}
+
+.threat-defense-cards-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 28px;
+}
+
+.threat-defense-empty {
+  font-size: 11px;
+  color: #5d6280;
+  font-style: italic;
+  font-family: Georgia, serif;
+}
+
+.threat-defense-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #141628;
+  border: 1px solid #2d3354;
+  transition: all 0.14s ease;
+}
+
+.threat-defense-card:hover {
+  border-color: #555d8f;
+}
+
+.threat-defense-card.card-res {
+  background: #16192e;
+  border: 1px solid #363d66;
+}
+
+.threat-defense-card.card-vuln {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.threat-defense-card.card-imun {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.threat-card-tag {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f2f8;
+}
+
+.threat-defense-card.card-vuln .threat-card-tag {
+  color: #fca5a5;
+}
+
+.threat-defense-card.card-imun .threat-card-tag {
+  color: #bae6fd;
+}
+
+.threat-card-num-input {
+  width: 42px;
+  height: 22px;
+  background: #0d0f1c;
+  border: 1px solid #434c7a;
+  border-radius: 3px;
+  color: #4ade80;
+  font-family: Georgia, serif;
+  font-weight: 800;
+  font-size: 12px;
+  text-align: center;
+  padding: 0 2px;
+}
+
+.threat-card-num-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
+}
+
+.threat-card-del-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #797f9e;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.12s ease;
+}
+
+.threat-card-del-btn:hover {
+  color: #ef4444;
+}
+
+/* ── PICKER DE TAGS DE DEFESA ── */
+.threat-defense-tags-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 4px;
+  background: #111322;
+  border: 1px solid #262a42;
+  border-radius: 4px;
+}
+
+.threat-def-tag-chip {
+  font-family: Georgia, serif;
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: #1b1e33;
+  border: 1px solid #333a5e;
+  color: #cfd3eb;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.threat-def-tag-chip:hover {
+  background: var(--threat-elem-color, #e0150d);
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+
