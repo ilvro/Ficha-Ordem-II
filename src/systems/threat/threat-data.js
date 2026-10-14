@@ -170,6 +170,12 @@ export const DEFAULT_THREAT_SHEET = {
   themeColor: '',
   diceColor: '',
 
+  hasIntro: false,
+  introTitle: '',
+  introText: '',
+  introImage: '',
+  introSide: 'left', // 'left' | 'right'
+
   condicoesAtivas: [],
   notasMestre: '',
   tipografia: {

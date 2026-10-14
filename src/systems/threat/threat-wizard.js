@@ -287,27 +287,28 @@ function aplicarEscolhas(sheet, d) {
 
   // Ações
   sheet.acoes = [];
-  const danoSugerido = bal.sugestoesDano?.[0] || '2d8+6';
-  const atkBonus = bal.ataque.bonus;
-  const atkDados = Math.max(1, sheet.atributos.for || bal.ataque.dados);
+  const atk = d.ataquePadrao || {};
+  const danoSugerido = atk.dano || bal.sugestoesDano?.[0] || '2d8+6';
+  const atkBonus = atk.bonus !== undefined ? Number(atk.bonus) : bal.ataque.bonus;
+  const atkDados = Math.max(1, Number(atk.dados) || sheet.atributos.for || bal.ataque.dados);
 
   sheet.acoes.push({
     id: `act-wizard-1`,
-    tipoAcao: 'padrao',
-    nome: 'Agredir',
+    tipoAcao: atk.tipoAcao || 'padrao',
+    nome: atk.nomeAcao || 'Agredir',
     gatilho: '',
     custo: '',
     usos: null,
     ataques: [
       {
         id: `atk-wizard-1`,
-        nome: arq.ataqueNome || 'Ataque Padrão',
-        alcance: 'corpo',
-        multiplicador: 1,
+        nome: atk.nomeAtaque || arq.ataqueNome || 'Ataque Padrão',
+        alcance: atk.alcance || 'corpo',
+        multiplicador: Math.max(1, Number(atk.multiplicador) || 1),
         teste: { dados: atkDados, bonus: atkBonus },
         dano: danoSugerido,
-        tipoDano: arq.ataqueTipo || 'Impacto',
-        critico: '20/x2'
+        tipoDano: atk.tipoDano || arq.ataqueTipo || 'Impacto',
+        critico: atk.critico || '20/x2'
       }
     ],
     texto: '',
@@ -315,6 +316,25 @@ function aplicarEscolhas(sheet, d) {
     ativaQuando: null,
     fase: null
   });
+
+  // Ações adicionais configuradas no Wizard
+  if (Array.isArray(d.acoesExtras) && d.acoesExtras.length > 0) {
+    d.acoesExtras.forEach((act, idx) => {
+      sheet.acoes.push({
+        id: `act-wiz-extra-${idx + 1}-${Date.now()}`,
+        tipoAcao: act.tipoAcao || 'movimento',
+        nome: act.nome || `Ação ${idx + 2}`,
+        gatilho: act.gatilho || '',
+        custo: '',
+        usos: null,
+        ataques: [],
+        texto: act.texto || '',
+        coluna: 'direita',
+        ativaQuando: null,
+        fase: null
+      });
+    });
+  }
 
   // Habilidade Elementar Opcional
   if (d.categoria === 'paranormal' && d.adicionarHabilidadeElementar && HABILIDADES_ELEMENTARES[d.elementoPrincipal]) {
@@ -621,31 +641,145 @@ function renderPasso6(d) {
   const arq = ARQUETIPOS.find(a => a.id === d.arquetipo) || ARQUETIPOS[0];
   const hab = HABILIDADES_ELEMENTARES[d.elementoPrincipal];
 
-  return `
-    <p class="wiz-lead">Gere o arsenal de combate e habilidades especiais da ameaça baseado no seu arquétipo e elemento.</p>
+  if (!d.ataquePadrao) {
+    d.ataquePadrao = {
+      nomeAcao: 'Agredir',
+      tipoAcao: 'padrao',
+      nomeAtaque: arq.ataqueNome || 'Ataque Padrão',
+      alcance: 'corpo',
+      multiplicador: 1,
+      dados: Math.max(1, arq.atributos.for || bal.ataque.dados),
+      bonus: bal.ataque.bonus,
+      dano: bal.sugestoesDano?.[0] || '2d8+6',
+      tipoDano: arq.ataqueTipo || 'Impacto',
+      critico: '20/x2'
+    };
+  }
+  if (!Array.isArray(d.acoesExtras)) {
+    d.acoesExtras = [];
+  }
 
-    <div style="display:flex;flex-direction:column;gap:14px;">
+  const atk = d.ataquePadrao;
+
+  return `
+    <p class="wiz-lead">Configure as ações de combate e habilidades especiais da ameaça. Você pode editar o ataque principal e adicionar ações extras.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
       
-      <!-- Ação Principal de Ataque -->
+      <!-- Ação Principal de Ataque (Editável) -->
       <div style="background:#151726;padding:14px;border:1px solid #2b304f;border-radius:6px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <b style="font-size:13px;color:#cfd3eb;">◆ AÇÃO PADRÃO: AGREDIR</b>
-          <span style="font-size:11px;color:#8a8da3;">Dano médio alvo: ~${bal.danoMedio}</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <b style="font-size:13px;color:#cfd3eb;">◆ AÇÃO PRINCIPAL DE ATAQUE</b>
+          <span style="font-size:11px;color:#8a8da3;">Dano alvo: ~${bal.danoMedio}</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;">
-          <div style="background:#191c30;padding:8px;border-radius:4px;">
-            <small style="color:#787e9c;display:block;">ATAQUE</small>
-            <b>${arq.ataqueNome}</b>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">NOME DA AÇÃO</label>
+            <input type="text" data-twiz-atk="nomeAcao" value="${safe(atk.nomeAcao || 'Agredir')}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
           </div>
-          <div style="background:#191c30;padding:8px;border-radius:4px;">
-            <small style="color:#787e9c;display:block;">TESTE DE ACERTO</small>
-            <b>${Math.max(1, arq.atributos.for || bal.ataque.dados)}d20+${bal.ataque.bonus}</b>
-          </div>
-          <div style="background:#191c30;padding:8px;border-radius:4px;">
-            <small style="color:#787e9c;display:block;">DANO (${arq.ataqueTipo.toUpperCase()})</small>
-            <b style="color:var(--threat-elem-color, var(--red, #e0150d));">${bal.sugestoesDano?.[0] || '2d8+6'}</b>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">TIPO DE AÇÃO</label>
+            <select data-twiz-atk="tipoAcao" style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+              <option value="padrao" ${atk.tipoAcao === 'padrao' ? 'selected' : ''}>Padrão</option>
+              <option value="completa" ${atk.tipoAcao === 'completa' ? 'selected' : ''}>Completa</option>
+              <option value="movimento" ${atk.tipoAcao === 'movimento' ? 'selected' : ''}>Movimento</option>
+              <option value="livre" ${atk.tipoAcao === 'livre' ? 'selected' : ''}>Livre</option>
+              <option value="reacao" ${atk.tipoAcao === 'reacao' ? 'selected' : ''}>Reação</option>
+            </select>
           </div>
         </div>
+
+        <div style="display:grid;grid-template-columns:1.2fr 1fr 0.8fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">NOME DO ATAQUE</label>
+            <input type="text" data-twiz-atk="nomeAtaque" value="${safe(atk.nomeAtaque || arq.ataqueNome)}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">ALCANCE</label>
+            <select data-twiz-atk="alcance" style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+              <option value="corpo" ${atk.alcance === 'corpo' ? 'selected' : ''}>Corpo a corpo</option>
+              <option value="curto" ${atk.alcance === 'curto' ? 'selected' : ''}>Curto</option>
+              <option value="medio" ${atk.alcance === 'medio' ? 'selected' : ''}>Médio</option>
+              <option value="longo" ${atk.alcance === 'longo' ? 'selected' : ''}>Longo</option>
+              <option value="extremo" ${atk.alcance === 'extremo' ? 'selected' : ''}>Extremo</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">QTD (X)</label>
+            <input type="number" min="1" max="10" data-twiz-atk="multiplicador" value="${atk.multiplicador || 1}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;font-size:12px;">
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">TESTE (D20)</label>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <input type="number" min="1" max="10" data-twiz-atk="dados" value="${atk.dados}" 
+                style="width:45px;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;">
+              <span style="color:#787e9c;">d20+</span>
+              <input type="number" data-twiz-atk="bonus" value="${atk.bonus}" 
+                style="width:50px;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px;border-radius:4px;font-size:12px;text-align:center;">
+            </div>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">DANO</label>
+            <input type="text" data-twiz-atk="dano" value="${safe(atk.dano)}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:var(--threat-elem-color, #e0150d);font-weight:700;padding:6px 10px;border-radius:4px;font-size:12px;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">TIPO DANO</label>
+            <input type="text" data-twiz-atk="tipoDano" value="${safe(atk.tipoDano)}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:#8a8da3;margin-bottom:4px;">CRÍTICO</label>
+            <input type="text" data-twiz-atk="critico" value="${safe(atk.critico || '20/x2')}" 
+              style="width:100%;background:#191c30;border:1px solid #2f3454;color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Ações Extras Adicionais -->
+      <div style="background:#151726;padding:14px;border:1px solid #2b304f;border-radius:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <b style="font-size:13px;color:#cfd3eb;">◆ AÇÕES ADICIONAIS & HABILIDADES</b>
+          <button type="button" data-twiz-add-action style="background:#222538;border:1px solid #3d4368;color:#cfd3eb;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;">
+            + ADICIONAR AÇÃO
+          </button>
+        </div>
+
+        ${d.acoesExtras.length === 0 ? `
+          <p style="font-size:12px;color:#787e9c;margin:0;font-style:italic;">Nenhuma ação adicional configurada. Clique em "+ ADICIONAR AÇÃO" para incluir ações de movimento, completas, reações ou habilidades personalizadas.</p>
+        ` : `
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            ${d.acoesExtras.map((extra, idx) => `
+              <div style="background:#191c30;border:1px solid #2f3454;border-radius:5px;padding:10px;">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                  <select data-twiz-extra-idx="${idx}" data-twiz-extra-field="tipoAcao" 
+                    style="background:#131524;border:1px solid #363c5e;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;">
+                    <option value="padrao" ${extra.tipoAcao === 'padrao' ? 'selected' : ''}>PADRÃO</option>
+                    <option value="movimento" ${extra.tipoAcao === 'movimento' ? 'selected' : ''}>MOVIMENTO</option>
+                    <option value="completa" ${extra.tipoAcao === 'completa' ? 'selected' : ''}>COMPLETA</option>
+                    <option value="reacao" ${extra.tipoAcao === 'reacao' ? 'selected' : ''}>REAÇÃO</option>
+                    <option value="livre" ${extra.tipoAcao === 'livre' ? 'selected' : ''}>LIVRE</option>
+                    <option value="passiva" ${extra.tipoAcao === 'passiva' ? 'selected' : ''}>PASSIVA</option>
+                  </select>
+                  <input type="text" data-twiz-extra-idx="${idx}" data-twiz-extra-field="nome" value="${safe(extra.nome || '')}" placeholder="Nome da ação/habilidade" 
+                    style="flex:1;background:#131524;border:1px solid #363c5e;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;">
+                  <input type="text" data-twiz-extra-idx="${idx}" data-twiz-extra-field="gatilho" value="${safe(extra.gatilho || '')}" placeholder="Gatilho / Condição (opcional)" 
+                    style="width:140px;background:#131524;border:1px solid #363c5e;color:#8a8da3;padding:4px 8px;border-radius:4px;font-size:11px;">
+                  <button type="button" data-twiz-del-action="${idx}" style="background:transparent;border:none;color:#f87171;font-size:16px;cursor:pointer;padding:0 4px;" title="Remover ação">×</button>
+                </div>
+                <textarea data-twiz-extra-idx="${idx}" data-twiz-extra-field="texto" rows="2" placeholder="Descrição do efeito, regras ou dano..." 
+                  style="width:100%;background:#131524;border:1px solid #363c5e;color:#cfd3eb;padding:6px 8px;border-radius:4px;font-size:12px;font-family:inherit;resize:vertical;">${safe(extra.texto || '')}</textarea>
+              </div>
+            `).join('')}
+          </div>
+        `}
       </div>
 
       <!-- Habilidade Elementar Opcional -->
@@ -674,6 +808,7 @@ function renderPasso7(d) {
   const isParanormal = d.categoria === 'paranormal';
   const pvFinal = Math.round(bal.pv * (arq.modPv || 1));
   const defFinal = Math.max(10, bal.defesa + (arq.modDef || 0));
+  const atk = d.ataquePadrao || {};
 
   return `
     <p class="wiz-lead">Revise o resumo da ameaça gerada antes de salvar e abrir a ficha no modo livro.</p>
@@ -714,8 +849,8 @@ function renderPasso7(d) {
         </div>
         <div class="review-stat-col">
           <span class="label">ATAQUE PRINCIPAL</span>
-          <b>${arq.ataqueNome}</b>
-          <small>Dano: ${bal.sugestoesDano?.[0] || '2d8+6'} (${arq.ataqueTipo})</small>
+          <b>${atk.nomeAtaque || arq.ataqueNome}</b>
+          <small>Dano: ${atk.dano || bal.sugestoesDano?.[0] || '2d8+6'} (${atk.tipoDano || arq.ataqueTipo})</small>
         </div>
       </div>
     </div>
@@ -834,8 +969,30 @@ function aoClicar(e) {
     d.vd = Number(b.dataset.twizVdChip) || 60;
   } else if ((b = alvo('[data-twiz-arquetipo]'))) {
     d.arquetipo = b.dataset.twizArquetipo;
+    const newArq = ARQUETIPOS.find(a => a.id === d.arquetipo) || ARQUETIPOS[0];
+    const bal = getBalance(d.vd, d.preset);
+    if (d.ataquePadrao && !d.ataquePadraoCustomizado) {
+      d.ataquePadrao.nomeAtaque = newArq.ataqueNome || 'Ataque';
+      d.ataquePadrao.tipoDano = newArq.ataqueTipo || 'Impacto';
+      d.ataquePadrao.dados = Math.max(1, newArq.atributos.for || bal.ataque.dados);
+      d.ataquePadrao.bonus = bal.ataque.bonus;
+      d.ataquePadrao.dano = bal.sugestoesDano?.[0] || '2d8+6';
+    }
   } else if ((b = alvo('[data-twiz-preset]'))) {
     d.preset = b.dataset.twizPreset;
+  } else if (alvo('[data-twiz-add-action]')) {
+    if (!Array.isArray(d.acoesExtras)) d.acoesExtras = [];
+    d.acoesExtras.push({
+      tipoAcao: 'movimento',
+      nome: '',
+      gatilho: '',
+      texto: ''
+    });
+  } else if ((b = alvo('[data-twiz-del-action]'))) {
+    const delIdx = Number(b.dataset.twizDelAction);
+    if (Array.isArray(d.acoesExtras)) {
+      d.acoesExtras.splice(delIdx, 1);
+    }
   } else if ((b = alvo('[data-twiz-ir]'))) {
     d.passo = Number(b.dataset.twizIr);
   } else if (alvo('[data-twiz-voltar]')) {
@@ -861,7 +1018,17 @@ function aoAlterarInput(e) {
   const { d, el } = atual;
   const target = e.target;
 
-  if (target.dataset.twizInput) {
+  if (target.dataset.twizAtk) {
+    if (!d.ataquePadrao) d.ataquePadrao = {};
+    d.ataquePadraoCustomizado = true;
+    d.ataquePadrao[target.dataset.twizAtk] = target.value;
+  } else if (target.dataset.twizExtraIdx !== undefined) {
+    const idx = Number(target.dataset.twizExtraIdx);
+    const field = target.dataset.twizExtraField;
+    if (Array.isArray(d.acoesExtras) && d.acoesExtras[idx] && field) {
+      d.acoesExtras[idx][field] = target.value;
+    }
+  } else if (target.dataset.twizInput) {
     d[target.dataset.twizInput] = target.value;
   } else if (target.dataset.twizVdSlider || target.dataset.twizVdNumber) {
     const newVd = Math.max(10, Math.min(400, Number(target.value) || 10));
@@ -900,6 +1067,11 @@ export function abrirThreatWizard(sheet, { onFinish, onSkip } = {}) {
   const isMundane = sheet.categoria === 'mundana';
   const elemDestaque = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
 
+  const defaultVd = Number(sheet.vd) || 60;
+  const defaultPreset = 'equilibrada';
+  const arqDefault = ARQUETIPOS[0];
+  const balDefault = getBalance(defaultVd, defaultPreset);
+
   const d = {
     passo: 0,
     categoria: sheet.categoria || 'paranormal',
@@ -907,16 +1079,30 @@ export function abrirThreatWizard(sheet, { onFinish, onSkip } = {}) {
     elementosComplementares: (sheet.elementos || []).slice(1),
     nome: sheet.name || 'Nova Ameaça',
     subtitulo: sheet.subtitulo || '',
-    vd: Number(sheet.vd) || 60,
+    vd: defaultVd,
     tipo: sheet.tipo || (isMundane ? 'Humano' : 'Criatura'),
     tamanho: sheet.tamanho || 'Médio',
     arquetipo: 'tank',
-    preset: 'equilibrada',
+    preset: defaultPreset,
     resistenciasPadrao: true,
     incluirVulnerabilidade: true,
     presencaAtiva: !isMundane,
     adicionarEnigma: false,
-    adicionarHabilidadeElementar: true
+    adicionarHabilidadeElementar: true,
+    ataquePadraoCustomizado: false,
+    ataquePadrao: {
+      nomeAcao: 'Agredir',
+      tipoAcao: 'padrao',
+      nomeAtaque: arqDefault.ataqueNome || 'Ataque Padrão',
+      alcance: 'corpo',
+      multiplicador: 1,
+      dados: Math.max(1, arqDefault.atributos.for || balDefault.ataque.dados),
+      bonus: balDefault.ataque.bonus,
+      dano: balDefault.sugestoesDano?.[0] || '2d8+6',
+      tipoDano: arqDefault.ataqueTipo || 'Impacto',
+      critico: '20/x2'
+    },
+    acoesExtras: []
   };
 
   const el = document.createElement('div');

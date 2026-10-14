@@ -1359,8 +1359,22 @@ function bindThreatBookEvents() {
    e.stopPropagation();
    const delta = Number(el.dataset.threatPvDelta) || 0;
    const prev = state.pv;
-   state.pv = Math.max(0, Math.min(state.pvMax, (Number(state.pv) || 0) + delta));
+   const currentPv = (state.pv !== undefined && state.pv !== null && !isNaN(Number(state.pv))) ? Number(state.pv) : (state.pvMax || 100);
+   state.pv = Math.max(0, Math.min(state.pvMax, currentPv + delta));
    if (prev !== state.pv) playResourceSound(delta > 0);
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-attr-step]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const [attrKey, deltaStr] = btn.dataset.threatAttrStep.split(':');
+   const delta = Number(deltaStr) || 0;
+   if (!state.atributos) state.atributos = {};
+   const current = Number(state.atributos[attrKey]) || 0;
+   state.atributos[attrKey] = Math.max(0, Math.min(15, current + delta));
    save(false);
    render();
   };
@@ -1517,10 +1531,15 @@ function bindThreatBookEvents() {
    state.themeColor = col;
    let clean = (col || '').replace('#', '').trim();
    if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
-   const rgb = clean.length === 6 ? `${parseInt(clean.slice(0, 2), 16)}, ${parseInt(clean.slice(2, 4), 16)}, ${parseInt(clean.slice(4, 6), 16)}` : '255, 107, 107';
+   const r = parseInt(clean.slice(0, 2), 16) || 0;
+   const g = parseInt(clean.slice(2, 4), 16) || 0;
+   const b = parseInt(clean.slice(4, 6), 16) || 0;
+   const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+   const ink = lum > 155 ? '#0c0e14' : '#ffffff';
    document.querySelectorAll('.threat-book-page').forEach(page => {
     page.style.setProperty('--threat-elem-color', col);
-    page.style.setProperty('--threat-elem-glow', `rgba(${rgb}, 0.35)`);
+    page.style.setProperty('--threat-elem-ink', ink);
+    page.style.setProperty('--threat-elem-glow', `rgba(${r}, ${g}, ${b}, 0.35)`);
    });
   };
   input.onchange = () => {
@@ -1534,6 +1553,42 @@ function bindThreatBookEvents() {
   btn.onclick = (e) => {
    e.stopPropagation();
    state.themeColor = '';
+   save(false);
+   render();
+  };
+ });
+
+ // ── INTRODUÇÃO E ARTE NARRATIVA DO LIVRO ──
+ document.querySelectorAll('[data-threat-toggle-intro]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.hasIntro = !state.hasIntro;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-intro-align]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.introSide = btn.dataset.threatIntroAlign;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-intro-file-input]').forEach(input => {
+  input.onchange = () => {
+   if (input.files && input.files[0]) {
+    readImage(input.files[0], 'introImage', 2048);
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-threat-remove-intro-image]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.introImage = '';
    save(false);
    render();
   };
@@ -1716,6 +1771,10 @@ function bindThreatBookEvents() {
       <option value="extremo" ${atk?.alcance === 'extremo' ? 'selected' : ''}>Extremo</option>
      </select>
     </label>
+    <label class="atk-field-mult">
+     QUANTIDADE (X)
+     <input type="number" min="1" max="10" data-atk-mult value="${atk?.multiplicador ?? 1}" placeholder="1">
+    </label>
     <label class="atk-field-dice">
      DADOS (D20)
      <input type="number" min="1" max="10" data-atk-dados value="${atk?.teste?.dados ?? 3}">
@@ -1836,7 +1895,7 @@ function bindThreatBookEvents() {
      id: `atk-${Date.now()}-${i}`,
      nome: row.querySelector('[data-atk-name]').value.trim() || 'Ataque',
      alcance: row.querySelector('[data-atk-range]').value,
-     multiplicador: 1,
+     multiplicador: Math.max(1, Number(row.querySelector('[data-atk-mult]')?.value) || 1),
      teste: {
       dados: Math.max(1, Number(row.querySelector('[data-atk-dados]').value) || 2),
       bonus: Number(row.querySelector('[data-atk-bonus]').value) || 0

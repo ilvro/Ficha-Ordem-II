@@ -165,7 +165,8 @@ export function normalizeThreatSheet(raw = {}) {
 
   // Pontos de Vida
   sheet.pvMax = Math.max(1, Number(raw.pvMax ?? raw.pv) || 100);
-  sheet.pv = Math.max(0, Math.min(sheet.pvMax, Number(raw.pv) || sheet.pvMax));
+  const pvNum = Number(raw.pv);
+  sheet.pv = Math.max(0, Math.min(sheet.pvMax, (!isNaN(pvNum) && raw.pv !== null && raw.pv !== undefined) ? pvNum : sheet.pvMax));
   sheet.pvTemp = Math.max(0, Number(raw.pvTemp) || 0);
   sheet.machucadoOverride = raw.machucadoOverride !== null && raw.machucadoOverride !== undefined && !isNaN(Number(raw.machucadoOverride))
     ? Number(raw.machucadoOverride)
@@ -271,6 +272,13 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.cinematicOutlineFade = Math.max(0, Math.min(10, Number(raw.cinematicOutlineFade ?? 1.5)));
   sheet.themeColor = raw.themeColor || '';
   sheet.diceColor = raw.diceColor || '';
+
+  // Introdução & Arte Narrativa do Livro
+  sheet.hasIntro = Boolean(raw.hasIntro || raw.introText);
+  sheet.introTitle = String(raw.introTitle || '').trim();
+  sheet.introText = String(raw.introText || '').trim();
+  sheet.introImage = raw.introImage || '';
+  sheet.introSide = raw.introSide === 'right' ? 'right' : 'left';
 
   // Mesa
   sheet.condicoesAtivas = Array.isArray(raw.condicoesAtivas) ? raw.condicoesAtivas.map(String) : [];

@@ -58,17 +58,33 @@ function safeUrl(str) {
 /**
  * Renderiza a ficha completa de Ameaça no Modo Livro
  */
+function getInkColor(hex) {
+  if (!hex || typeof hex !== 'string') return '#ffffff';
+  let clean = hex.replace('#', '').trim();
+  if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+  if (clean.length !== 6) return '#ffffff';
+  const r = parseInt(clean.substring(0, 2), 16) || 0;
+  const g = parseInt(clean.substring(2, 4), 16) || 0;
+  const b = parseInt(clean.substring(4, 6), 16) || 0;
+  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+  return lum > 155 ? '#0c0e14' : '#ffffff';
+}
+
+/**
+ * Renderiza a ficha completa no Estilo Livro Oficial de Ordem Paranormal
+ */
 export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const sheet = normalizeThreatSheet(rawSheet);
   const { safeUrl = s => s, renderBackgroundLayer } = options;
 
   const isMundane = sheet.categoria === 'mundana';
-  const elemDestaqueKey = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
-  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || THREAT_ELEMENTS.sangue;
+  const elemDestaqueKey = isMundane ? 'mundana' : (sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue');
+  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || (isMundane ? { id: 'mundana', nome: 'Realidade', cor: '#ffffff' } : THREAT_ELEMENTS.sangue);
   const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey);
   const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && !secondaryElements.includes(e));
 
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
+  const elemInk = getInkColor(elemColor);
   const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(255,255,255,0.2)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
@@ -96,13 +112,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const acoesEsquerda = (sheet.acoes || []).filter(a => a.coluna === 'esquerda');
   const acoesDireita = (sheet.acoes || []).filter(a => a.coluna !== 'esquerda');
 
-  return `
-    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''}" 
-      data-element="${elemDestaqueKey}"
-      style="--threat-elem-color:${elemColor};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
-      
-      ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
+  const introColHtml = sheet.hasIntro ? renderIntroColumn(sheet, editMode, options) : '';
 
+  const cardHtml = `
       <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
         <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
@@ -123,8 +135,27 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <button type="button" class="threat-assistant-btn btn-wizard" data-threat-open-wizard title="Abrir Wizard de Criação / Recalibração">
                 🧙 WIZARD DE CRIAÇÃO
               </button>
-              <button type="button" class="threat-assistant-btn btn-bg" data-threat-open-bg title="Mudar plano de fundo ou arte da criatura">
+              <button type="button" class="threat-assistant-btn btn-bg" data-threat-open-bg title="Mudar plano de fundo ou marca d'água">
                 🖼️ PLANO DE FUNDO
+              </button>
+              <button type="button" class="threat-assistant-btn btn-intro ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar página de introdução narrativa e arte do livro">
+                📖 ${sheet.hasIntro ? 'INTRODUÇÃO (ATIVA)' : '+ INTRODUÇÃO'}
+              </button>
+
+              <!-- Seletor Proeminente de Cor Tema -->
+              <label class="threat-assistant-chip" title="Cor tema da ficha">
+                <span class="chip-dot" style="background:${elemColor};"></span>
+                <span>COR TEMA</span>
+                <input type="color" data-threat-theme-color value="${elemColor}">
+              </label>
+              ${sheet.themeColor ? `
+                <button type="button" class="threat-assistant-btn btn-reset-theme" data-threat-reset-theme-color title="Restaurar cor padrão">↺</button>
+              ` : ''}
+
+              <!-- Seletor de Símbolo -->
+              <button type="button" class="threat-assistant-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
+                ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" style="width:13px;height:13px;object-fit:contain;" alt="">` : icon('shield', 12)}
+                <span>SÍMBOLO</span>
               </button>
             </div>
             <div class="threat-assistant-right">
@@ -572,14 +603,20 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   return `
                     <div class="threat-book-attr-col" data-threat-roll-attr="${a.key}" title="Rolar ${a.full} (${sheet.atributos?.[a.key] || 0}d20)">
                       <span class="attr-label">${a.label}</span>
-                      <span class="attr-hex">
-                        ${editMode ? `
-                          <input type="number" class="threat-attr-input" min="0" max="15" 
-                            data-threat-attr-input="${a.key}" value="${sheet.atributos?.[a.key] ?? 2}" onclick="event.stopPropagation();">
-                        ` : `
+                      ${editMode ? `
+                        <div class="threat-attr-stepper-wrap" onclick="event.stopPropagation();">
+                          <button type="button" class="threat-attr-step-btn" data-threat-attr-step="${a.key}:-1" title="Diminuir ${a.label}">−</button>
+                          <span class="attr-hex">
+                            <input type="number" class="threat-attr-input" min="0" max="15" 
+                              data-threat-attr-input="${a.key}" value="${sheet.atributos?.[a.key] ?? 2}" onclick="event.stopPropagation();">
+                          </span>
+                          <button type="button" class="threat-attr-step-btn" data-threat-attr-step="${a.key}:1" title="Aumentar ${a.label}">+</button>
+                        </div>
+                      ` : `
+                        <span class="attr-hex">
                           <b>${displayVal}</b>
-                        `}
-                      </span>
+                        </span>
+                      `}
                     </div>
                   `;
                 }).join('')}
@@ -694,11 +731,109 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
         <footer class="threat-book-bottom-bar"></footer>
 
       </article>
+  `;
+
+  const spreadHtml = sheet.hasIntro ? `
+    <div class="threat-book-spread spread-intro-${sheet.introSide || 'left'}">
+      ${sheet.introSide === 'right' ? `
+        <div class="threat-book-stats-col">${cardHtml}</div>
+        ${introColHtml}
+      ` : `
+        ${introColHtml}
+        <div class="threat-book-stats-col">${cardHtml}</div>
+      `}
+    </div>
+  ` : cardHtml;
+
+  return `
+    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''}" 
+      data-element="${elemDestaqueKey}"
+      style="--threat-elem-color:${elemColor};--threat-elem-ink:${elemInk};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
+      
+      ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
+
+      ${spreadHtml}
 
       <!-- ── MODAIS DE EDIÇÃO DA AMEAÇA ── -->
       ${renderThreatModals(sheet)}
 
     </main>
+  `;
+}
+
+/**
+ * Renderiza a coluna de Introdução e Ilustração da Ameaça (Página de Lore do Livro)
+ */
+function renderIntroColumn(sheet, editMode = false, options = {}) {
+  const { safeUrl = s => s } = options;
+  return `
+    <section class="threat-book-intro-col" aria-label="Introdução e Arte da Ameaça">
+      ${editMode ? `
+        <div class="threat-intro-edit-bar">
+          <div class="threat-intro-side-toggle">
+            <span class="intro-bar-label">LADO:</span>
+            <button type="button" class="threat-mini-btn ${sheet.introSide !== 'right' ? 'active' : ''}" data-threat-intro-align="left" title="Posicionar introdução na esquerda">ESQUERDA</button>
+            <button type="button" class="threat-mini-btn ${sheet.introSide === 'right' ? 'active' : ''}" data-threat-intro-align="right" title="Posicionar introdução na direita">DIREITA</button>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <label class="threat-mini-btn" title="Enviar ilustração da criatura">
+              ${icon('image', 12)} ENVIAR ARTE
+              <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
+            </label>
+            ${sheet.introImage ? `
+              <button type="button" class="threat-mini-btn danger" data-threat-remove-intro-image title="Remover arte da criatura">
+                ${icon('trash', 10)}
+              </button>
+            ` : ''}
+            <button type="button" class="threat-mini-btn danger" data-threat-toggle-intro title="Ocultar introdução">
+              OCULTAR
+            </button>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Ilustração da Criatura -->
+      <div class="threat-intro-artwork-container">
+        ${sheet.introImage ? `
+          <div class="threat-intro-artwork-wrap">
+            <img src="${safeUrl(sheet.introImage)}" class="threat-intro-artwork-img" alt="${safe(sheet.name)}">
+            ${editMode ? `
+              <label class="threat-intro-artwork-overlay" title="Alterar ilustração da criatura">
+                ${icon('camera', 16)}
+                <span>TROCAR ARTE</span>
+                <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
+              </label>
+            ` : ''}
+          </div>
+        ` : (editMode ? `
+          <div class="threat-intro-artwork-ph" onclick="this.querySelector('input').click()">
+            ${icon('image', 36)}
+            <b>ADICIONAR ILUSTRAÇÃO DA AMEAÇA</b>
+            <small>Clique para selecionar uma imagem (PNG, JPG, WebP)</small>
+            <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
+          </div>
+        ` : '')}
+      </div>
+
+      <!-- Título e Texto Narrativo / Lore de Ambientação -->
+      <div class="threat-intro-prose-container">
+        ${editMode ? `
+          <div class="threat-intro-field-group">
+            <input type="text" class="threat-intro-title-input" data-threat-field="introTitle" value="${safe(sheet.introTitle)}" placeholder="TÍTULO NARRATIVO (EX: O ABRAÇO DA SOMBRA)">
+          </div>
+          <div class="threat-intro-field-group">
+            <textarea class="threat-intro-textarea" data-threat-field="introText" rows="14" placeholder="Escreva a descrição narrativa, origem, comportamento e detalhes do encontro da criatura (conforme o livro de regras de Ordem Paranormal)...">${safe(sheet.introText)}</textarea>
+          </div>
+        ` : `
+          ${sheet.introTitle ? `<h2 class="threat-intro-narrative-title">${safe(sheet.introTitle)}</h2>` : ''}
+          ${sheet.introText ? `
+            <div class="threat-intro-narrative-text">
+              ${sheet.introText.split('\n\n').filter(Boolean).map(p => `<p>${formatCardText(p)}</p>`).join('')}
+            </div>
+          ` : ''}
+        `}
+      </div>
+    </section>
   `;
 }
 
@@ -712,6 +847,40 @@ function formatCardText(val) {
   str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
   str = str.replace(/\n/g, '<br>');
   return str;
+}
+
+/**
+ * Formata cabeçalho do ataque no padrão oficial do livro:
+ * Ex: "GARRAS Corpo a corpo x2" ou "GARRAS Corpo a corpo 19/x2"
+ */
+function formatAttackHeader(atk) {
+  const nome = safe((atk.nome || 'Ataque').toUpperCase());
+  
+  let alcance = atk.alcance || 'Corpo a corpo';
+  if (alcance.toLowerCase() === 'corpo') alcance = 'Corpo a corpo';
+  else if (alcance.toLowerCase() === 'distancia') alcance = 'À distância';
+  else if (alcance.toLowerCase() === 'curto') alcance = 'Curto';
+  else if (alcance.toLowerCase() === 'medio') alcance = 'Médio';
+  else if (alcance.toLowerCase() === 'longo') alcance = 'Longo';
+  else if (alcance.toLowerCase() === 'extremo') alcance = 'Extremo';
+
+  let margem = 20;
+  const critStr = String(atk.critico || '').trim();
+  const mMatch = critStr.match(/^(\d{2})/);
+  if (mMatch) margem = parseInt(mMatch[1], 10);
+
+  const numAtaques = Math.max(1, Number(atk.multiplicador) || 1);
+
+  let critQtdText = '';
+  if (margem < 20 && numAtaques > 1) {
+    critQtdText = `${margem}/x${numAtaques}`;
+  } else if (margem < 20) {
+    critQtdText = `${margem}`;
+  } else if (numAtaques > 1) {
+    critQtdText = `x${numAtaques}`;
+  }
+
+  return `${nome} ${alcance}${critQtdText ? ` ${critQtdText}` : ''}`;
 }
 
 /**
@@ -779,8 +948,7 @@ function renderActionCard(action, isHurt = false, editMode = false) {
       ${(action.ataques || []).map(atk => `
         <div class="action-attack-block">
           <div class="attack-title-line">
-            <strong class="attack-name">${safe(atk.nome?.toUpperCase())}</strong>
-            <em class="attack-reach">${safe(atk.alcance || 'Corpo a corpo')}${atk.multiplicador > 1 ? ` x${atk.multiplicador}` : ''}</em>
+            <strong class="attack-name">${formatAttackHeader(atk)}</strong>
           </div>
           <div class="attack-roll-line">
             <span class="attack-roll-label">TESTE</span>
@@ -790,7 +958,7 @@ function renderActionCard(action, isHurt = false, editMode = false) {
             <span class="threat-pipe">|</span>
             <span class="attack-roll-label">DANO</span>
             <button type="button" class="threat-chip-roll-dmg" data-threat-roll-atk-dmg="${action.id}:${atk.id}" title="Rolar Dano">
-              ${formatDamageFormula(atk.dano)} ${safe(atk.tipoDano || '')}${atk.critico ? ` <small>(${safe(atk.critico)})</small>` : ''}
+              ${formatDamageFormula(atk.dano)} ${safe(atk.tipoDano || '')}
             </button>
           </div>
         </div>

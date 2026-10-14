@@ -2540,7 +2540,7 @@
         "bonus": 10
       }
     },
-    "pv": 44,
+    "pv": 10,
     "pvMax": 100,
     "pvTemp": 0,
     "machucadoOverride": 50,
@@ -2619,7 +2619,7 @@
         "fase": null
       }
     ],
-    "viewMode": "cinematic",
+    "viewMode": "livro",
     "tokenImage": "",
     "backgroundImage": "",
     "backgroundBlur": 0,
@@ -2633,6 +2633,11 @@
     "cinematicOutlineFade": 1.5,
     "themeColor": "",
     "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
     "condicoesAtivas": [],
     "notasMestre": "",
     "tipografia": {
@@ -2738,6 +2743,7 @@
         "nome": "Agredir",
         "gatilho": "",
         "custo": "",
+        "coluna": "direita",
         "usos": null,
         "ataques": [
           {
@@ -2755,7 +2761,6 @@
           }
         ],
         "texto": "",
-        "coluna": "direita",
         "ativaQuando": null,
         "fase": null
       }
@@ -2774,6 +2779,11 @@
     "cinematicOutlineFade": 1.5,
     "themeColor": "",
     "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
     "condicoesAtivas": [],
     "notasMestre": "",
     "tipografia": {
@@ -2835,7 +2845,7 @@
         "bonus": 0
       }
     },
-    "pv": 120,
+    "pv": 98,
     "pvMax": 120,
     "pvTemp": 0,
     "machucadoOverride": null,
@@ -2863,6 +2873,7 @@
         "nome": "Agredir",
         "gatilho": "",
         "custo": "",
+        "coluna": "esquerda",
         "usos": null,
         "ataques": [
           {
@@ -2880,12 +2891,11 @@
           }
         ],
         "texto": "",
-        "coluna": "esquerda",
         "ativaQuando": null,
         "fase": null
       }
     ],
-    "viewMode": "cinematic",
+    "viewMode": "livro",
     "tokenImage": "",
     "backgroundImage": "",
     "backgroundBlur": 0,
@@ -2897,8 +2907,13 @@
     "cinematicOutlineIntensity": 0.5,
     "cinematicOutlineWidth": 1.8,
     "cinematicOutlineFade": 1.5,
-    "themeColor": "",
+    "themeColor": "#ffffff",
     "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
     "condicoesAtivas": [],
     "notasMestre": "",
     "tipografia": {
