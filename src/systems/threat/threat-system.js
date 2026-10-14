@@ -117,8 +117,8 @@ export function normalizeThreatSheet(raw = {}) {
     : (sheet.elementos[0] || null);
 
   sheet.tipo = String(raw.tipo || (sheet.categoria === 'mundana' ? 'Humano' : 'Criatura')).trim();
-  sheet.tamanho = String(raw.tamanho || 'Médio').trim();
-  sheet.sigiloId = raw.sigiloId || 'padrao-1';
+  sheet.sigiloId = raw.sigiloId || '';
+  sheet.sigilImage = raw.sigilImage || '';
 
   // Presença Perturbadora
   const pRaw = raw.presenca || {};

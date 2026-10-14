@@ -2458,6 +2458,173 @@
   transform: translateY(-1px);
 }
 
+/* ── SÍMBOLO DA AMEAÇA & OVERLAY EDITÁVEL NO BANNER ── */
+.threat-sigil-icon.editable {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.threat-sigil-icon.editable:hover {
+  transform: scale(1.08);
+  filter: brightness(1.2);
+}
+
+.threat-sigil-edit-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.threat-sigil-icon.editable:hover .threat-sigil-edit-overlay {
+  opacity: 1;
+}
+
+/* ── SELETOR DE COR TEMA & SÍMBOLO NA BARRA DE ELEMENTOS ── */
+.threat-theme-color-wrap,
+.threat-sigil-btn-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.threat-theme-color-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #141624;
+  border: 1px solid color-mix(in srgb, var(--elem-color, #e0150d), #2c304d 50%);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.threat-theme-color-chip:hover {
+  border-color: var(--elem-color, #e0150d);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), 0 0 6px var(--elem-color, #e0150d);
+}
+
+.threat-theme-color-chip input[type="color"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.threat-theme-color-chip .color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: inline-block;
+  box-shadow: 0 0 6px var(--elem-color, #e0150d);
+}
+
+.threat-mini-sigil-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #141624;
+  border: 1px solid #333854;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #cfd3e8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.threat-mini-sigil-btn:hover {
+  background: #202438;
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+}
+
+.threat-mini-sigil-btn .threat-custom-badge {
+  color: #ffcc00;
+  font-size: 10px;
+  margin-left: 2px;
+}
+
+/* ── GRID DE SÍMBOLOS NO MODAL ── */
+.threat-sigils-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.threat-sigil-choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #121422;
+  border: 1px solid #282c44;
+  border-radius: 6px;
+  padding: 12px 8px;
+  cursor: pointer;
+  color: #bfc3d8;
+  transition: all 0.15s ease;
+}
+
+.threat-sigil-choice-btn:hover {
+  background: #1c1f32;
+  border-color: var(--sigil-color, #e0150d);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px color-mix(in srgb, var(--sigil-color, #e0150d), transparent 70%);
+}
+
+.threat-sigil-choice-btn.active {
+  background: color-mix(in srgb, var(--sigil-color, #e0150d), #121422 85%);
+  border-color: var(--sigil-color, #e0150d);
+  color: #ffffff;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sigil-color, #e0150d), transparent 60%);
+}
+
+.threat-sigil-choice-btn img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  transition: transform 0.15s ease;
+}
+
+.threat-sigil-choice-btn:hover img {
+  transform: scale(1.1);
+}
+
+.threat-sigil-choice-btn span {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
 /* ── BOTÃO PLANO DE FUNDO NO ASSISTANT BAR ── */
 .threat-assistant-btn.btn-bg {
   background: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);

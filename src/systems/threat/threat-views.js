@@ -68,9 +68,18 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey);
   const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && !secondaryElements.includes(e));
 
-  const elemColor = isMundane ? '#ffffff' : elemDestaque.cor;
+  const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
   const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(255,255,255,0.2)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
+
+  let activeSigilSrc = '';
+  if (sheet.sigilImage) {
+    activeSigilSrc = sheet.sigilImage;
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+  } else if (!isMundane && sheet.sigiloId !== 'escudo') {
+    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+  }
 
   const machucado = calcMachucado(sheet);
   const hurt = estaMachucada(sheet);
@@ -135,10 +144,18 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             <!-- ── BANNER / CABEÇALHO DO LIVRO (INTEGRADO NO TOPO DA COLUNA ESQUERDA) ── -->
             <header class="threat-banner-header">
               <div class="threat-banner-left element-banner-${elemDestaqueKey}">
-                <div class="threat-sigil-icon" title="${safe(elemDestaque.nome)}">
-                  ${!isMundane ? `
-                    <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
+                <div class="threat-sigil-icon ${editMode ? 'editable' : ''}" 
+                     ${editMode ? 'data-threat-open-sigil-modal' : ''} 
+                     title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(elemDestaque.nome)}">
+                  ${activeSigilSrc ? `
+                    <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
                   ` : icon('shield', 36)}
+                  ${editMode ? `
+                    <div class="threat-sigil-edit-overlay">
+                      ${icon('camera', 13)}
+                      <span>MUDAR</span>
+                    </div>
+                  ` : ''}
                 </div>
                 <div class="threat-name-wrap">
                   <div class="threat-title-row">
@@ -219,6 +236,34 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                           `;
                         }).join('')}
                       </div>
+
+                      <span class="tag-bullet">•</span>
+
+                      <!-- Personalização da Cor do Tema -->
+                      <div class="threat-theme-color-wrap" title="Personalizar cor de destaque da Ameaça">
+                        <span class="threat-element-role-label">COR TEMA:</span>
+                        <label class="threat-theme-color-chip" style="--elem-color:${elemColor};" title="Escolher cor personalizada">
+                          <input type="color" data-threat-theme-color value="${elemColor}">
+                          <span class="color-dot" style="background:${elemColor};"></span>
+                          <span>${sheet.themeColor ? sheet.themeColor.toUpperCase() : 'ELEMENTO'}</span>
+                        </label>
+                        ${sheet.themeColor ? `
+                          <button type="button" class="threat-comp-remove-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento">↺</button>
+                        ` : ''}
+                      </div>
+
+                      <span class="tag-bullet">•</span>
+
+                      <!-- Botão de Símbolo da Ameaça -->
+                      <div class="threat-sigil-btn-wrap">
+                        <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
+                          ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
+                          <span>SÍMBOLO</span>
+                          ${sheet.sigilImage || (sheet.sigiloId && sheet.sigiloId !== elemDestaqueKey) ? `
+                            <span class="threat-custom-badge" title="Símbolo personalizado">★</span>
+                          ` : ''}
+                        </button>
+                      </div>
                     </div>
                     <span class="tag-bullet">•</span>
                   ` : `
@@ -232,6 +277,27 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   `}
                 ` : `
                   <span class="threat-book-plain-tag">MUNDANA</span>
+                  ${editMode ? `
+                    <div class="threat-edit-elements-bar" style="margin-left:6px;display:inline-flex;gap:6px;">
+                      <div class="threat-theme-color-wrap" title="Personalizar cor de destaque da Ameaça">
+                        <span class="threat-element-role-label">COR TEMA:</span>
+                        <label class="threat-theme-color-chip" style="--elem-color:${elemColor};" title="Escolher cor personalizada">
+                          <input type="color" data-threat-theme-color value="${elemColor}">
+                          <span class="color-dot" style="background:${elemColor};"></span>
+                          <span>${sheet.themeColor ? sheet.themeColor.toUpperCase() : 'PADRÃO'}</span>
+                        </label>
+                        ${sheet.themeColor ? `
+                          <button type="button" class="threat-comp-remove-btn" data-threat-reset-theme-color title="Restaurar cor padrão">↺</button>
+                        ` : ''}
+                      </div>
+                      <div class="threat-sigil-btn-wrap">
+                        <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
+                          ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
+                          <span>SÍMBOLO</span>
+                        </button>
+                      </div>
+                    </div>
+                  ` : ''}
                   <span class="tag-bullet">•</span>
                 `}
 
@@ -743,6 +809,19 @@ function renderActionCard(action, isHurt = false, editMode = false) {
  * Renderiza os modais de edição de ações, defesas e seções
  */
 function renderThreatModals(sheet) {
+  const isMundane = sheet.categoria === 'mundana';
+  const elemDestaqueKey = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
+  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || THREAT_ELEMENTS.sangue;
+  const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
+  let activeSigilSrc = '';
+  if (sheet.sigilImage) {
+    activeSigilSrc = sheet.sigilImage;
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+  } else if (!isMundane && sheet.sigiloId !== 'escudo') {
+    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+  }
+
   return `
     <!-- Modal de Ação / Habilidade da Ameaça (Fiel à Ficha Cinematográfica de Ordem II) -->
     <div class="modal card-editor threat-card-editor" id="threat-action-modal">
@@ -1019,6 +1098,18 @@ function renderBalanceModal(sheet) {
   const bal = getBalance(sheet.vd || 60, 'equilibrada');
   const evalBal = evaluateSheet(sheet, 'equilibrada');
   const elemWeak = ELEMENT_VULNERABILITY_HINTS[sheet.elementoDestaque];
+  const isMundane = sheet.categoria === 'mundana';
+  const elemDestaqueKey = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
+  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || THREAT_ELEMENTS.sangue;
+  const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
+  let activeSigilSrc = '';
+  if (sheet.sigilImage) {
+    activeSigilSrc = sheet.sigilImage;
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+  } else if (!isMundane && sheet.sigiloId !== 'escudo') {
+    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+  }
 
   return `
     <div class="threat-modal" id="threat-balance-modal" style="display:none;">
@@ -1289,10 +1380,118 @@ function renderBalanceModal(sheet) {
             </div>
           </div>
 
+          <hr class="threat-modal-divider">
+
+          <!-- SEÇÃO 3: COR DO TEMA & SÍMBOLO DA AMEAÇA -->
+          <div class="threat-bg-modal-section">
+            <h3 class="threat-bg-section-title">3. COR DO TEMA & SÍMBOLO ELEMENTAL</h3>
+            <p class="threat-bg-section-desc">
+              Personalize a cor de destaque da criatura (aplicada em bordas, títulos, dados e menus) ou escolha um símbolo próprio.
+            </p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center;">
+              <div>
+                <label style="font:800 9.5px 'Hanken Grotesk',sans-serif;color:#8c92b2;letter-spacing:.12em;display:block;margin-bottom:6px;">
+                  COR DO TEMA
+                </label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" data-threat-theme-color value="${elemColor}" style="width:40px;height:34px;padding:2px;background:#1a1c2e;border:1px solid #333959;border-radius:4px;cursor:pointer;">
+                  <span style="font-family:monospace;font-size:12px;color:#fff;">${elemColor.toUpperCase()}</span>
+                  ${sheet.themeColor ? `
+                    <button type="button" class="threat-mini-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento">↺ RESET</button>
+                  ` : ''}
+                </div>
+              </div>
+
+              <div>
+                <label style="font:800 9.5px 'Hanken Grotesk',sans-serif;color:#8c92b2;letter-spacing:.12em;display:block;margin-bottom:6px;">
+                  SÍMBOLO DO CABEÇALHO
+                </label>
+                <button type="button" class="threat-edit-btn" data-threat-open-sigil-modal style="display:flex;align-items:center;gap:8px;background:#202336;">
+                  ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" style="width:20px;height:20px;object-fit:contain;" alt="">` : icon('shield', 14)}
+                  <span>CONFIGURAR SÍMBOLO</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <footer class="threat-modal-footer">
           <button type="button" class="threat-edit-btn" data-close-threat-modal>CONCLUÍDO</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal de Escolha e Upload de Símbolo da Ameaça -->
+    <div class="threat-modal" id="threat-sigil-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card" style="max-width:520px;">
+        <header class="threat-modal-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">🔯</span>
+            <h2 style="font-family:Georgia,serif;font-size:16px;margin:0;">SÍMBOLO DA AMEAÇA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">✕</button>
+        </header>
+
+        <div class="threat-modal-body" style="gap:16px;">
+          <p style="font-size:11.5px;color:#a3a7c2;margin:0;line-height:1.5;">
+            Escolha o símbolo elemental que estampa o cabeçalho da criatura ou envie uma arte/runa personalizada (PNG, SVG, WebP).
+          </p>
+
+          <!-- Símbolos Oficiais dos Elementos -->
+          <div>
+            <label style="font:800 9.5px 'Hanken Grotesk',sans-serif;color:#8c92b2;letter-spacing:.12em;display:block;margin-bottom:8px;">
+              SÍMBOLOS OFICIAIS DO OUTRO LADO
+            </label>
+            <div class="threat-sigils-grid">
+              ${Object.values(THREAT_ELEMENTS).map(el => {
+                const isSelected = !sheet.sigilImage && (sheet.sigiloId === el.id || (!sheet.sigiloId && elemDestaqueKey === el.id));
+                return `
+                  <button type="button" class="threat-sigil-choice-btn ${isSelected ? 'active' : ''}" data-threat-pick-sigil="${el.id}" style="--sigil-color:${el.cor};">
+                    <img src="/assets/elements/${el.id}.png" alt="${safe(el.nome)}" draggable="false">
+                    <span>${safe(el.nome.toUpperCase())}</span>
+                  </button>
+                `;
+              }).join('')}
+              <button type="button" class="threat-sigil-choice-btn ${(!sheet.sigilImage && sheet.sigiloId === 'escudo') ? 'active' : ''}" data-threat-pick-sigil="escudo" style="--sigil-color:#ffffff;">
+                <div style="width:36px;height:36px;display:grid;place-items:center;">${icon('shield', 28)}</div>
+                <span>ESCUDO</span>
+              </button>
+            </div>
+          </div>
+
+          <hr class="threat-modal-divider" style="margin:4px 0;border:0;border-top:1px solid #282a3c;">
+
+          <!-- Upload de Símbolo Personalizado -->
+          <div>
+            <label style="font:800 9.5px 'Hanken Grotesk',sans-serif;color:#8c92b2;letter-spacing:.12em;display:block;margin-bottom:8px;">
+              ARTE OU RUNA PERSONALIZADA
+            </label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <label class="threat-edit-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#202336;">
+                📁 FAZER UPLOAD DE IMAGEM
+                <input type="file" id="threat-sigil-file-input" accept="image/*" style="display:none;">
+              </label>
+              ${sheet.sigilImage ? `
+                <button type="button" class="threat-mini-btn danger" data-threat-clear-custom-sigil>
+                  REMOVER PERSONALIZADO
+                </button>
+              ` : ''}
+            </div>
+            ${sheet.sigilImage ? `
+              <div style="margin-top:10px;display:flex;align-items:center;gap:10px;background:#131522;padding:8px 12px;border-radius:6px;border:1px solid #2c304d;">
+                <img src="${safeUrl(sheet.sigilImage)}" style="width:36px;height:36px;object-fit:contain;" alt="">
+                <small style="color:#7ee787;font-weight:700;">Símbolo personalizado ativo</small>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <footer class="threat-modal-footer">
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>FECHAR</button>
+          <button type="button" class="threat-edit-btn" data-threat-reset-sigil style="background:#262a42;color:#d5d7e8;">RESTAURAR PADRÃO</button>
         </footer>
       </div>
     </div>

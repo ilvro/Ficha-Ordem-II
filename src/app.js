@@ -1521,6 +1521,87 @@ function bindThreatBookEvents() {
   };
  });
 
+ document.querySelectorAll('[data-threat-theme-color]').forEach(input => {
+  input.oninput = () => {
+   const col = input.value;
+   state.themeColor = col;
+   let clean = (col || '').replace('#', '').trim();
+   if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+   const rgb = clean.length === 6 ? `${parseInt(clean.slice(0, 2), 16)}, ${parseInt(clean.slice(2, 4), 16)}, ${parseInt(clean.slice(4, 6), 16)}` : '255, 107, 107';
+   document.querySelectorAll('.threat-book-page').forEach(page => {
+    page.style.setProperty('--threat-elem-color', col);
+    page.style.setProperty('--threat-elem-glow', `rgba(${rgb}, 0.35)`);
+   });
+  };
+  input.onchange = () => {
+   state.themeColor = input.value;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-reset-theme-color]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.themeColor = '';
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-open-sigil-modal]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const modal = document.querySelector('#threat-sigil-modal');
+   if (modal) modal.style.display = 'flex';
+  };
+ });
+
+ document.querySelectorAll('[data-threat-pick-sigil]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.sigiloId = btn.dataset.threatPickSigil || '';
+   state.sigilImage = '';
+   save(false);
+   render();
+  };
+ });
+
+ const threatSigilFileInput = document.querySelector('#threat-sigil-file-input');
+ if (threatSigilFileInput) {
+  threatSigilFileInput.onchange = () => {
+   if (threatSigilFileInput.files && threatSigilFileInput.files[0]) {
+    readImage(threatSigilFileInput.files[0], 'sigilImage', 512);
+   }
+  };
+ }
+
+ document.querySelectorAll('[data-threat-pick-custom-sigil]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   if (threatSigilFileInput) threatSigilFileInput.click();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-clear-custom-sigil]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.sigilImage = '';
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-reset-sigil]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.sigiloId = '';
+   state.sigilImage = '';
+   save(false);
+   render();
+  };
+ });
+
  document.querySelectorAll('[data-threat-toggle-categoria]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
