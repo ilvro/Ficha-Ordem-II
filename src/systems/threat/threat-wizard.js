@@ -88,10 +88,10 @@ const ELEMENT_THEMES = {
   },
   morte: {
     nome: 'MORTE',
-    cor: '#71717a',
-    corClara: '#cbd5e1',
-    bg: 'rgba(113, 113, 122, 0.16)',
-    glow: 'rgba(161, 161, 170, 0.4)',
+    cor: '#181922',
+    corClara: '#ffffff',
+    bg: 'rgba(24, 25, 34, 0.6)',
+    glow: 'rgba(30, 32, 42, 0.7)',
     desc: 'Tempo, entropia, silêncio e lodo decadente.'
   },
   energia: {
@@ -104,10 +104,10 @@ const ELEMENT_THEMES = {
   },
   conhecimento: {
     nome: 'CONHECIMENTO',
-    cor: '#eab308',
-    corClara: '#fef08a',
-    bg: 'rgba(234, 179, 8, 0.14)',
-    glow: 'rgba(234, 179, 8, 0.45)',
+    cor: '#cca02b',
+    corClara: '#ffffff',
+    bg: 'rgba(204, 160, 43, 0.16)',
+    glow: 'rgba(204, 160, 43, 0.45)',
     desc: 'Razão, consciência, palavras e sigilos misteriosos.'
   },
   medo: {

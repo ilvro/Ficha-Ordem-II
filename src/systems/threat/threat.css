@@ -99,12 +99,12 @@
 }
 .threat-book-page.element-theme-morte,
 .threat-book-page.threat-page-morte {
-  background-color: #08090d;
+  background-color: #040507;
   background-image: 
-    radial-gradient(circle at 80% 20%, rgba(85, 90, 110, 0.35) 0%, transparent 55%),
-    radial-gradient(circle at 20% 85%, rgba(40, 42, 55, 0.45) 0%, transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(18, 19, 28, 0.6) 0%, rgba(8, 8, 12, 0.98) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+    radial-gradient(circle at 80% 20%, rgba(30, 32, 42, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 20% 85%, rgba(16, 17, 24, 0.5) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(10, 11, 15, 0.7) 0%, rgba(3, 4, 6, 0.99) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0%, transparent 40%);
 }
 .threat-book-page.element-theme-energia,
 .threat-book-page.threat-page-energia {
@@ -117,12 +117,12 @@
 }
 .threat-book-page.element-theme-conhecimento,
 .threat-book-page.threat-page-conhecimento {
-  background-color: #0e0b04;
+  background-color: #0c0903;
   background-image: 
-    radial-gradient(circle at 85% 15%, rgba(235, 160, 20, 0.38) 0%, transparent 55%),
-    radial-gradient(circle at 15% 85%, rgba(160, 100, 10, 0.4) 0%, transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(30, 22, 10, 0.6) 0%, rgba(10, 8, 3, 0.98) 100%),
-    linear-gradient(135deg, rgba(240, 180, 40, 0.06) 0%, transparent 50%);
+    radial-gradient(circle at 85% 15%, rgba(204, 160, 43, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(175, 130, 25, 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(25, 19, 6, 0.6) 0%, rgba(8, 6, 2, 0.98) 100%),
+    linear-gradient(135deg, rgba(255, 220, 120, 0.05) 0%, transparent 50%);
 }
 .threat-book-page.element-theme-medo,
 .threat-book-page.threat-page-medo {
@@ -166,13 +166,13 @@
   background: linear-gradient(90deg, #780a0a 0%, #9e1212 55%, #580404 100%);
 }
 .threat-banner-left.element-banner-morte {
-  background: linear-gradient(90deg, #111218 0%, #1c1d28 55%, #0e0f14 100%);
+  background: linear-gradient(90deg, #07080b 0%, #111217 55%, #050608 100%);
 }
 .threat-banner-left.element-banner-energia {
   background: linear-gradient(90deg, #741ca0 0%, #9226c7 55%, #59107e 100%);
 }
 .threat-banner-left.element-banner-conhecimento {
-  background: linear-gradient(90deg, #b87508 0%, #d48b11 55%, #8c5603 100%);
+  background: linear-gradient(90deg, #b68722 0%, #cca02b 55%, #a8791c 100%);
 }
 .threat-banner-left.element-banner-medo {
   background: linear-gradient(90deg, #16242c 0%, #253d4a 55%, #101a1f 100%);
@@ -338,8 +338,9 @@
   pointer-events: none;
 }
 .element-pill-conhecimento {
-  background: #e5a11c;
-  color: #000000;
+  background: #cca02b;
+  color: #ffffff;
+  border: none;
 }
 .element-pill-medo {
   background: #181920;
@@ -355,8 +356,9 @@
   color: #ffffff;
 }
 .element-pill-morte {
-  background: #4a4b59;
+  background: #0d0e13;
   color: #ffffff;
+  border: none;
 }
 
 .threat-book-elem-tag {

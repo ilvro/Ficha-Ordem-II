@@ -4,9 +4,9 @@
 
 export const THREAT_ELEMENTS = {
   sangue: { id: 'sangue', nome: 'Sangue', cor: '#e0150d', texto: '#ffffff' },
-  morte: { id: 'morte', nome: 'Morte', cor: '#70707a', texto: '#a9a9b4' },
+  morte: { id: 'morte', nome: 'Morte', cor: '#181922', texto: '#ffffff' },
   energia: { id: 'energia', nome: 'Energia', cor: '#993ce8', texto: '#ffffff' },
-  conhecimento: { id: 'conhecimento', nome: 'Conhecimento', cor: '#e5a11c', texto: '#11131a' },
+  conhecimento: { id: 'conhecimento', nome: 'Conhecimento', cor: '#cca02b', texto: '#ffffff' },
   medo: { id: 'medo', nome: 'Medo', cor: '#d5d7e0', texto: '#11131a' }
 };
 

@@ -69,7 +69,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && !secondaryElements.includes(e));
 
   const elemColor = isMundane ? '#ffffff' : elemDestaque.cor;
-  const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#181920' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#271905')));
+  const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(255,255,255,0.2)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
   const machucado = calcMachucado(sheet);
