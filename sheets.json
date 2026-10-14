@@ -2540,7 +2540,7 @@
         "bonus": 10
       }
     },
-    "pv": 100,
+    "pv": 44,
     "pvMax": 100,
     "pvTemp": 0,
     "machucadoOverride": 50,
@@ -2642,6 +2642,273 @@
     "id": "threat-o-uivar-100",
     "createdAt": 1791837704863,
     "updatedAt": 1791837704863,
+    "sigilImage": ""
+  },
+  {
+    "name": "ZUMBI DE SANGUE",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "SANGUE",
+    "vd": 20,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": true,
+      "dt": 15,
+      "dano": "2d6",
+      "tipoDano": "mental",
+      "imuneNex": 25,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "extra": "Percepção às cegas"
+    },
+    "defesa": 17,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 45,
+    "pvMax": 45,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [
+      "Condições de Hemorragia"
+    ],
+    "resistencias": [
+      {
+        "tipo": "Balístico",
+        "valor": 5
+      },
+      {
+        "tipo": "Impacto",
+        "valor": 5
+      },
+      {
+        "tipo": "Perfuração",
+        "valor": 5
+      }
+    ],
+    "vulnerabilidades": [
+      "Morte"
+    ],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 0,
+      "pre": 1,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 9,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-wizard-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1792013958582-0",
+            "nome": "Garras",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 2,
+              "bonus": 5
+            },
+            "dano": "1d6+5",
+            "tipoDano": "Corte",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "coluna": "direita",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8mkgff-k582",
+    "createdAt": 1792013497899,
+    "updatedAt": 1792013497899,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 3",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Humano",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "coluna": "esquerda",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8mwd4y-0yd2",
+    "createdAt": 1792014053506,
+    "updatedAt": 1792014053506,
     "sigilImage": ""
   }
 ]

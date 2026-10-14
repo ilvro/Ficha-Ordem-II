@@ -1012,7 +1012,7 @@ function bindRollLogItemEvents(container = document) {
  });
 }
 
-function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());document.body.classList.toggle('navigator-pinned',Boolean(sidebarNavigatorPinned&&sidebarNavigatorOpen));const isCinematic=presentationMode||state.viewMode==='cinematic';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,threatPage:app.querySelector('.threat-book-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
+function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());document.body.classList.toggle('navigator-pinned',Boolean(sidebarNavigatorPinned&&sidebarNavigatorOpen));const isCinematic=(presentationMode||state.viewMode==='cinematic')&&state.systemMode!=='threat';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,threatPage:app.querySelector('.threat-book-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
 	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button type="button" class="nav-btn ${sidebarNavigatorOpen?'active':''}" data-toggle-navigator title="Navegador de pastas e fichas">${icon('folder',18)}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div>${renderRailScopePills(sidebarScope,sheets)}${renderRailSwitcher(sheets,folders,state.id,{scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,safeUrl})}<span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
@@ -1276,7 +1276,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-attr]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const attrKey = el.dataset.threatRollAttr;
    const attrVal = Number(state.atributos?.[attrKey] ?? 2);
    const count = attrVal > 0 ? attrVal : 2;
@@ -1289,7 +1288,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-save]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const key = el.dataset.threatRollSave;
    const saveObj = state.salvaguardas?.[key] || { dados: 2, bonus: 0 };
    const dados = Math.max(1, Number(saveObj.dados) || 1);
@@ -1302,7 +1300,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-sense]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const key = el.dataset.threatRollSense;
    const senseObj = state.sentidos?.[key] || { dados: 2, bonus: 0 };
    const dados = Math.max(1, Number(senseObj.dados) || 1);
@@ -1315,7 +1312,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-presence]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const dano = state.presenca?.dano || '3d6';
    const tipo = state.presenca?.tipoDano || 'mental';
    rollExpression(`Presença Perturbadora: ${dano} ${tipo} [${safe(state.name)}]`, dano);
@@ -1325,7 +1321,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-atk-test]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const [actionId, atkId] = el.dataset.threatRollAtkTest.split(':');
    const action = (state.acoes || []).find(a => a.id === actionId);
    const attack = (action?.ataques || []).find(atk => atk.id === atkId);
@@ -1339,7 +1334,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-atk-dmg]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const [actionId, atkId] = el.dataset.threatRollAtkDmg.split(':');
    const action = (state.acoes || []).find(a => a.id === actionId);
    const attack = (action?.ataques || []).find(atk => atk.id === atkId);
@@ -1351,7 +1345,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-roll-pericia]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const pId = el.dataset.threatRollPericia;
    const p = (state.pericias || []).find(item => item.id === pId);
    if (!p) return;
@@ -1364,7 +1357,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-pv-delta]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const delta = Number(el.dataset.threatPvDelta) || 0;
    const prev = state.pv;
    state.pv = Math.max(0, Math.min(state.pvMax, (Number(state.pv) || 0) + delta));
@@ -1377,7 +1369,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-add-temp]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    const val = prompt('Quantidade de PV Temporário:', '10');
    if (val !== null) {
     state.pvTemp = Math.max(0, Number(val) || 0);
@@ -1390,7 +1381,6 @@ function bindThreatBookEvents() {
  document.querySelectorAll('[data-threat-clear-temp]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
-   if (presentationMode) return;
    state.pvTemp = 0;
    save(false);
    render();
@@ -3539,7 +3529,7 @@ function bind(){
   document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>{if(el.dataset.view===currentView)return;const old=document.querySelector(`#${currentView}-view`),next=document.querySelector(`#${el.dataset.view}-view`);document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===el));old.classList.add('leaving');setTimeout(()=>{old.classList.remove('active','leaving');next.classList.add('active','entering');setTimeout(()=>next.classList.remove('entering'),300);currentView=el.dataset.view},180)});
   document.querySelectorAll('[data-toggle-edit]').forEach(el=>{
    el.onclick=()=>{
-    if(presentationMode){notifyPresentationLocked();return;}
+    if(presentationMode && state.systemMode !== 'threat'){notifyPresentationLocked();return;}
     editTransitionMode=editMode?'into-view':'into-edit';
     editMode=!editMode;
     playModeToggleSound(editMode);
@@ -3569,7 +3559,7 @@ function bind(){
      switchToSheet(el.dataset.sheetId);
     });
     document.querySelectorAll('[data-new-sheet]').forEach(el=>el.onclick=()=>{
-     if(presentationMode){notifyPresentationLocked();return;}
+     if(presentationMode && state.systemMode !== 'threat'){notifyPresentationLocked();return;}
      const modal=document.querySelector('#system-select-modal');
      if(modal) modal.style.display='flex';
     });
@@ -4111,10 +4101,15 @@ document.addEventListener('visibilitychange',syncCriticalAtmosphere);
 document.addEventListener('pointerdown',()=>{const context=getUiAudioContext();if(context?.state==='running')syncCriticalAtmosphere();else context?.resume?.().then(syncCriticalAtmosphere).catch(()=>{})},{once:true,capture:true});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{}),{once:true});
 await loadInitialSheets();
-state.viewMode = 'cinematic';
-presentationMode = true;
-presentationIndex = Math.max(0, sheets.findIndex(sheet => sheet.id === state.id));
-state = sheets[presentationIndex];
+if (state.systemMode === 'threat') {
+ presentationMode = false;
+ state.viewMode = 'livro';
+} else {
+ state.viewMode = 'cinematic';
+ presentationMode = true;
+ presentationIndex = Math.max(0, sheets.findIndex(sheet => sheet.id === state.id));
+ state = sheets[presentationIndex];
+}
 activeSheetId = state.id;
 initOriginalCompendium({getSheet:()=>state,isOriginal:()=>state.systemMode==='original',isLocked:()=>presentationMode,onChange:()=>{save(false);render();}});
 render();
