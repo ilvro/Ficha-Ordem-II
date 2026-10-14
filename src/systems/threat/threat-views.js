@@ -222,13 +222,13 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     </div>
                     <span class="tag-bullet">•</span>
                   ` : `
-                    ${(sheet.elementos && sheet.elementos.length ? sheet.elementos : [elemDestaqueKey]).map(elKey => {
+                    ${secondaryElements.map(elKey => {
                       const el = THREAT_ELEMENTS[elKey];
                       if (!el) return '';
                       const isMedo = el.id === 'medo';
                       return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
                     }).join('')}
-                    <span class="tag-bullet">•</span>
+                    ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
                   `}
                 ` : `
                   <span class="threat-book-plain-tag">MUNDANA</span>
