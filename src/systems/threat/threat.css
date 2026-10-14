@@ -2220,4 +2220,304 @@
   transform: translateY(-1px);
 }
 
+/* ── BARRA DE ELEMENTOS EM MODO EDIÇÃO ── */
+.threat-edit-elements-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.threat-element-role-label {
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  color: #8b92b0;
+  letter-spacing: 0.8px;
+}
+
+.threat-primary-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.threat-primary-elem-select-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--elem-color, #e0150d);
+  color: #ffffff;
+  padding: 2px 9px;
+  border-radius: 3px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+.threat-primary-elem-select-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.threat-mini-sigil {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.threat-ghost-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.threat-comp-elements-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.threat-comp-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(20, 24, 38, 0.85);
+  border: 1px solid var(--elem-color, #993ce8);
+  color: var(--elem-color, #993ce8);
+  padding: 1px 4px 1px 8px;
+  border-radius: 3px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.threat-comp-remove-btn {
+  background: none;
+  border: none;
+  color: #ff5555;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 3px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.threat-comp-remove-btn:hover {
+  background: #ff5555;
+  color: #ffffff;
+}
+
+.threat-comp-add-pill {
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: #aeb5d6;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.threat-comp-add-pill:hover {
+  border-color: var(--elem-color, #ffffff);
+  color: var(--elem-color, #ffffff);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ── BOTÃO PLANO DE FUNDO NO ASSISTANT BAR ── */
+.threat-assistant-btn.btn-bg {
+  background: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);
+  border: 1px solid #415a77;
+  color: #e0e1dd;
+}
+.threat-assistant-btn.btn-bg:hover {
+  background: #253858;
+  color: #ffffff;
+  border-color: #778da9;
+}
+
+/* ── MODAL DE PLANO DE FUNDO ── */
+.threat-bg-modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.threat-bg-section-title {
+  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin: 0;
+}
+.threat-bg-section-desc {
+  font-size: 12px;
+  color: #9aa0bc;
+  line-height: 1.4;
+  margin: 0;
+}
+.threat-bg-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #9aa0bc;
+}
+.status-custom {
+  color: #4ade80;
+  font-weight: 800;
+}
+.status-default {
+  color: #60a5fa;
+  font-weight: 800;
+}
+.threat-bg-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.threat-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.threat-action-pill-btn.upload {
+  background: #23283c;
+  border: 1px solid #47527a;
+  color: #ffffff;
+}
+.threat-action-pill-btn.upload:hover {
+  background: #313854;
+  border-color: #6371a6;
+}
+.threat-action-pill-btn.reset {
+  background: rgba(224, 21, 13, 0.15);
+  border: 1px solid #e0150d;
+  color: #ff9999;
+}
+.threat-action-pill-btn.reset:hover {
+  background: #e0150d;
+  color: #ffffff;
+}
+.threat-action-pill-btn.preset {
+  background: rgba(229, 161, 28, 0.15);
+  border: 1px solid #e5a11c;
+  color: #ffdb8a;
+}
+.threat-action-pill-btn.preset:hover {
+  background: #e5a11c;
+  color: #000000;
+}
+.threat-action-pill-btn.remove {
+  background: rgba(255, 60, 60, 0.15);
+  border: 1px solid #ff4444;
+  color: #ff8888;
+}
+.threat-action-pill-btn.remove:hover {
+  background: #ff4444;
+  color: #ffffff;
+}
+
+.threat-bg-slider-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #23283c;
+  margin-top: 6px;
+}
+.threat-bg-slider-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #aeb5d6;
+}
+.threat-bg-slider-group input[type="range"] {
+  flex: 1;
+  accent-color: #e0150d;
+}
+
+.threat-token-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #23283c;
+}
+.threat-token-thumb-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 4px;
+  background: #0f111a;
+  border: 1px solid #363c58;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.threat-token-thumb {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.threat-token-thumb-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 4px;
+  background: #0f111a;
+  border: 1px dashed #363c58;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  font-size: 9px;
+  color: #656b8a;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.threat-token-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 

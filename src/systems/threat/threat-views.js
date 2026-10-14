@@ -50,6 +50,11 @@ function safe(str) {
     .replace(/'/g, '&#39;');
 }
 
+function safeUrl(str) {
+  if (!str) return '';
+  return String(str).replace(/[<>"']/g, '');
+}
+
 /**
  * Renderiza a ficha completa de Ameaça no Modo Livro
  */
@@ -61,6 +66,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const elemDestaqueKey = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
   const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || THREAT_ELEMENTS.sangue;
   const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey);
+  const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && !secondaryElements.includes(e));
 
   const elemColor = isMundane ? '#ffffff' : elemDestaque.cor;
   const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#181920' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#271905')));
@@ -91,8 +97,8 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
       <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
         <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
-        ${sheet.tokenImage || sheet.backgroundImage ? `
-          <div class="threat-creature-watermark" style="background-image:url('${safeUrl(sheet.tokenImage || sheet.backgroundImage)}');" aria-hidden="true"></div>
+        ${sheet.tokenImage ? `
+          <div class="threat-creature-watermark" style="background-image:url('${safeUrl(sheet.tokenImage)}');" aria-hidden="true"></div>
         ` : ''}
 
         <!-- ── BARRA BRANCA DECORATIVA SUPERIOR DO LIVRO ── -->
@@ -107,6 +113,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               </button>
               <button type="button" class="threat-assistant-btn btn-wizard" data-threat-open-wizard title="Abrir Wizard de Criação / Recalibração">
                 🧙 WIZARD DE CRIAÇÃO
+              </button>
+              <button type="button" class="threat-assistant-btn btn-bg" data-threat-open-bg title="Mudar plano de fundo ou arte da criatura">
+                🖼️ PLANO DE FUNDO
               </button>
             </div>
             <div class="threat-assistant-right">
@@ -166,28 +175,60 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <div class="threat-meta-tags-group">
                 ${!isMundane ? `
                   ${editMode ? `
-                    ${Object.values(THREAT_ELEMENTS).map(el => {
-                      const isActive = (sheet.elementos || []).includes(el.id);
-                      const isDestaque = sheet.elementoDestaque === el.id;
-                      return `
-                        <button type="button" 
-                          class="threat-book-elem-tag ${isDestaque ? 'highlighted' : ''} ${isActive ? 'active' : ''}" 
-                          style="--elem-color:${el.cor};" 
-                          data-threat-select-elem="${el.id}"
-                          title="${isDestaque ? 'Elemento principal' : 'Clique para selecionar'}">
-                          ${safe(el.nome.toUpperCase())}
-                        </button>
-                      `;
-                    }).join('')}
+                    <div class="threat-edit-elements-bar">
+                      <!-- Seletor do Elemento Principal -->
+                      <div class="threat-primary-badge-wrap" title="Elemento Principal (determina a cor do tema, fraqueza e sigilo)">
+                        <span class="threat-element-role-label">PRINCIPAL:</span>
+                        <label class="threat-primary-elem-select-btn" style="--elem-color:${elemDestaque.cor};">
+                          <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-mini-sigil" alt="" draggable="false">
+                          <span>${safe(elemDestaque.nome.toUpperCase())}</span>
+                          <select class="threat-ghost-select" data-threat-select-primary-elem title="Mudar Elemento Principal">
+                            ${Object.values(THREAT_ELEMENTS).map(el => `
+                              <option value="${el.id}" ${sheet.elementoDestaque === el.id ? 'selected' : ''}>
+                                ${safe(el.nome.toUpperCase())}
+                              </option>
+                            `).join('')}
+                          </select>
+                        </label>
+                      </div>
+
+                      <span class="tag-bullet">•</span>
+
+                      <!-- Elementos Complementares Ativos -->
+                      <div class="threat-comp-elements-wrap">
+                        <span class="threat-element-role-label">COMPLEMENTAR:</span>
+                        ${secondaryElements.map(elKey => {
+                          const el = THREAT_ELEMENTS[elKey];
+                          if (!el) return '';
+                          return `
+                            <span class="threat-comp-active-pill" style="--elem-color:${el.cor};" title="Elemento complementar ativo">
+                              ${safe(el.nome.toUpperCase())}
+                              <button type="button" class="threat-comp-remove-btn" data-threat-del-comp="${el.id}" title="Remover complemento ${el.nome}">×</button>
+                            </span>
+                          `;
+                        }).join('')}
+
+                        <!-- Botões Rápidos para Adicionar Elemento Complementar -->
+                        ${availableComplementary.map(elKey => {
+                          const el = THREAT_ELEMENTS[elKey];
+                          if (!el) return '';
+                          return `
+                            <button type="button" class="threat-comp-add-pill" style="--elem-color:${el.cor};" data-threat-add-comp="${el.id}" title="Adicionar ${el.nome} como elemento complementar">
+                              + ${safe(el.nome.toUpperCase())}
+                            </button>
+                          `;
+                        }).join('')}
+                      </div>
+                    </div>
                     <span class="tag-bullet">•</span>
                   ` : `
-                    ${secondaryElements.map(elKey => {
+                    ${(sheet.elementos && sheet.elementos.length ? sheet.elementos : [elemDestaqueKey]).map(elKey => {
                       const el = THREAT_ELEMENTS[elKey];
                       if (!el) return '';
                       const isMedo = el.id === 'medo';
                       return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
                     }).join('')}
-                    ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
+                    <span class="tag-bullet">•</span>
                   `}
                 ` : `
                   <span class="threat-book-plain-tag">MUNDANA</span>
@@ -1133,6 +1174,103 @@ function renderBalanceModal(sheet) {
           </button>
         </footer>
 
+      </div>
+    </div>
+
+    <!-- Modal de Plano de Fundo e Marca d'Água da Ameaça -->
+    <div class="threat-modal" id="threat-bg-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card" style="max-width:620px;">
+        <header class="threat-modal-header">
+          <h2>🖼️ PLANO DE FUNDO DA AMEAÇA</h2>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">✕</button>
+        </header>
+
+        <div class="threat-modal-body" style="gap:20px;">
+          
+          <!-- SEÇÃO 1: PLANO DE FUNDO DA PÁGINA (IMAGEM OU VÍDEO) -->
+          <div class="threat-bg-modal-section">
+            <h3 class="threat-bg-section-title">1. PLANO DE FUNDO DA PÁGINA (GERAL)</h3>
+            <p class="threat-bg-section-desc">
+              Por padrão, a ficha utiliza a névoa e gradientes paranormais atmosféricos do elemento principal (<b>${safe((THREAT_ELEMENTS[sheet.elementoDestaque || 'sangue'] || THREAT_ELEMENTS.sangue).nome.toUpperCase())}</b>). Você pode fazer upload de uma imagem personalizada, vídeo animado ou usar a textura oficial do livro.
+            </p>
+
+            <div class="threat-bg-status-row">
+              <span>Status atual:</span>
+              <strong class="${sheet.backgroundImage ? 'status-custom' : 'status-default'}">
+                ${sheet.backgroundImage ? 'IMAGEM / VÍDEO PERSONALIZADO' : `PADRÃO DO ELEMENTO (${safe((THREAT_ELEMENTS[sheet.elementoDestaque || 'sangue'] || THREAT_ELEMENTS.sangue).nome.toUpperCase())})`}
+              </strong>
+            </div>
+
+            <div class="threat-bg-action-buttons">
+              <input type="file" id="threat-bg-file-input" accept="image/*,video/mp4,video/webm" style="display:none;">
+              <label for="threat-bg-file-input" class="threat-action-pill-btn upload" title="Carregar imagem ou vídeo do seu computador">
+                📁 CARREGAR IMAGEM / VÍDEO
+              </label>
+
+              <button type="button" class="threat-action-pill-btn reset" data-threat-reset-bg title="Restaurar o gradiente atmosférico do elemento">
+                ⚡ RESTAURAR PADRÃO DO ELEMENTO
+              </button>
+
+              <button type="button" class="threat-action-pill-btn preset" data-threat-preset-bg="/assets/ordem2-bg.webp" title="Aplicar textura de pergaminho oficial do livro">
+                📜 TEXTURA DO LIVRO
+              </button>
+            </div>
+
+            ${sheet.backgroundImage ? `
+              <div class="threat-bg-slider-controls">
+                <div class="threat-bg-slider-group">
+                  <label>DESFOQUE (BLUR): <span class="slider-val-hint" id="threat-blur-val">${sheet.backgroundBlur ?? 0}px</span></label>
+                  <input type="range" min="0" max="30" step="1" value="${sheet.backgroundBlur ?? 0}" data-threat-bg-blur>
+                </div>
+                <div class="threat-bg-slider-group">
+                  <label>ZOOM / ESCALA: <span class="slider-val-hint" id="threat-zoom-val">${sheet.backgroundZoom ?? 100}%</span></label>
+                  <input type="range" min="30" max="250" step="5" value="${sheet.backgroundZoom ?? 100}" data-threat-bg-zoom>
+                </div>
+                <button type="button" class="threat-mini-btn" data-threat-reset-bg-effects>RESETAR AJUSTES</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <hr class="threat-modal-divider">
+
+          <!-- SEÇÃO 2: ILUSTRAÇÃO / MARCA D'ÁGUA DA CRIATURA NO CARD -->
+          <div class="threat-bg-modal-section">
+            <h3 class="threat-bg-section-title">2. ILUSTRAÇÃO DA CRIATURA (MARCA D'ÁGUA)</h3>
+            <p class="threat-bg-section-desc">
+              Arte translúcida da criatura exibida no fundo da coluna direita da ficha, exatamente como na diagramação do livro de regras.
+            </p>
+
+            <div class="threat-token-preview-row">
+              ${sheet.tokenImage ? `
+                <div class="threat-token-thumb-wrap">
+                  <img src="${safeUrl(sheet.tokenImage)}" class="threat-token-thumb" alt="Ilustração da Ameaça">
+                </div>
+              ` : `
+                <div class="threat-token-thumb-placeholder">
+                  <span>SEM ILUSTRAÇÃO</span>
+                </div>
+              `}
+
+              <div class="threat-token-controls">
+                <input type="file" id="threat-token-file-input" accept="image/*" style="display:none;">
+                <label for="threat-token-file-input" class="threat-action-pill-btn upload">
+                  📁 UPLOAD DA ILUSTRAÇÃO
+                </label>
+                ${sheet.tokenImage ? `
+                  <button type="button" class="threat-action-pill-btn remove" data-threat-remove-token>
+                    🗑️ REMOVER ILUSTRAÇÃO
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <footer class="threat-modal-footer">
+          <button type="button" class="threat-edit-btn" data-close-threat-modal>CONCLUÍDO</button>
+        </footer>
       </div>
     </div>
   `;

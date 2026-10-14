@@ -462,6 +462,7 @@ function renderBackgroundLayer(bgIsVideo=false,isCinematic=false){
  if(bgUrl){
   return `<div class="sheet-background-layer"><div class="bg-image" style="background-image:url('${bgUrl}')"></div><div class="bg-overlay"></div></div>`;
  }
+ if(state.systemMode === 'threat') return '';
  return `<div class="sheet-background-layer"><div class="bg-image" style="background-image:url('/assets/ordem2-bg.webp')"></div><div class="bg-overlay"></div></div>`;
 }
 
@@ -1396,14 +1397,125 @@ function bindThreatBookEvents() {
   };
  });
 
- document.querySelectorAll('[data-threat-select-elem]').forEach(el => {
-  el.onclick = (e) => {
+ document.querySelectorAll('[data-threat-select-primary-elem]').forEach(select => {
+  select.onchange = (e) => {
    e.stopPropagation();
-   state.elementoDestaque = el.dataset.threatSelectElem;
+   const newElem = select.value;
+   state.elementoDestaque = newElem;
    if (!Array.isArray(state.elementos)) state.elementos = [];
-   if (!state.elementos.includes(state.elementoDestaque)) {
-    state.elementos.push(state.elementoDestaque);
+   if (!state.elementos.includes(newElem)) {
+    state.elementos.unshift(newElem);
    }
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-comp]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const elemId = btn.dataset.threatDelComp;
+   state.elementos = (state.elementos || []).filter(el => el !== elemId);
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-add-comp]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const elemId = btn.dataset.threatAddComp;
+   if (!Array.isArray(state.elementos)) state.elementos = [state.elementoDestaque || 'sangue'];
+   if (!state.elementos.includes(elemId)) {
+    state.elementos.push(elemId);
+   }
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-open-bg]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const modal = document.querySelector('#threat-bg-modal');
+   if (modal) modal.style.display = 'flex';
+  };
+ });
+
+ const threatBgInput = document.querySelector('#threat-bg-file-input');
+ if (threatBgInput) {
+  threatBgInput.onchange = () => {
+   if (threatBgInput.files && threatBgInput.files[0]) {
+    readMedia(threatBgInput.files[0], 'backgroundImage');
+   }
+  };
+ }
+
+ document.querySelectorAll('[data-threat-reset-bg]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.backgroundImage = '';
+   state.backgroundBlur = 0;
+   state.backgroundZoom = 100;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-preset-bg]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.backgroundImage = btn.dataset.threatPresetBg || '';
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-bg-blur]').forEach(input => {
+  input.oninput = () => {
+   const val = Math.max(0, Math.min(50, Number(input.value) || 0));
+   state.backgroundBlur = val;
+   document.querySelectorAll('.threat-book-page').forEach(page => page.style.setProperty('--bg-blur', `${val}px`));
+   const hint = document.querySelector('#threat-blur-val');
+   if (hint) hint.textContent = `${val}px`;
+  };
+  input.onchange = () => save(false);
+ });
+
+ document.querySelectorAll('[data-threat-bg-zoom]').forEach(input => {
+  input.oninput = () => {
+   const val = Math.max(20, Math.min(300, Number(input.value) || 100));
+   state.backgroundZoom = val;
+   document.querySelectorAll('.threat-book-page').forEach(page => page.style.setProperty('--bg-zoom', `${val / 100}`));
+   const hint = document.querySelector('#threat-zoom-val');
+   if (hint) hint.textContent = `${val}%`;
+  };
+  input.onchange = () => save(false);
+ });
+
+ document.querySelectorAll('[data-threat-reset-bg-effects]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.backgroundBlur = 0;
+   state.backgroundZoom = 100;
+   save(false);
+   render();
+  };
+ });
+
+ const threatTokenInput = document.querySelector('#threat-token-file-input');
+ if (threatTokenInput) {
+  threatTokenInput.onchange = () => {
+   if (threatTokenInput.files && threatTokenInput.files[0]) {
+    readImage(threatTokenInput.files[0], 'tokenImage', 2048);
+   }
+  };
+ }
+
+ document.querySelectorAll('[data-threat-remove-token]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.tokenImage = '';
    save(false);
    render();
   };
