@@ -1234,6 +1234,119 @@
   gap: 4px;
 }
 
+/* ── THREAT CARD EDITOR (Fiel à Ficha Cinematográfica de Ordem II) ── */
+.threat-card-editor {
+  z-index: 1000;
+}
+
+.threat-card-editor form {
+  border-color: color-mix(in srgb, var(--threat-elem-color, #e0150d) 35%, #414354);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85), 0 0 40px var(--threat-elem-glow, rgba(224, 21, 13, 0.15));
+}
+
+.threat-card-editor .editor-grid input:focus,
+.threat-card-editor .editor-grid select:focus,
+.threat-card-editor .editor-grid textarea:focus {
+  border-color: var(--threat-elem-color, #e0150d);
+}
+
+.threat-card-editor .rich-toolbar button:hover,
+.threat-card-editor .rich-toolbar > .color-picker:hover {
+  border-color: var(--threat-elem-color, #e0150d);
+  color: #fff;
+}
+
+.threat-card-editor .builder-section > header button {
+  border-color: color-mix(in srgb, var(--threat-elem-color, #e0150d), #3a3c4b 55%);
+  color: var(--threat-elem-color, #e0150d);
+  transition: all 0.15s ease;
+}
+
+.threat-card-editor .builder-section > header button:hover {
+  background: var(--threat-elem-color, #e0150d);
+  color: #ffffff;
+}
+
+/* Campos e Grid de Ataques no Construtor */
+.threat-atk-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px 12px;
+  align-items: end;
+}
+
+.threat-atk-fields-grid label {
+  display: flex;
+  flex-direction: column;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #9294a0;
+}
+
+.threat-atk-fields-grid input,
+.threat-atk-fields-grid select {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  border: 1px solid #3b3d4e;
+  border-radius: 5px;
+  background: #20212f;
+  padding: 8px 10px;
+  outline: 0;
+  color: #f1f1f4;
+  font-size: 12px;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.threat-atk-fields-grid input:focus,
+.threat-atk-fields-grid select:focus {
+  border-color: var(--threat-elem-color, #e0150d);
+}
+
+.threat-atk-fields-grid .atk-field-name {
+  grid-column: span 4;
+}
+
+.threat-atk-fields-grid .atk-field-range {
+  grid-column: span 2;
+}
+
+.threat-atk-fields-grid .atk-field-dice {
+  grid-column: span 2;
+}
+
+.threat-atk-fields-grid .atk-field-bonus {
+  grid-column: span 2;
+}
+
+.threat-atk-fields-grid .atk-field-crit {
+  grid-column: span 2;
+}
+
+.threat-atk-fields-grid .atk-field-damage {
+  grid-column: span 3;
+}
+
+.threat-atk-fields-grid .atk-field-type {
+  grid-column: span 3;
+}
+
+@media (max-width: 650px) {
+  .threat-atk-fields-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .threat-atk-fields-grid .atk-field-name { grid-column: span 2; }
+  .threat-atk-fields-grid .atk-field-range { grid-column: span 2; }
+  .threat-atk-fields-grid .atk-field-dice { grid-column: span 1; }
+  .threat-atk-fields-grid .atk-field-bonus { grid-column: span 1; }
+  .threat-atk-fields-grid .atk-field-crit { grid-column: span 2; }
+  .threat-atk-fields-grid .atk-field-damage { grid-column: span 1; }
+  .threat-atk-fields-grid .atk-field-type { grid-column: span 1; }
+}
+
 /* ── Modais de Edição ────────────────────────────────────────────────────── */
 .threat-modal {
   position: fixed;

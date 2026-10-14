@@ -744,72 +744,95 @@ function renderActionCard(action, isHurt = false, editMode = false) {
  */
 function renderThreatModals(sheet) {
   return `
-    <!-- Modal de Ação / Habilidade -->
-    <div class="threat-modal" id="threat-action-modal" style="display:none;">
-      <div class="threat-modal-backdrop" data-close-threat-modal></div>
-      <div class="threat-modal-card">
-        <header class="threat-modal-header">
-          <h2 id="threat-action-modal-title">EDITAR AÇÃO</h2>
-          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+    <!-- Modal de Ação / Habilidade da Ameaça (Fiel à Ficha Cinematográfica de Ordem II) -->
+    <div class="modal card-editor threat-card-editor" id="threat-action-modal">
+      <div class="backdrop editor-backdrop" data-close-threat-modal></div>
+      <form id="threat-action-form">
+        <input type="hidden" name="actionId" id="threat-action-id">
+
+        <header>
+          <div>
+            <small style="color:var(--threat-elem-color, #e0150d);">EDITOR DE AÇÃO · AMEAÇA</small>
+            <h2 id="threat-action-modal-title">EDITAR AÇÃO</h2>
+          </div>
+          <button type="button" class="editor-close" data-close-threat-modal title="Fechar">${icon('close')}</button>
         </header>
-        <form id="threat-action-form" class="threat-modal-body">
-          <input type="hidden" name="actionId" id="threat-action-id">
-          
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>TIPO DE AÇÃO</label>
-              <select name="tipoAcao" id="threat-action-type">
-                ${ACTION_TYPES.map(t => `<option value="${t.id}">${t.simbolo} ${t.nome}</option>`).join('')}
-              </select>
-            </div>
-            <div class="threat-form-group">
-              <label>NOME DA AÇÃO</label>
-              <input type="text" name="nome" id="threat-action-name-input" required placeholder="Ex: Agredir, Miasma Fétido...">
-            </div>
-          </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>GATILHO / CONDIÇÃO (OPCIONAL)</label>
-              <input type="text" name="gatilho" id="threat-action-trigger" placeholder="Ex: Ao receber dano...">
-            </div>
-            <div class="threat-form-group">
-              <label>GATILHO DE MACHUCADO</label>
-              <select name="ativaQuando" id="threat-action-hurt">
-                <option value="">Sempre disponível</option>
-                <option value="machucado">Ativar automaticamente quando Machucada (Frenesi)</option>
-              </select>
-            </div>
-          </div>
+        <div class="editor-grid">
+          <!-- Nome da Ação -->
+          <label class="span-2">
+            NOME DA AÇÃO / HABILIDADE
+            <input type="text" name="nome" id="threat-action-name-input" required maxlength="64" placeholder="Ex: Agredir, Miasma Fétido, Eco Espiral...">
+          </label>
 
-          <div class="threat-form-group">
-            <label>COLUNA NO LIVRO</label>
+          <!-- Tipo de Ação -->
+          <label>
+            TIPO DE AÇÃO
+            <select name="tipoAcao" id="threat-action-type">
+              ${ACTION_TYPES.map(t => `<option value="${t.id}">${t.simbolo} ${t.nome.toUpperCase()}</option>`).join('')}
+            </select>
+          </label>
+
+          <!-- Gatilho / Condição -->
+          <label>
+            GATILHO / CONDIÇÃO (OPCIONAL)
+            <input type="text" name="gatilho" id="threat-action-trigger" placeholder="Ex: Ao receber dano, 1x por rodada...">
+          </label>
+
+          <!-- Gatilho de Machucado -->
+          <label>
+            GATILHO DE MACHUCADO (FRENESI)
+            <select name="ativaQuando" id="threat-action-hurt">
+              <option value="">Sempre disponível</option>
+              <option value="machucado">Ativar automaticamente quando Machucada (Frenesi)</option>
+            </select>
+          </label>
+
+          <!-- Coluna no Livro -->
+          <label>
+            COLUNA NO LIVRO
             <select name="coluna" id="threat-action-column">
               <option value="direita">Coluna Direita (Ações - Padrão)</option>
               <option value="esquerda">Coluna Esquerda (Abaixo das Estatísticas)</option>
             </select>
-          </div>
+          </label>
 
-          <!-- Construtor de Ataques dentro da ação -->
-          <div class="threat-form-group" style="background:#16192c;border:1px solid #292d47;border-radius:6px;padding:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <label style="margin:0;">ATAQUES DA AÇÃO</label>
-              <button type="button" class="threat-edit-btn" id="btn-threat-add-attack-row">+ ADICIONAR ATAQUE</button>
+          <!-- Texto e Regras com Barra de Formatação Rica (Idêntica à Ficha Cinematográfica) -->
+          <label class="span-2 content-editor-label">
+            DESCRIÇÃO E REGRAS DA AÇÃO
+            <div class="rich-toolbar">
+              <button type="button" data-threat-format="bold" title="Negrito"><b>B</b></button>
+              <button type="button" data-threat-format="italic" title="Itálico"><i>I</i></button>
+              <button type="button" data-threat-format="underline" title="Sublinhado"><u>U</u></button>
+              <span class="color-picker" title="Cor do texto">
+                <input id="threat-action-color" type="color" value="#cca02b">
+                <span>A</span>
+              </span>
+              <button type="button" data-threat-format="color">APLICAR COR</button>
             </div>
-            <div id="threat-attacks-container" style="display:flex;flex-direction:column;gap:8px;"></div>
-          </div>
+            <textarea name="texto" id="threat-action-text-input" rows="5" placeholder="Descrição dos efeitos, testes de resistência exigidos, condições impostas e regras..."></textarea>
+          </label>
 
-          <div class="threat-form-group">
-            <label>TEXTO E REGRAS DA AÇÃO</label>
-            <textarea name="texto" id="threat-action-text-input" rows="4" placeholder="Descrição do efeito, teste de resistência das vítimas, condições impostas..."></textarea>
-          </div>
+          <!-- Seção Construtor de Ataques (Estilo .builder-section de Ordem 2) -->
+          <section class="span-2 builder-section">
+            <header>
+              <div>
+                <b>ATAQUES DA AÇÃO</b>
+                <small>Testes de d20 (dados + bônus), expressões de dano, tipo e crítico.</small>
+              </div>
+              <button type="button" id="btn-threat-add-attack-row">+ ADICIONAR ATAQUE</button>
+            </header>
+            <div id="threat-attacks-container"></div>
+          </section>
+        </div>
 
-          <footer class="threat-modal-footer">
-            <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:900;">SALVAR AÇÃO</button>
-          </footer>
-        </form>
-      </div>
+        <footer>
+          <button type="button" class="delete-card" id="threat-action-delete-btn">EXCLUIR</button>
+          <span></span>
+          <button type="button" class="editor-close secondary" data-close-threat-modal>CANCELAR</button>
+          <button type="submit" style="background:var(--threat-elem-color, #e0150d);color:#fff;">SALVAR AÇÃO</button>
+        </footer>
+      </form>
     </div>
 
     <!-- Modal para Adicionar Card de Resistência / Vulnerabilidade / Imunidade -->

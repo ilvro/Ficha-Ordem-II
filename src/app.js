@@ -1559,8 +1559,16 @@ function bindThreatBookEvents() {
   };
  });
 
+ function closeThreatActionModal() {
+  const modal = document.querySelector('#threat-action-modal');
+  if (!modal) return;
+  modal.classList.add('closing');
+  setTimeout(() => modal.classList.remove('open', 'closing'), 160);
+ }
+
  document.querySelectorAll('[data-close-threat-modal]').forEach(btn => {
   btn.onclick = () => {
+   closeThreatActionModal();
    document.querySelectorAll('.threat-modal').forEach(m => m.style.display = 'none');
   };
  });
@@ -1571,6 +1579,7 @@ function bindThreatBookEvents() {
   const form = modal.querySelector('#threat-action-form');
   const attacksContainer = modal.querySelector('#threat-attacks-container');
   const modalTitle = modal.querySelector('#threat-action-modal-title');
+  const delBtn = modal.querySelector('#threat-action-delete-btn');
   
   if (modalTitle) modalTitle.textContent = action ? 'EDITAR AÇÃO' : 'NOVA AÇÃO';
   form.querySelector('#threat-action-id').value = action ? action.id : '';
@@ -1582,65 +1591,127 @@ function bindThreatBookEvents() {
   if (colInput) colInput.value = action ? (action.coluna || 'direita') : 'direita';
   form.querySelector('#threat-action-text-input').value = action ? (action.texto || '') : '';
 
+  if (delBtn) {
+   delBtn.style.display = action ? 'block' : 'none';
+   delBtn.onclick = () => {
+    if (action && confirm(`Excluir a ação "${action.nome}"?`)) {
+     state.acoes = (state.acoes || []).filter(a => a.id !== action.id);
+     closeThreatActionModal();
+     save(false);
+     render();
+    }
+   };
+  }
+
   attacksContainer.innerHTML = '';
   const attacks = action ? (action.ataques || []) : [];
   if (attacks.length > 0) {
    attacks.forEach((atk, idx) => addAttackRow(attacksContainer, atk, idx));
-  } else {
+  } else if (!action) {
    addAttackRow(attacksContainer, null, 0);
+  } else {
+   attacksContainer.innerHTML = '<p class="builder-empty">Nenhum ataque cadastrado para esta ação.</p>';
   }
 
-  modal.style.display = 'grid';
+  modal.classList.remove('closing');
+  modal.classList.add('open');
   form.querySelector('#threat-action-name-input').focus();
  }
 
  function addAttackRow(container, atk = null, idx = 0) {
-  const row = document.createElement('div');
-  row.className = 'threat-attack-row-builder';
-  row.style.cssText = 'background:#121424;border:1px solid #2d314f;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;';
+  const emptyMsg = container.querySelector('.builder-empty');
+  if (emptyMsg) emptyMsg.remove();
+
+  const row = document.createElement('article');
+  row.className = 'builder-row threat-attack-builder-row';
+  const currentCount = container.querySelectorAll('.threat-attack-builder-row').length + 1;
   row.innerHTML = `
-   <div style="display:flex;align-items:center;justify-content:space-between;">
-    <b style="font-size:11px;color:#cfd3eb;">Ataque #${container.children.length + 1}</b>
-    <button type="button" class="threat-edit-btn danger" data-remove-attack-row style="padding:1px 6px;">✕</button>
+   <div class="builder-row-head">
+    <b style="color:var(--threat-elem-color, #e0150d);letter-spacing:0.12em;font-size:9px;">ATAQUE #${currentCount}</b>
+    <button type="button" data-remove-attack-row title="Excluir ataque">${icon('trash', 15)}</button>
    </div>
-   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-    <input type="text" data-atk-name value="${safe(atk?.nome || 'Ataque')}" placeholder="Nome do ataque" style="background:#191c30;border:1px solid #2b304f;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;">
-    <select data-atk-range style="background:#191c30;border:1px solid #2b304f;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;">
-     <option value="corpo" ${atk?.alcance === 'corpo' ? 'selected' : ''}>Corpo a corpo</option>
-     <option value="curto" ${atk?.alcance === 'curto' ? 'selected' : ''}>Curto</option>
-     <option value="medio" ${atk?.alcance === 'medio' ? 'selected' : ''}>Médio</option>
-     <option value="longo" ${atk?.alcance === 'longo' ? 'selected' : ''}>Longo</option>
-     <option value="extremo" ${atk?.alcance === 'extremo' ? 'selected' : ''}>Extremo</option>
-    </select>
-   </div>
-   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-    <div>
-     <label style="font-size:9px;color:#787e9c;display:block;">TESTE DADOS</label>
-     <input type="number" min="1" max="10" data-atk-dados value="${atk?.teste?.dados ?? 3}" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
-    </div>
-    <div>
-     <label style="font-size:9px;color:#787e9c;display:block;">TESTE BÔNUS</label>
-     <input type="number" data-atk-bonus value="${atk?.teste?.bonus ?? 10}" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
-    </div>
-    <div>
-     <label style="font-size:9px;color:#787e9c;display:block;">CRÍTICO</label>
-     <input type="text" data-atk-critico value="${safe(atk?.critico || '20/x2')}" placeholder="20/x2" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
-    </div>
-   </div>
-   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-    <div>
-     <label style="font-size:9px;color:#787e9c;display:block;">DANO (EX: 2d8+6)</label>
-     <input type="text" data-atk-dano value="${safe(atk?.dano || '2d8+6')}" placeholder="2d8+6" style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
-    </div>
-    <div>
-     <label style="font-size:9px;color:#787e9c;display:block;">TIPO DE DANO</label>
-     <input type="text" data-atk-tipo value="${safe(atk?.tipoDano || 'Impacto')}" placeholder="Impacto, Corte..." style="width:100%;background:#191c30;border:1px solid #2b304f;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px;">
-    </div>
+   <div class="threat-atk-fields-grid">
+    <label class="atk-field-name">
+     NOME DO ATAQUE
+     <input type="text" data-atk-name value="${safe(atk?.nome || 'Ataque')}" placeholder="Ex: Mordida, Garras, Pancada...">
+    </label>
+    <label class="atk-field-range">
+     ALCANCE
+     <select data-atk-range>
+      <option value="corpo" ${atk?.alcance === 'corpo' ? 'selected' : ''}>Corpo a corpo</option>
+      <option value="curto" ${atk?.alcance === 'curto' ? 'selected' : ''}>Curto</option>
+      <option value="medio" ${atk?.alcance === 'medio' ? 'selected' : ''}>Médio</option>
+      <option value="longo" ${atk?.alcance === 'longo' ? 'selected' : ''}>Longo</option>
+      <option value="extremo" ${atk?.alcance === 'extremo' ? 'selected' : ''}>Extremo</option>
+     </select>
+    </label>
+    <label class="atk-field-dice">
+     DADOS (D20)
+     <input type="number" min="1" max="10" data-atk-dados value="${atk?.teste?.dados ?? 3}">
+    </label>
+    <label class="atk-field-bonus">
+     BÔNUS TESTE
+     <input type="number" data-atk-bonus value="${atk?.teste?.bonus ?? 10}">
+    </label>
+    <label class="atk-field-crit">
+     MARGEM / CRÍTICO
+     <input type="text" data-atk-critico value="${safe(atk?.critico || '20/x2')}" placeholder="20/x2">
+    </label>
+    <label class="atk-field-damage">
+     FÓRMULA DE DANO
+     <input type="text" data-atk-dano value="${safe(atk?.dano || '2d8+6')}" placeholder="2d8+6">
+    </label>
+    <label class="atk-field-type">
+     TIPO DE DANO
+     <input type="text" data-atk-tipo value="${safe(atk?.tipoDano || 'Impacto')}" placeholder="Impacto, Sangue...">
+    </label>
    </div>
   `;
 
-  row.querySelector('[data-remove-attack-row]').onclick = () => row.remove();
+  row.querySelector('[data-remove-attack-row]').onclick = () => {
+   row.remove();
+   const rows = container.querySelectorAll('.threat-attack-builder-row');
+   if (rows.length === 0) {
+    container.innerHTML = '<p class="builder-empty">Nenhum ataque cadastrado para esta ação.</p>';
+   } else {
+    rows.forEach((r, i) => {
+     const b = r.querySelector('.builder-row-head b');
+     if (b) b.textContent = `ATAQUE #${i + 1}`;
+    });
+   }
+  };
   container.appendChild(row);
+ }
+
+ function applyThreatTextFormat(type) {
+  const textarea = document.querySelector('#threat-action-text-input');
+  if (!textarea) return;
+  const start = textarea.selectionStart, end = textarea.selectionEnd;
+  const selected = textarea.value.slice(start, end) || 'texto';
+  let before = '', after = '';
+  if (type === 'bold') { before = '**'; after = '**'; }
+  if (type === 'italic') { before = '*'; after = '*'; }
+  if (type === 'underline') { before = '[u]'; after = '[/u]'; }
+  if (type === 'color') {
+   const colInput = document.querySelector('#threat-action-color');
+   const color = colInput ? colInput.value : '#cca02b';
+   before = `[color=${color}]`;
+   after = '[/color]';
+  }
+  textarea.setRangeText(`${before}${selected}${after}`, start, end, 'select');
+  textarea.focus();
+ }
+
+ document.querySelectorAll('[data-threat-format]').forEach(el => {
+  el.onclick = () => applyThreatTextFormat(el.dataset.threatFormat);
+ });
+
+ const threatColorInput = document.querySelector('#threat-action-color');
+  if (threatColorInput) {
+  threatColorInput.oninput = () => {
+   const span = threatColorInput.parentElement?.querySelector('span');
+   if (span) span.style.textDecorationColor = threatColorInput.value;
+  };
  }
 
  document.querySelectorAll('[data-threat-add-action]').forEach(btn => {
@@ -1689,7 +1760,7 @@ function bindThreatBookEvents() {
    const texto = actionForm.querySelector('#threat-action-text-input').value.trim();
 
    const attacks = [];
-   document.querySelectorAll('.threat-attack-row-builder').forEach((row, i) => {
+   document.querySelectorAll('.threat-attack-builder-row').forEach((row, i) => {
     attacks.push({
      id: `atk-${Date.now()}-${i}`,
      nome: row.querySelector('[data-atk-name]').value.trim() || 'Ataque',
@@ -1727,8 +1798,7 @@ function bindThreatBookEvents() {
     state.acoes.push(actionObj);
    }
 
-   const modal = document.querySelector('#threat-action-modal');
-   if (modal) modal.style.display = 'none';
+   closeThreatActionModal();
    save(false);
    render();
   };
