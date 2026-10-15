@@ -79,19 +79,20 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
   const isMundane = sheet.categoria === 'mundana';
   const elemDestaqueKey = isMundane ? 'mundana' : (sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue');
-  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || (isMundane ? { id: 'mundana', nome: 'Realidade', cor: '#ffffff' } : THREAT_ELEMENTS.sangue);
-  const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey);
-  const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && !secondaryElements.includes(e));
+  const elemDestaque = THREAT_ELEMENTS[elemDestaqueKey] || (isMundane ? { id: 'mundana', nome: 'Realidade', cor: '#ffffff', texto: '#111827' } : THREAT_ELEMENTS.sangue);
+  const secondaryElements = (sheet.elementos || []).filter(e => e !== elemDestaqueKey && e !== 'mundana');
+  const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && e !== 'mundana' && !secondaryElements.includes(e));
 
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
   const elemInk = getInkColor(elemColor);
-  const elemDark = isMundane ? '#141620' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
-  const elemGlow = isMundane ? 'rgba(255,255,255,0.2)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
+  const isLightPage = isMundane || elemInk === '#0c0e14';
+  const elemDark = isMundane ? '#000000' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
+  const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
   let activeSigilSrc = '';
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
-  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId] && sheet.sigiloId !== 'mundana') {
     activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
     activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
@@ -112,7 +113,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const acoesEsquerda = (sheet.acoes || []).filter(a => a.coluna === 'esquerda');
   const acoesDireita = (sheet.acoes || []).filter(a => a.coluna !== 'esquerda');
 
-  const introColHtml = sheet.hasIntro ? renderIntroColumn(sheet, editMode, options) : '';
+  const introSide = ['top', 'left', 'right'].includes(sheet.introSide) ? sheet.introSide : (isMundane ? 'top' : 'left');
+  const introTopHtml = (sheet.hasIntro && introSide === 'top') ? renderIntroSection(sheet, editMode, options, 'top') : '';
+  const introSideHtml = (sheet.hasIntro && introSide !== 'top') ? renderIntroSection(sheet, editMode, options, 'side') : '';
 
   const cardHtml = `
       <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
@@ -138,7 +141,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <button type="button" class="threat-assistant-btn btn-bg" data-threat-open-bg title="Mudar plano de fundo ou marca d'água">
                 🖼️ PLANO DE FUNDO
               </button>
-              <button type="button" class="threat-assistant-btn btn-intro ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar página de introdução narrativa e arte do livro">
+              <button type="button" class="threat-assistant-btn btn-intro ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar ambientação narrativa e arte do livro">
                 📖 ${sheet.hasIntro ? 'INTRODUÇÃO (ATIVA)' : '+ INTRODUÇÃO'}
               </button>
 
@@ -166,202 +169,240 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
           </div>
         ` : ''}
 
-        <!-- ── CORPO EDITORIAL EM 2 COLUNAS DO LIVRO ── -->
-        <div class="threat-book-columns-layout">
-          
-          <!-- ── COLUNA ESQUERDA: CABEÇALHO, ESTATÍSTICAS E REGRAS ── -->
-          <div class="threat-book-col-left">
-
-            <!-- ── BANNER / CABEÇALHO DO LIVRO (INTEGRADO NO TOPO DA COLUNA ESQUERDA) ── -->
-            <header class="threat-banner-header">
-              <div class="threat-banner-left element-banner-${elemDestaqueKey}">
-                <div class="threat-sigil-icon ${editMode ? 'editable' : ''}" 
-                     ${editMode ? 'data-threat-open-sigil-modal' : ''} 
-                     title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(elemDestaque.nome)}">
-                  ${activeSigilSrc ? `
-                    <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
-                  ` : icon('shield', 36)}
-                  ${editMode ? `
-                    <div class="threat-sigil-edit-overlay">
-                      ${icon('camera', 13)}
-                      <span>MUDAR</span>
-                    </div>
-                  ` : ''}
-                </div>
+        <!-- ── CABEÇALHO DO LIVRO (MUNDANA OU PARANORMAL) ── -->
+        ${isMundane ? `
+          <header class="threat-mundane-header">
+            <div class="threat-mundane-header-top">
+              <div class="threat-mundane-title-wrap">
+                ${(activeSigilSrc || editMode) ? `
+                  <div class="threat-sigil-icon threat-sigil-mundane ${editMode ? 'editable' : ''}" 
+                       ${editMode ? 'data-threat-open-sigil-modal' : ''} 
+                       title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(sheet.name)}">
+                    ${activeSigilSrc ? `
+                      <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img" alt="" draggable="false">
+                    ` : (editMode ? icon('shield', 26) : '')}
+                    ${editMode ? `
+                      <div class="threat-sigil-edit-overlay">
+                        ${icon('camera', 11)}
+                        <span>MUDAR</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                ` : ''}
                 <div class="threat-name-wrap">
-                  <div class="threat-title-row">
-                    ${editMode ? `
-                      <input type="text" class="threat-editable-input threat-name-title" 
-                        data-threat-field="name" value="${safe(sheet.name)}" placeholder="NOME DA AMEAÇA">
-                    ` : `
-                      <h1 class="threat-name-title">${safe(sheet.name)}</h1>
-                    `}
-                  </div>
-                  <div class="threat-subtitle-row">
-                    ${editMode ? `
-                      <input type="text" class="threat-editable-input threat-subtitle-tag" 
-                        data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
-                    ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(isMundane ? 'REALIDADE' : elemDestaque.nome.toUpperCase())}</span>`)}
-                  </div>
+                  ${editMode ? `
+                    <input type="text" class="threat-editable-input threat-mundane-title-input" 
+                      data-threat-field="name" value="${safe(sheet.name)}" placeholder="NOME DA AMEAÇA">
+                  ` : `
+                    <h1 class="threat-mundane-title">${safe(sheet.name)}</h1>
+                  `}
                 </div>
               </div>
-
-              <!-- VD STAMP DO LIVRO (SEM CÍRCULO ESTRANHO) -->
-              <div class="threat-book-vd-stamp" title="Valor de Desafio: ${sheet.vd}">
-                <span class="vd-text">VD</span>
+              <div class="threat-mundane-vd-wrap" title="Valor de Desafio: ${sheet.vd}">
+                <span class="threat-mundane-vd-label">VD</span>
                 ${editMode ? `
-                  <input type="number" class="threat-vd-input" min="0" max="999" 
+                  <input type="number" class="threat-vd-input threat-mundane-vd-input" min="0" max="999" 
                     data-threat-field="vd" value="${sheet.vd}">
                 ` : `
-                  <strong class="vd-number">${sheet.vd}</strong>
+                  <strong class="threat-mundane-vd-num">${sheet.vd}</strong>
                 `}
               </div>
-            </header>
-
-            <!-- ── BARRA DE TAGS E METADADOS DO LIVRO (CRIATURA • TAMANHO) ── -->
-            <div class="threat-meta-line">
-              <div class="threat-meta-tags-group">
-                ${!isMundane ? `
+            </div>
+            <div class="threat-mundane-divider"></div>
+          </header>
+        ` : `
+          <header class="threat-banner-header">
+            <div class="threat-banner-left element-banner-${elemDestaqueKey}">
+              <div class="threat-sigil-icon ${editMode ? 'editable' : ''}" 
+                   ${editMode ? 'data-threat-open-sigil-modal' : ''} 
+                   title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(elemDestaque.nome)}">
+                ${activeSigilSrc ? `
+                  <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
+                ` : icon('shield', 36)}
+                ${editMode ? `
+                  <div class="threat-sigil-edit-overlay">
+                    ${icon('camera', 13)}
+                    <span>MUDAR</span>
+                  </div>
+                ` : ''}
+              </div>
+              <div class="threat-name-wrap">
+                <div class="threat-title-row">
                   ${editMode ? `
-                    <div class="threat-edit-elements-bar">
-                      <!-- Seletor do Elemento Principal -->
-                      <div class="threat-primary-badge-wrap" title="Elemento Principal (determina a cor do tema, fraqueza e sigilo)">
-                        <span class="threat-element-role-label">PRINCIPAL:</span>
-                        <label class="threat-primary-elem-select-btn" style="--elem-color:${elemDestaque.cor};">
-                          <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-mini-sigil" alt="" draggable="false">
-                          <span>${safe(elemDestaque.nome.toUpperCase())}</span>
-                          <select class="threat-ghost-select" data-threat-select-primary-elem title="Mudar Elemento Principal">
-                            ${Object.values(THREAT_ELEMENTS).map(el => `
-                              <option value="${el.id}" ${sheet.elementoDestaque === el.id ? 'selected' : ''}>
-                                ${safe(el.nome.toUpperCase())}
-                              </option>
-                            `).join('')}
-                          </select>
-                        </label>
-                      </div>
-
-                      <span class="tag-bullet">•</span>
-
-                      <!-- Elementos Complementares Ativos -->
-                      <div class="threat-comp-elements-wrap">
-                        <span class="threat-element-role-label">COMPLEMENTAR:</span>
-                        ${secondaryElements.map(elKey => {
-                          const el = THREAT_ELEMENTS[elKey];
-                          if (!el) return '';
-                          return `
-                            <span class="threat-comp-active-pill" style="--elem-color:${el.cor};" title="Elemento complementar ativo">
-                              ${safe(el.nome.toUpperCase())}
-                              <button type="button" class="threat-comp-remove-btn" data-threat-del-comp="${el.id}" title="Remover complemento ${el.nome}">×</button>
-                            </span>
-                          `;
-                        }).join('')}
-
-                        <!-- Botões Rápidos para Adicionar Elemento Complementar -->
-                        ${availableComplementary.map(elKey => {
-                          const el = THREAT_ELEMENTS[elKey];
-                          if (!el) return '';
-                          return `
-                            <button type="button" class="threat-comp-add-pill" style="--elem-color:${el.cor};" data-threat-add-comp="${el.id}" title="Adicionar ${el.nome} como elemento complementar">
-                              + ${safe(el.nome.toUpperCase())}
-                            </button>
-                          `;
-                        }).join('')}
-                      </div>
-
-                      <span class="tag-bullet">•</span>
-
-                      <!-- Personalização da Cor do Tema -->
-                      <div class="threat-theme-color-wrap" title="Personalizar cor de destaque da Ameaça">
-                        <span class="threat-element-role-label">COR TEMA:</span>
-                        <label class="threat-theme-color-chip" style="--elem-color:${elemColor};" title="Escolher cor personalizada">
-                          <input type="color" data-threat-theme-color value="${elemColor}">
-                          <span class="color-dot" style="background:${elemColor};"></span>
-                          <span>${sheet.themeColor ? sheet.themeColor.toUpperCase() : 'ELEMENTO'}</span>
-                        </label>
-                        ${sheet.themeColor ? `
-                          <button type="button" class="threat-comp-remove-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento">↺</button>
-                        ` : ''}
-                      </div>
-
-                      <span class="tag-bullet">•</span>
-
-                      <!-- Botão de Símbolo da Ameaça -->
-                      <div class="threat-sigil-btn-wrap">
-                        <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
-                          ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
-                          <span>SÍMBOLO</span>
-                          ${sheet.sigilImage || (sheet.sigiloId && sheet.sigiloId !== elemDestaqueKey) ? `
-                            <span class="threat-custom-badge" title="Símbolo personalizado">★</span>
-                          ` : ''}
-                        </button>
-                      </div>
-                    </div>
-                    <span class="tag-bullet">•</span>
+                    <input type="text" class="threat-editable-input threat-name-title" 
+                      data-threat-field="name" value="${safe(sheet.name)}" placeholder="NOME DA AMEAÇA">
                   ` : `
+                    <h1 class="threat-name-title">${safe(sheet.name)}</h1>
+                  `}
+                </div>
+                <div class="threat-subtitle-row">
+                  ${editMode ? `
+                    <input type="text" class="threat-editable-input threat-subtitle-tag" 
+                      data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
+                  ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(elemDestaque.nome.toUpperCase())}</span>`)}
+                </div>
+              </div>
+            </div>
+
+            <!-- VD STAMP DO LIVRO (SEM CÍRCULO ESTRANHO) -->
+            <div class="threat-book-vd-stamp" title="Valor de Desafio: ${sheet.vd}">
+              <span class="vd-text">VD</span>
+              ${editMode ? `
+                <input type="number" class="threat-vd-input" min="0" max="999" 
+                  data-threat-field="vd" value="${sheet.vd}">
+              ` : `
+                <strong class="vd-number">${sheet.vd}</strong>
+              `}
+            </div>
+          </header>
+        `}
+
+        <!-- ── INTRODUÇÃO TOPO / HORIZONTAL (SE ATIVA E POSIÇÃO TOPO) ── -->
+        ${introTopHtml}
+
+        <!-- ── BARRA DE TAGS E METADADOS DO LIVRO (CRIATURA • TAMANHO) ── -->
+        <div class="threat-meta-line">
+          <div class="threat-meta-tags-group">
+            ${!isMundane ? `
+              ${editMode ? `
+                <div class="threat-edit-elements-bar">
+                  <!-- Seletor do Elemento Principal -->
+                  <div class="threat-primary-badge-wrap" title="Elemento Principal (determina a cor do tema, fraqueza e sigilo)">
+                    <span class="threat-element-role-label">PRINCIPAL:</span>
+                    <label class="threat-primary-elem-select-btn" style="--elem-color:${elemDestaque.cor};">
+                      <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-mini-sigil" alt="" draggable="false">
+                      <span>${safe(elemDestaque.nome.toUpperCase())}</span>
+                      <select class="threat-ghost-select" data-threat-select-primary-elem title="Mudar Elemento Principal">
+                        ${Object.values(THREAT_ELEMENTS).filter(el => el.id !== 'mundana').map(el => `
+                          <option value="${el.id}" ${sheet.elementoDestaque === el.id ? 'selected' : ''}>
+                            ${safe(el.nome.toUpperCase())}
+                          </option>
+                        `).join('')}
+                      </select>
+                    </label>
+                  </div>
+
+                  <span class="tag-bullet">•</span>
+
+                  <!-- Elementos Complementares Ativos -->
+                  <div class="threat-comp-elements-wrap">
+                    <span class="threat-element-role-label">COMPLEMENTAR:</span>
                     ${secondaryElements.map(elKey => {
                       const el = THREAT_ELEMENTS[elKey];
                       if (!el) return '';
-                      const isMedo = el.id === 'medo';
-                      return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
+                      return `
+                        <span class="threat-comp-active-pill" style="--elem-color:${el.cor};" title="Elemento complementar ativo">
+                          ${safe(el.nome.toUpperCase())}
+                          <button type="button" class="threat-comp-remove-btn" data-threat-del-comp="${el.id}" title="Remover complemento ${el.nome}">×</button>
+                        </span>
+                      `;
                     }).join('')}
-                    ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
-                  `}
-                ` : `
-                  <span class="threat-book-plain-tag">MUNDANA</span>
-                  ${editMode ? `
-                    <div class="threat-edit-elements-bar" style="margin-left:6px;display:inline-flex;gap:6px;">
-                      <div class="threat-theme-color-wrap" title="Personalizar cor de destaque da Ameaça">
-                        <span class="threat-element-role-label">COR TEMA:</span>
-                        <label class="threat-theme-color-chip" style="--elem-color:${elemColor};" title="Escolher cor personalizada">
-                          <input type="color" data-threat-theme-color value="${elemColor}">
-                          <span class="color-dot" style="background:${elemColor};"></span>
-                          <span>${sheet.themeColor ? sheet.themeColor.toUpperCase() : 'PADRÃO'}</span>
-                        </label>
-                        ${sheet.themeColor ? `
-                          <button type="button" class="threat-comp-remove-btn" data-threat-reset-theme-color title="Restaurar cor padrão">↺</button>
-                        ` : ''}
-                      </div>
-                      <div class="threat-sigil-btn-wrap">
-                        <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
-                          ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
-                          <span>SÍMBOLO</span>
+
+                    <!-- Botões Rápidos para Adicionar Elemento Complementar -->
+                    ${availableComplementary.map(elKey => {
+                      const el = THREAT_ELEMENTS[elKey];
+                      if (!el) return '';
+                      return `
+                        <button type="button" class="threat-comp-add-pill" style="--elem-color:${el.cor};" data-threat-add-comp="${el.id}" title="Adicionar ${el.nome} como elemento complementar">
+                          + ${safe(el.nome.toUpperCase())}
                         </button>
-                      </div>
-                    </div>
-                  ` : ''}
-                  <span class="tag-bullet">•</span>
-                `}
+                      `;
+                    }).join('')}
+                  </div>
 
-                ${editMode ? `
-                  <select class="threat-book-select" data-threat-field="tipo">
-                    ${(isMundane ? CREATURE_TYPES_MUNDANE : CREATURE_TYPES_PARANORMAL).map(t => `
-                      <option value="${safe(t)}" ${sheet.tipo === t ? 'selected' : ''}>${safe(t.toUpperCase())}</option>
-                    `).join('')}
-                  </select>
                   <span class="tag-bullet">•</span>
-                  <select class="threat-book-select" data-threat-field="tamanho">
-                    ${THREAT_SIZES.map(s => `
-                      <option value="${safe(s)}" ${sheet.tamanho === s ? 'selected' : ''}>${safe(s.toUpperCase())}</option>
-                    `).join('')}
-                  </select>
-                ` : `
-                  <span class="threat-book-plain-tag">${safe(sheet.tipo?.toUpperCase() || 'CRIATURA')}</span>
-                  <span class="tag-bullet">•</span>
-                  <span class="threat-book-plain-tag">${safe(sheet.tamanho?.toUpperCase() || 'MÉDIO')}</span>
-                `}
-              </div>
 
+                  <!-- Personalização da Cor do Tema -->
+                  <div class="threat-theme-color-wrap" title="Personalizar cor de destaque da Ameaça">
+                    <span class="threat-element-role-label">COR TEMA:</span>
+                    <label class="threat-theme-color-chip" style="--elem-color:${elemColor};" title="Escolher cor personalizada">
+                      <input type="color" data-threat-theme-color value="${elemColor}">
+                      <span class="color-dot" style="background:${elemColor};"></span>
+                      <span>${sheet.themeColor ? sheet.themeColor.toUpperCase() : 'ELEMENTO'}</span>
+                    </label>
+                    ${sheet.themeColor ? `
+                      <button type="button" class="threat-comp-remove-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento">↺</button>
+                    ` : ''}
+                  </div>
+
+                  <span class="tag-bullet">•</span>
+
+                  <!-- Botão de Símbolo da Ameaça -->
+                  <div class="threat-sigil-btn-wrap">
+                    <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
+                      ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
+                      <span>SÍMBOLO</span>
+                      ${sheet.sigilImage || (sheet.sigiloId && sheet.sigiloId !== elemDestaqueKey) ? `
+                        <span class="threat-custom-badge" title="Símbolo personalizado">★</span>
+                      ` : ''}
+                    </button>
+                  </div>
+                </div>
+                <span class="tag-bullet">•</span>
+              ` : `
+                ${secondaryElements.map(elKey => {
+                  const el = THREAT_ELEMENTS[elKey];
+                  if (!el) return '';
+                  const isMedo = el.id === 'medo';
+                  return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
+                }).join('')}
+                ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
+              `}
+            ` : `
+              <!-- Ameaça Mundana: estilo limpo do livro (ex: ANIMAL • MÉDIO) -->
+              <span class="threat-book-plain-tag">${safe((sheet.tipo || 'Animal').toUpperCase())}</span>
+              <span class="tag-bullet">•</span>
+              <span class="threat-book-plain-tag">${safe((sheet.tamanho || 'Médio').toUpperCase())}</span>
+              ${sheet.subtitulo ? `<span class="tag-bullet">•</span><span class="threat-book-plain-tag" style="opacity:0.85;">${safe(sheet.subtitulo.toUpperCase())}</span>` : ''}
               ${editMode ? `
-                <div class="threat-meta-actions">
-                  <button type="button" class="threat-meta-toggle-btn" data-threat-toggle-categoria>
-                    ${isMundane ? 'MUDAR PARA PARANORMAL' : 'MUDAR PARA MUNDANA'}
-                  </button>
+                <div class="threat-edit-elements-bar" style="margin-left:8px;display:inline-flex;gap:6px;align-items:center;">
+                  <select class="threat-ghost-select" data-threat-field="tipo" title="Alterar Tipo">
+                    ${CREATURE_TYPES_MUNDANE.map(t => `<option value="${t}" ${sheet.tipo === t ? 'selected' : ''}>${t.toUpperCase()}</option>`).join('')}
+                  </select>
+                  <span class="tag-bullet">•</span>
+                  <select class="threat-ghost-select" data-threat-field="tamanho" title="Alterar Tamanho">
+                    ${THREAT_SIZES.map(s => `<option value="${s}" ${sheet.tamanho === s ? 'selected' : ''}>${s.toUpperCase()}</option>`).join('')}
+                  </select>
                 </div>
               ` : ''}
-            </div>
+            `}
 
-            <div class="threat-book-top-divider"></div>
-            
+            ${editMode && !isMundane ? `
+              <select class="threat-book-select" data-threat-field="tipo">
+                ${CREATURE_TYPES_PARANORMAL.map(t => `
+                  <option value="${safe(t)}" ${sheet.tipo === t ? 'selected' : ''}>${safe(t.toUpperCase())}</option>
+                `).join('')}
+              </select>
+              <span class="tag-bullet">•</span>
+              <select class="threat-book-select" data-threat-field="tamanho">
+                ${THREAT_SIZES.map(s => `
+                  <option value="${safe(s)}" ${sheet.tamanho === s ? 'selected' : ''}>${safe(s.toUpperCase())}</option>
+                `).join('')}
+              </select>
+            ` : (!isMundane ? `
+              <span class="threat-book-plain-tag">${safe(sheet.tipo?.toUpperCase() || 'CRIATURA')}</span>
+              <span class="tag-bullet">•</span>
+              <span class="threat-book-plain-tag">${safe(sheet.tamanho?.toUpperCase() || 'MÉDIO')}</span>
+            ` : '')}
+          </div>
+
+          ${editMode ? `
+            <div class="threat-meta-actions">
+              <button type="button" class="threat-meta-toggle-btn" data-threat-toggle-categoria>
+                ${isMundane ? 'MUDAR PARA PARANORMAL' : 'MUDAR PARA MUNDANA'}
+              </button>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="threat-book-top-divider"></div>
+
+        <!-- ── CORPO EDITORIAL EM 2 COLUNAS DO LIVRO ── -->
+        <div class="threat-book-columns-layout">
+          
+          <!-- ── COLUNA ESQUERDA: ESTATÍSTICAS E REGRAS ── -->
+          <div class="threat-book-col-left">
+
             <!-- PRESENÇA PERTURBADORA (Apenas Paranormal ou se ativado) -->
             ${(!isMundane && sheet.presenca?.ativa) ? `
               <div class="threat-book-block">
@@ -733,21 +774,22 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
       </article>
   `;
 
-  const spreadHtml = sheet.hasIntro ? `
-    <div class="threat-book-spread spread-intro-${sheet.introSide || 'left'}">
-      ${sheet.introSide === 'right' ? `
+  const spreadHtml = (sheet.hasIntro && introSide !== 'top') ? `
+    <div class="threat-book-spread spread-intro-${introSide}">
+      ${introSide === 'right' ? `
         <div class="threat-book-stats-col">${cardHtml}</div>
-        ${introColHtml}
+        ${introSideHtml}
       ` : `
-        ${introColHtml}
+        ${introSideHtml}
         <div class="threat-book-stats-col">${cardHtml}</div>
       `}
     </div>
   ` : cardHtml;
 
   return `
-    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''}" 
+    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''} ${isLightPage ? 'theme-light' : 'theme-dark'}" 
       data-element="${elemDestaqueKey}"
+      data-theme-light="${isLightPage ? 'true' : 'false'}"
       style="--threat-elem-color:${elemColor};--threat-elem-ink:${elemInk};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
       
       ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
@@ -762,20 +804,24 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 }
 
 /**
- * Renderiza a coluna de Introdução e Ilustração da Ameaça (Página de Lore do Livro)
+ * Renderiza a introdução e ilustração narrativa da Ameaça (Página de Lore do Livro ou Topo Horizontal)
  */
-function renderIntroColumn(sheet, editMode = false, options = {}) {
+function renderIntroSection(sheet, editMode = false, options = {}, layoutMode = 'side') {
   const { safeUrl = s => s } = options;
+  const isTop = layoutMode === 'top';
+  const introSide = ['top', 'left', 'right'].includes(sheet.introSide) ? sheet.introSide : (sheet.categoria === 'mundana' ? 'top' : 'left');
+
   return `
-    <section class="threat-book-intro-col" aria-label="Introdução e Arte da Ameaça">
+    <section class="threat-book-intro-col ${isTop ? 'threat-intro-top-layout' : 'threat-intro-side-layout'}" aria-label="Introdução e Ambientação da Ameaça">
       ${editMode ? `
         <div class="threat-intro-edit-bar">
           <div class="threat-intro-side-toggle">
-            <span class="intro-bar-label">LADO:</span>
-            <button type="button" class="threat-mini-btn ${sheet.introSide !== 'right' ? 'active' : ''}" data-threat-intro-align="left" title="Posicionar introdução na esquerda">ESQUERDA</button>
-            <button type="button" class="threat-mini-btn ${sheet.introSide === 'right' ? 'active' : ''}" data-threat-intro-align="right" title="Posicionar introdução na direita">DIREITA</button>
+            <span class="intro-bar-label">POSIÇÃO:</span>
+            <button type="button" class="threat-mini-btn ${introSide === 'top' ? 'active' : ''}" data-threat-intro-align="top" title="Ocupar toda a horizontal no topo (Estilo Lobo do Livro)">TOPO (LIVRO)</button>
+            <button type="button" class="threat-mini-btn ${introSide === 'left' ? 'active' : ''}" data-threat-intro-align="left" title="Posicionar na coluna da esquerda">ESQUERDA</button>
+            <button type="button" class="threat-mini-btn ${introSide === 'right' ? 'active' : ''}" data-threat-intro-align="right" title="Posicionar na coluna da direita">DIREITA</button>
           </div>
-          <div style="display:flex;gap:6px;align-items:center;">
+          <div class="threat-intro-bar-actions">
             <label class="threat-mini-btn" title="Enviar ilustração da criatura">
               ${icon('image', 12)} ENVIAR ARTE
               <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
@@ -792,46 +838,48 @@ function renderIntroColumn(sheet, editMode = false, options = {}) {
         </div>
       ` : ''}
 
-      <!-- Ilustração da Criatura -->
-      <div class="threat-intro-artwork-container">
+      <div class="threat-intro-inner ${isTop ? 'inner-top' : 'inner-side'} ${sheet.introImage ? 'has-art' : 'no-art'}">
+        <!-- Ilustração da Criatura (se houver) -->
         ${sheet.introImage ? `
-          <div class="threat-intro-artwork-wrap">
-            <img src="${safeUrl(sheet.introImage)}" class="threat-intro-artwork-img" alt="${safe(sheet.name)}">
-            ${editMode ? `
-              <label class="threat-intro-artwork-overlay" title="Alterar ilustração da criatura">
-                ${icon('camera', 16)}
-                <span>TROCAR ARTE</span>
-                <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
-              </label>
-            ` : ''}
+          <div class="threat-intro-artwork-container">
+            <div class="threat-intro-artwork-wrap">
+              <img src="${safeUrl(sheet.introImage)}" class="threat-intro-artwork-img" alt="${safe(sheet.name)}">
+              ${editMode ? `
+                <label class="threat-intro-artwork-overlay" title="Alterar ilustração da criatura">
+                  ${icon('camera', 14)}
+                  <span>TROCAR ARTE</span>
+                  <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
+                </label>
+              ` : ''}
+            </div>
           </div>
-        ` : (editMode ? `
+        ` : (editMode && !isTop ? `
           <div class="threat-intro-artwork-ph" onclick="this.querySelector('input').click()">
-            ${icon('image', 36)}
+            ${icon('image', 32)}
             <b>ADICIONAR ILUSTRAÇÃO DA AMEAÇA</b>
             <small>Clique para selecionar uma imagem (PNG, JPG, WebP)</small>
             <input type="file" accept="image/*" data-threat-intro-file-input style="display:none;">
           </div>
         ` : '')}
-      </div>
 
-      <!-- Título e Texto Narrativo / Lore de Ambientação -->
-      <div class="threat-intro-prose-container">
-        ${editMode ? `
-          <div class="threat-intro-field-group">
-            <input type="text" class="threat-intro-title-input" data-threat-field="introTitle" value="${safe(sheet.introTitle)}" placeholder="TÍTULO NARRATIVO (EX: O ABRAÇO DA SOMBRA)">
-          </div>
-          <div class="threat-intro-field-group">
-            <textarea class="threat-intro-textarea" data-threat-field="introText" rows="14" placeholder="Escreva a descrição narrativa, origem, comportamento e detalhes do encontro da criatura (conforme o livro de regras de Ordem Paranormal)...">${safe(sheet.introText)}</textarea>
-          </div>
-        ` : `
-          ${sheet.introTitle ? `<h2 class="threat-intro-narrative-title">${safe(sheet.introTitle)}</h2>` : ''}
-          ${sheet.introText ? `
-            <div class="threat-intro-narrative-text">
-              ${sheet.introText.split('\n\n').filter(Boolean).map(p => `<p>${formatCardText(p)}</p>`).join('')}
+        <!-- Título e Texto Narrativo / Ambientação do Livro -->
+        <div class="threat-intro-prose-container">
+          ${editMode ? `
+            <div class="threat-intro-field-group">
+              <input type="text" class="threat-intro-title-input" data-threat-field="introTitle" value="${safe(sheet.introTitle)}" placeholder="TÍTULO NARRATIVO (OPCIONAL - EX: O ABRAÇO DA SOMBRA)">
             </div>
-          ` : ''}
-        `}
+            <div class="threat-intro-field-group">
+              <textarea class="threat-intro-textarea" data-threat-field="introText" rows="${isTop ? 3 : 12}" placeholder="Escreva a descrição narrativa, origem, comportamento e detalhes do encontro da criatura (conforme o livro de regras de Ordem Paranormal)...">${safe(sheet.introText)}</textarea>
+            </div>
+          ` : `
+            ${sheet.introTitle ? `<h2 class="threat-intro-narrative-title">${safe(sheet.introTitle)}</h2>` : ''}
+            ${sheet.introText ? `
+              <div class="threat-intro-narrative-text">
+                ${sheet.introText.split('\n\n').filter(Boolean).map(p => `<p>${formatCardText(p)}</p>`).join('')}
+              </div>
+            ` : ''}
+          `}
+        </div>
       </div>
     </section>
   `;

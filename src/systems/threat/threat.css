@@ -134,9 +134,131 @@
     linear-gradient(135deg, rgba(210, 235, 245, 0.06) 0%, transparent 50%);
 }
 .threat-book-page.element-theme-mundana,
-.threat-book-page.threat-page-mundana {
-  background-color: #0c0e14;
-  background-image: radial-gradient(circle at 50% 50%, rgba(25, 28, 38, 0.5) 0%, #08090d 100%);
+.threat-book-page.threat-page-mundana,
+.threat-book-page[data-theme-light="true"],
+.threat-book-page.theme-light {
+  background-color: #f7f6f2 !important;
+  background-image: 
+    radial-gradient(circle at 50% 25%, #ffffff 0%, #f7f6f2 65%, #eae7de 100%) !important;
+  color: #111827 !important;
+  scrollbar-color: #cbd5e1 transparent !important;
+  --threat-elem-color: #000000;
+  --threat-elem-ink: #ffffff;
+  --threat-elem-dark: #000000;
+  --threat-elem-glow: rgba(0, 0, 0, 0.1);
+}
+
+.threat-book-page[data-theme-light="true"]::-webkit-scrollbar-thumb,
+.threat-book-page.threat-page-mundana::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+/* ── Cabeçalho do Livro para Ameaças Mundanas (Estilo Lobo Oficial) ─────── */
+.threat-mundane-header {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+  z-index: 3;
+}
+
+.threat-mundane-header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.threat-mundane-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.threat-sigil-mundane {
+  width: 32px;
+  height: 32px;
+  color: #111827;
+}
+
+.threat-sigil-mundane img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.threat-mundane-title {
+  margin: 0;
+  font-family: var(--font-display, 'Cinzel', Georgia, serif);
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  color: #111827;
+  text-transform: uppercase;
+  text-shadow: none;
+}
+
+.threat-mundane-title-input {
+  font-family: var(--font-display, 'Cinzel', Georgia, serif) !important;
+  font-weight: 900 !important;
+  font-size: 32px !important;
+  letter-spacing: 0.04em !important;
+  color: #111827 !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.25) !important;
+  outline: none !important;
+  width: 100%;
+  text-transform: uppercase;
+}
+
+.threat-mundane-vd-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.threat-mundane-vd-label {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 900;
+  font-size: 20px;
+  color: #111827;
+  letter-spacing: 0.05em;
+}
+
+.threat-mundane-vd-num {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 900;
+  font-size: 30px;
+  line-height: 1;
+  color: #111827;
+}
+
+.threat-mundane-vd-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.25) !important;
+  color: #111827 !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-weight: 900 !important;
+  font-size: 28px !important;
+  width: 60px;
+  text-align: right;
+  outline: none !important;
+}
+
+.threat-mundane-divider {
+  width: 100%;
+  height: 2.5px;
+  background: #111827;
+  margin-top: 4px;
+  margin-bottom: 8px;
 }
 
 /* ── Banner / Cabeçalho do Livro (Na Coluna Esquerda) ────────────────────── */
@@ -2856,16 +2978,55 @@
   width: 100%;
 }
 
-.threat-book-intro-col {
+/* ── Introdução e Ambientação Narrativa do Livro (Totalmente Integrada / Sem Caixa) ── */
+.threat-book-intro-col,
+.threat-intro-section {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.threat-intro-top-layout {
+  width: 100%;
+  margin: 4px 0 16px 0;
+  display: block;
+}
+
+.threat-intro-side-layout {
   flex: 1 1 480px;
   max-width: 580px;
-  background: #11131c;
-  border: 1px solid #282c42;
-  border-radius: 4px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.threat-intro-inner.inner-top {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.threat-intro-inner.inner-top.no-art .threat-intro-prose-container {
+  width: 100%;
+}
+
+.threat-intro-inner.inner-top.has-art .threat-intro-artwork-container {
+  flex: 0 0 260px;
+  max-width: 280px;
+}
+
+.threat-intro-inner.inner-top.has-art .threat-intro-prose-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.threat-intro-inner.inner-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .threat-intro-edit-bar {
@@ -2873,9 +3034,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
-  background: #171a28;
-  border-bottom: 1px solid #2b304c;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.threat-page-mundana .threat-intro-edit-bar,
+.threat-book-page.theme-light .threat-intro-edit-bar,
+.threat-book-page[data-theme-light="true"] .threat-intro-edit-bar {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .threat-intro-side-toggle {
@@ -2891,21 +3061,34 @@
   letter-spacing: 0.08em;
 }
 
+.threat-page-mundana .threat-intro-side-toggle .intro-bar-label,
+.threat-book-page.theme-light .threat-intro-side-toggle .intro-bar-label,
+.threat-book-page[data-theme-light="true"] .threat-intro-side-toggle .intro-bar-label {
+  color: #4b5563;
+}
+
+.threat-intro-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .threat-intro-artwork-container {
   position: relative;
   width: 100%;
-  min-height: 240px;
-  max-height: 520px;
-  background: #090a0f;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  min-height: unset;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
 }
 
 .threat-intro-artwork-wrap {
   position: relative;
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2915,18 +3098,19 @@
   width: 100%;
   height: auto;
   max-height: 480px;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
 }
 
 .threat-intro-artwork-overlay {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 8px;
+  right: 8px;
   background: rgba(18, 20, 30, 0.85);
   border: 1px solid #3f4568;
   color: #fff;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
@@ -2938,14 +3122,9 @@
   transition: all 0.15s ease;
 }
 
-.threat-intro-artwork-overlay:hover {
-  background: var(--threat-elem-color, #e0150d);
-  color: var(--threat-elem-ink, #ffffff);
-}
-
 .threat-intro-artwork-ph {
   width: 100%;
-  padding: 48px 24px;
+  padding: 36px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2954,72 +3133,474 @@
   color: #697094;
   cursor: pointer;
   text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.1);
   transition: color 0.15s ease;
 }
 
-.threat-intro-artwork-ph:hover {
-  color: #cfd4ee;
+.threat-page-mundana .threat-intro-artwork-ph,
+.threat-book-page.theme-light .threat-intro-artwork-ph,
+.threat-book-page[data-theme-light="true"] .threat-intro-artwork-ph {
+  color: #4b5563;
+  border-color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .threat-intro-prose-container {
-  padding: 24px;
-  background: #11131c;
+  padding: 0 !important;
+  background: transparent !important;
+  width: 100%;
 }
 
 .threat-intro-title-input {
   width: 100%;
-  background: #181a27;
-  border: 1px solid #2d334e;
-  color: #ffffff;
-  padding: 8px 12px;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.25) !important;
+  color: inherit !important;
+  padding: 4px 0;
   font-family: var(--font-display, 'Cinzel', Georgia, serif);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 900;
-  letter-spacing: 0.05em;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  outline: none;
+  text-transform: uppercase;
+}
+
+.threat-page-mundana .threat-intro-title-input,
+.threat-book-page.theme-light .threat-intro-title-input,
+.threat-book-page[data-theme-light="true"] .threat-intro-title-input {
+  border-bottom-color: rgba(0, 0, 0, 0.3) !important;
+  color: #111827 !important;
 }
 
 .threat-intro-textarea {
   width: 100%;
-  background: #181a27;
-  border: 1px solid #2d334e;
-  color: #d8dcee;
-  padding: 10px 12px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13.5px;
-  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.25) !important;
+  color: inherit !important;
+  padding: 8px 10px;
+  font-family: Georgia, 'EB Garamond', 'Times New Roman', serif;
+  font-size: 14.5px;
+  line-height: 1.65;
   border-radius: 4px;
   resize: vertical;
+  outline: none;
+}
+
+.threat-page-mundana .threat-intro-textarea,
+.threat-book-page.theme-light .threat-intro-textarea,
+.threat-book-page[data-theme-light="true"] .threat-intro-textarea {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  color: #111827 !important;
 }
 
 .threat-intro-narrative-title {
-  margin: 0 0 14px 0;
+  margin: 0 0 10px 0;
   font-family: var(--font-display, 'Cinzel', Georgia, serif);
   font-weight: 900;
   font-size: 22px;
-  color: #ffffff;
+  color: inherit;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--threat-elem-color, #e0150d);
-  padding-bottom: 6px;
+  border-bottom: 2px solid currentColor;
+  padding-bottom: 4px;
 }
 
 .threat-intro-narrative-text {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: #d1d5eb;
+  font-family: Georgia, 'EB Garamond', 'Times New Roman', serif;
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: inherit;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 .threat-intro-narrative-text p {
-  margin: 0 0 12px 0;
-  text-indent: 1.5em;
+  margin: 0 0 10px 0;
+  text-indent: 1.4em;
 }
 
 .threat-intro-narrative-text p:first-of-type {
   text-indent: 0;
 }
+
+/* ── Regras de Alto Contraste para Tema Claro / Ameaças Mundanas (Estilo Livro Oficial) ── */
+.threat-book-page.theme-light,
+.threat-book-page.threat-page-mundana,
+.threat-book-page.element-theme-mundana,
+.threat-book-page[data-theme-light="true"] {
+  background-color: #f7f6f2 !important;
+  background-image: 
+    radial-gradient(circle at 50% 25%, #ffffff 0%, #f7f6f2 65%, #eae7de 100%) !important;
+  color: #111827 !important;
+  --threat-elem-color: #000000;
+  --threat-elem-ink: #ffffff;
+  --threat-elem-dark: #000000;
+  --threat-elem-glow: rgba(0, 0, 0, 0.1);
+}
+
+.threat-book-page.theme-light .threat-book-top-bar,
+.threat-book-page.theme-light .threat-book-bottom-bar,
+.threat-book-page[data-theme-light="true"] .threat-book-top-bar,
+.threat-book-page[data-theme-light="true"] .threat-book-bottom-bar,
+.threat-page-mundana .threat-book-top-bar,
+.threat-page-mundana .threat-book-bottom-bar {
+  background: #111827 !important;
+  box-shadow: none !important;
+}
+
+.threat-book-page.theme-light .threat-book-divider,
+.threat-book-page.theme-light .threat-book-top-divider,
+.threat-book-page[data-theme-light="true"] .threat-book-divider,
+.threat-book-page[data-theme-light="true"] .threat-book-top-divider,
+.threat-page-mundana .threat-book-divider,
+.threat-page-mundana .threat-book-top-divider {
+  background: #111827 !important;
+  opacity: 0.9 !important;
+}
+
+.threat-book-page.theme-light .threat-pipe,
+.threat-book-page[data-theme-light="true"] .threat-pipe,
+.threat-page-mundana .threat-pipe {
+  color: #6b7280 !important;
+}
+
+.threat-book-page.theme-light .threat-meta-line,
+.threat-book-page.theme-light .threat-book-plain-tag,
+.threat-book-page.theme-light .tag-bullet,
+.threat-book-page[data-theme-light="true"] .threat-meta-line,
+.threat-book-page[data-theme-light="true"] .threat-book-plain-tag,
+.threat-book-page[data-theme-light="true"] .tag-bullet,
+.threat-page-mundana .threat-meta-line,
+.threat-page-mundana .threat-book-plain-tag,
+.threat-page-mundana .tag-bullet {
+  color: #111827 !important;
+  font-weight: 800 !important;
+}
+
+.threat-book-page.theme-light .threat-book-badge,
+.threat-book-page[data-theme-light="true"] .threat-book-badge,
+.threat-page-mundana .threat-book-badge {
+  background: #000000 !important;
+  color: #ffffff !important;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.threat-book-page.theme-light .threat-book-badge-val,
+.threat-book-page[data-theme-light="true"] .threat-book-badge-val,
+.threat-page-mundana .threat-book-badge-val {
+  background: transparent !important;
+  color: #111827 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  padding: 0 4px !important;
+}
+
+.threat-book-page.theme-light .threat-book-hp-sub,
+.threat-book-page.theme-light .threat-hp-max-sub,
+.threat-book-page[data-theme-light="true"] .threat-book-hp-sub,
+.threat-book-page[data-theme-light="true"] .threat-hp-max-sub,
+.threat-page-mundana .threat-book-hp-sub,
+.threat-page-mundana .threat-hp-max-sub {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-book-hp-sub b,
+.threat-book-page[data-theme-light="true"] .threat-book-hp-sub b,
+.threat-page-mundana .threat-book-hp-sub b {
+  color: #000000 !important;
+}
+
+.threat-book-page.theme-light .defense-row strong,
+.threat-book-page[data-theme-light="true"] .defense-row strong,
+.threat-page-mundana .defense-row strong {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .defense-row span,
+.threat-book-page[data-theme-light="true"] .defense-row span,
+.threat-page-mundana .defense-row span {
+  color: #374151 !important;
+}
+
+.threat-book-page.theme-light .threat-book-attr-col .attr-label,
+.threat-book-page[data-theme-light="true"] .threat-book-attr-col .attr-label,
+.threat-page-mundana .threat-book-attr-col .attr-label {
+  color: #111827 !important;
+  font-weight: 900 !important;
+}
+
+.threat-book-page.theme-light .threat-book-attr-col .attr-hex,
+.threat-book-page[data-theme-light="true"] .threat-book-attr-col .attr-hex,
+.threat-page-mundana .threat-book-attr-col .attr-hex {
+  background: #000000 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.threat-book-page.theme-light .threat-attr-step-btn,
+.threat-book-page[data-theme-light="true"] .threat-attr-step-btn,
+.threat-page-mundana .threat-attr-step-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-attr-step-btn:hover,
+.threat-book-page[data-theme-light="true"] .threat-attr-step-btn:hover,
+.threat-page-mundana .threat-attr-step-btn:hover {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.threat-book-page.theme-light .threat-die-token,
+.threat-book-page[data-theme-light="true"] .threat-die-token,
+.threat-page-mundana .threat-die-token {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: #111827 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-pool-group > b:first-child,
+.threat-book-page.theme-light .threat-bonus-val,
+.threat-book-page.theme-light .threat-sense-entry,
+.threat-book-page.theme-light .threat-save-entry,
+.threat-book-page[data-theme-light="true"] .threat-pool-group > b:first-child,
+.threat-book-page[data-theme-light="true"] .threat-bonus-val,
+.threat-book-page[data-theme-light="true"] .threat-sense-entry,
+.threat-book-page[data-theme-light="true"] .threat-save-entry,
+.threat-page-mundana .threat-pool-group > b:first-child,
+.threat-page-mundana .threat-bonus-val,
+.threat-page-mundana .threat-sense-entry,
+.threat-page-mundana .threat-save-entry {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-book-skill-chip,
+.threat-book-page[data-theme-light="true"] .threat-book-skill-chip,
+.threat-page-mundana .threat-book-skill-chip {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-book-text-body,
+.threat-book-page[data-theme-light="true"] .threat-book-text-body,
+.threat-page-mundana .threat-book-text-body {
+  color: #1f2937 !important;
+}
+
+.threat-book-page.theme-light .action-type-label,
+.threat-book-page.theme-light .action-symbol,
+.threat-book-page.theme-light .action-entry-title,
+.threat-book-page.theme-light .attack-name,
+.threat-book-page[data-theme-light="true"] .action-type-label,
+.threat-book-page[data-theme-light="true"] .action-symbol,
+.threat-book-page[data-theme-light="true"] .action-entry-title,
+.threat-book-page[data-theme-light="true"] .attack-name,
+.threat-page-mundana .action-type-label,
+.threat-page-mundana .action-symbol,
+.threat-page-mundana .action-entry-title,
+.threat-page-mundana .attack-name {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .attack-roll-label,
+.threat-book-page[data-theme-light="true"] .attack-roll-label,
+.threat-page-mundana .attack-roll-label {
+  color: #4b5563 !important;
+}
+
+.threat-book-page.theme-light .threat-chip-roll-test,
+.threat-book-page[data-theme-light="true"] .threat-chip-roll-test,
+.threat-page-mundana .threat-chip-roll-test {
+  background: #ffffff !important;
+  border-color: #111827 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-chip-roll-dmg,
+.threat-book-page[data-theme-light="true"] .threat-chip-roll-dmg,
+.threat-page-mundana .threat-chip-roll-dmg {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.threat-book-page.theme-light .action-entry-text,
+.threat-book-page[data-theme-light="true"] .action-entry-text,
+.threat-page-mundana .action-entry-text {
+  color: #1f2937 !important;
+}
+
+.threat-book-page.theme-light .threat-hp-track-book,
+.threat-book-page[data-theme-light="true"] .threat-hp-track-book,
+.threat-page-mundana .threat-hp-track-book {
+  background: #e2e8f0 !important;
+}
+
+.threat-book-page.theme-light .btn-step-dmg,
+.threat-book-page.theme-light .btn-step-heal,
+.threat-book-page.theme-light .btn-temp,
+.threat-book-page[data-theme-light="true"] .btn-step-dmg,
+.threat-book-page[data-theme-light="true"] .btn-step-heal,
+.threat-book-page[data-theme-light="true"] .btn-temp,
+.threat-page-mundana .btn-step-dmg,
+.threat-page-mundana .btn-step-heal,
+.threat-page-mundana .btn-temp {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-hp-steppers-book .stepper-label,
+.threat-book-page[data-theme-light="true"] .threat-hp-steppers-book .stepper-label,
+.threat-page-mundana .threat-hp-steppers-book .stepper-label {
+  color: #6b7280 !important;
+}
+
+.threat-book-page.theme-light .threat-book-upper-note,
+.threat-book-page[data-theme-light="true"] .threat-book-upper-note,
+.threat-page-mundana .threat-book-upper-note {
+  color: #374151 !important;
+}
+
+.threat-book-page.theme-light .threat-assistant-bar,
+.threat-book-page[data-theme-light="true"] .threat-assistant-bar,
+.threat-page-mundana .threat-assistant-bar {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-assistant-btn,
+.threat-book-page.theme-light .threat-assistant-chip,
+.threat-book-page[data-theme-light="true"] .threat-assistant-btn,
+.threat-book-page[data-theme-light="true"] .threat-assistant-chip,
+.threat-page-mundana .threat-assistant-btn,
+.threat-page-mundana .threat-assistant-chip {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-assistant-summary,
+.threat-book-page[data-theme-light="true"] .threat-assistant-summary,
+.threat-page-mundana .threat-assistant-summary {
+  color: #4b5563 !important;
+}
+
+.threat-book-page.theme-light .threat-attr-input,
+.threat-book-page[data-theme-light="true"] .threat-attr-input,
+.threat-page-mundana .threat-attr-input {
+  color: #ffffff !important;
+}
+
+.threat-book-page.theme-light .threat-defense-group-header strong,
+.threat-book-page[data-theme-light="true"] .threat-defense-group-header strong,
+.threat-page-mundana .threat-defense-group-header strong {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-defense-empty,
+.threat-book-page[data-theme-light="true"] .threat-defense-empty,
+.threat-page-mundana .threat-defense-empty {
+  color: #4b5563 !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card,
+.threat-book-page[data-theme-light="true"] .threat-defense-card,
+.threat-page-mundana .threat-defense-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card.card-res,
+.threat-book-page[data-theme-light="true"] .threat-defense-card.card-res,
+.threat-page-mundana .threat-defense-card.card-res {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card.card-vuln,
+.threat-book-page[data-theme-light="true"] .threat-defense-card.card-vuln,
+.threat-page-mundana .threat-defense-card.card-vuln {
+  background: #fef2f2 !important;
+  border-color: #f87171 !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card.card-imun,
+.threat-book-page[data-theme-light="true"] .threat-defense-card.card-imun,
+.threat-page-mundana .threat-defense-card.card-imun {
+  background: #f0f9ff !important;
+  border-color: #38bdf8 !important;
+}
+
+.threat-book-page.theme-light .threat-card-tag,
+.threat-book-page[data-theme-light="true"] .threat-card-tag,
+.threat-page-mundana .threat-card-tag {
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card.card-vuln .threat-card-tag,
+.threat-book-page[data-theme-light="true"] .threat-defense-card.card-vuln .threat-card-tag,
+.threat-page-mundana .threat-defense-card.card-vuln .threat-card-tag {
+  color: #b91c1c !important;
+}
+
+.threat-book-page.theme-light .threat-defense-card.card-imun .threat-card-tag,
+.threat-book-page[data-theme-light="true"] .threat-defense-card.card-imun .threat-card-tag,
+.threat-page-mundana .threat-defense-card.card-imun .threat-card-tag {
+  color: #0369a1 !important;
+}
+
+.threat-book-page.theme-light .threat-card-num-input,
+.threat-book-page[data-theme-light="true"] .threat-card-num-input,
+.threat-page-mundana .threat-card-num-input {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #15803d !important;
+}
+
+.threat-book-page.theme-light .threat-mini-input,
+.threat-book-page[data-theme-light="true"] .threat-mini-input,
+.threat-page-mundana .threat-mini-input {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-book-select,
+.threat-book-page[data-theme-light="true"] .threat-book-select,
+.threat-page-mundana .threat-book-select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .threat-meta-toggle-btn,
+.threat-book-page[data-theme-light="true"] .threat-meta-toggle-btn,
+.threat-page-mundana .threat-meta-toggle-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+}
+
+.threat-book-page.theme-light .tag-bullet,
+.threat-book-page[data-theme-light="true"] .tag-bullet,
+.threat-page-mundana .tag-bullet {
+  color: #111827 !important;
+}
+
 
 /* ── Chip de Cor Tema no Topbar da Ameaça ── */
 .threat-assistant-chip {

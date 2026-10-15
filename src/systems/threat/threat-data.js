@@ -7,7 +7,8 @@ export const THREAT_ELEMENTS = {
   morte: { id: 'morte', nome: 'Morte', cor: '#181922', texto: '#ffffff' },
   energia: { id: 'energia', nome: 'Energia', cor: '#993ce8', texto: '#ffffff' },
   conhecimento: { id: 'conhecimento', nome: 'Conhecimento', cor: '#cca02b', texto: '#ffffff' },
-  medo: { id: 'medo', nome: 'Medo', cor: '#d5d7e0', texto: '#11131a' }
+  medo: { id: 'medo', nome: 'Medo', cor: '#d5d7e0', texto: '#11131a' },
+  mundana: { id: 'mundana', nome: 'Realidade', cor: '#ffffff', texto: '#111827' }
 };
 
 export const ACTION_TYPES = [

@@ -197,7 +197,17 @@ function aplicarEscolhas(sheet, d) {
   sheet.tipo = d.tipo;
   sheet.tamanho = d.tamanho;
   sheet.elementos = d.categoria === 'mundana' ? [] : [d.elementoPrincipal, ...(d.elementosComplementares || [])];
-  sheet.elementoDestaque = d.categoria === 'mundana' ? 'sangue' : d.elementoPrincipal;
+  sheet.elementoDestaque = d.categoria === 'mundana' ? 'mundana' : d.elementoPrincipal;
+  if (d.categoria === 'mundana') {
+    sheet.themeColor = '#ffffff';
+    sheet.hasIntro = true;
+    sheet.introSide = 'top';
+    if (!sheet.introText) {
+      sheet.introText = (d.nome || '').toLowerCase().includes('lobo')
+        ? 'Hábeis caçadores em grupo. Ao ouvir seu uivo, saiba que ele nunca estará sozinho.'
+        : 'Inimigo perigoso e implacável em seu território natural.';
+    }
+  }
 
   // PV e Defesa ajustados pelo arquétipo
   const pvFinal = Math.round(bal.pv * (arq.modPv || 1));
@@ -389,7 +399,7 @@ function renderPasso1(d) {
     ${isParanormal ? `
       <h3 style="font:700 13px Georgia,serif;color:var(--threat-elem-light, #cfd3eb);letter-spacing:.05em;margin:0 0 10px;text-transform:uppercase;">Selecione o Elemento Principal</h3>
       <div class="threat-wiz-elements-grid">
-        ${Object.values(THREAT_ELEMENTS).map(el => {
+        ${Object.values(THREAT_ELEMENTS).filter(el => el.id !== 'mundana').map(el => {
           const isSelected = d.elementoPrincipal === el.id;
           const theme = ELEMENT_THEMES[el.id] || { cor: el.cor, corClara: '#cfd3eb', desc: '', bg: 'rgba(255,255,255,0.05)', glow: 'rgba(0,0,0,0.4)' };
           return `
@@ -410,7 +420,7 @@ function renderPasso1(d) {
           ELEMENTOS COMPLEMENTARES (OPCIONAL):
         </label>
         <div class="threat-comp-pills-row">
-          ${Object.values(THREAT_ELEMENTS).filter(e => e.id !== d.elementoPrincipal).map(e => {
+          ${Object.values(THREAT_ELEMENTS).filter(e => e.id !== 'mundana' && e.id !== d.elementoPrincipal).map(e => {
             const isCompSelected = (d.elementosComplementares || []).includes(e.id);
             const eTheme = ELEMENT_THEMES[e.id] || { cor: e.cor };
             return `
@@ -948,11 +958,14 @@ function aoClicar(e) {
   if ((b = alvo('[data-twiz-categoria]'))) {
     d.categoria = b.dataset.twizCategoria;
     if (d.categoria === 'mundana') {
-      d.tipo = 'Humano';
+      d.tipo = 'Animal';
       d.presencaAtiva = false;
+      d.elementoPrincipal = 'mundana';
+      d.elementosComplementares = [];
     } else {
       d.tipo = 'Criatura';
       d.presencaAtiva = true;
+      if (d.elementoPrincipal === 'mundana') d.elementoPrincipal = 'sangue';
     }
   } else if ((b = alvo('[data-twiz-elem]'))) {
     d.elementoPrincipal = b.dataset.twizElem;
@@ -1065,7 +1078,7 @@ export function abrirThreatWizard(sheet, { onFinish, onSkip } = {}) {
   fecharThreatWizard();
 
   const isMundane = sheet.categoria === 'mundana';
-  const elemDestaque = sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue';
+  const elemDestaque = isMundane ? 'mundana' : (sheet.elementoDestaque || (sheet.elementos || [])[0] || 'sangue');
 
   const defaultVd = Number(sheet.vd) || 60;
   const defaultPreset = 'equilibrada';

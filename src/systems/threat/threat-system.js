@@ -106,15 +106,20 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.vd = Math.max(0, Number(raw.vd) || 60);
 
   // Elementos
-  const validElems = Object.keys(THREAT_ELEMENTS);
-  if (Array.isArray(raw.elementos) && raw.elementos.length > 0) {
-    sheet.elementos = raw.elementos.filter(e => validElems.includes(e));
+  const validElems = Object.keys(THREAT_ELEMENTS).filter(e => e !== 'mundana');
+  if (sheet.categoria === 'mundana') {
+    sheet.elementos = [];
+    sheet.elementoDestaque = 'mundana';
   } else {
-    sheet.elementos = sheet.categoria === 'paranormal' ? ['sangue'] : [];
+    if (Array.isArray(raw.elementos) && raw.elementos.length > 0) {
+      sheet.elementos = raw.elementos.filter(e => validElems.includes(e));
+    } else {
+      sheet.elementos = ['sangue'];
+    }
+    sheet.elementoDestaque = raw.elementoDestaque && validElems.includes(raw.elementoDestaque)
+      ? raw.elementoDestaque
+      : (sheet.elementos[0] || 'sangue');
   }
-  sheet.elementoDestaque = raw.elementoDestaque && validElems.includes(raw.elementoDestaque)
-    ? raw.elementoDestaque
-    : (sheet.elementos[0] || null);
 
   sheet.tipo = String(raw.tipo || (sheet.categoria === 'mundana' ? 'Humano' : 'Criatura')).trim();
   sheet.sigiloId = raw.sigiloId || '';
@@ -270,7 +275,7 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.cinematicOutlineIntensity = Math.max(0, Math.min(1, Number(raw.cinematicOutlineIntensity ?? 0.5)));
   sheet.cinematicOutlineWidth = Math.max(0, Math.min(10, Number(raw.cinematicOutlineWidth ?? 1.8)));
   sheet.cinematicOutlineFade = Math.max(0, Math.min(10, Number(raw.cinematicOutlineFade ?? 1.5)));
-  sheet.themeColor = raw.themeColor || '';
+  sheet.themeColor = raw.themeColor || (sheet.categoria === 'mundana' ? '#ffffff' : '');
   sheet.diceColor = raw.diceColor || '';
 
   // Introdução & Arte Narrativa do Livro
@@ -278,7 +283,9 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.introTitle = String(raw.introTitle || '').trim();
   sheet.introText = String(raw.introText || '').trim();
   sheet.introImage = raw.introImage || '';
-  sheet.introSide = raw.introSide === 'right' ? 'right' : 'left';
+  sheet.introSide = ['top', 'left', 'right'].includes(raw.introSide)
+    ? raw.introSide
+    : (sheet.categoria === 'mundana' ? 'top' : 'left');
 
   // Mesa
   sheet.condicoesAtivas = Array.isArray(raw.condicoesAtivas) ? raw.condicoesAtivas.map(String) : [];

@@ -2540,7 +2540,7 @@
         "bonus": 10
       }
     },
-    "pv": 10,
+    "pv": 11,
     "pvMax": 100,
     "pvTemp": 0,
     "machucadoOverride": 50,
@@ -2804,10 +2804,8 @@
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 60,
-    "elementos": [
-      "sangue"
-    ],
-    "elementoDestaque": "sangue",
+    "elementos": [],
+    "elementoDestaque": "mundana",
     "tipo": "Humano",
     "tamanho": "Médio",
     "sigiloId": "",
@@ -2924,6 +2922,651 @@
     "id": "threat-mv8mwd4y-0yd2",
     "createdAt": 1792014053506,
     "updatedAt": 1792014053506,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 4",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "esquerda",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8rne2j-9v9d",
+    "createdAt": 1792022032891,
+    "updatedAt": 1792022032891,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 5",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "REALIDADE",
+    "vd": 60,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Humano",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 15,
+      "dano": "2d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "extra": "Visão normal"
+    },
+    "defesa": 17,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 98,
+    "pvMax": 98,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 1,
+      "for": 4,
+      "int": 1,
+      "pre": 2,
+      "vig": 4
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-wizard-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-wizard-1",
+            "nome": "Golpe Esmagador",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 4,
+              "bonus": 5
+            },
+            "dano": "5d6+3",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8rnpz0-22mj",
+    "createdAt": 1792022048316,
+    "updatedAt": 1792022048316,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 6",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "esquerda",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8uns5h-b3zo",
+    "createdAt": 1792027089989,
+    "updatedAt": 1792027089989,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 7",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "paranormal",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [
+      "sangue"
+    ],
+    "elementoDestaque": "sangue",
+    "tipo": "Criatura",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": true,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "extra": ""
+    },
+    "defesa": 20,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 120,
+    "pvMax": 120,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 2,
+      "int": 1,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "esquerda",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-1",
+            "nome": "Pancada",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "2d8+6",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "",
+    "diceColor": "",
+    "hasIntro": false,
+    "introTitle": "",
+    "introText": "",
+    "introImage": "",
+    "introSide": "left",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8usxy3-1t5x",
+    "createdAt": 1792027330779,
+    "updatedAt": 1792027330779,
+    "sigilImage": ""
+  },
+  {
+    "name": "AMEAÇA 8",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "REALIDADE",
+    "vd": 60,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 15,
+      "dano": "2d6",
+      "tipoDano": "mental",
+      "imuneNex": 0,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "extra": "Visão normal"
+    },
+    "defesa": 17,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 98,
+    "pvMax": 98,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "for": 4,
+      "agi": 1,
+      "int": 1,
+      "pre": 2,
+      "vig": 4
+    },
+    "deslocamento": {
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "act-wizard-1",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-wizard-1",
+            "nome": "Golpe Esmagador",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 4,
+              "bonus": 5
+            },
+            "dano": "5d6+3",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "coluna": "direita",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "cinematic",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Inimigo perigoso e implacável em seu território natural.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "maxPv": 120,
+    "id": "threat-mv8uyg38-nt4v",
+    "createdAt": 1792027587572,
+    "updatedAt": 1792027587572,
     "sigilImage": ""
   }
 ]
