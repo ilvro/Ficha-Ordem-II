@@ -2,7 +2,7 @@
  * Regras, normalização e helpers matemáticos para Fichas de Ameaças
  */
 
-import { DEFAULT_THREAT_SHEET, THREAT_ELEMENTS } from './threat-data.js';
+import { DEFAULT_THREAT_SHEET, THREAT_ELEMENTS, THREAT_SOURCES } from './threat-data.js';
 export { DEFAULT_THREAT_SHEET };
 
 function makeId(prefix = 'threat') {
@@ -97,6 +97,7 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.systemMode = 'threat';
   sheet.folderId = String(raw.folderId || 'folder-threats');
   sheet.favorite = Boolean(raw.favorite);
+  sheet.fonte = THREAT_SOURCES.includes(raw.fonte) ? raw.fonte : 'homebrew';
   sheet.createdAt = raw.createdAt || Date.now();
   sheet.updatedAt = raw.updatedAt || Date.now();
 

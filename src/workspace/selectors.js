@@ -88,6 +88,56 @@ export function visibleSheets(sheets = [], folders = [], options = {}) {
     list = list.filter(s => !!s.favorite);
   }
 
+  // 5b. Filtro por elemento de ameaça
+  if (options.threatElement && options.threatElement !== 'all') {
+    const elTarget = String(options.threatElement).toLowerCase();
+    list = list.filter(s => {
+      if (!isThreatSheet(s)) return true;
+      if (elTarget === 'mundana' || elTarget === 'realidade') {
+        return s.categoria === 'mundana' || s.elementoDestaque === 'mundana' || (!s.elementos || s.elementos.length === 0);
+      }
+      const elems = Array.isArray(s.elementos) ? s.elementos.map(e => String(e).toLowerCase()) : [];
+      const destaque = String(s.elementoDestaque || '').toLowerCase();
+      return elems.includes(elTarget) || destaque === elTarget;
+    });
+  }
+
+  // 5c. Filtro por categoria de ameaça (paranormal / mundana)
+  if (options.threatCategory && options.threatCategory !== 'all') {
+    const catTarget = String(options.threatCategory).toLowerCase();
+    list = list.filter(s => {
+      if (!isThreatSheet(s)) return true;
+      const cat = String(s.categoria || (s.elementos?.length ? 'paranormal' : 'mundana')).toLowerCase();
+      return cat === catTarget;
+    });
+  }
+
+  // 5d. Filtro por faixa de VD
+  if (options.threatVdRange && options.threatVdRange !== 'all') {
+    list = list.filter(s => {
+      if (!isThreatSheet(s)) return true;
+      const vd = Number(s.vd) || 0;
+      switch (options.threatVdRange) {
+        case '1-20': return vd >= 1 && vd <= 20;
+        case '21-60': return vd >= 21 && vd <= 60;
+        case '61-140': return vd >= 61 && vd <= 140;
+        case '141-260': return vd >= 141 && vd <= 260;
+        case '280+': return vd >= 280;
+        default: return true;
+      }
+    });
+  }
+
+  // 5e. Filtro por VD mínimo/máximo customizado
+  const minVd = options.threatVdMin !== undefined && options.threatVdMin !== '' && options.threatVdMin !== null ? Number(options.threatVdMin) : NaN;
+  const maxVd = options.threatVdMax !== undefined && options.threatVdMax !== '' && options.threatVdMax !== null ? Number(options.threatVdMax) : NaN;
+  if (!isNaN(minVd)) {
+    list = list.filter(s => !isThreatSheet(s) || (Number(s.vd) || 0) >= minVd);
+  }
+  if (!isNaN(maxVd)) {
+    list = list.filter(s => !isThreatSheet(s) || (Number(s.vd) || 0) <= maxVd);
+  }
+
   // 6. Busca textual instantânea (nome, elemento, tipo, ocupação, classe, VD)
   if (options.search && typeof options.search === 'string') {
     const q = options.search.trim().toLowerCase();
@@ -119,8 +169,20 @@ export function visibleSheets(sheets = [], folders = [], options = {}) {
   // 7. Ordenação
   if (options.sort === 'name') {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' }));
-  } else if (options.sort === 'vd') {
-    list.sort((a, b) => (Number(b.vd) || 0) - (Number(a.vd) || 0));
+  } else if (options.sort === 'vd' || options.sort === 'vd-desc') {
+    list.sort((a, b) => {
+      const vdB = isThreatSheet(b) ? (Number(b.vd) || 0) : -1;
+      const vdA = isThreatSheet(a) ? (Number(a.vd) || 0) : -1;
+      if (vdB !== vdA) return vdB - vdA;
+      return (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' });
+    });
+  } else if (options.sort === 'vd-asc') {
+    list.sort((a, b) => {
+      const vdA = isThreatSheet(a) ? (Number(a.vd) || 0) : 99999;
+      const vdB = isThreatSheet(b) ? (Number(b.vd) || 0) : 99999;
+      if (vdA !== vdB) return vdA - vdB;
+      return (a.name || '').localeCompare(b.name || '', 'pt-BR', { sensitivity: 'base' });
+    });
   } else if (options.sort === 'recent') {
     list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   }
@@ -130,11 +192,123 @@ export function visibleSheets(sheets = [], folders = [], options = {}) {
 }
 
 /**
+ * Retorna o elemento primário de uma ficha de ameaça ('sangue', 'morte', etc.)
+ */
+export function getThreatElement(sheet) {
+  if (!sheet || sheet.systemMode !== 'threat') return '';
+  if (sheet.categoria === 'mundana' || sheet.elementoDestaque === 'mundana') {
+    return 'mundana';
+  }
+  if (Array.isArray(sheet.elementos) && sheet.elementos.length > 0) {
+    return String(sheet.elementos[0]).toLowerCase();
+  }
+  if (sheet.elementoDestaque) {
+    return String(sheet.elementoDestaque).toLowerCase();
+  }
+  return 'mundana';
+}
+
+/**
+ * Retorna todos os elementos de uma ficha de ameaça
+ */
+export function getThreatAllElements(sheet) {
+  if (!sheet || sheet.systemMode !== 'threat') return [];
+  if (sheet.categoria === 'mundana' || sheet.elementoDestaque === 'mundana') {
+    return ['mundana'];
+  }
+  const elems = Array.isArray(sheet.elementos) ? sheet.elementos.map(e => String(e).toLowerCase()) : [];
+  if (elems.length === 0 && sheet.elementoDestaque) {
+    elems.push(String(sheet.elementoDestaque).toLowerCase());
+  }
+  return elems.length > 0 ? elems : ['mundana'];
+}
+
+/**
+ * Determina a faixa de VD de uma criatura
+ */
+export function getThreatVdTier(vd) {
+  const num = Number(vd) || 0;
+  if (num <= 20) return '1-20';
+  if (num <= 60) return '21-60';
+  if (num <= 140) return '61-140';
+  if (num <= 260) return '141-260';
+  return '280+';
+}
+
+export const THREAT_VD_TIERS = [
+  { id: '1-20', label: 'VD 1–20', subtitle: 'Iniciante & Mundana', min: 1, max: 20 },
+  { id: '21-60', label: 'VD 21–60', subtitle: 'Veterano', min: 21, max: 60 },
+  { id: '61-140', label: 'VD 61–140', subtitle: 'Especialista', min: 61, max: 140 },
+  { id: '141-260', label: 'VD 141–260', subtitle: 'Elite', min: 141, max: 260 },
+  { id: '280+', label: 'VD 280+', subtitle: 'Lendário & Relíquias', min: 280, max: 9999 }
+];
+
+/**
+ * Conta ameaças por elemento
+ */
+export function countThreatsByElement(sheets = []) {
+  const threats = sheets.filter(isThreatSheet);
+  const counts = {
+    all: threats.length,
+    sangue: 0,
+    morte: 0,
+    energia: 0,
+    conhecimento: 0,
+    medo: 0,
+    mundana: 0
+  };
+
+  threats.forEach(t => {
+    const elems = getThreatAllElements(t);
+    elems.forEach(el => {
+      if (counts[el] !== undefined) {
+        counts[el]++;
+      }
+    });
+  });
+
+  return counts;
+}
+
+/**
+ * Conta ameaças por faixa de VD
+ */
+export function countThreatsByVdRange(sheets = []) {
+  const threats = sheets.filter(isThreatSheet);
+  const counts = {
+    all: threats.length,
+    '1-20': 0,
+    '21-60': 0,
+    '61-140': 0,
+    '141-260': 0,
+    '280+': 0
+  };
+
+  threats.forEach(t => {
+    const tier = getThreatVdTier(t.vd);
+    if (counts[tier] !== undefined) {
+      counts[tier]++;
+    }
+  });
+
+  return counts;
+}
+
+/**
  * Constrói a estrutura em árvore das pastas com suas fichas e contadores.
  */
 export function buildFolderTree(folders = [], sheets = [], options = {}) {
   const fList = normalizeFoldersTree(folders);
-  const sList = Array.isArray(sheets) ? sheets : [];
+  let sList = Array.isArray(sheets) ? sheets : [];
+
+  // Se options tiver filtros específicos para aplicar dentro das pastas
+  if (options.threatElement || options.threatVdRange || options.threatVdMin || options.threatVdMax || options.threatCategory) {
+    sList = visibleSheets(sList, folders, {
+      ...options,
+      scope: 'all',
+      visibleFolderIds: undefined
+    });
+  }
 
   function buildNode(folder) {
     const directSheets = sList.filter(s => s && s.folderId === folder.id);

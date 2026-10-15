@@ -339,7 +339,23 @@ let criticalEffects={pv:true,pd:true};
 try{criticalEffects={...criticalEffects,...JSON.parse(localStorage.getItem(CRITICAL_EFFECTS_KEY)||'{}')}}catch{}
 // Preferências gerais do app (fora dos efeitos críticos).
 const APP_SETTINGS_KEY='ordem-ii-app-settings-v1';
-let appSettings={tutorialOriginal:true, sidebarScope:'all', sidebarNavigatorOpen:false, sidebarNavigatorPinned:false, sidebarVisibleFolderIds:[], recentSheetIds:[]};
+let appSettings={
+  tutorialOriginal:true,
+  sidebarScope:'all',
+  sidebarNavigatorOpen:false,
+  sidebarNavigatorPinned:false,
+  sidebarVisibleFolderIds:[],
+  recentSheetIds:[],
+  threatFilterElement:'all',
+  threatFilterVdRange:'all',
+  threatFilterVdMin:'',
+  threatFilterVdMax:'',
+  threatFilterCategory:'all',
+  threatSort:'vd-desc',
+  threatGroupBy:'folders',
+  threatFiltersOpen:true,
+  virtualGroupsCollapsed:{}
+};
 try{appSettings={...appSettings,...JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'{}')}}catch{}
 function saveAppSettings(){try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{}}
 
@@ -347,6 +363,15 @@ let sidebarNavigatorOpen = Boolean(appSettings.sidebarNavigatorOpen);
 let sidebarNavigatorPinned = Boolean(appSettings.sidebarNavigatorPinned);
 let sidebarScope = appSettings.sidebarScope || 'all';
 let sidebarSearchQuery = '';
+let threatFilterElement = appSettings.threatFilterElement || 'all';
+let threatFilterVdRange = appSettings.threatFilterVdRange || 'all';
+let threatFilterVdMin = appSettings.threatFilterVdMin || '';
+let threatFilterVdMax = appSettings.threatFilterVdMax || '';
+let threatFilterCategory = appSettings.threatFilterCategory || 'all';
+let threatSort = appSettings.threatSort || 'vd-desc';
+let threatGroupBy = appSettings.threatGroupBy || 'folders';
+let threatFiltersOpen = appSettings.threatFiltersOpen !== false;
+let virtualGroupsCollapsed = appSettings.virtualGroupsCollapsed || {};
 let quickSwitcherOpen = false;
 let quickSwitcherQuery = '';
 let quickSwitcherIndex = 0;
@@ -1015,9 +1040,9 @@ function bindRollLogItemEvents(container = document) {
 
 function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());document.body.classList.toggle('navigator-pinned',Boolean(sidebarNavigatorPinned&&sidebarNavigatorOpen));const isCinematic=(presentationMode||state.viewMode==='cinematic')&&state.systemMode!=='threat';const previousScroll={sheet:app.querySelector('.sheet-main')?.scrollTop||0,right:app.querySelector('.right-panel')?.scrollTop||0,traditionalPage:app.querySelector('.traditional-dossier-page')?.scrollTop||0,threatPage:app.querySelector('.threat-book-page')?.scrollTop||0,cinematicRight:app.querySelector('.cinematic-scroll')?.scrollTop||0,cinematicSkills:app.querySelector('.cinematic-skills>div')?.scrollTop||0,sheetSwitcher:app.querySelector('.sheet-switcher')?.scrollTop||0};applyTheme();const bgIsVideo=!!(state.backgroundImage&&state.backgroundImage.startsWith('data:video/'));const trainingOptions=TRAINING.map(([label,value])=>({value:label,label,html:`${die(value,'menu-die',value>4)}<span>d${value} — ${label}</span>`})),aptidaoOptions=APTIDAO_FIELDS.map(value=>({value,label:value})),aptidaoCount=Array.isArray(state.skills)?state.skills.filter(s=>s.name.startsWith('APTIDÃO')).length:0;app.innerHTML=`
 
-	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button type="button" class="nav-btn ${sidebarNavigatorOpen?'active':''}" data-toggle-navigator title="Navegador de pastas e fichas">${icon('folder',18)}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div>${renderRailScopePills(sidebarScope,sheets)}${renderRailSwitcher(sheets,folders,state.id,{scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,safeUrl})}<span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
+	  <aside class="nav-rail compact-rail"><button class="nav-btn active main-sheet-icon" title="Ficha principal">${state.tokenImage?`<img src="${safeUrl(state.tokenImage)}" alt="" draggable="false">`:icon('sheet')}</button><button type="button" class="nav-btn ${sidebarNavigatorOpen?'active':''}" data-toggle-navigator title="Navegador de pastas e fichas">${icon('folder',18)}</button><button class="nav-btn" ${state.systemMode==='original'?'data-open-compendium title="Compêndio"':'data-compendium title="Compêndio (em breve)"'}>${icon('book')}</button><button type="button" class="nav-btn" data-open-presentation title="Modo de Apresentação / Seleção de Agentes (Dossiês)">${icon('presentation',18)}</button><button type="button" class="nav-btn btn-nav-roll-log" data-open-roll-log title="Histórico de rolagens (H)">${icon('history',18)}<span class="roll-log-badge ${rollLog.length?'visible':''}" id="nav-roll-badge">${rollLog.length||''}</span></button><div class="nav-separator"></div>${renderRailScopePills(sidebarScope,sheets)}${renderRailSwitcher(sheets,folders,state.id,{scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,threatElement:threatFilterElement,threatVdRange:threatFilterVdRange,threatVdMin:threatFilterVdMin,threatVdMax:threatFilterVdMax,threatCategory:threatFilterCategory,threatSort:threatSort,safeUrl})}<span class="nav-spacer"></span><button class="nav-btn" data-export-cinematic-image title="Exportar imagem da ficha cinematográfica (PNG HD)">${icon('camera')}</button><button class="nav-btn" data-export-json title="Exportar ficha em JSON">${icon('download')}</button><button class="nav-btn" data-import-json title="Importar ficha em JSON">${icon('upload')}</button><input type="file" id="json-file-input" accept=".json,application/json" style="display:none"><button class="nav-btn" data-save-sheet title="Salvar ficha (disco e navegador)">${icon('save')}</button><button class="nav-btn" data-critical-settings title="Configurar efeitos críticos">${icon('settings')}</button></aside>
 
-   ${renderWorkspaceNavigator(folders,sheets,state.id,{open:sidebarNavigatorOpen,pinned:sidebarNavigatorPinned,searchQuery:sidebarSearchQuery,scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,recentSheetIds:appSettings.recentSheetIds,safeUrl})}
+   ${renderWorkspaceNavigator(folders,sheets,state.id,{open:sidebarNavigatorOpen,pinned:sidebarNavigatorPinned,searchQuery:sidebarSearchQuery,scope:sidebarScope,visibleFolderIds:appSettings.sidebarVisibleFolderIds,recentSheetIds:appSettings.recentSheetIds,threatElement:threatFilterElement,threatVdRange:threatFilterVdRange,threatVdMin:threatFilterVdMin,threatVdMax:threatFilterVdMax,threatCategory:threatFilterCategory,threatSort:threatSort,threatGroupBy:threatGroupBy,threatFiltersOpen:threatFiltersOpen,virtualGroupsCollapsed:virtualGroupsCollapsed,safeUrl})}
    ${quickSwitcherOpen?renderQuickSwitcherModal(sheets,folders,quickSwitcherQuery,quickSwitcherIndex,safeUrl):''}
 
   ${state.systemMode==='threat'
@@ -2759,9 +2784,105 @@ function updateNavigatorTreeOnly() {
   scope: sidebarScope,
   visibleFolderIds: appSettings.sidebarVisibleFolderIds,
   recentSheetIds: appSettings.recentSheetIds,
+  threatElement: threatFilterElement,
+  threatVdRange: threatFilterVdRange,
+  threatVdMin: threatFilterVdMin,
+  threatVdMax: threatFilterVdMax,
+  threatCategory: threatFilterCategory,
+  threatSort: threatSort,
+  threatGroupBy: threatGroupBy,
+  virtualGroupsCollapsed: virtualGroupsCollapsed,
   safeUrl
  });
  bindNavigatorTreeEvents(container);
+}
+
+function updateThreatPanelCountsOnly() {
+ const panel = document.querySelector('#nav-threat-filter-panel');
+ if (!panel) return;
+ const threats = sheets.filter(isThreatSheet);
+ const matchingThreats = visibleSheets(threats, [], {
+  scope: 'threats',
+  threatElement: threatFilterElement,
+  threatVdRange: threatFilterVdRange,
+  threatVdMin: threatFilterVdMin,
+  threatVdMax: threatFilterVdMax,
+  threatCategory: threatFilterCategory
+ });
+ const hasActiveFilters = threatFilterElement !== 'all' ||
+  threatVdRange !== 'all' ||
+  (threatFilterVdMin !== '' && !isNaN(Number(threatFilterVdMin))) ||
+  (threatFilterVdMax !== '' && !isNaN(Number(threatFilterVdMax))) ||
+  threatCategory !== 'all';
+
+ const badge = panel.querySelector('.nav-threat-active-badge, .nav-threat-total-badge');
+ if (badge) {
+  if (hasActiveFilters) {
+   badge.className = 'nav-threat-active-badge';
+   badge.textContent = `${matchingThreats.length}/${threats.length}`;
+  } else {
+   badge.className = 'nav-threat-total-badge';
+   badge.textContent = `${threats.length}`;
+  }
+ }
+
+ const headerRight = panel.querySelector('.nav-threat-header-right');
+ if (headerRight) {
+  const clearBtn = headerRight.querySelector('[data-clear-threat-filters]');
+  if (clearBtn) {
+   clearBtn.style.display = hasActiveFilters ? 'inline-flex' : 'none';
+  }
+ }
+
+ const customInputs = panel.querySelector('.custom-vd-inputs');
+ if (customInputs) {
+  const miniClear = customInputs.querySelector('[data-clear-custom-vd]');
+  const hasCustom = threatFilterVdMin !== '' || threatFilterVdMax !== '';
+  if (miniClear) {
+   miniClear.style.display = hasCustom ? 'grid' : 'none';
+  }
+ }
+}
+
+function updateRailSwitcherOnly() {
+ const railSwitcher = document.querySelector('.compact-rail .sheet-switcher');
+ if (!railSwitcher) return;
+ const tempDiv = document.createElement('div');
+ tempDiv.innerHTML = renderRailSwitcher(sheets, folders, state.id, {
+  scope: sidebarScope,
+  visibleFolderIds: appSettings.sidebarVisibleFolderIds,
+  threatElement: threatFilterElement,
+  threatVdRange: threatFilterVdRange,
+  threatVdMin: threatFilterVdMin,
+  threatVdMax: threatFilterVdMax,
+  threatCategory: threatFilterCategory,
+  threatSort: threatSort,
+  safeUrl
+ });
+ const newSwitcher = tempDiv.firstElementChild;
+ if (newSwitcher) {
+  railSwitcher.replaceWith(newSwitcher);
+  newSwitcher.querySelectorAll('[data-sheet-id]').forEach(btn => {
+   btn.onclick = () => switchToSheet(btn.dataset.sheetId);
+  });
+  newSwitcher.querySelectorAll('[data-clear-threat-filters]').forEach(btn => {
+   btn.onclick = (e) => {
+    e.stopPropagation();
+    threatFilterElement = 'all';
+    threatFilterVdRange = 'all';
+    threatFilterVdMin = '';
+    threatFilterVdMax = '';
+    threatFilterCategory = 'all';
+    appSettings.threatFilterElement = 'all';
+    appSettings.threatFilterVdRange = 'all';
+    appSettings.threatFilterVdMin = '';
+    appSettings.threatFilterVdMax = '';
+    appSettings.threatFilterCategory = 'all';
+    saveAppSettings();
+    render();
+   };
+  });
+ }
 }
 
 function updateMobileDrawerOnly() {
@@ -2785,6 +2906,19 @@ function updateMobileDrawerOnly() {
 }
 
 function bindNavigatorTreeEvents(container = document) {
+ container.querySelectorAll('[data-toggle-virtual-group]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   const gId = el.dataset.toggleVirtualGroup;
+   if (gId) {
+    virtualGroupsCollapsed[gId] = !virtualGroupsCollapsed[gId];
+    appSettings.virtualGroupsCollapsed = virtualGroupsCollapsed;
+    saveAppSettings();
+    updateNavigatorTreeOnly();
+   }
+  };
+ });
+
  container.querySelectorAll('[data-toggle-folder-id], [data-folder-click-toggle]').forEach(el => {
   el.onclick = (e) => {
    e.stopPropagation();
@@ -3048,6 +3182,123 @@ function bindWorkspaceSidebarEvents() {
  document.querySelectorAll('[data-mobile-clear-search]').forEach(btn => {
   btn.onclick = () => {
    mobileSearchQuery = '';
+   render();
+  };
+ });
+
+ // Eventos do Painel de Filtros de Ameaças
+ document.querySelectorAll('[data-toggle-threat-filters-panel]').forEach(el => {
+  el.onclick = (e) => {
+   e.stopPropagation();
+   threatFiltersOpen = !threatFiltersOpen;
+   appSettings.threatFiltersOpen = threatFiltersOpen;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-filter-threat-element]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const el = btn.dataset.filterThreatElement;
+   if (el) {
+    threatFilterElement = el;
+    appSettings.threatFilterElement = el;
+    saveAppSettings();
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-filter-threat-vd]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const vd = btn.dataset.filterThreatVd;
+   if (vd) {
+    threatFilterVdRange = vd;
+    threatFilterVdMin = '';
+    threatFilterVdMax = '';
+    appSettings.threatFilterVdRange = vd;
+    appSettings.threatFilterVdMin = '';
+    appSettings.threatFilterVdMax = '';
+    saveAppSettings();
+    render();
+   }
+  };
+ });
+
+ document.querySelectorAll('[data-threat-vd-min]').forEach(input => {
+  input.oninput = (e) => {
+   threatFilterVdMin = e.target.value;
+   threatFilterVdRange = (threatFilterVdMin || threatFilterVdMax) ? 'custom' : 'all';
+   appSettings.threatFilterVdMin = threatFilterVdMin;
+   appSettings.threatFilterVdRange = threatFilterVdRange;
+   saveAppSettings();
+   updateNavigatorTreeOnly();
+   updateThreatPanelCountsOnly();
+   updateRailSwitcherOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-vd-max]').forEach(input => {
+  input.oninput = (e) => {
+   threatFilterVdMax = e.target.value;
+   threatFilterVdRange = (threatFilterVdMin || threatFilterVdMax) ? 'custom' : 'all';
+   appSettings.threatFilterVdMax = threatFilterVdMax;
+   appSettings.threatFilterVdRange = threatFilterVdRange;
+   saveAppSettings();
+   updateNavigatorTreeOnly();
+   updateThreatPanelCountsOnly();
+   updateRailSwitcherOnly();
+  };
+ });
+
+ document.querySelectorAll('[data-clear-custom-vd]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   threatFilterVdMin = '';
+   threatFilterVdMax = '';
+   threatFilterVdRange = 'all';
+   appSettings.threatFilterVdMin = '';
+   appSettings.threatFilterVdMax = '';
+   appSettings.threatFilterVdRange = 'all';
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-group-select]').forEach(sel => {
+  sel.onchange = (e) => {
+   threatGroupBy = e.target.value;
+   appSettings.threatGroupBy = threatGroupBy;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-sort-select]').forEach(sel => {
+  sel.onchange = (e) => {
+   threatSort = e.target.value;
+   appSettings.threatSort = threatSort;
+   saveAppSettings();
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-clear-threat-filters]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   threatFilterElement = 'all';
+   threatFilterVdRange = 'all';
+   threatFilterVdMin = '';
+   threatFilterVdMax = '';
+   threatFilterCategory = 'all';
+   appSettings.threatFilterElement = 'all';
+   appSettings.threatFilterVdRange = 'all';
+   appSettings.threatFilterVdMin = '';
+   appSettings.threatFilterVdMax = '';
+   appSettings.threatFilterCategory = 'all';
+   saveAppSettings();
    render();
   };
  });

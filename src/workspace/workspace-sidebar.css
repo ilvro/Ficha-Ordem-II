@@ -545,6 +545,7 @@
 }
 
 .nav-sheet-name {
+  display: block;
   font-size: 11.5px;
   font-weight: 600;
   color: #c9cde0;
@@ -793,4 +794,407 @@
   font-size: 9px;
   color: #8f95ba;
 }
+
+/* ── Painel de Filtros e Organização de Ameaças ─────────────────────── */
+.rail-threat-filter-pill {
+  width: 42px;
+  height: 20px;
+  margin: 0 auto 6px auto;
+  border-radius: 10px;
+  background: #20132e;
+  border: 1px solid #993ce8;
+  color: #d19eff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 800;
+  transition: all 0.15s ease;
+  box-shadow: 0 0 8px rgba(153, 60, 232, 0.35);
+}
+
+.rail-threat-filter-pill:hover {
+  background: #34194d;
+  color: #fff;
+  border-color: #b969ff;
+}
+
+.rail-threat-filter-pill .rail-filter-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e0150d;
+}
+
+.rail-threat-filter-pill .rail-filter-x {
+  font-size: 8px;
+  opacity: 0.8;
+}
+
+/* Painel de Filtros Expandido */
+.nav-threat-filter-panel {
+  background: #111321;
+  border-bottom: 1px solid #23263c;
+  transition: all 0.2s ease;
+}
+
+.nav-threat-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #141627;
+  border-bottom: 1px solid #1e2035;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-threat-filter-header:hover {
+  background: #181b2f;
+}
+
+.nav-threat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #c99bf7;
+}
+
+.nav-threat-filter-title {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #e2e4f3;
+}
+
+.nav-threat-active-badge {
+  font-size: 8.5px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: #993ce8;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+.nav-threat-total-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: #24273d;
+  color: #9ea3c4;
+}
+
+.nav-threat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-threat-clear-btn {
+  font-size: 8.5px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #2d1838;
+  border: 1px solid #8234c9;
+  color: #e4beff;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.nav-threat-clear-btn:hover {
+  background: #462059;
+  color: #fff;
+  border-color: #b157ff;
+}
+
+.nav-threat-panel-chevron {
+  background: transparent;
+  border: none;
+  color: #7b80a1;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.nav-threat-filter-body {
+  padding: 8px 12px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: #0f101d;
+}
+
+.nav-threat-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-threat-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  color: #696f8e;
+  text-transform: uppercase;
+}
+
+.nav-threat-section-reset {
+  background: transparent;
+  border: none;
+  color: #8c92b5;
+  font-size: 8.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-threat-section-reset:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.nav-threat-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.nav-threat-chip {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #171829;
+  border: 1px solid #282a42;
+  color: #9ba0be;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.nav-threat-chip:hover {
+  background: #22243b;
+  color: #fff;
+  border-color: #3f4265;
+}
+
+.nav-threat-chip.active {
+  background: #2a1f3d;
+  border-color: #993ce8;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(153, 60, 232, 0.3);
+}
+
+.nav-threat-chip.chip-sangue.active {
+  background: #311316;
+  border-color: #e0150d;
+  box-shadow: 0 0 8px rgba(224, 21, 13, 0.35);
+}
+
+.nav-threat-chip.chip-mundana.active {
+  background: #242636;
+  border-color: #ffffff;
+  color: #fff;
+}
+
+.nav-threat-chip.chip-morte.active {
+  background: #1c1d29;
+  border-color: #888d9e;
+}
+
+.nav-threat-chip.chip-energia.active {
+  background: #2b173e;
+  border-color: #993ce8;
+}
+
+.nav-threat-chip.chip-conhecimento.active {
+  background: #2e2616;
+  border-color: #cca02b;
+}
+
+.nav-threat-chip.chip-medo.active {
+  background: #242738;
+  border-color: #d5d7e0;
+}
+
+.elem-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chip-count {
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c1c6e2;
+  line-height: 1;
+}
+
+.nav-threat-custom-vd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.custom-vd-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #6a6f8f;
+}
+
+.custom-vd-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.custom-vd-inputs input {
+  width: 44px;
+  background: #16182a;
+  border: 1px solid #292c47;
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: #e2e5f5;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.custom-vd-inputs input:focus {
+  border-color: #993ce8;
+}
+
+.custom-vd-sep {
+  font-size: 9px;
+  color: #636888;
+}
+
+.nav-threat-mini-clear {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #271a33;
+  border: 1px solid #572d73;
+  color: #dca3ff;
+  font-size: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.nav-threat-mini-clear:hover {
+  background: #3d2152;
+  color: #fff;
+}
+
+.nav-threat-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #191b2c;
+}
+
+.nav-threat-control-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-threat-control-label {
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #666b89;
+  text-transform: uppercase;
+}
+
+.nav-threat-select {
+  background: #16182a;
+  border: 1px solid #282b45;
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: #c7cbe2;
+  font-size: 10px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+
+.nav-threat-select:focus {
+  border-color: #993ce8;
+}
+
+/* Virtual Groups na Árvore */
+.nav-virtual-group .nav-folder-header {
+  border-left: 2px solid transparent;
+}
+
+.nav-virtual-group:hover .nav-folder-header {
+  border-left-color: #993ce8;
+}
+
+.nav-elem-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nav-vd-tier-badge {
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #1c1e30;
+  border: 1px solid #313552;
+  color: #d19eff;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+/* Badges e tags de Ameaça nas linhas da lista */
+.nav-sheet-threat-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.nav-sheet-elem-tag {
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid var(--elem-color, #777);
+  background: rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.nav-sheet-item.threat-sheet-item:hover {
+  background: #18192a;
+}
+
 

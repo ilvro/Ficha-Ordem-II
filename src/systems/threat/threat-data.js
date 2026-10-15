@@ -11,6 +11,9 @@ export const THREAT_ELEMENTS = {
   mundana: { id: 'mundana', nome: 'Realidade', cor: '#ffffff', texto: '#111827' }
 };
 
+// Origem da ficha. Campo interno usado apenas para filtros futuros; não é exibido na ficha.
+export const THREAT_SOURCES = ['homebrew', 'livro-de-regras', 'sobrevivendo-ao-horror'];
+
 export const ACTION_TYPES = [
   { id: 'padrao', nome: 'Padrão', simbolo: '◆', desc: 'Ação Padrão (ataques e habilidades principais)' },
   { id: 'movimento', nome: 'Movimento', simbolo: '❖', desc: 'Ação de Movimento (deslocamentos e manobras)' },
@@ -70,6 +73,7 @@ export const DEFAULT_THREAT_SHEET = {
   systemMode: 'threat',
   folderId: 'folder-threats',
   favorite: false,
+  fonte: 'homebrew', // 'homebrew' | 'livro-de-regras' | 'sobrevivendo-ao-horror'
   categoria: 'paranormal', // 'paranormal' | 'mundana'
   subtitulo: '',
   vd: 60,
