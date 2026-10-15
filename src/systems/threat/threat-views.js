@@ -134,6 +134,12 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
         <!-- ── BARRA BRANCA DECORATIVA SUPERIOR DO LIVRO ── -->
         <div class="threat-book-top-bar" aria-hidden="true"></div>
 
+        <!-- BOTÃO DE EXPORTAR IMAGEM (COMPLETO OU MIRO) -->
+        <button type="button" class="threat-export-trigger-btn" data-threat-open-export title="Exportar imagem da ficha (Completo ou Miro)">
+          ${icon('camera', 13)}
+          <span>EXPORTAR FOTO</span>
+        </button>
+
         ${editMode ? `
           <!-- ── BARRA DO ASSISTENTE DE BALANCEAMENTO E WIZARD (MODO EDIÇÃO) ── -->
           <div class="threat-assistant-bar">
@@ -149,6 +155,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               </button>
               <button type="button" class="threat-assistant-btn btn-intro ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar ambientação narrativa e arte do livro">
                 📖 ${sheet.hasIntro ? 'INTRODUÇÃO (ATIVA)' : '+ INTRODUÇÃO'}
+              </button>
+              <button type="button" class="threat-assistant-btn btn-export" data-threat-open-export title="Exportar imagem (Completo ou Miro)">
+                📷 EXPORTAR FOTO
               </button>
 
               <!-- Seletor Proeminente de Cor Tema -->

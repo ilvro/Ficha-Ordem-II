@@ -106,6 +106,7 @@ import { normalizeThreatSheet } from './systems/threat/threat-system.js';
 import { renderThreatBook } from './systems/threat/threat-views.js';
 import { abrirThreatWizard, fecharThreatWizard } from './systems/threat/threat-wizard.js';
 import { getBalance, evaluateSheet } from './systems/threat/threat-balance.js';
+import { openThreatExportModal, exportThreatFullImage, exportThreatMiroCard } from './systems/threat/threat-export.js';
 import {
   DEFAULT_FOLDERS,
   normalizeFolders,
@@ -1435,6 +1436,17 @@ function bindThreatBookEvents() {
    }
    save(false);
    render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-open-export]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const toast = document.querySelector('#save-toast');
+   const showToastMsg = (msg, duration = 2200) => {
+    if (toast) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); toast.textContent = 'SALVO'; }, duration); }
+   };
+   openThreatExportModal(state, { showToastMsg });
   };
  });
 
@@ -3451,12 +3463,16 @@ function updateResourceUi(key){const current=state[key],temp=state[`${key}Temp`]
 function updateMarkerUi(cardId,markerId){const card=state.cards.find(c=>c.id===cardId),marker=card?.markers.find(m=>m.id===markerId);if(!marker)return;const max=markerMax(marker),current=Math.min(Number(marker.current)||0,max||999),id=`${cardId}:${markerId}`;document.querySelectorAll(`[data-card-marker^="${id}:"],[data-card-marker-set^="${id}:"]`).forEach(el=>{const container=el.closest('.card-marker');if(!container)return;const toggle=container.querySelector('.toggle-switch');if(toggle){toggle.classList.toggle('on',!!current);toggle.innerHTML=`<i></i>${current?'LIGADO':'DESLIGADO'}`}const track=container.querySelector('.progress-track i');if(track)track.style.width=`${max?current/max*100:0}%`;const charges=container.querySelectorAll('.charge');charges.forEach((btn,i)=>btn.classList.toggle('on',i<current));const strong=container.querySelector('strong');if(strong){if(container.classList.contains('marker-bar')||container.classList.contains('marker-pips')){strong.textContent=`${current}/${max}`}else if(!container.classList.contains('marker-toggle')){strong.textContent=`${current}${max?`/${max}`:''}`}}})}
 let isExportingCinematicImage=false;
 async function exportCinematicImage(){
- if(isExportingCinematicImage)return;
- isExportingCinematicImage=true;
  const toast=document.querySelector('#save-toast');
  const showToastMsg=(msg,duration=2200)=>{
   if(toast){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.textContent='SALVO'},duration)}
  };
+ if(state.systemMode==='threat'){
+  openThreatExportModal(state,{showToastMsg});
+  return;
+ }
+ if(isExportingCinematicImage)return;
+ isExportingCinematicImage=true;
  showToastMsg('RENDERIZANDO IMAGEM HD...',4500);
  const prevViewMode=state.viewMode,prevEditMode=editMode;
  let switched=false;
