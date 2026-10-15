@@ -104,10 +104,10 @@ const ELEMENT_THEMES = {
   },
   conhecimento: {
     nome: 'CONHECIMENTO',
-    cor: '#cca02b',
+    cor: '#b3841a',
     corClara: '#ffffff',
-    bg: 'rgba(204, 160, 43, 0.16)',
-    glow: 'rgba(204, 160, 43, 0.45)',
+    bg: 'rgba(179, 132, 26, 0.16)',
+    glow: 'rgba(179, 132, 26, 0.45)',
     desc: 'Razão, consciência, palavras e sigilos misteriosos.'
   },
   medo: {

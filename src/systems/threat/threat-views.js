@@ -91,7 +91,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
   const elemInk = getInkColor(elemColor);
   // Páginas claras no livro: Sangue e ameaças mundanas (as demais são escuras)
-  const isLightPage = isMundane || elemDestaqueKey === 'sangue' || elemInk === '#0c0e14';
+  const isLightPage = isMundane || elemDestaqueKey === 'sangue';
   const elemDark = isMundane ? '#000000' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
@@ -127,7 +127,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
       <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
         <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
-        ${sheet.tokenImage ? `
+        ${(sheet.tokenImage && !sheet.hasIntro) ? `
           <div class="threat-creature-watermark" style="background-image:url('${safeUrl(sheet.tokenImage)}');" aria-hidden="true"></div>
         ` : ''}
 
@@ -413,7 +413,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
         <div class="threat-book-top-divider"></div>
 
         <!-- ── CORPO EDITORIAL EM 2 COLUNAS DO LIVRO ── -->
-        <div class="threat-book-columns-layout">
+        <div class="threat-book-columns-layout"><!--FLOW-A-->
           
           <!-- ── COLUNA ESQUERDA: ESTATÍSTICAS E REGRAS ── -->
           <div class="threat-book-col-left">
@@ -703,7 +703,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
             ` : ''}
 
             <!-- SEÇÕES LIVRES / HABILIDADES COLUNA ESQUERDA (Ex: Membros Longos, Parte do Cenário, O Sino) -->
-            ${secoesEsquerda.map(sec => `
+            <!--SEC-A-->${[...secoesEsquerda].sort((a, b) => (a.estilo === 'enigma') - (b.estilo === 'enigma')).map((sec, i, arr) => `${(sec.estilo === 'enigma' && (i === 0 || arr[i - 1].estilo !== 'enigma')) ? '<!--ENI-->' : ''}
               <div class="threat-book-block ${sec.estilo === 'enigma' ? 'is-enigma-card' : ''}">
                 <div class="threat-book-heading-row" style="justify-content:space-between;">
                   <span class="threat-book-badge ${sec.estilo === 'enigma' ? 'tag-enigma' : ''}">${safe(sec.titulo)}</span>
@@ -717,7 +717,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 <div class="threat-book-text-body">${formatCardText(sec.corpo)}</div>
                 ${sec.estilo !== 'enigma' ? `<div class="threat-book-divider"></div>` : ''}
               </div>
-            `).join('')}
+            `).join('')}<!--SEC-B-->
 
             <!-- AÇÕES DA COLUNA ESQUERDA (SE HOUVER) -->
             ${acoesEsquerda.length ? `
@@ -738,6 +738,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
           </div>
 
+          <!--FLOW-B-->
           <!-- ── COLUNA DIREITA: SEÇÕES E AÇÕES DO LIVRO ── -->
           <div class="threat-book-col-right">
             
@@ -783,23 +784,55 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
         </div>
 
+        <!--FLOW-C-->
         <!-- ── BARRA BRANCA DECORATIVA INFERIOR DO LIVRO ── -->
         <footer class="threat-book-bottom-bar"></footer>
 
       </article>
   `;
 
-  const spreadHtml = (sheet.hasIntro && introSide !== 'top') ? `
-    <div class="threat-book-spread spread-intro-${introSide}">
-      ${introSide === 'right' ? `
-        <div class="threat-book-stats-col">${cardHtml}</div>
-        ${introSideHtml}
-      ` : `
-        ${introSideHtml}
-        <div class="threat-book-stats-col">${cardHtml}</div>
-      `}
-    </div>
-  ` : cardHtml;
+  // Introdução lateral: a ficha começa abaixo do texto de introdução (coluna esquerda)
+  // e continua na coluna da direita, como em uma página dupla de livro.
+  let spreadHtml = cardHtml;
+  if (sheet.hasIntro && introSide !== 'top') {
+    const mA = '<!--FLOW-A-->', mB = '<!--FLOW-B-->', mC = '<!--FLOW-C-->';
+    const iA = cardHtml.indexOf(mA), iB = cardHtml.indexOf(mB), iC = cardHtml.indexOf(mC);
+    const iArt = cardHtml.indexOf('<article');
+    let head = cardHtml.slice(iArt, iA);
+    // O botão de exportar fica no canto do spread, acima da introdução
+    const expRe = /<button type="button" class="threat-export-trigger-btn"[\s\S]*?<\/button>/;
+    const exportBtn = (head.match(expRe) || [''])[0];
+    head = head.replace(expRe, '').replace(/<div class="threat-book-columns-layout">\s*$/, '');
+    const colsOpen = '<div class="threat-book-columns-layout flow-single">';
+    // Seções livres (O Sino, Enigma de Medo...) vão para a coluna da direita, antes das ações
+    let leftBody = cardHtml.slice(iA + mA.length, iB);
+    const sa = leftBody.indexOf('<!--SEC-A-->'), sb = leftBody.indexOf('<!--SEC-B-->');
+    let secHtml = '';
+    if (sa >= 0 && sb > sa) { secHtml = leftBody.slice(sa, sb); leftBody = leftBody.slice(0, sa) + leftBody.slice(sb); }
+    let rightBody = cardHtml.slice(iB + mB.length, iC);
+    const rOpen = '<div class="threat-book-col-right">', rI = rightBody.indexOf(rOpen);
+    // Enigma de Medo fica no fim da coluna, depois das ações (como no livro)
+    let eniHtml = '';
+    const eI = secHtml.indexOf('<!--ENI-->');
+    if (eI >= 0) { eniHtml = secHtml.slice(eI); secHtml = secHtml.slice(0, eI); }
+    if (rI >= 0) rightBody = rightBody.slice(0, rI + rOpen.length) + secHtml + rightBody.slice(rI + rOpen.length);
+    if (eniHtml) {
+      const i1 = rightBody.lastIndexOf('</div>'), i2 = rightBody.lastIndexOf('</div>', i1 - 1);
+      if (i2 > 0) rightBody = rightBody.slice(0, i2) + eniHtml + rightBody.slice(i2);
+    }
+    const leftPart = `${head}${colsOpen}${leftBody}</div><footer class="threat-book-bottom-bar"></footer></article>`;
+    const rightPart = `<article class="threat-dossier-card flow-part"><div class="threat-book-top-bar" aria-hidden="true"></div>${colsOpen}${rightBody}<footer class="threat-book-bottom-bar"></footer></article>`;
+    // Três colunas em telas largas (introdução | estatísticas | ações);
+    // em telas médias a introdução ocupa o topo, na horizontal, e a ficha fica embaixo.
+    const introCol = `<div class="threat-book-flow-col flow-intro">${introSideHtml}</div>`;
+    const statsCol = `<div class="threat-book-flow-col flow-stats">${leftPart}</div>`;
+    const actionsCol = `<div class="threat-book-flow-col flow-actions">${rightPart}</div>`;
+    spreadHtml = `
+    <div class="threat-book-spread spread-flow spread-intro-${introSide}">
+      ${exportBtn}
+      ${introSide === 'right' ? statsCol + actionsCol + introCol : introCol + statsCol + actionsCol}
+    </div>`;
+  }
 
   return `
     <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''} ${isLightPage ? 'theme-light' : 'theme-dark'}" 
@@ -825,6 +858,8 @@ function renderIntroSection(sheet, editMode = false, options = {}, layoutMode = 
   const { safeUrl = s => s } = options;
   const isTop = layoutMode === 'top';
   const introSide = ['top', 'left', 'right'].includes(sheet.introSide) ? sheet.introSide : (sheet.categoria === 'mundana' ? 'top' : 'left');
+  // Sem arte própria da introdução, usa a ilustração da criatura
+  const introArt = sheet.introImage || sheet.tokenImage || '';
 
   return `
     <section class="threat-book-intro-col ${isTop ? 'threat-intro-top-layout' : 'threat-intro-side-layout'}" aria-label="Introdução e Ambientação da Ameaça">
@@ -853,12 +888,12 @@ function renderIntroSection(sheet, editMode = false, options = {}, layoutMode = 
         </div>
       ` : ''}
 
-      <div class="threat-intro-inner ${isTop ? 'inner-top' : 'inner-side'} ${sheet.introImage ? 'has-art' : 'no-art'}">
+      <div class="threat-intro-inner ${isTop ? 'inner-top' : 'inner-side'} ${introArt ? 'has-art' : 'no-art'}">
         <!-- Ilustração da Criatura (se houver) -->
-        ${sheet.introImage ? `
+        ${introArt ? `
           <div class="threat-intro-artwork-container">
             <div class="threat-intro-artwork-wrap">
-              <img src="${safeUrl(sheet.introImage)}" class="threat-intro-artwork-img" alt="${safe(sheet.name)}">
+              <img src="${safeUrl(introArt)}" class="threat-intro-artwork-img" alt="${safe(sheet.name)}">
               ${editMode ? `
                 <label class="threat-intro-artwork-overlay" title="Alterar ilustração da criatura">
                   ${icon('camera', 14)}
@@ -1115,7 +1150,7 @@ function renderThreatModals(sheet) {
               <button type="button" data-threat-format="italic" title="Itálico"><i>I</i></button>
               <button type="button" data-threat-format="underline" title="Sublinhado"><u>U</u></button>
               <span class="color-picker" title="Cor do texto">
-                <input id="threat-action-color" type="color" value="#cca02b">
+                <input id="threat-action-color" type="color" value="#b3841a">
                 <span>A</span>
               </span>
               <button type="button" data-threat-format="color">APLICAR COR</button>

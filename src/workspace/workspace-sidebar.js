@@ -273,7 +273,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-conhecimento ${threatElement === 'conhecimento' ? 'active' : ''}" 
                 data-filter-threat-element="conhecimento" 
                 title="Elemento Conhecimento (${elemCounts.conhecimento})">
-                <span class="elem-chip-dot" style="background:#cca02b;"></span>
+                <span class="elem-chip-dot" style="background:#b3841a;"></span>
                 <span>CONHEC.</span>
                 <span class="chip-count">${elemCounts.conhecimento}</span>
               </button>
@@ -559,7 +559,7 @@ function renderElementGroupedThreats(threats = [], activeSheetId = '', safeUrl =
     { id: 'sangue', nome: 'Sangue', cor: '#e0150d' },
     { id: 'morte', nome: 'Morte', cor: '#181922', textCor: '#d1d5db', borderCor: '#6b7280' },
     { id: 'energia', nome: 'Energia', cor: '#993ce8' },
-    { id: 'conhecimento', nome: 'Conhecimento', cor: '#cca02b' },
+    { id: 'conhecimento', nome: 'Conhecimento', cor: '#b3841a' },
     { id: 'medo', nome: 'Medo', cor: '#d5d7e0', textCor: '#ffffff' },
     { id: 'mundana', nome: 'Realidade / Mundana', cor: '#ffffff' }
   ];

@@ -149,7 +149,7 @@
 .threat-book-page.threat-page-conhecimento {
   background-color: #0c0903;
   background-image: 
-    radial-gradient(circle at 85% 15%, rgba(204, 160, 43, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(179, 132, 26, 0.28) 0%, transparent 55%),
     radial-gradient(circle at 15% 85%, rgba(175, 130, 25, 0.25) 0%, transparent 60%),
     radial-gradient(circle at 50% 50%, rgba(25, 19, 6, 0.6) 0%, rgba(8, 6, 2, 0.98) 100%),
     linear-gradient(135deg, rgba(255, 220, 120, 0.05) 0%, transparent 50%);
@@ -487,7 +487,7 @@
   pointer-events: none;
 }
 .element-pill-conhecimento {
-  background: #cca02b;
+  background: #b3841a;
   color: #ffffff;
   border: none;
 }
@@ -4165,3 +4165,160 @@ body.threat-exporting .modal {
   box-shadow: none !important;
 }
 
+
+/* ── Introdução lateral em fluxo de livro ────────────────────────────────────
+   O texto de introdução ocupa o topo da coluna esquerda; a ficha começa logo
+   abaixo dele e continua na coluna da direita. A ilustração flutua no texto. */
+.threat-book-spread.spread-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+  max-width: 1360px;
+}
+.threat-book-flow-col { min-width: 0; position: relative; z-index: 2; }
+.threat-book-flow-col .threat-dossier-card { max-width: none; }
+.threat-book-columns-layout.flow-single { display: block; }
+.threat-book-flow-col .threat-intro-side-layout {
+  max-width: none;
+  flex: none;
+  margin: 0 0 20px 0;
+}
+.threat-intro-inner.inner-side.has-art {
+  display: block;
+}
+.threat-intro-inner.inner-side.has-art::after { content: ''; display: block; clear: both; }
+.threat-intro-inner.inner-side.has-art .threat-intro-artwork-container {
+  float: right;
+  width: 44%;
+  max-width: 280px;
+  margin: 2px 0 10px 20px;
+}
+.threat-intro-inner.inner-side.has-art .threat-intro-artwork-img { max-height: 340px; }
+@media (max-width: 980px) {
+  .threat-book-spread.spread-flow { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+.threat-book-spread.spread-flow { position: relative; }
+
+/* Enigma de Medo legível também em páginas de tema claro */
+.threat-book-page .threat-book-block.is-enigma-card,
+.threat-book-page.theme-light .threat-book-block.is-enigma-card {
+  background: #110f0b !important;
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body,
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body *,
+.threat-book-page.theme-light .threat-book-block.is-enigma-card .threat-book-text-body,
+.threat-book-page[data-theme-light="true"] .threat-book-block.is-enigma-card .threat-book-text-body {
+  color: #ecdab9 !important;
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-badge.tag-enigma {
+  background: #d4af37 !important;
+  color: #120e06 !important;
+}
+
+/* ── Layout em 3 colunas (telas largas): introdução | estatísticas | ações ──
+   Tudo cabe na tela sem rolar a página inteira; a introdução rola sozinha
+   quando o texto é longo. Em telas médias a introdução vai para o topo,
+   na horizontal, e a ficha fica logo abaixo. */
+.threat-book-spread.spread-flow {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 30px;
+  max-width: 1760px;
+}
+.flow-intro {
+  position: sticky;
+  top: 8px;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.45) transparent;
+}
+.flow-intro .threat-intro-side-layout { margin: 0; }
+.flow-intro .threat-intro-inner.inner-side.has-art { display: flex; flex-direction: column; }
+.flow-intro .threat-intro-inner.inner-side.has-art .threat-intro-artwork-container {
+  float: none;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 14px auto;
+}
+.flow-intro .threat-intro-inner.inner-side.has-art .threat-intro-artwork-img { max-height: 300px; }
+.flow-intro .threat-intro-narrative-text p { font-size: 13.5px; line-height: 1.6; }
+.flow-actions .threat-dossier-card, .flow-stats .threat-dossier-card { padding-top: 0; }
+
+@media (max-width: 1279px) {
+  .threat-book-spread.spread-flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 32px; }
+  .flow-intro {
+    grid-column: 1 / -1;
+    order: -1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+  .flow-intro .threat-intro-inner.inner-side.has-art { display: block; }
+  .flow-intro .threat-intro-inner.inner-side.has-art::after { content: ''; display: block; clear: both; }
+  .flow-intro .threat-intro-inner.inner-side.has-art .threat-intro-artwork-container {
+    float: right; width: 34%; max-width: 300px; margin: 2px 0 10px 24px;
+  }
+  .flow-intro .threat-intro-narrative-text { column-count: 2; column-gap: 32px; }
+  .flow-intro .threat-intro-narrative-text p { font-size: 14px; }
+}
+@media (max-width: 760px) {
+  .threat-book-spread.spread-flow { grid-template-columns: minmax(0, 1fr); }
+  .flow-intro .threat-intro-narrative-text { column-count: 1; }
+  .flow-intro .threat-intro-inner.inner-side.has-art .threat-intro-artwork-container { float: none; width: 70%; margin: 0 auto 12px; }
+}
+
+/* ── Enigma de Medo no estilo do livro: mancha de tinta preta, texto mono em branco ── */
+.threat-book-page .threat-book-block.is-enigma-card,
+.threat-book-page.theme-light .threat-book-block.is-enigma-card {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 26px 30px 30px 30px !important;
+  margin: 18px 0 14px 0;
+}
+.threat-book-block.is-enigma-card::before,
+.threat-book-block.is-enigma-card::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: polygon(0% 7%, 3% 2%, 9% 4%, 16% 0%, 24% 3%, 33% 1%, 42% 4%, 52% 0%, 61% 3%, 70% 1%, 80% 4%, 90% 0%, 97% 3%, 100% 9%, 98% 21%, 100% 34%, 97% 47%, 100% 61%, 98% 74%, 100% 88%, 96% 97%, 88% 100%, 78% 97%, 67% 100%, 56% 97%, 45% 100%, 34% 98%, 23% 100%, 12% 97%, 4% 100%, 1% 90%, 3% 78%, 0% 64%, 2% 50%, 0% 36%, 3% 22%);
+}
+.threat-book-block.is-enigma-card::before {
+  inset: -3px;
+  background: var(--threat-elem-color, #888);
+  opacity: 0.5;
+}
+.threat-book-block.is-enigma-card::after {
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, #15151a 0%, #050506 70%);
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-badge.tag-enigma {
+  background: transparent !important;
+  clip-path: none !important;
+  color: #f4f4f6 !important;
+  padding: 0 !important;
+  margin: 0 0 8px 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 300;
+  font-size: 21px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body,
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body *,
+.threat-book-page.theme-light .threat-book-block.is-enigma-card .threat-book-text-body,
+.threat-book-page[data-theme-light="true"] .threat-book-block.is-enigma-card .threat-book-text-body {
+  font-family: 'Special Elite', 'Courier New', Courier, monospace !important;
+  font-style: normal !important;
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+  color: #f2f2f4 !important;
+  text-align: left !important;
+}
