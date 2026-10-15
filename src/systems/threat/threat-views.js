@@ -123,7 +123,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const introTopHtml = (sheet.hasIntro && introSide === 'top') ? renderIntroSection(sheet, editMode, options, 'top') : '';
   const introSideHtml = (sheet.hasIntro && introSide !== 'top') ? renderIntroSection(sheet, editMode, options, 'side') : '';
 
-  const cardHtml = `
+  let cardHtml = `
       <article class="threat-dossier-card" aria-label="Ficha de Ameaça: ${safe(sheet.name)}">
         
         <!-- MARCA D'ÁGUA / ILUSTRAÇÃO DA CRIATURA NO FUNDO -->
@@ -136,47 +136,39 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
 
         ${editMode ? `
-          <!-- ── BARRA DO ASSISTENTE DE BALANCEAMENTO E WIZARD (MODO EDIÇÃO) ── -->
-          <div class="threat-assistant-bar">
-            <div class="threat-assistant-left">
-              <button type="button" class="threat-assistant-btn btn-balance" data-threat-open-balance title="Abrir Assistente de Balanceamento por VD">
-                ⚖️ BALANCEAMENTO (VD ${sheet.vd})
+          <!--TOOLS-A-->
+          <div class="threat-edit-tools" role="toolbar" aria-label="Ferramentas de edição da ameaça">
+            <div class="threat-edit-tools-row">
+              <button type="button" class="threat-tool-btn" data-threat-open-balance title="Abrir Assistente de Balanceamento por VD">
+                ${icon('crosshair', 13)}<span>BALANCEAMENTO · VD ${sheet.vd}</span>
               </button>
-              <button type="button" class="threat-assistant-btn btn-wizard" data-threat-open-wizard title="Abrir Wizard de Criação / Recalibração">
-                🧙 WIZARD DE CRIAÇÃO
+              <button type="button" class="threat-tool-btn" data-threat-open-wizard title="Abrir Wizard de Criação / Recalibração">
+                ${icon('sparkles', 13)}<span>WIZARD</span>
               </button>
-              <button type="button" class="threat-assistant-btn btn-bg" data-threat-open-bg title="Mudar plano de fundo ou marca d'água">
-                🖼️ PLANO DE FUNDO
+              <button type="button" class="threat-tool-btn" data-threat-open-bg title="Mudar plano de fundo ou marca d'água">
+                ${icon('image', 13)}<span>FUNDO</span>
               </button>
-              <button type="button" class="threat-assistant-btn btn-intro ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar ambientação narrativa e arte do livro">
-                📖 ${sheet.hasIntro ? 'INTRODUÇÃO (ATIVA)' : '+ INTRODUÇÃO'}
+              <button type="button" class="threat-tool-btn ${sheet.hasIntro ? 'active' : ''}" data-threat-toggle-intro title="Alternar ambientação narrativa e arte do livro">
+                ${icon('book', 13)}<span>${sheet.hasIntro ? 'INTRODUÇÃO ATIVA' : 'INTRODUÇÃO'}</span>
               </button>
-              <button type="button" class="threat-assistant-btn btn-export" data-threat-open-export title="Exportar imagem (Completo ou Miro)">
-                📷 EXPORTAR FOTO
+              <button type="button" class="threat-tool-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
+                ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-tool-sigil" alt="">` : icon('shield', 13)}<span>SÍMBOLO</span>
               </button>
-
-              <!-- Seletor Proeminente de Cor Tema -->
-              <label class="threat-assistant-chip" title="Cor tema da ficha">
+              <button type="button" class="threat-tool-btn" data-threat-open-export title="Exportar imagem (Completo ou Miro)">
+                ${icon('camera', 13)}<span>EXPORTAR</span>
+              </button>
+              <label class="threat-tool-btn threat-tool-color" title="Cor tema da ficha">
                 <span class="chip-dot" style="background:${elemColor};"></span>
                 <span>COR TEMA</span>
                 <input type="color" data-threat-theme-color value="${elemColor}">
               </label>
               ${sheet.themeColor ? `
-                <button type="button" class="threat-assistant-btn btn-reset-theme" data-threat-reset-theme-color title="Restaurar cor padrão">↺</button>
+                <button type="button" class="threat-tool-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento"><span>TEMA PADRÃO</span></button>
               ` : ''}
-
-              <!-- Seletor de Símbolo -->
-              <button type="button" class="threat-assistant-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
-                ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" style="width:13px;height:13px;object-fit:contain;" alt="">` : icon('shield', 12)}
-                <span>SÍMBOLO</span>
-              </button>
             </div>
-            <div class="threat-assistant-right">
-              <span class="threat-assistant-summary">
-                4 agentes NEX ~<b>${Math.max(5, Math.round(sheet.vd / 4))}%</b> • PV Sugerido: <b>${balSug.pv}</b> • Defesa: <b>${balSug.defesa}</b> • DT: <b>${balSug.dt}</b>
-              </span>
-            </div>
+            <small>REFERÊNCIA PARA 4 AGENTES NEX ~${Math.max(5, Math.round(sheet.vd / 4))}% · PV ${balSug.pv} · DEFESA ${balSug.defesa} · DT ${balSug.dt}</small>
           </div>
+          <!--TOOLS-B-->
         ` : ''}
 
         <!-- ── CABEÇALHO DO LIVRO (MUNDANA OU PARANORMAL) ── -->
@@ -343,7 +335,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                       ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
                       <span>SÍMBOLO</span>
                       ${sheet.sigilImage || (sheet.sigiloId && sheet.sigiloId !== elemDestaqueKey) ? `
-                        <span class="threat-custom-badge" title="Símbolo personalizado">★</span>
+                        <span class="threat-custom-badge" title="Símbolo personalizado">${icon('star-filled', 9)}</span>
                       ` : ''}
                     </button>
                   </div>
@@ -420,7 +412,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <span class="threat-book-badge">PRESENÇA PERTURBADORA</span>
                   ${editMode ? `
                     <button type="button" class="threat-chip-sug" data-threat-apply-sug="presence:${balSug.dt}:${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'}:${balSug.imuneNex}" title="Aplicar DT ${balSug.dt}, Dano ${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'} e NEX ${balSug.imuneNex}% sugeridos para VD ${sheet.vd}">
-                      💡 DT ${balSug.dt} (${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'})
+                      SUGESTÃO: DT ${balSug.dt} (${balSug.presenca ? `${balSug.presenca.dados}d${balSug.presenca.faces}` : '3d6'})
                     </button>
                   ` : ''}
                 </div>
@@ -464,7 +456,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ${editMode ? `
                   <input type="number" class="threat-mini-input threat-def-input" data-threat-field="defesa" value="${sheet.defesa}">
                   <button type="button" class="threat-chip-sug" data-threat-apply-sug="defesa:${balSug.defesa}" title="Aplicar Defesa ${balSug.defesa} sugerida pelo VD ${sheet.vd}">
-                    💡 ${balSug.defesa}
+                    SUGESTÃO: ${balSug.defesa}
                   </button>
                 ` : `
                   <span class="threat-book-badge-val">${sheet.defesa}</span>
@@ -472,7 +464,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ${editMode ? `
                   <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
                     <button type="button" class="threat-chip-sug" data-threat-apply-sug="saves:${balSug.resForte.dados}:${balSug.resForte.bonus}:${balSug.resMedia.dados}:${balSug.resMedia.bonus}:${balSug.resFraca.dados}:${balSug.resFraca.bonus}" title="Sugerir Salvaguardas (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})">
-                      💡 Sugerir (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})
+                      SUGESTÃO: +${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus}
                     </button>
                     <button type="button" class="threat-mini-btn" data-threat-edit-saves title="Editar Salvaguardas">
                       ${icon('edit', 10)}
@@ -496,7 +488,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <span class="threat-book-badge-val" style="display:flex;align-items:center;gap:4px;">
                     <input type="number" class="threat-mini-input" style="width:65px;" data-threat-field="pvMax" value="${sheet.pvMax || sheet.pv}" title="PV Máximo">
                     <button type="button" class="threat-chip-sug" data-threat-apply-sug="pv:${balSug.pv}" title="Aplicar PV ${balSug.pv} sugerido pelo VD ${sheet.vd}">
-                      💡 ${balSug.pv} PV
+                      SUGESTÃO: ${balSug.pv} PV
                     </button>
                   </span>
                 ` : `
@@ -786,6 +778,14 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
       </article>
   `;
 
+  // Barra de ferramentas de edição: sai do cartão e vira um painel flutuante (como o do modo cinematográfico)
+  let toolsHtml = '';
+  const tA = cardHtml.indexOf('<!--TOOLS-A-->'), tB = cardHtml.indexOf('<!--TOOLS-B-->');
+  if (tA >= 0 && tB > tA) {
+    toolsHtml = cardHtml.slice(tA, tB + '<!--TOOLS-B-->'.length);
+    cardHtml = cardHtml.replace(toolsHtml, '');
+  }
+
   // Introdução lateral: a ficha começa abaixo do texto de introdução (coluna esquerda)
   // e continua na coluna da direita, como em uma página dupla de livro.
   let spreadHtml = cardHtml;
@@ -837,7 +837,9 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
       
       ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
 
-      ${spreadHtml}
+      <div class="threat-contents">${spreadHtml}</div>
+
+      ${toolsHtml}
 
       <!-- ── MODAIS DE EDIÇÃO DA AMEAÇA ── -->
       ${renderThreatModals(sheet)}
@@ -1381,7 +1383,7 @@ function renderBalanceModal(sheet) {
         
         <header class="threat-modal-header">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:22px;">⚖️</span>
+            <span class="threat-modal-title-icon">${icon('crosshair', 20)}</span>
             <div>
               <h2 style="margin:0;font-size:16px;">ASSISTENTE DE BALANCEAMENTO</h2>
               <small style="color:#8c92b2;display:block;font-size:11px;">Parâmetros matemáticos calibrados para Valor de Desafio (VD)</small>
@@ -1449,7 +1451,7 @@ function renderBalanceModal(sheet) {
                   <small>ATUAL</small>
                   <strong>${sheet.pvMax || sheet.pv}</strong>
                 </div>
-                <div class="num-sep">➔</div>
+                <div class="num-sep">${icon('chevron-right', 14)}</div>
                 <div class="num-col highlight">
                   <small>SUGERIDO</small>
                   <strong id="bal-modal-pv">${bal.pv}</strong>
@@ -1474,7 +1476,7 @@ function renderBalanceModal(sheet) {
                   <small>ATUAL</small>
                   <strong>${sheet.defesa}</strong>
                 </div>
-                <div class="num-sep">➔</div>
+                <div class="num-sep">${icon('chevron-right', 14)}</div>
                 <div class="num-col highlight">
                   <small>SUGERIDO</small>
                   <strong id="bal-modal-defesa">${bal.defesa}</strong>
@@ -1547,7 +1549,7 @@ function renderBalanceModal(sheet) {
         <footer class="threat-modal-footer" style="justify-content:space-between;">
           <button type="button" class="threat-edit-btn" data-close-threat-modal>FECHAR</button>
           <button type="submit" class="threat-edit-btn" data-threat-apply-bal="tudo" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:900;">
-            ⚡ APLICAR TODAS AS SUGESTÕES
+            ${icon('zap', 13)} APLICAR TODAS AS SUGESTÕES
           </button>
         </footer>
 
@@ -1559,8 +1561,8 @@ function renderBalanceModal(sheet) {
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
       <div class="threat-modal-card" style="max-width:620px;">
         <header class="threat-modal-header">
-          <h2>🖼️ PLANO DE FUNDO DA AMEAÇA</h2>
-          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">✕</button>
+          <h2>PLANO DE FUNDO DA AMEAÇA</h2>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
 
         <div class="threat-modal-body" style="gap:20px;">
@@ -1582,15 +1584,15 @@ function renderBalanceModal(sheet) {
             <div class="threat-bg-action-buttons">
               <input type="file" id="threat-bg-file-input" accept="image/*,video/mp4,video/webm" style="display:none;">
               <label for="threat-bg-file-input" class="threat-action-pill-btn upload" title="Carregar imagem ou vídeo do seu computador">
-                📁 CARREGAR IMAGEM / VÍDEO
+                ${icon('upload', 13)} CARREGAR IMAGEM / VÍDEO
               </label>
 
               <button type="button" class="threat-action-pill-btn reset" data-threat-reset-bg title="Restaurar o gradiente atmosférico do elemento">
-                ⚡ RESTAURAR PADRÃO DO ELEMENTO
+                ${icon('history', 13)} RESTAURAR PADRÃO DO ELEMENTO
               </button>
 
               <button type="button" class="threat-action-pill-btn preset" data-threat-preset-bg="/assets/ordem2-bg.webp" title="Aplicar textura de pergaminho oficial do livro">
-                📜 TEXTURA DO LIVRO
+                ${icon('book', 13)} TEXTURA DO LIVRO
               </button>
             </div>
 
@@ -1632,11 +1634,11 @@ function renderBalanceModal(sheet) {
               <div class="threat-token-controls">
                 <input type="file" id="threat-token-file-input" accept="image/*" style="display:none;">
                 <label for="threat-token-file-input" class="threat-action-pill-btn upload">
-                  📁 UPLOAD DA ILUSTRAÇÃO
+                  ${icon('upload', 13)} UPLOAD DA ILUSTRAÇÃO
                 </label>
                 ${sheet.tokenImage ? `
                   <button type="button" class="threat-action-pill-btn remove" data-threat-remove-token>
-                    🗑️ REMOVER ILUSTRAÇÃO
+                    ${icon('trash', 13)} REMOVER ILUSTRAÇÃO
                   </button>
                 ` : ''}
               </div>
@@ -1692,10 +1694,10 @@ function renderBalanceModal(sheet) {
       <div class="threat-modal-card" style="max-width:520px;">
         <header class="threat-modal-header">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:16px;">🔯</span>
+            <span class="threat-modal-title-icon">${icon('threat-sigil', 18)}</span>
             <h2 style="font-family:Georgia,serif;font-size:16px;margin:0;">SÍMBOLO DA AMEAÇA</h2>
           </div>
-          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">✕</button>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
 
         <div class="threat-modal-body" style="gap:16px;">
@@ -1734,7 +1736,7 @@ function renderBalanceModal(sheet) {
             </label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
               <label class="threat-edit-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:#202336;">
-                📁 FAZER UPLOAD DE IMAGEM
+                ${icon('upload', 13)} FAZER UPLOAD DE IMAGEM
                 <input type="file" id="threat-sigil-file-input" accept="image/*" style="display:none;">
               </label>
               ${sheet.sigilImage ? `

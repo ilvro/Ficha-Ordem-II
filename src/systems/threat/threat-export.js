@@ -419,7 +419,7 @@ export function openThreatExportModal(rawSheet, options = {}) {
         <div class="threat-export-cards-grid">
           <!-- OPÇÃO 1: FICHA COMPLETA -->
           <div class="threat-export-choice-card" data-threat-export-action="full">
-            <div class="choice-icon">📖</div>
+            <div class="choice-icon">${icon('book', 26)}</div>
             <div class="choice-content">
               <h3>Ficha Completa (Livro HD)</h3>
               <p>Diagramação oficial idêntica ao livro <em>Sobrevivendo ao Horror</em> com texturas completas do elemento, seções e todas as ações detalhadas em alta definição.</p>
@@ -431,7 +431,7 @@ export function openThreatExportModal(rawSheet, options = {}) {
 
           <!-- OPÇÃO 2: CARD COMPACTO MIRO -->
           <div class="threat-export-choice-card" data-threat-export-action="miro">
-            <div class="choice-icon">🗂️</div>
+            <div class="choice-icon">${icon('folder', 26)}</div>
             <div class="choice-content">
               <h3>Card Compacto (Miro / VTT)</h3>
               <p>Formato compacto com fundo escuro, grid milimétrico do Miro, pentágono de atributos e resumo de combate ideal para tabuleiros virtuais e notas.</p>
@@ -445,7 +445,7 @@ export function openThreatExportModal(rawSheet, options = {}) {
         <!-- PRÉVIA INTERATIVA DO CARD MIRO -->
         <div class="threat-export-preview-accordion">
           <button type="button" class="btn-toggle-preview" id="btn-toggle-miro-preview">
-            <span>👁️ Visualizar Prévia do Card Miro</span>
+            <span>${icon('eye', 14)} Visualizar prévia do card Miro</span>
             <span class="preview-arrow">▼</span>
           </button>
           <div class="threat-export-preview-viewport" id="threat-miro-preview-viewport" style="display:none;">

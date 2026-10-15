@@ -343,10 +343,10 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
             <div class="nav-threat-control-item">
               <label class="nav-threat-control-label">AGRUPAR</label>
               <select class="nav-threat-select" data-threat-group-select>
-                <option value="folders" ${threatGroupBy === 'folders' ? 'selected' : ''}>📁 Pastas</option>
-                <option value="element" ${threatGroupBy === 'element' ? 'selected' : ''}>🩸 Elemento</option>
-                <option value="vd" ${threatGroupBy === 'vd' ? 'selected' : ''}>⚔️ Faixa de VD</option>
-                <option value="flat" ${threatGroupBy === 'flat' ? 'selected' : ''}>📄 Lista Simples</option>
+                <option value="folders" ${threatGroupBy === 'folders' ? 'selected' : ''}>Pastas</option>
+                <option value="element" ${threatGroupBy === 'element' ? 'selected' : ''}>Elemento</option>
+                <option value="vd" ${threatGroupBy === 'vd' ? 'selected' : ''}>Faixa de VD</option>
+                <option value="flat" ${threatGroupBy === 'flat' ? 'selected' : ''}>Lista Simples</option>
               </select>
             </div>
             <div class="nav-threat-control-item">

@@ -30,7 +30,7 @@ const ARQUETIPOS = [
   {
     id: 'tank',
     nome: 'Tank',
-    icone: '🛡️',
+    icone: 'shield',
     desc: 'Foco em absorção de dano e resistência massiva. Muito PV, teste de Fortitude altíssimo, golpes devastadores corpo a corpo.',
     atributos: { for: 4, agi: 1, int: 1, pre: 2, vig: 4 },
     salvaguardas: { forte: 'fortitude', media: 'reflexos', fraca: 'vontade' },
@@ -42,7 +42,7 @@ const ARQUETIPOS = [
   {
     id: 'predador',
     nome: 'Predador',
-    icone: '⚡',
+    icone: 'zap',
     desc: 'Rápido, furtivo e letal. Alta Defesa e Reflexos, deslocamento ampliado e múltiplos ataques precisos.',
     atributos: { for: 2, agi: 4, int: 2, pre: 2, vig: 2 },
     salvaguardas: { forte: 'reflexos', media: 'fortitude', fraca: 'vontade' },
@@ -54,7 +54,7 @@ const ARQUETIPOS = [
   {
     id: 'mental',
     nome: 'Mental',
-    icone: '👁️',
+    icone: 'eye',
     desc: 'Manipula a mente e distorce a percepção dos alvos. Alta Presença e Intelecto, DT elevada e efeitos perturbadores.',
     atributos: { for: 1, agi: 2, int: 4, pre: 4, vig: 2 },
     salvaguardas: { forte: 'vontade', media: 'reflexos', fraca: 'fortitude' },
@@ -66,7 +66,7 @@ const ARQUETIPOS = [
   {
     id: 'boss',
     nome: 'Boss',
-    icone: '👑',
+    icone: 'star',
     desc: 'Ameaça de encontro culminante. Estatísticas sólidas e completas, pronto para desafiar uma equipe inteira sozinho.',
     atributos: { for: 3, agi: 3, int: 2, pre: 3, vig: 3 },
     salvaguardas: { forte: 'fortitude', media: 'vontade', fraca: 'reflexos' },
@@ -384,13 +384,13 @@ function renderPasso1(d) {
     
     <div class="wiz-options" style="margin-bottom:20px;">
       <button type="button" class="wiz-option ${isParanormal ? 'selected' : ''}" data-twiz-categoria="paranormal">
-        <b>🔮 CRIATURA PARANORMAL</b>
+        <b>CRIATURA PARANORMAL</b>
         <em class="wiz-option-tag" style="background:#8b1b1b;color:#fff;">OUTRO LADO</em>
         <span>Monstros formados pela membrana, portadores de elementos paranormais, enigmas de medo e presença perturbadora.</span>
       </button>
 
       <button type="button" class="wiz-option ${!isParanormal ? 'selected' : ''}" data-twiz-categoria="mundana">
-        <b>👤 AMEAÇA MUNDANA</b>
+        <b>AMEAÇA MUNDANA</b>
         <em class="wiz-option-tag" style="background:#3d4157;color:#fff;">REALIDADE</em>
         <span>Cultistas humanos, mercenários, animais selvagens, veículos e ameaças físicas da própria realidade.</span>
       </button>
@@ -514,7 +514,7 @@ function renderPasso3(d) {
         return `
           <button type="button" class="threat-archetype-card ${isSelected ? 'selected' : ''}" data-twiz-arquetipo="${arq.id}">
             <div class="archetype-top">
-              <span class="archetype-icon">${arq.icone}</span>
+              <span class="archetype-icon">${icon(arq.icone, 20)}</span>
               <b>${arq.nome}</b>
             </div>
             <p class="archetype-desc">${arq.desc}</p>
@@ -632,7 +632,7 @@ function renderPasso5(d) {
       <div class="threat-form-group" style="background:#191824;padding:14px;border:1px solid #3d354b;border-radius:6px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:16px;">📜</span>
+            <span style="display:inline-flex;">${icon('book', 16)}</span>
             <label style="margin:0;font-size:13px;color:#e8d1a7;font-weight:700;">ENIGMA DE MEDO (INVESTIGAÇÃO)</label>
           </div>
           <input type="checkbox" data-twiz-chk="adicionarEnigma" ${d.adicionarEnigma ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--threat-elem-color, #e0150d);">
@@ -797,7 +797,7 @@ function renderPasso6(d) {
         <div style="background:#1b1928;padding:14px;border:1px solid #3f2f4e;border-radius:6px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:14px;">⚡</span>
+              <span style="display:inline-flex;">${icon('zap', 14)}</span>
               <b style="font-size:13px;color:#e1e4f5;">HABILIDADE CARACTERÍSTICA: ${hab.nome.toUpperCase()}</b>
             </div>
             <input type="checkbox" data-twiz-chk="adicionarHabilidadeElementar" ${d.adicionarHabilidadeElementar ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--threat-elem-color, #e0150d);">

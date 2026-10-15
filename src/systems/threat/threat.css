@@ -4379,3 +4379,167 @@ body.threat-exporting .modal {
 }
 .threat-book-page::-webkit-scrollbar-button,
 .flow-intro::-webkit-scrollbar-button { display: none; height: 0; }
+
+/* ── Transição entre fichas (mesmo glitch das fichas de Ordem 2) ─────────── */
+.threat-contents {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+.threat-contents.cinematic-ghost-exit {
+  position: absolute;
+  pointer-events: none !important;
+  z-index: 10;
+  will-change: transform, opacity;
+  animation: ghost-fade-out 220ms ease-out forwards, glitch-shake 380ms cubic-bezier(.22, .68, 0, 1.2) both;
+}
+.threat-contents.cinematic-ghost-exit * { pointer-events: none !important; }
+/* sem fill-mode: um transform residual quebraria elementos sticky/fixed dentro da ficha */
+.threat-contents.glitch-enter { animation: glitch-shake 380ms cubic-bezier(.22, .68, 0, 1.2); }
+
+/* ── Modo edição: mesma linguagem do modo cinematográfico de Ordem 2 ───────
+   painel flutuante escuro, rótulos pequenos em caixa alta, campos tracejados em âmbar */
+.threat-edit-tools {
+  position: fixed;
+  z-index: 60;
+  left: calc(50% + 40px);
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: min(880px, calc(100vw - 140px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid #454756;
+  border-radius: 7px;
+  background: #0e1019e8;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  font-family: 'Hanken Grotesk', sans-serif;
+  color: #bbbcc5;
+}
+.threat-edit-tools-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.threat-tool-btn {
+  min-height: 29px;
+  padding: 0 10px;
+  border: 1px solid #3d3f4e;
+  border-radius: 4px;
+  background: #20222e;
+  color: #bbbcc5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 800 8px/1 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.threat-tool-btn:hover { border-color: #d98b19; color: #fff; }
+.threat-tool-btn.active { border-color: #d98b19; color: #ffd08a; background: #2a2217; }
+.threat-tool-btn svg { flex: none; }
+.threat-tool-sigil { width: 13px; height: 13px; object-fit: contain; }
+.threat-tool-color .chip-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid #ffffff55; }
+.threat-tool-color input[type="color"] { width: 26px; height: 21px; border: 0; padding: 0; background: transparent; cursor: pointer; }
+.threat-edit-tools > small { color: #747783; font-size: 7px; letter-spacing: 0.08em; text-align: center; }
+@media (max-width: 768px) {
+  .threat-edit-tools { left: 50%; width: calc(100vw - 16px); bottom: 66px; }
+}
+body.threat-exporting .threat-edit-tools { display: none !important; }
+
+.threat-modal-title-icon { display: inline-flex; color: var(--threat-elem-color, #d98b19); }
+
+/* Campos editáveis: caixa escura com contorno tracejado âmbar, como na ficha cinematográfica */
+.threat-book-page.mode-edit input:not([type="color"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.threat-book-page.mode-edit select,
+.threat-book-page.mode-edit textarea {
+  background: #12141ddd !important;
+  color: #f1f2f6 !important;
+  border: 1px dashed rgba(217, 139, 25, 0.65) !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.threat-book-page.mode-edit input:focus,
+.threat-book-page.mode-edit select:focus,
+.threat-book-page.mode-edit textarea:focus {
+  border-style: solid !important;
+  border-color: #d98b19 !important;
+  box-shadow: 0 0 0 1px rgba(217, 139, 25, 0.35) !important;
+}
+.threat-book-page.mode-edit input::placeholder,
+.threat-book-page.mode-edit textarea::placeholder { color: #747783 !important; letter-spacing: 0.04em; }
+.threat-book-page.mode-edit select option { background: #12141d; color: #f1f2f6; }
+.threat-book-page.mode-edit .threat-intro-narrative-title,
+.threat-book-page.mode-edit .threat-intro-title-input { font-family: 'Hanken Grotesk', sans-serif !important; font-size: 12px !important; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Botões pequenos do modo edição */
+.threat-book-page.mode-edit .threat-mini-btn,
+.threat-book-page.mode-edit .threat-edit-btn,
+.threat-book-page.mode-edit .threat-meta-toggle-btn {
+  background: #20222e !important;
+  color: #bbbcc5 !important;
+  border: 1px solid #3d3f4e !important;
+  border-radius: 4px !important;
+  font: 800 8px/1 'Hanken Grotesk', sans-serif !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: none !important;
+}
+.threat-book-page.mode-edit .threat-mini-btn:hover,
+.threat-book-page.mode-edit .threat-edit-btn:hover,
+.threat-book-page.mode-edit .threat-meta-toggle-btn:hover { border-color: #d98b19 !important; color: #fff !important; }
+.threat-book-page.mode-edit .threat-mini-btn.active { border-color: #d98b19 !important; color: #ffd08a !important; background: #2a2217 !important; }
+.threat-book-page.mode-edit .threat-mini-btn.danger:hover { border-color: #e0150d !important; color: #ff8a84 !important; }
+
+/* Sugestões do balanceamento: discretas, sem destaque colorido */
+.threat-book-page.mode-edit .threat-chip-sug {
+  background: transparent !important;
+  color: #d98b19 !important;
+  border: 1px dashed rgba(217, 139, 25, 0.55) !important;
+  border-radius: 3px !important;
+  font: 800 8px/1 'Hanken Grotesk', sans-serif !important;
+  letter-spacing: 0.08em;
+  padding: 4px 7px !important;
+  text-transform: uppercase;
+  box-shadow: none !important;
+}
+.threat-book-page.mode-edit .threat-chip-sug:hover { background: rgba(217, 139, 25, 0.14) !important; color: #ffd08a !important; }
+
+/* Barra de posição / arte da introdução */
+.threat-book-page.mode-edit .threat-intro-edit-bar,
+.threat-book-page.mode-edit.theme-light .threat-intro-edit-bar {
+  background: #0e1019e8 !important;
+  border: 1px solid #454756 !important;
+  border-radius: 7px !important;
+  padding: 7px !important;
+}
+.threat-book-page.mode-edit .intro-bar-label { color: #747783 !important; font: 800 8px/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.08em; }
+
+/* Cartões de resistência / vulnerabilidade / imunidade e campos da introdução no modo edição */
+.threat-book-page.mode-edit .threat-defense-card {
+  background: #12141ddd !important;
+  border: 1px dashed rgba(217, 139, 25, 0.55) !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  color: #f1f2f6 !important;
+}
+.threat-book-page.mode-edit .threat-defense-card .threat-card-tag { color: #f1f2f6 !important; font: 800 9px/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+.threat-book-page.mode-edit .threat-card-del-btn { color: #9a9ca8 !important; background: transparent !important; }
+.threat-book-page.mode-edit .threat-card-del-btn:hover { color: #ff8a84 !important; }
+.threat-book-page.mode-edit .threat-defense-group-header strong { font: 800 8px/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.1em; color: #747783 !important; }
+.threat-book-page.mode-edit .threat-intro-textarea,
+.threat-book-page.mode-edit.theme-light .threat-intro-textarea,
+.threat-book-page.mode-edit[data-theme-light="true"] .threat-intro-textarea,
+.threat-book-page.mode-edit .threat-intro-title-input,
+.threat-book-page.mode-edit.theme-light .threat-intro-title-input,
+.threat-book-page.mode-edit[data-theme-light="true"] .threat-intro-title-input {
+  background: #12141ddd !important;
+  color: #f1f2f6 !important;
+  border: 1px dashed rgba(217, 139, 25, 0.65) !important;
+}
+.threat-book-page.mode-edit .threat-intro-textarea { font-family: Georgia, 'Times New Roman', serif; font-size: 13.5px; line-height: 1.6; }
+.threat-book-page.mode-edit [data-threat-field="vd"] { min-width: 78px; }
+.threat-book-page.mode-edit .threat-book-badge-val { background: transparent !important; box-shadow: none !important; padding: 0 !important; clip-path: none !important; }

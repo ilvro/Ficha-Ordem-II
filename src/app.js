@@ -2769,7 +2769,7 @@ function switchToSheet(targetId) {
   }
   render();
  };
- if (state.viewMode === 'cinematic' || presentationMode) {
+ if (state.viewMode === 'cinematic' || presentationMode || state.systemMode === 'threat' || sheets.find(sh => sh.id === targetId)?.systemMode === 'threat') {
   triggerGlitchTransition(doSwitch);
  } else {
   doSwitch();
@@ -3352,7 +3352,7 @@ function cloneSheet(sheetId) {
   render();
  };
 
- if (state.viewMode === 'cinematic') {
+ if (state.viewMode === 'cinematic' || state.systemMode === 'threat') {
   triggerGlitchTransition(doSwitch);
  } else {
   doSwitch();
@@ -3701,7 +3701,40 @@ function syncCriticalAtmosphere(){
  const audioActive=cinematic&&visible;setCriticalHeartbeat(audioActive&&criticalEffects.pv&&critical.pv.special,critical.pv.specialIntensity);setCriticalPdAudio(audioActive&&criticalEffects.pd&&critical.pd.special,critical.pd.specialIntensity);
 }
 let _glitchActive=false;
-function triggerGlitchTransition(callback){document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());_glitchActive=true;playGlitchSound();const oldContents=document.querySelector('.cinematic-contents');let oldClone=null;if(oldContents){oldClone=oldContents.cloneNode(true);oldClone.className='cinematic-contents cinematic-ghost-exit';const oldScrollables=oldContents.querySelectorAll('.cinematic-scroll, .cinematic-skills>div');const cloneScrollables=oldClone.querySelectorAll('.cinematic-scroll, .cinematic-skills>div');oldScrollables.forEach((el,i)=>{if(cloneScrollables[i])cloneScrollables[i].scrollTop=el.scrollTop});oldClone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));oldClone.querySelectorAll('[data-cinematic-token]').forEach(el=>el.removeAttribute('data-cinematic-token'));oldClone.querySelectorAll('input,button,select,textarea').forEach(el=>el.disabled=true)}try{callback()}catch(err){console.error('Glitch transition callback error:',err)}const page=document.querySelector('.cinematic-page'),newContents=document.querySelector('.cinematic-contents');if(page&&oldClone){page.appendChild(oldClone);setTimeout(()=>{oldClone.remove()},240)}if(newContents){newContents.classList.add('glitch-enter');const done=()=>{newContents.classList.remove('glitch-enter');_glitchActive=false};newContents.addEventListener('animationend',done,{once:true});setTimeout(()=>{newContents.classList.remove('glitch-enter');_glitchActive=false},420)}else{_glitchActive=false}}
+function triggerGlitchTransition(callback){
+ document.querySelectorAll('.cinematic-ghost-exit').forEach(el=>el.remove());
+ _glitchActive=true;playGlitchSound();
+ const CONTENT_SEL='.cinematic-contents, .threat-contents',PAGE_SEL='.cinematic-page, .threat-book-page';
+ const oldContents=document.querySelector(CONTENT_SEL),oldPage=document.querySelector(PAGE_SEL);
+ let oldClone=null,cloneRect=null;
+ if(oldContents){
+  const isThreat=oldContents.classList.contains('threat-contents');
+  oldClone=oldContents.cloneNode(true);
+  oldClone.classList.add('cinematic-ghost-exit');
+  if(isThreat&&oldPage){
+   // a ficha de ameaça rola dentro da página: o fantasma fica na mesma posição visual
+   const r=oldContents.getBoundingClientRect(),pr=oldPage.getBoundingClientRect();
+   cloneRect={left:r.left-pr.left+oldPage.scrollLeft,top:r.top-pr.top+oldPage.scrollTop,width:r.width,height:r.height};
+  }
+  const oldScrollables=oldContents.querySelectorAll('.cinematic-scroll, .cinematic-skills>div, .flow-intro'),cloneScrollables=oldClone.querySelectorAll('.cinematic-scroll, .cinematic-skills>div, .flow-intro');
+  oldScrollables.forEach((el,i)=>{if(cloneScrollables[i])cloneScrollables[i].scrollTop=el.scrollTop});
+  oldClone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+  oldClone.querySelectorAll('[data-cinematic-token]').forEach(el=>el.removeAttribute('data-cinematic-token'));
+  oldClone.querySelectorAll('input,button,select,textarea').forEach(el=>el.disabled=true);
+ }
+ try{callback()}catch(err){console.error('Glitch transition callback error:',err)}
+ const page=document.querySelector(PAGE_SEL),newContents=document.querySelector(CONTENT_SEL);
+ if(page&&oldClone){
+  if(cloneRect&&page.classList.contains('threat-book-page'))Object.assign(oldClone.style,{position:'absolute',left:cloneRect.left+'px',top:cloneRect.top+'px',width:cloneRect.width+'px',height:cloneRect.height+'px',inset:'auto'});
+  page.appendChild(oldClone);setTimeout(()=>{oldClone.remove()},240);
+ }
+ if(newContents){
+  newContents.classList.add('glitch-enter');
+  const done=()=>{newContents.classList.remove('glitch-enter');_glitchActive=false};
+  newContents.addEventListener('animationend',done,{once:true});
+  setTimeout(()=>{newContents.classList.remove('glitch-enter');_glitchActive=false},420);
+ }else{_glitchActive=false}
+}
 
 function applyTextFormat(type){const textarea=document.querySelector('#card-form textarea[name="content"]');if(!textarea)return;const start=textarea.selectionStart,end=textarea.selectionEnd,selected=textarea.value.slice(start,end)||'texto';let before='',after='';if(type==='bold'){before='**';after='**'}if(type==='italic'){before='*';after='*'}if(type==='underline'){before='[u]';after='[/u]'}if(type==='color'){before=`[color=${document.querySelector('#content-color').value}]`;after='[/color]'}textarea.setRangeText(`${before}${selected}${after}`,start,end,'select');textarea.focus()}
 const tokenAlphaProfileCache=new Map();
