@@ -4715,3 +4715,66 @@ body.threat-exporting .threat-edit-tools { display: none !important; }
   background: #292a37; border: 0; color: #c2c3ca; border-radius: 4px; padding: 7px 10px; cursor: pointer;
 }
 .threat-defense-tags-picker button:hover { background: #343546; color: #fff; }
+
+/* Linha de teste com dados derivados do atributo */
+.threat-roll-row { grid-template-columns: 110px 150px 14px 78px auto; }
+.threat-roll-dice { display: flex; align-items: center; gap: 8px; }
+.threat-roll-dice input { width: 58px; }
+.threat-roll-dice small { color: #9a9ca8; font: 700 10px 'Hanken Grotesk', sans-serif; letter-spacing: 0.04em; white-space: nowrap; }
+.threat-roll-row input:disabled { opacity: 0.55; cursor: not-allowed; }
+.threat-roll-manual { display: inline-flex; align-items: center; gap: 6px; color: #9a9ca8; font: 800 8px 'Hanken Grotesk', sans-serif; letter-spacing: 0.1em; cursor: pointer; }
+.threat-roll-manual input { width: 14px; min-height: 0 !important; accent-color: var(--red, #e0150d); }
+
+/* ── Wizard: recalibração de ficha existente ─────────────────────────────── */
+.recal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+@media (max-width: 760px) { .recal-grid { grid-template-columns: 1fr; } }
+.recal-card { background: #191a27; border: 1px solid #373949; border-radius: 7px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.recal-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.recal-card-head label { font: 800 9px 'Hanken Grotesk', sans-serif; letter-spacing: 0.16em; color: #9a9ca8; }
+.recal-from { font: 600 11px 'Hanken Grotesk', sans-serif; color: #9a9ca8; }
+.recal-from b { color: #fff; }
+.recal-slider-row { display: flex; align-items: center; gap: 10px; }
+.recal-slider-row input[type="range"] { flex: 1; accent-color: var(--threat-elem-color, #e0150d); }
+.recal-slider-row input[type="number"] { width: 70px; background: #12131c; border: 1px solid #353746; color: #fff; border-radius: 4px; min-height: 32px; text-align: center; font: 700 13px 'Hanken Grotesk', sans-serif; }
+.recal-slider-row small { font: 800 8px 'Hanken Grotesk', sans-serif; letter-spacing: 0.1em; color: #747783; }
+.recal-slider-row b { min-width: 42px; text-align: right; font: 800 12px 'Hanken Grotesk', sans-serif; color: #fff; }
+.recal-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.recal-check { display: flex; align-items: center; gap: 9px; font: 600 12px 'Hanken Grotesk', sans-serif; color: #c2c3ca; cursor: pointer; }
+.recal-check input { accent-color: var(--threat-elem-color, #e0150d); }
+.recal-origin { font: 600 11px 'Hanken Grotesk', sans-serif; color: #9a9ca8; }
+.recal-origin summary { cursor: pointer; }
+.recal-origin small { display: block; margin-top: 6px; color: #747783; }
+.recal-preview { border-top: 1px solid #353746; padding-top: 12px; }
+.recal-summary { font: 600 12px 'Hanken Grotesk', sans-serif; color: #c2c3ca; margin-bottom: 10px; }
+.recal-summary b { color: #fff; }
+.recal-empty { padding: 18px; text-align: center; color: #747783; font: 600 12px 'Hanken Grotesk', sans-serif; border: 1px dashed #353746; border-radius: 6px; }
+.recal-lists { display: grid; grid-template-columns: 1fr; gap: 14px; max-height: 330px; overflow-y: auto; padding-right: 6px; }
+.recal-lists h4 { margin: 0 0 6px; font: 800 9px 'Hanken Grotesk', sans-serif; letter-spacing: 0.16em; color: var(--threat-elem-color, #e0150d); }
+.recal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.recal-list li { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 7px 10px; background: #14151f; border: 1px solid #2b2d3b; border-radius: 5px; font: 600 12px 'Hanken Grotesk', sans-serif; color: #c2c3ca; }
+.recal-list li > span { flex: 1 1 180px; color: #e4e5ea; font-weight: 700; }
+.recal-list li > i { display: inline-flex; color: #747783; }
+.recal-list b { color: #9a9ca8; }
+.recal-list b.after { color: #fff; }
+.recal-list em { font-style: normal; color: #9a9ca8; }
+.recal-chips { display: flex; flex-wrap: wrap; gap: 5px; flex: 1 1 100%; }
+.recal-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; background: #20222e; border: 1px solid #3d3f4e; border-radius: 4px; font: 700 11px 'Hanken Grotesk', sans-serif; font-style: normal; }
+.recal-chip small { font: 800 8px 'Hanken Grotesk', sans-serif; letter-spacing: 0.1em; color: #d98b19; }
+.recal-list li.stat { display: grid; grid-template-columns: 1fr auto 16px auto; gap: 8px; }
+.recal-list li.stat > span { flex: none; }
+.recal-list li.stat b { text-align: right; }
+.recal-lists { min-height: 0; }
+.wizard-modal .wiz-body { overflow-y: auto; }
+.recal-lists { grid-template-columns: minmax(0, 1fr); }
+.recal-lists > section { min-width: 0; }
+.recal-list li.stat { grid-template-columns: minmax(0, 1fr) auto 16px auto; }
+.recal-list li.stat > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recal-lists { overflow-x: hidden; max-height: none; }
+.recal-list li.stat { grid-template-columns: minmax(0, 1fr) 80px 14px 80px; width: 100%; box-sizing: border-box; }
+.recal-list li.stat > b { text-align: right; }
+.recal-list li.stat > i { justify-content: center; }
+.recal-preview { min-width: 0; }
+.recal-lists > section { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; background: transparent !important; border: 0 !important; position: static !important; }
+.recal-list { display: flex !important; width: 100%; }
+.recal-lists { max-height: none !important; overflow: visible !important; padding-right: 0 !important; }
+.recal-list { height: auto !important; min-height: 0 !important; }

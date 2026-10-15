@@ -14,6 +14,38 @@ function clone(data) {
 }
 
 /**
+ * Dados dos testes são derivados dos atributos da ameaça:
+ *   Fortitude -> Vigor, Reflexos -> Agilidade, Vontade -> Presença,
+ *   Percepção -> Presença, Iniciativa -> Agilidade.
+ * Um teste pode ter `manual: true` para manter dados diferentes do atributo (exceções do livro).
+ */
+export const DERIVED_DICE_MAP = {
+  salvaguardas: { fortitude: 'vig', reflexos: 'agi', vontade: 'pre' },
+  sentidos: { percepcao: 'pre', iniciativa: 'agi' }
+};
+
+export const ATTR_LABELS = { agi: 'Agilidade', for: 'Força', int: 'Intelecto', pre: 'Presença', vig: 'Vigor' };
+
+export function derivedDiceFor(sheet, group, key) {
+  const attr = DERIVED_DICE_MAP[group]?.[key];
+  return Math.max(1, Number(sheet?.atributos?.[attr]) || 0);
+}
+
+/** Atualiza (in-place) os dados dos testes que seguem o atributo. */
+export function applyDerivedDice(sheet) {
+  if (!sheet) return sheet;
+  Object.entries(DERIVED_DICE_MAP).forEach(([group, keys]) => {
+    if (!sheet[group]) return;
+    Object.keys(keys).forEach(key => {
+      const pool = sheet[group][key];
+      if (!pool || pool.manual) return;
+      pool.dados = derivedDiceFor(sheet, group, key);
+    });
+  });
+  return sheet;
+}
+
+/**
  * Calcula os Pontos de Vida do limiar de Machucado (metade do PV máximo arredondado para baixo, ou valor manual).
  */
 export function calcMachucado(sheet) {
@@ -142,11 +174,13 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.sentidos = {
     percepcao: {
       dados: Math.max(1, Number(sRaw.percepcao?.dados) || 2),
-      bonus: Number(sRaw.percepcao?.bonus) || 0
+      bonus: Number(sRaw.percepcao?.bonus) || 0,
+      manual: Boolean(sRaw.percepcao?.manual)
     },
     iniciativa: {
       dados: Math.max(1, Number(sRaw.iniciativa?.dados) || 2),
-      bonus: Number(sRaw.iniciativa?.bonus) || 0
+      bonus: Number(sRaw.iniciativa?.bonus) || 0,
+      manual: Boolean(sRaw.iniciativa?.manual)
     },
     extra: String(sRaw.extra || '').trim()
   };
@@ -157,15 +191,18 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.salvaguardas = {
     fortitude: {
       dados: Math.max(1, Number(savRaw.fortitude?.dados) || 2),
-      bonus: Number(savRaw.fortitude?.bonus) || 0
+      bonus: Number(savRaw.fortitude?.bonus) || 0,
+      manual: Boolean(savRaw.fortitude?.manual)
     },
     reflexos: {
       dados: Math.max(1, Number(savRaw.reflexos?.dados) || 2),
-      bonus: Number(savRaw.reflexos?.bonus) || 0
+      bonus: Number(savRaw.reflexos?.bonus) || 0,
+      manual: Boolean(savRaw.reflexos?.manual)
     },
     vontade: {
       dados: Math.max(1, Number(savRaw.vontade?.dados) || 2),
-      bonus: Number(savRaw.vontade?.bonus) || 0
+      bonus: Number(savRaw.vontade?.bonus) || 0,
+      manual: Boolean(savRaw.vontade?.manual)
     }
   };
 
@@ -198,6 +235,9 @@ export function normalizeThreatSheet(raw = {}) {
     pre: parseAttr(aRaw.pre, 2),
     vig: parseAttr(aRaw.vig, 2)
   };
+
+  // Dados dos testes de resistência e sentidos seguem os atributos (salvo exceções manuais)
+  applyDerivedDice(sheet);
 
   // Deslocamento
   const dRaw = raw.deslocamento || {};
@@ -287,6 +327,15 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.introSide = ['top', 'left', 'right'].includes(raw.introSide)
     ? raw.introSide
     : (sheet.categoria === 'mundana' ? 'top' : 'left');
+
+  // Referência do último rebalanceamento (VD e dificuldade para os quais os números foram calibrados)
+  sheet.balanco = raw.balanco && typeof raw.balanco === 'object'
+    ? {
+        vd: Math.max(10, Math.min(400, Number(raw.balanco.vd) || sheet.vd)),
+        preset: ['leve', 'equilibrada', 'editora'].includes(raw.balanco.preset) ? raw.balanco.preset : 'editora',
+        slider: Math.max(-20, Math.min(20, Number(raw.balanco.slider) || 0))
+      }
+    : null;
 
   // Mesa
   sheet.condicoesAtivas = Array.isArray(raw.condicoesAtivas) ? raw.condicoesAtivas.map(String) : [];

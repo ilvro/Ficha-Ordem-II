@@ -102,7 +102,7 @@ import {
   renderCinematicOriginal
 } from './systems/original/original-views.js';
 import { initOriginalCompendium } from './systems/original/original-compendium.js';
-import { normalizeThreatSheet } from './systems/threat/threat-system.js';
+import { normalizeThreatSheet, applyDerivedDice } from './systems/threat/threat-system.js';
 import { renderThreatBook } from './systems/threat/threat-views.js';
 import { abrirThreatWizard, fecharThreatWizard } from './systems/threat/threat-wizard.js';
 import { getBalance, evaluateSheet } from './systems/threat/threat-balance.js';
@@ -1315,6 +1315,7 @@ function bindThreatBookEvents() {
   el.onclick = (e) => {
    e.stopPropagation();
    const key = el.dataset.threatRollSave;
+   applyDerivedDice(state);
    const saveObj = state.salvaguardas?.[key] || { dados: 2, bonus: 0 };
    const dados = Math.max(1, Number(saveObj.dados) || 1);
    const bonus = Number(saveObj.bonus) || 0;
@@ -1327,6 +1328,7 @@ function bindThreatBookEvents() {
   el.onclick = (e) => {
    e.stopPropagation();
    const key = el.dataset.threatRollSense;
+   applyDerivedDice(state);
    const senseObj = state.sentidos?.[key] || { dados: 2, bonus: 0 };
    const dados = Math.max(1, Number(senseObj.dados) || 1);
    const bonus = Number(senseObj.bonus) || 0;
@@ -1401,6 +1403,7 @@ function bindThreatBookEvents() {
    if (!state.atributos) state.atributos = {};
    const current = Number(state.atributos[attrKey]) || 0;
    state.atributos[attrKey] = Math.max(0, Math.min(15, current + delta));
+   applyDerivedDice(state);
    save(false);
    render();
   };
@@ -1717,6 +1720,7 @@ function bindThreatBookEvents() {
    const attrKey = input.dataset.threatAttrInput;
    if (!state.atributos) state.atributos = {};
    state.atributos[attrKey] = Math.max(0, Number(input.value) || 0);
+   applyDerivedDice(state);
    save(false);
    render();
   };
@@ -2302,11 +2306,13 @@ function bindThreatBookEvents() {
     state.defesa = bal.defesa;
    }
    if (field === 'salvaguardas' || field === 'tudo') {
-    state.salvaguardas = {
-     fortitude: { dados: bal.resForte.dados, bonus: bal.resForte.bonus },
-     reflexos: { dados: bal.resMedia.dados, bonus: bal.resMedia.bonus },
-     vontade: { dados: bal.resFraca.dados, bonus: bal.resFraca.bonus }
-    };
+    // Os dados vêm dos atributos; o balanceamento só define o bônus
+    ['fortitude', 'reflexos', 'vontade'].forEach((k, i) => {
+     const src = [bal.resForte, bal.resMedia, bal.resFraca][i];
+     state.salvaguardas = state.salvaguardas || {};
+     state.salvaguardas[k] = { ...(state.salvaguardas[k] || {}), bonus: src.bonus };
+    });
+    applyDerivedDice(state);
    }
    if (field === 'presenca' || field === 'tudo') {
     if (!state.presenca) state.presenca = {};
@@ -2354,11 +2360,11 @@ function bindThreatBookEvents() {
     state.presenca.dano = rest[1] || '3d6';
     state.presenca.imuneNex = Number(rest[2]) || 35;
    } else if (type === 'saves') {
-    state.salvaguardas = {
-     fortitude: { dados: Number(rest[0]) || 3, bonus: Number(rest[1]) || 10 },
-     reflexos: { dados: Number(rest[2]) || 2, bonus: Number(rest[3]) || 5 },
-     vontade: { dados: Number(rest[4]) || 2, bonus: Number(rest[5]) || 0 }
-    };
+    state.salvaguardas = state.salvaguardas || {};
+    ['fortitude', 'reflexos', 'vontade'].forEach((k, i) => {
+     state.salvaguardas[k] = { ...(state.salvaguardas[k] || {}), bonus: Number(rest[i * 2 + 1]) || 0 };
+    });
+    applyDerivedDice(state);
    }
    save(false);
    render();
@@ -2391,20 +2397,16 @@ function bindThreatBookEvents() {
  if (savesForm) {
   savesForm.onsubmit = (e) => {
    e.preventDefault();
-   state.salvaguardas = {
-    fortitude: {
-     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-fort-dados').value) || 3),
-     bonus: Number(savesForm.querySelector('#threat-save-fort-bonus').value) || 0
-    },
-    reflexos: {
-     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-ref-dados').value) || 2),
-     bonus: Number(savesForm.querySelector('#threat-save-ref-bonus').value) || 0
-    },
-    vontade: {
-     dados: Math.max(1, Number(savesForm.querySelector('#threat-save-von-dados').value) || 2),
-     bonus: Number(savesForm.querySelector('#threat-save-von-bonus').value) || 0
-    }
+   const read = (id, fallbackDice) => {
+    const manual = savesForm.querySelector(`#threat-save-${id}-manual`)?.checked === true;
+    return {
+     dados: manual ? Math.max(1, Number(savesForm.querySelector(`#threat-save-${id}-dados`).value) || fallbackDice) : fallbackDice,
+     bonus: Number(savesForm.querySelector(`#threat-save-${id}-bonus`).value) || 0,
+     manual
+    };
    };
+   state.salvaguardas = { fortitude: read('fort', 1), reflexos: read('ref', 1), vontade: read('von', 1) };
+   applyDerivedDice(state);
    const modal = document.querySelector('#threat-saves-modal');
    if (modal) modal.style.display = 'none';
    save(false);
@@ -2424,17 +2426,20 @@ function bindThreatBookEvents() {
  if (sensesForm) {
   sensesForm.onsubmit = (e) => {
    e.preventDefault();
+   const read = (id) => {
+    const manual = sensesForm.querySelector(`#threat-sense-${id}-manual`)?.checked === true;
+    return {
+     dados: Math.max(1, Number(sensesForm.querySelector(`#threat-sense-${id}-dados`).value) || 1),
+     bonus: Number(sensesForm.querySelector(`#threat-sense-${id}-bonus`).value) || 0,
+     manual
+    };
+   };
    state.sentidos = {
-    percepcao: {
-     dados: Math.max(1, Number(sensesForm.querySelector('#threat-sense-perc-dados').value) || 3),
-     bonus: Number(sensesForm.querySelector('#threat-sense-perc-bonus').value) || 0
-    },
-    iniciativa: {
-     dados: Math.max(1, Number(sensesForm.querySelector('#threat-sense-inic-dados').value) || 3),
-     bonus: Number(sensesForm.querySelector('#threat-sense-inic-bonus').value) || 0
-    },
+    percepcao: read('perc'),
+    iniciativa: read('inic'),
     extra: sensesForm.querySelector('#threat-sense-extra').value.trim()
    };
+   applyDerivedDice(state);
    const modal = document.querySelector('#threat-senses-modal');
    if (modal) modal.style.display = 'none';
    save(false);
@@ -3951,7 +3956,7 @@ function bind(){
        abrirTutorial(sheet,{soRecursos:!appSettings.tutorialOriginal,onFinish:()=>{if(state===sheet){save(false);render();}}});
       }else if(mode==='threat'){
        fecharTutorial();
-       abrirThreatWizard(sheet,{onFinish:()=>{if(state===sheet){save(false);render();}}});
+       abrirThreatWizard(sheet,{modoInicial:'criar',onFinish:()=>{if(state===sheet){save(false);render();}}});
       }else{
        fecharTutorial();
        fecharThreatWizard();

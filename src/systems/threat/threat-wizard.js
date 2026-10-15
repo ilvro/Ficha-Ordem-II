@@ -13,6 +13,14 @@ import {
 import { getBalance, ELEMENT_VULNERABILITY_HINTS } from './threat-balance.js';
 import { normalizeThreatSheet } from './threat-system.js';
 import { icon } from '../../icons.js';
+import {
+  fichaTemConteudo,
+  estadoRecalInicial,
+  renderEscolha,
+  renderRecalibrar,
+  renderRecalPreview,
+  aplicarRecal
+} from './threat-recalibrate.js';
 
 const PASSOS = [
   'Categoria & Elemento',
@@ -194,6 +202,7 @@ function aplicarEscolhas(sheet, d) {
   sheet.name = d.nome.trim() || (d.categoria === 'mundana' ? 'Inimigo Mundano' : 'Criatura do Outro Lado');
   sheet.subtitulo = d.subtitulo.trim() || (d.categoria === 'mundana' ? 'REALIDADE' : (THREAT_ELEMENTS[d.elementoPrincipal]?.nome.toUpperCase() || 'SANGUE'));
   sheet.vd = Number(d.vd) || 60;
+  sheet.balanco = { vd: sheet.vd, preset: d.preset || 'equilibrada', slider: 0 };
   sheet.tipo = d.tipo;
   sheet.tamanho = d.tamanho;
   sheet.elementos = d.categoria === 'mundana' ? [] : [d.elementoPrincipal, ...(d.elementosComplementares || [])];
@@ -867,11 +876,47 @@ function renderPasso7(d) {
   `;
 }
 
+/** Tela de escolha e tela de recalibração para fichas que já têm conteúdo */
+function desenharModoExistente(section, d) {
+  const recalibrando = d.modo === 'recalibrar';
+  section.innerHTML = `
+    <header class="wiz-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <small style="color:var(--threat-elem-color, #e0150d);letter-spacing:.2em;font-weight:800;">WIZARD DE AMEAÇA · ${recalibrando ? 'RECALIBRAR' : 'FICHA EXISTENTE'}</small>
+        <button type="button" class="threat-modal-close-btn" data-twiz-fechar title="Fechar (Esc)">${icon('close', 14)}</button>
+      </div>
+      <h2>${recalibrando ? 'Recalibrar ficha' : 'O que deseja fazer?'}</h2>
+    </header>
+    <div class="wiz-body fx-next">
+      ${recalibrando ? renderRecalibrar(atual.sheet, d.recal) : renderEscolha()}
+    </div>
+    <footer class="wiz-foot">
+      <button type="button" class="wiz-skip" data-twiz-pular>Cancelar</button>
+      <span></span>
+      ${recalibrando ? `
+        <button type="button" class="wiz-back" data-twiz-modo="escolha">VOLTAR</button>
+        <button type="button" class="wiz-next" data-twiz-recal-aplicar style="background:var(--threat-elem-color, var(--red, #e0150d));">APLICAR RECALIBRAÇÃO</button>
+      ` : ''}
+    </footer>
+  `;
+}
+
+function atualizarPreviewRecal() {
+  if (!atual || atual.d.modo !== 'recalibrar') return;
+  const box = atual.el.querySelector('#recal-preview');
+  if (box) box.innerHTML = renderRecalPreview(atual.sheet, atual.d.recal);
+}
+
 function desenhar() {
   if (!atual) return;
   const { el, d } = atual;
   const section = el.querySelector('section');
   if (!section) return;
+
+  if (d.modo === 'escolha' || d.modo === 'recalibrar') {
+    desenharModoExistente(section, d);
+    return;
+  }
 
   const passoAtual = d.passo;
   const isUltimo = passoAtual === PASSOS.length - 1;
@@ -947,6 +992,35 @@ function aoClicar(e) {
   if (alvo('[data-twiz-fechar]') || alvo('[data-twiz-pular]')) {
     fecharThreatWizard(true);
     (onSkip || onFinish)?.();
+    return;
+  }
+
+  // Fichas existentes: escolha do modo e controles da recalibração
+  if ((b = alvo('[data-twiz-modo]'))) {
+    d.modo = b.dataset.twizModo;
+    if (d.modo === 'recalibrar') d.recal = estadoRecalInicial(sheet);
+    desenhar();
+    return;
+  }
+  if ((b = alvo('[data-twiz-recal-vd-chip]'))) {
+    d.recal.destino.vd = Number(b.dataset.twizRecalVdChip) || d.recal.destino.vd;
+    desenhar();
+    return;
+  }
+  if ((b = alvo('[data-twiz-recal-preset]'))) {
+    d.recal.destino.preset = b.dataset.twizRecalPreset;
+    desenhar();
+    return;
+  }
+  if ((b = alvo('[data-twiz-recal-from-preset]'))) {
+    d.recal.origem.preset = b.dataset.twizRecalFromPreset;
+    desenhar();
+    return;
+  }
+  if (alvo('[data-twiz-recal-aplicar]')) {
+    aplicarRecal(sheet, d.recal);
+    fecharThreatWizard(true);
+    onFinish?.();
     return;
   }
 
@@ -1031,6 +1105,29 @@ function aoAlterarInput(e) {
   const { d, el } = atual;
   const target = e.target;
 
+  if (target.dataset.twizRecalVd !== undefined) {
+    const v = Math.max(10, Math.min(400, Number(target.value) || 10));
+    d.recal.destino.vd = v;
+    el.querySelectorAll('[data-twiz-recal-vd]').forEach(i => { if (i !== target) i.value = v; });
+    const out = el.querySelector('#recal-vd-val');
+    if (out) out.textContent = v;
+    el.querySelectorAll('[data-twiz-recal-vd-chip]').forEach(c => c.classList.toggle('selected', Number(c.dataset.twizRecalVdChip) === v));
+    atualizarPreviewRecal();
+    return;
+  }
+  if (target.dataset.twizRecalSlider !== undefined) {
+    d.recal.destino.slider = Number(target.value) || 0;
+    const out = el.querySelector('#recal-slider-val');
+    if (out) out.textContent = `${d.recal.destino.slider > 0 ? '+' : ''}${d.recal.destino.slider}%`;
+    atualizarPreviewRecal();
+    return;
+  }
+  if (target.dataset.twizRecalChk) {
+    d.recal[target.dataset.twizRecalChk] = target.checked;
+    atualizarPreviewRecal();
+    return;
+  }
+
   if (target.dataset.twizAtk) {
     if (!d.ataquePadrao) d.ataquePadrao = {};
     d.ataquePadraoCustomizado = true;
@@ -1074,7 +1171,7 @@ function aoAlterarInput(e) {
 /**
  * Abre o Wizard de Criação de Ameaça para a ficha fornecida
  */
-export function abrirThreatWizard(sheet, { onFinish, onSkip } = {}) {
+export function abrirThreatWizard(sheet, { onFinish, onSkip, modoInicial } = {}) {
   fecharThreatWizard();
 
   const isMundane = sheet.categoria === 'mundana';
@@ -1086,6 +1183,8 @@ export function abrirThreatWizard(sheet, { onFinish, onSkip } = {}) {
   const balDefault = getBalance(defaultVd, defaultPreset);
 
   const d = {
+    modo: modoInicial === 'criar' ? 'criar' : (fichaTemConteudo(sheet) ? 'escolha' : 'criar'),
+    recal: estadoRecalInicial(sheet),
     passo: 0,
     categoria: sheet.categoria || 'paranormal',
     elementoPrincipal: elemDestaque,

@@ -11,7 +11,8 @@ import {
   calcQuadrados,
   formatPool,
   formatPoolGlyph,
-  normalizeThreatSheet
+  normalizeThreatSheet,
+  ATTR_LABELS
 } from './threat-system.js';
 import {
   THREAT_ELEMENTS,
@@ -1281,24 +1282,45 @@ function renderThreatModals(sheet) {
           <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
         <form id="threat-saves-form" class="threat-modal-body">
-          <p class="threat-modal-hint">Rolagens que a ameaça faz para resistir a efeitos de outros seres: <b>Fortitude</b> (corpo, venenos, doenças), <b>Reflexos</b> (esquivar de explosões e armadilhas) e <b>Vontade</b> (mente, medo, controle). Com 3 dados e bônus +10 a rolagem é 3d20+10, usando o maior resultado.</p>
+          <p class="threat-modal-hint">Rolagens que a ameaça faz para resistir a efeitos de outros seres: <b>Fortitude</b> (corpo, venenos, doenças), <b>Reflexos</b> (esquivar de explosões e armadilhas) e <b>Vontade</b> (mente, medo, controle). Os dados seguem o atributo (Fortitude = Vigor, Reflexos = Agilidade, Vontade = Presença); só o bônus é editado aqui. Marque MANUAL para uma exceção.</p>
           <div class="threat-roll-row">
             <span class="threat-roll-row-name">FORTITUDE</span>
-            <input type="number" min="1" max="10" id="threat-save-fort-dados" value="${sheet.salvaguardas?.fortitude?.dados ?? 3}" aria-label="FORTITUDE - dados">
-            <span class="threat-roll-row-sep">d20 +</span>
-            <input type="number" id="threat-save-fort-bonus" value="${sheet.salvaguardas?.fortitude?.bonus ?? 10}" aria-label="FORTITUDE - bônus">
+            <span class="threat-roll-dice">
+              <input type="number" min="1" max="15" id="threat-save-fort-dados" value="${sheet.salvaguardas?.fortitude?.dados ?? 1}" ${sheet.salvaguardas?.fortitude?.manual ? '' : 'disabled'} aria-label="FORTITUDE - dados">
+              <small>d20 · ${ATTR_LABELS.vig} ${sheet.atributos?.vig ?? 0}</small>
+            </span>
+            <span class="threat-roll-row-sep">+</span>
+            <input type="number" id="threat-save-fort-bonus" value="${sheet.salvaguardas?.fortitude?.bonus ?? 0}" aria-label="FORTITUDE - bônus">
+            <label class="threat-roll-manual" title="Usar uma quantidade de dados diferente do atributo">
+              <input type="checkbox" id="threat-save-fort-manual" ${sheet.salvaguardas?.fortitude?.manual ? 'checked' : ''} onchange="this.closest('.threat-roll-row').querySelector('input[type=number]').disabled=!this.checked">
+              <span>MANUAL</span>
+            </label>
           </div>
           <div class="threat-roll-row">
             <span class="threat-roll-row-name">REFLEXOS</span>
-            <input type="number" min="1" max="10" id="threat-save-ref-dados" value="${sheet.salvaguardas?.reflexos?.dados ?? 2}" aria-label="REFLEXOS - dados">
-            <span class="threat-roll-row-sep">d20 +</span>
-            <input type="number" id="threat-save-ref-bonus" value="${sheet.salvaguardas?.reflexos?.bonus ?? 5}" aria-label="REFLEXOS - bônus">
+            <span class="threat-roll-dice">
+              <input type="number" min="1" max="15" id="threat-save-ref-dados" value="${sheet.salvaguardas?.reflexos?.dados ?? 1}" ${sheet.salvaguardas?.reflexos?.manual ? '' : 'disabled'} aria-label="REFLEXOS - dados">
+              <small>d20 · ${ATTR_LABELS.agi} ${sheet.atributos?.agi ?? 0}</small>
+            </span>
+            <span class="threat-roll-row-sep">+</span>
+            <input type="number" id="threat-save-ref-bonus" value="${sheet.salvaguardas?.reflexos?.bonus ?? 0}" aria-label="REFLEXOS - bônus">
+            <label class="threat-roll-manual" title="Usar uma quantidade de dados diferente do atributo">
+              <input type="checkbox" id="threat-save-ref-manual" ${sheet.salvaguardas?.reflexos?.manual ? 'checked' : ''} onchange="this.closest('.threat-roll-row').querySelector('input[type=number]').disabled=!this.checked">
+              <span>MANUAL</span>
+            </label>
           </div>
           <div class="threat-roll-row">
             <span class="threat-roll-row-name">VONTADE</span>
-            <input type="number" min="1" max="10" id="threat-save-von-dados" value="${sheet.salvaguardas?.vontade?.dados ?? 2}" aria-label="VONTADE - dados">
-            <span class="threat-roll-row-sep">d20 +</span>
+            <span class="threat-roll-dice">
+              <input type="number" min="1" max="15" id="threat-save-von-dados" value="${sheet.salvaguardas?.vontade?.dados ?? 1}" ${sheet.salvaguardas?.vontade?.manual ? '' : 'disabled'} aria-label="VONTADE - dados">
+              <small>d20 · ${ATTR_LABELS.pre} ${sheet.atributos?.pre ?? 0}</small>
+            </span>
+            <span class="threat-roll-row-sep">+</span>
             <input type="number" id="threat-save-von-bonus" value="${sheet.salvaguardas?.vontade?.bonus ?? 0}" aria-label="VONTADE - bônus">
+            <label class="threat-roll-manual" title="Usar uma quantidade de dados diferente do atributo">
+              <input type="checkbox" id="threat-save-von-manual" ${sheet.salvaguardas?.vontade?.manual ? 'checked' : ''} onchange="this.closest('.threat-roll-row').querySelector('input[type=number]').disabled=!this.checked">
+              <span>MANUAL</span>
+            </label>
           </div>
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
@@ -1322,15 +1344,29 @@ function renderThreatModals(sheet) {
         <form id="threat-senses-form" class="threat-modal-body">
           <div class="threat-roll-row">
             <span class="threat-roll-row-name">PERCEPÇÃO</span>
-            <input type="number" min="1" max="10" id="threat-sense-perc-dados" value="${sheet.sentidos?.percepcao?.dados ?? 3}" aria-label="PERCEPÇÃO - dados">
-            <span class="threat-roll-row-sep">d20 +</span>
-            <input type="number" id="threat-sense-perc-bonus" value="${sheet.sentidos?.percepcao?.bonus ?? 10}" aria-label="PERCEPÇÃO - bônus">
+            <span class="threat-roll-dice">
+              <input type="number" min="1" max="15" id="threat-sense-perc-dados" value="${sheet.sentidos?.percepcao?.dados ?? 1}" ${sheet.sentidos?.percepcao?.manual ? '' : 'disabled'} aria-label="PERCEPÇÃO - dados">
+              <small>d20 · ${ATTR_LABELS.pre} ${sheet.atributos?.pre ?? 0}</small>
+            </span>
+            <span class="threat-roll-row-sep">+</span>
+            <input type="number" id="threat-sense-perc-bonus" value="${sheet.sentidos?.percepcao?.bonus ?? 0}" aria-label="PERCEPÇÃO - bônus">
+            <label class="threat-roll-manual" title="Usar uma quantidade de dados diferente do atributo">
+              <input type="checkbox" id="threat-sense-perc-manual" ${sheet.sentidos?.percepcao?.manual ? 'checked' : ''} onchange="this.closest('.threat-roll-row').querySelector('input[type=number]').disabled=!this.checked">
+              <span>MANUAL</span>
+            </label>
           </div>
           <div class="threat-roll-row">
             <span class="threat-roll-row-name">INICIATIVA</span>
-            <input type="number" min="1" max="10" id="threat-sense-inic-dados" value="${sheet.sentidos?.iniciativa?.dados ?? 3}" aria-label="INICIATIVA - dados">
-            <span class="threat-roll-row-sep">d20 +</span>
+            <span class="threat-roll-dice">
+              <input type="number" min="1" max="15" id="threat-sense-inic-dados" value="${sheet.sentidos?.iniciativa?.dados ?? 1}" ${sheet.sentidos?.iniciativa?.manual ? '' : 'disabled'} aria-label="INICIATIVA - dados">
+              <small>d20 · ${ATTR_LABELS.agi} ${sheet.atributos?.agi ?? 0}</small>
+            </span>
+            <span class="threat-roll-row-sep">+</span>
             <input type="number" id="threat-sense-inic-bonus" value="${sheet.sentidos?.iniciativa?.bonus ?? 0}" aria-label="INICIATIVA - bônus">
+            <label class="threat-roll-manual" title="Usar uma quantidade de dados diferente do atributo">
+              <input type="checkbox" id="threat-sense-inic-manual" ${sheet.sentidos?.iniciativa?.manual ? 'checked' : ''} onchange="this.closest('.threat-roll-row').querySelector('input[type=number]').disabled=!this.checked">
+              <span>MANUAL</span>
+            </label>
           </div>
           <div class="threat-form-group">
             <label>SENTIDOS ESPECIAIS</label>
@@ -1541,6 +1577,7 @@ function renderBalanceModal(sheet) {
 
         <footer class="threat-modal-footer" style="justify-content:space-between;">
           <button type="button" class="threat-edit-btn" data-close-threat-modal>FECHAR</button>
+          <button type="button" class="threat-edit-btn" data-threat-open-wizard title="Muda o VD ou a dificuldade e ajusta ataques, habilidades e textos">RECALIBRAR FICHA INTEIRA</button>
           <button type="submit" class="threat-edit-btn" data-threat-apply-bal="tudo" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:900;">
             ${icon('zap', 13)} APLICAR TODAS AS SUGESTÕES
           </button>
