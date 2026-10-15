@@ -424,7 +424,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     <span><input type="text" class="threat-mini-input" data-threat-field="presenca.tipoDano" value="${safe(sheet.presenca.tipoDano)}"></span>
                     <span>• NEX <input type="number" class="threat-mini-input" data-threat-field="presenca.imuneNex" value="${sheet.presenca.imuneNex}">%+ é imune</span>
                   ` : `
-                    <span>DT ${sheet.presenca.dt} • <button type="button" class="threat-chip-roll-dmg threat-presence-chip" data-threat-roll-presence title="Rolar Dano Mental (${safe(sheet.presenca.dano)})">${safe(sheet.presenca.dano)} ${safe(sheet.presenca.tipoDano)}</button> • NEX ${sheet.presenca.imuneNex}%+ é imune</span>
+                    <span>DT ${sheet.presenca.dt} • <button type="button" class="threat-chip-roll-dmg threat-presence-chip" data-threat-roll-presence title="Rolar Dano Mental (${safe(sheet.presenca.dano)})">${safe(sheet.presenca.dano)} ${safe(sheet.presenca.tipoDano)}</button> • ${sheet.presenca.imuneNex > 0 ? `NEX ${sheet.presenca.imuneNex}%+ é imune` : 'Afeta qualquer NEX'}</span>
                   `}
                 </div>
                 ${sheet.presenca.texto ? `<div class="threat-book-prose">${safe(sheet.presenca.texto)}</div>` : ''}

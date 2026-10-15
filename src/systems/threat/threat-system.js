@@ -165,7 +165,7 @@ export function normalizeThreatSheet(raw = {}) {
     dt: Math.max(0, Number(pRaw.dt) || 19),
     dano: String(pRaw.dano || '3d6').trim(),
     tipoDano: String(pRaw.tipoDano || 'mental').trim(),
-    imuneNex: Math.max(0, Number(pRaw.imuneNex) || 35),
+    imuneNex: pRaw.imuneNex === 0 || pRaw.imuneNex === '0' ? 0 : Math.max(0, Number(pRaw.imuneNex) || 35),
     texto: String(pRaw.texto || '').trim()
   };
 

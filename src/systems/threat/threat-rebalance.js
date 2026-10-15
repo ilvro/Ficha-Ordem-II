@@ -17,6 +17,7 @@
  */
 
 import { getBalance } from './threat-balance.js';
+import { applyDerivedDice } from './threat-system.js';
 
 const clone = obj => JSON.parse(JSON.stringify(obj));
 
@@ -78,6 +79,16 @@ function avgOfPresence(p) {
   return p ? p.dados * (p.faces + 1) / 2 : 0;
 }
 
+/** NEX a partir do qual a presença não afeta mais: segue a progressão do livro (VD 20 = 25%, VD 100 = 45%, VD 300 = 90%) */
+export function nexImuneRef(vd) {
+  return Math.max(25, Math.min(99, Math.round((20 + Number(vd) / 4) / 5) * 5));
+}
+
+/** Maior atributo esperado para um VD (média do bestiário: VD 20 ≈ 3, VD 200 ≈ 4, VD 400 ≈ 6) */
+export function attrRef(vd) {
+  return 3.2 + (Math.max(10, Math.min(400, Number(vd))) - 20) * 0.0067;
+}
+
 /** Calcula as razões e diferenças entre a configuração de origem e a de destino */
 export function buildScale(from, to) {
   const a = getBalance(from.vd, from.preset, from.slider || 0);
@@ -92,7 +103,9 @@ export function buildScale(from, to) {
     dDef: b.defesa - a.defesa,
     dAtk: b.ataque.bonus - a.ataque.bonus,
     dDt: b.dt - a.dt,
-    dNex: b.imuneNex - a.imuneNex,
+    dNex: nexImuneRef(to.vd) - nexImuneRef(from.vd),
+    ratioAttr: attrRef(to.vd) / attrRef(from.vd),
+    dtPiso: b.dt,
     dSaves: [b.resForte.bonus - a.resForte.bonus, b.resMedia.bonus - a.resMedia.bonus, b.resFraca.bonus - a.resFraca.bonus]
   };
 }
@@ -165,13 +178,35 @@ function buildRules(sc) {
       id: 'dt',
       label: 'DT',
       re: /\bDT\s*(\d+)/dgi,
-      apply: tok => (Number(tok) >= 10 ? String(Math.max(5, Number(tok) + sc.dDt)) : tok)
+      apply: tok => (Number(tok) >= 10 ? String(Math.max(sc.dtPiso, Number(tok) + sc.dDt)) : tok)
     },
     {
       id: 'defesa',
       label: 'DEFESA',
       re: /\bDefesa\s+(\d+)/dgi,
       apply: tok => String(Math.max(5, Number(tok) + sc.dDef))
+    },
+    {
+      id: 'atributo',
+      label: 'ATRIBUTO',
+      re: /(?:Agilidade|For[çc]a|Intelecto|Presen[çc]a|Vigor|AGI|FOR|INT|PRE|VIG)\s+(?:muda\s+para|passa\s+a\s+ser|aumenta\s+para)\s+(\d+)/dgi,
+      apply: tok => String(scaleInt(tok, sc.ratioAttr, { minimum: 1 }))
+    },
+    {
+      id: 'teste-resistencia',
+      label: 'TESTE',
+      re: /(?:Fortitude|Reflexos|Vontade|Percep[çc][ãa]o|Iniciativa)\s+(?:muda|passa)\s+para\s+(\d+d20\s*\+\s*\d+)/dgi,
+      apply: tok => {
+        const m = tok.match(/(\d+)d20\s*\+\s*(\d+)/i);
+        const dados = Math.max(1, Math.round(Number(m[1]) * sc.ratioAttr));
+        return `${dados}d20+${Math.max(0, Number(m[2]) + sc.dSaves[0])}`;
+      }
+    },
+    {
+      id: 'pool',
+      label: 'TESTE',
+      re: /\b\d+d20\s*\+\s*(\d+)/dgi,
+      apply: tok => String(Math.max(0, Number(tok) + sc.dAtk))
     },
     {
       id: 'teste',
@@ -255,6 +290,14 @@ export function rebalanceSheet(sheet, to, from, opts = {}) {
     out.machucadoOverride = Math.max(1, Math.round(sheet.machucadoOverride * sc.ratioPv));
   }
   note('Pontos de vida', pvAntes, out.pvMax);
+
+  // Atributos: escalam com o VD; os dados de Fortitude, Reflexos, Vontade, Percepção e Iniciativa os acompanham
+  Object.keys(out.atributos || {}).forEach(k => {
+    const antes = sheet.atributos[k];
+    if (antes > 0) out.atributos[k] = Math.max(1, Math.round(antes * sc.ratioAttr));
+    note(`Atributo ${k.toUpperCase()}`, antes, out.atributos[k]);
+  });
+  applyDerivedDice(out);
 
   // Defesa
   out.defesa = Math.max(5, sheet.defesa + sc.dDef);
