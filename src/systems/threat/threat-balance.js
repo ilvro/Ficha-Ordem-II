@@ -211,7 +211,8 @@ export function getBalance(vd, preset = 'equilibrada', slider = 0) {
   const bal = applyPreset(row, preset, slider);
   bal.sugestoesDano = suggestDamage(bal.danoMedio);
   bal.machucado = Math.floor(bal.pv / 2);
-  bal.imuneNex = Math.min(99, Math.max(5, Math.round((bal.vd / 20) * 5)));
+  // Progressão do livro: VD 20 = 25%, VD 100 = 45%, VD 300 = 90%
+  bal.imuneNex = Math.max(25, Math.min(99, Math.round((20 + bal.vd / 4) / 5) * 5));
   return bal;
 }
 
