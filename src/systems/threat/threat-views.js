@@ -463,10 +463,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 `}
                 ${editMode ? `
                   <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
-                    <button type="button" class="threat-chip-sug" data-threat-apply-sug="saves:${balSug.resForte.dados}:${balSug.resForte.bonus}:${balSug.resMedia.dados}:${balSug.resMedia.bonus}:${balSug.resFraca.dados}:${balSug.resFraca.bonus}" title="Sugerir Salvaguardas (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})">
+                    <button type="button" class="threat-chip-sug" data-threat-apply-sug="saves:${balSug.resForte.dados}:${balSug.resForte.bonus}:${balSug.resMedia.dados}:${balSug.resMedia.bonus}:${balSug.resFraca.dados}:${balSug.resFraca.bonus}" title="Sugerir testes de resistência (+${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus})">
                       SUGESTÃO: +${balSug.resForte.bonus}/+${balSug.resMedia.bonus}/+${balSug.resFraca.bonus}
                     </button>
-                    <button type="button" class="threat-mini-btn" data-threat-edit-saves title="Editar Salvaguardas">
+                    <button type="button" class="threat-mini-btn" data-threat-edit-saves title="Editar testes de resistência (Fortitude, Reflexos e Vontade)">
                       ${icon('edit', 10)}
                     </button>
                   </div>
@@ -1184,8 +1184,11 @@ function renderThreatModals(sheet) {
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
       <div class="threat-modal-card" style="max-width:480px;">
         <header class="threat-modal-header">
-          <h2 id="threat-def-card-modal-title">ADICIONAR RESISTÊNCIA</h2>
-          <button type="button" class="threat-modal-close-btn" data-close-threat-modal>${icon('close', 13)}</button>
+          <div>
+            <small>DEFESA · AMEAÇA</small>
+            <h2 id="threat-def-card-modal-title">ADICIONAR RESISTÊNCIA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
         <form id="threat-defense-card-form" class="threat-modal-body">
           <input type="hidden" id="threat-def-card-category" value="res">
@@ -1215,7 +1218,7 @@ function renderThreatModals(sheet) {
 
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:800;">+ ADICIONAR CARD</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;font-weight:800;">ADICIONAR</button>
           </footer>
         </form>
       </div>
@@ -1226,8 +1229,11 @@ function renderThreatModals(sheet) {
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
       <div class="threat-modal-card">
         <header class="threat-modal-header">
-          <h2 id="threat-section-modal-title">NOVA SEÇÃO / ENIGMA</h2>
-          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+          <div>
+            <small>SEÇÃO · AMEAÇA</small>
+            <h2 id="threat-section-modal-title">NOVA SEÇÃO / ENIGMA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
         <form id="threat-section-form" class="threat-modal-body">
           <input type="hidden" name="sectionId" id="threat-section-id">
@@ -1235,15 +1241,15 @@ function renderThreatModals(sheet) {
             <div class="threat-form-group">
               <label>ESTILO DA SEÇÃO</label>
               <select name="estilo" id="threat-section-style">
-                <option value="normal">Seção Comum (Ex: Consumir, Habitat, Comportamento)</option>
-                <option value="enigma">Enigma de Medo (Caixa de Papel Envelhecido / Regra Especial)</option>
+                <option value="normal">Seção comum (ex.: Consumir, Habitat)</option>
+                <option value="enigma">Enigma de Medo (caixa de tinta preta)</option>
               </select>
             </div>
             <div class="threat-form-group">
               <label>COLUNA NO LIVRO</label>
               <select name="coluna" id="threat-section-column">
-                <option value="esquerda">Coluna Esquerda (Abaixo das Estatísticas - Padrão)</option>
-                <option value="direita">Coluna Direita (Acima de Ações)</option>
+                <option value="esquerda">Coluna esquerda (padrão)</option>
+                <option value="direita">Coluna direita (acima das ações)</option>
               </select>
             </div>
           </div>
@@ -1257,7 +1263,7 @@ function renderThreatModals(sheet) {
           </div>
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SEÇÃO</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR</button>
           </footer>
         </form>
       </div>
@@ -1268,43 +1274,35 @@ function renderThreatModals(sheet) {
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
       <div class="threat-modal-card">
         <header class="threat-modal-header">
-          <h2>EDITAR SALVAGUARDAS</h2>
-          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+          <div>
+            <small>DEFESA · AMEAÇA</small>
+            <h2>TESTES DE RESISTÊNCIA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
         <form id="threat-saves-form" class="threat-modal-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>FORTITUDE (DADOS)</label>
-              <input type="number" min="1" max="10" id="threat-save-fort-dados" value="${sheet.salvaguardas?.fortitude?.dados ?? 3}">
-            </div>
-            <div class="threat-form-group">
-              <label>FORTITUDE (BÔNUS)</label>
-              <input type="number" id="threat-save-fort-bonus" value="${sheet.salvaguardas?.fortitude?.bonus ?? 10}">
-            </div>
+          <p class="threat-modal-hint">Rolagens que a ameaça faz para resistir a efeitos de outros seres: <b>Fortitude</b> (corpo, venenos, doenças), <b>Reflexos</b> (esquivar de explosões e armadilhas) e <b>Vontade</b> (mente, medo, controle). Com 3 dados e bônus +10 a rolagem é 3d20+10, usando o maior resultado.</p>
+          <div class="threat-roll-row">
+            <span class="threat-roll-row-name">FORTITUDE</span>
+            <input type="number" min="1" max="10" id="threat-save-fort-dados" value="${sheet.salvaguardas?.fortitude?.dados ?? 3}" aria-label="FORTITUDE - dados">
+            <span class="threat-roll-row-sep">d20 +</span>
+            <input type="number" id="threat-save-fort-bonus" value="${sheet.salvaguardas?.fortitude?.bonus ?? 10}" aria-label="FORTITUDE - bônus">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>REFLEXOS (DADOS)</label>
-              <input type="number" min="1" max="10" id="threat-save-ref-dados" value="${sheet.salvaguardas?.reflexos?.dados ?? 2}">
-            </div>
-            <div class="threat-form-group">
-              <label>REFLEXOS (BÔNUS)</label>
-              <input type="number" id="threat-save-ref-bonus" value="${sheet.salvaguardas?.reflexos?.bonus ?? 5}">
-            </div>
+          <div class="threat-roll-row">
+            <span class="threat-roll-row-name">REFLEXOS</span>
+            <input type="number" min="1" max="10" id="threat-save-ref-dados" value="${sheet.salvaguardas?.reflexos?.dados ?? 2}" aria-label="REFLEXOS - dados">
+            <span class="threat-roll-row-sep">d20 +</span>
+            <input type="number" id="threat-save-ref-bonus" value="${sheet.salvaguardas?.reflexos?.bonus ?? 5}" aria-label="REFLEXOS - bônus">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>VONTADE (DADOS)</label>
-              <input type="number" min="1" max="10" id="threat-save-von-dados" value="${sheet.salvaguardas?.vontade?.dados ?? 2}">
-            </div>
-            <div class="threat-form-group">
-              <label>VONTADE (BÔNUS)</label>
-              <input type="number" id="threat-save-von-bonus" value="${sheet.salvaguardas?.vontade?.bonus ?? 0}">
-            </div>
+          <div class="threat-roll-row">
+            <span class="threat-roll-row-name">VONTADE</span>
+            <input type="number" min="1" max="10" id="threat-save-von-dados" value="${sheet.salvaguardas?.vontade?.dados ?? 2}" aria-label="VONTADE - dados">
+            <span class="threat-roll-row-sep">d20 +</span>
+            <input type="number" id="threat-save-von-bonus" value="${sheet.salvaguardas?.vontade?.bonus ?? 0}" aria-label="VONTADE - bônus">
           </div>
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SALVAGUARDAS</button>
+            <button type="submit" class="threat-edit-btn">SALVAR</button>
           </footer>
         </form>
       </div>
@@ -1315,37 +1313,32 @@ function renderThreatModals(sheet) {
       <div class="threat-modal-backdrop" data-close-threat-modal></div>
       <div class="threat-modal-card">
         <header class="threat-modal-header">
-          <h2>EDITAR SENTIDOS</h2>
-          <button type="button" class="threat-edit-btn" data-close-threat-modal>${icon('close', 13)}</button>
+          <div>
+            <small>SENTIDOS · AMEAÇA</small>
+            <h2>PERCEPÇÃO E INICIATIVA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
         </header>
         <form id="threat-senses-form" class="threat-modal-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>PERCEPÇÃO (DADOS)</label>
-              <input type="number" min="1" max="10" id="threat-sense-perc-dados" value="${sheet.sentidos?.percepcao?.dados ?? 3}">
-            </div>
-            <div class="threat-form-group">
-              <label>PERCEPÇÃO (BÔNUS)</label>
-              <input type="number" id="threat-sense-perc-bonus" value="${sheet.sentidos?.percepcao?.bonus ?? 10}">
-            </div>
+          <div class="threat-roll-row">
+            <span class="threat-roll-row-name">PERCEPÇÃO</span>
+            <input type="number" min="1" max="10" id="threat-sense-perc-dados" value="${sheet.sentidos?.percepcao?.dados ?? 3}" aria-label="PERCEPÇÃO - dados">
+            <span class="threat-roll-row-sep">d20 +</span>
+            <input type="number" id="threat-sense-perc-bonus" value="${sheet.sentidos?.percepcao?.bonus ?? 10}" aria-label="PERCEPÇÃO - bônus">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="threat-form-group">
-              <label>INICIATIVA (DADOS)</label>
-              <input type="number" min="1" max="10" id="threat-sense-inic-dados" value="${sheet.sentidos?.iniciativa?.dados ?? 3}">
-            </div>
-            <div class="threat-form-group">
-              <label>INICIATIVA (BÔNUS)</label>
-              <input type="number" id="threat-sense-inic-bonus" value="${sheet.sentidos?.iniciativa?.bonus ?? 0}">
-            </div>
+          <div class="threat-roll-row">
+            <span class="threat-roll-row-name">INICIATIVA</span>
+            <input type="number" min="1" max="10" id="threat-sense-inic-dados" value="${sheet.sentidos?.iniciativa?.dados ?? 3}" aria-label="INICIATIVA - dados">
+            <span class="threat-roll-row-sep">d20 +</span>
+            <input type="number" id="threat-sense-inic-bonus" value="${sheet.sentidos?.iniciativa?.bonus ?? 0}" aria-label="INICIATIVA - bônus">
           </div>
           <div class="threat-form-group">
-            <label>SENTIDOS ESPECIAIS (EX: Percepção às cegas, Faro aguçado)</label>
-            <input type="text" id="threat-sense-extra" value="${safe(sheet.sentidos?.extra || '')}">
+            <label>SENTIDOS ESPECIAIS</label>
+            <input type="text" id="threat-sense-extra" value="${safe(sheet.sentidos?.extra || '')}" placeholder="Ex.: Percepção às cegas, Faro, Visão no escuro">
           </div>
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
-            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR SENTIDOS</button>
+            <button type="submit" class="threat-edit-btn">SALVAR</button>
           </footer>
         </form>
       </div>
@@ -1491,7 +1484,7 @@ function renderBalanceModal(sheet) {
             <!-- SALVAGUARDAS -->
             <div class="threat-bal-card">
               <div class="threat-bal-card-head">
-                <span class="threat-bal-card-title">SALVAGUARDAS</span>
+                <span class="threat-bal-card-title">TESTES DE RESISTÊNCIA</span>
                 <span class="threat-bal-status status-dentro">3 PATAMARES</span>
               </div>
               <div class="threat-bal-saves-breakdown">
@@ -1501,7 +1494,7 @@ function renderBalanceModal(sheet) {
               </div>
               <div class="threat-bal-card-foot">
                 <small>Atual: +${sheet.salvaguardas?.fortitude?.bonus || 0} / +${sheet.salvaguardas?.reflexos?.bonus || 0} / +${sheet.salvaguardas?.vontade?.bonus || 0}</small>
-                <button type="button" class="threat-mini-btn" data-threat-apply-bal="salvaguardas">APLICAR SALVAGUARDAS</button>
+                <button type="button" class="threat-mini-btn" data-threat-apply-bal="salvaguardas">APLICAR</button>
               </div>
             </div>
 

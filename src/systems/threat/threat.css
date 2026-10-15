@@ -3911,7 +3911,7 @@
 }
 
 .threat-miro-pentagon-svg {
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+  filter: none;
 }
 
 .threat-miro-col-actions,
@@ -4543,3 +4543,175 @@ body.threat-exporting .threat-edit-tools { display: none !important; }
 .threat-book-page.mode-edit .threat-intro-textarea { font-family: Georgia, 'Times New Roman', serif; font-size: 13.5px; line-height: 1.6; }
 .threat-book-page.mode-edit [data-threat-field="vd"] { min-width: 78px; }
 .threat-book-page.mode-edit .threat-book-badge-val { background: transparent !important; box-shadow: none !important; padding: 0 !important; clip-path: none !important; }
+
+/* ── Modais da ameaça: mesma aparência do editor de cards do app ─────────── */
+.threat-modal-backdrop { background: rgba(4, 5, 10, 0.78); backdrop-filter: blur(3px); }
+.threat-modal-card {
+  background: #171824;
+  border: 1px solid #414354;
+  border-radius: 10px;
+  box-shadow: 0 24px 80px #000;
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+.threat-modal-header {
+  background: #1b1c2a;
+  border-bottom: 1px solid #353746;
+  padding: 16px 22px;
+  align-items: center;
+}
+.threat-modal-header small {
+  display: block;
+  color: var(--red, #e0150d);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+.threat-modal-header h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 3px 0 0;
+  color: #fff;
+}
+.threat-modal-close-btn,
+.threat-modal-header .threat-edit-btn {
+  background: transparent !important;
+  border: 0 !important;
+  color: #a8a9b2 !important;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+.threat-modal-close-btn:hover,
+.threat-modal-header .threat-edit-btn:hover { color: #fff !important; background: #292a37 !important; box-shadow: none !important; }
+.threat-modal-body { padding: 18px 22px; gap: 14px; }
+.threat-modal-hint { margin: 0; color: #9a9ca8; font-size: 12px; line-height: 1.55; }
+.threat-modal-hint b { color: #e4e5ea; font-weight: 700; }
+.threat-form-group label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #9a9ca8;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.threat-modal .threat-form-group input,
+.threat-modal .threat-form-group select,
+.threat-modal .threat-form-group textarea,
+.threat-roll-row input {
+  background: #12131c !important;
+  border: 1px solid #353746 !important;
+  color: #f1f2f6 !important;
+  border-radius: 4px !important;
+  padding: 0 11px;
+  min-height: 36px;
+  font: 600 13px 'Hanken Grotesk', sans-serif;
+  box-shadow: none !important;
+}
+.threat-modal .threat-form-group textarea { padding: 9px 11px; }
+.threat-modal .threat-form-group input:focus,
+.threat-modal .threat-form-group select:focus,
+.threat-modal .threat-form-group textarea:focus,
+.threat-roll-row input:focus { border-color: var(--red, #e0150d) !important; }
+.threat-modal-footer {
+  background: #1b1c2a;
+  border-top: 1px solid #353746;
+  padding: 13px 22px;
+  margin: 6px -22px -18px;
+  gap: 8px;
+}
+.threat-modal-footer .threat-edit-btn {
+  height: 37px;
+  padding: 0 15px;
+  border-radius: 4px;
+  border: 0 !important;
+  background: #292a37 !important;
+  color: #c2c3ca !important;
+  font: 800 10px 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+.threat-modal-footer .threat-edit-btn:hover { background: #343546 !important; color: #fff !important; }
+.threat-modal-footer button[type="submit"].threat-edit-btn,
+.threat-modal-footer .threat-edit-btn[data-threat-apply-bal] {
+  background: var(--red, #e0150d) !important;
+  color: #fff !important;
+}
+.threat-modal-footer button[type="submit"].threat-edit-btn:hover { filter: none; background: #f01d14 !important; }
+
+/* Linha de rolagem: nome, dados e bônus */
+.threat-roll-row {
+  display: grid;
+  grid-template-columns: 110px 70px auto 80px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #191a27;
+  border: 1px solid #373949;
+  border-radius: 7px;
+}
+.threat-roll-row-name { font: 800 10px 'Hanken Grotesk', sans-serif; letter-spacing: 0.14em; color: #e4e5ea; }
+.threat-roll-row-sep { font: 700 12px 'Hanken Grotesk', sans-serif; color: #747783; text-align: center; }
+.threat-roll-row input { width: 100%; text-align: center; }
+
+/* Campos tracejados do modo edição não se aplicam dentro dos modais */
+.threat-book-page.mode-edit .threat-modal input:not([type="color"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.threat-book-page.mode-edit .threat-modal select,
+.threat-book-page.mode-edit .threat-modal textarea,
+.threat-book-page.mode-edit .threat-card-editor input,
+.threat-book-page.mode-edit .threat-card-editor select,
+.threat-book-page.mode-edit .threat-card-editor textarea {
+  border: 1px solid #353746 !important;
+  background: #12131c !important;
+}
+.threat-book-page.mode-edit .threat-modal input:focus,
+.threat-book-page.mode-edit .threat-modal select:focus,
+.threat-book-page.mode-edit .threat-modal textarea:focus,
+.threat-book-page.mode-edit .threat-card-editor input:focus,
+.threat-book-page.mode-edit .threat-card-editor select:focus,
+.threat-book-page.mode-edit .threat-card-editor textarea:focus { border-color: var(--red, #e0150d) !important; box-shadow: none !important; }
+.threat-book-page.mode-edit .threat-modal .threat-mini-btn,
+.threat-book-page.mode-edit .threat-modal .threat-vd-chip { background: #292a37 !important; border: 0 !important; color: #c2c3ca !important; }
+
+/* ── Sem brilho e sem sombra difusa nos controles ───────────────────────────
+   Estados de hover/foco mudam só a cor da borda ou do texto. */
+.threat-theme-color-chip,
+.threat-theme-color-chip:hover,
+.threat-theme-color-chip .color-dot,
+.threat-assistant-chip .chip-dot,
+.threat-primary-elem-select-btn,
+.threat-primary-elem-select-btn:hover,
+.threat-sigil-choice-btn,
+.threat-sigil-choice-btn:hover,
+.threat-sigil-choice-btn.active,
+.threat-modal-close-btn:hover,
+.threat-wiz-elem-card:hover,
+.threat-wiz-elem-card.selected,
+.threat-comp-pill.selected,
+.threat-bal-preset-btn.active,
+.threat-card-num-input:focus,
+.threat-card-editor form,
+.threat-tool-btn:hover,
+.threat-edit-tools {
+  box-shadow: none !important;
+}
+.threat-edit-tools { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45) !important; }
+.threat-primary-elem-select-btn:hover,
+.threat-sigil-icon.editable:hover,
+.threat-assistant-btn:hover { filter: none !important; }
+.threat-theme-color-chip:hover,
+.threat-sigil-choice-btn:hover { border-color: #d98b19 !important; }
+.threat-book-page.mode-edit .threat-tool-btn:hover { box-shadow: none; }
+.threat-roll-row { grid-template-columns: 110px 78px 44px 78px; justify-content: start; }
+.threat-defense-tags-picker { background: #12131c; border: 1px solid #353746; border-radius: 6px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.threat-defense-tags-picker button {
+  font: 700 11px 'Hanken Grotesk', sans-serif;
+  background: #292a37; border: 0; color: #c2c3ca; border-radius: 4px; padding: 7px 10px; cursor: pointer;
+}
+.threat-defense-tags-picker button:hover { background: #343546; color: #fff; }

@@ -16,64 +16,52 @@ function escapeHtml(str) {
 }
 
 /**
- * Gera o SVG do Pentágono de Atributos fiel ao modelo de Ordem Paranormal / Miro
- * Layout:
- * Topo: AGI (0°)
- * Topo-Direita: INT (72°)
- * Fundo-Direita: VIG (144°)
- * Fundo-Esquerda: PRE (216°)
- * Topo-Esquerda: FOR (288°)
+ * Gera o SVG dos atributos: cinco hexágonos em anel ao redor do rótulo central
+ * (mesmo desenho das fichas do livro). Sem brilho nem sombra nos textos.
+ * Posições: AGI no topo, depois INT, VIG, PRE e FOR em sentido horário.
  */
 export function renderAttributePentagonSvg(rawAttrs = {}, options = {}) {
   const attrsData = rawAttrs || {};
   const cx = 110, cy = 110;
-  const rCenter = 38;
+  const ringR = 69;      // raio do anel onde ficam os centros dos hexágonos
+  const hexR = 29;       // raio de cada hexágono
   const strokeColor = options.strokeColor || '#b01818';
-  const fillColor = options.fillColor || '#b01818';
-  const bgPetal = options.bgPetal || '#0c0e12';
+  const hexFill = options.bgPetal || '#0c0e12';
   const width = options.width || 210;
   const height = options.height || 210;
 
-  // 5 vértices do pentágono central (apontando para baixo, topo plano)
-  const centerPts = [];
-  for (let i = 0; i < 5; i++) {
-    const a = (-54 + i * 72) * Math.PI / 180;
-    centerPts.push([Math.round(cx + rCenter * Math.cos(a)), Math.round(cy + rCenter * Math.sin(a))]);
-  }
-  const centerPoly = centerPts.map(p => p.join(',')).join(' ');
-
-  // Forma da pétala (casa / pentágono externo) baseada na rotação 0 (topo)
-  const petalPathD = 'M 88 77 L 86 46 L 110 20 L 134 46 L 132 77 Z';
+  const hexPoints = (x, y, r) => Array.from({ length: 6 }, (_, k) => {
+    const a = (-90 + k * 60) * Math.PI / 180;
+    return `${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
 
   const attrList = [
-    { key: 'agi', label: 'AGI', val: Number(attrsData.agi ?? 1), angle: 0 },
-    { key: 'int', label: 'INT', val: Number(attrsData.int ?? 1), angle: 72 },
-    { key: 'vig', label: 'VIG', val: Number(attrsData.vig ?? 1), angle: 144 },
-    { key: 'pre', label: 'PRE', val: Number(attrsData.pre ?? 1), angle: 216 },
-    { key: 'for', label: 'FOR', val: Number(attrsData.for ?? 1), angle: 288 }
+    { label: 'AGI', val: Number(attrsData.agi ?? 1), angle: 0 },
+    { label: 'INT', val: Number(attrsData.int ?? 1), angle: 72 },
+    { label: 'VIG', val: Number(attrsData.vig ?? 1), angle: 144 },
+    { label: 'PRE', val: Number(attrsData.pre ?? 1), angle: 216 },
+    { label: 'FOR', val: Number(attrsData.for ?? 1), angle: 288 }
   ];
 
-  let petalsSvg = '';
-  attrList.forEach(a => {
+  const centers = attrList.map(a => {
     const rad = (a.angle - 90) * Math.PI / 180;
-    const tx = Math.round(cx + 60 * Math.cos(rad));
-    const ty = Math.round(cy + 60 * Math.sin(rad));
-    petalsSvg += `
-      <g transform="rotate(${a.angle} ${cx} ${cy})">
-        <path d="${petalPathD}" fill="${bgPetal}" stroke="${strokeColor}" stroke-width="2.5" stroke-linejoin="round"/>
-      </g>
-      <g transform="translate(${tx}, ${ty})">
-        <text x="0" y="-3" text-anchor="middle" fill="#ffffff" font-family="'Cinzel', Georgia, serif" font-size="20" font-weight="800">${a.val}</text>
-        <text x="0" y="13" text-anchor="middle" fill="#cccccc" font-family="'Hanken Grotesk', sans-serif" font-size="10" font-weight="700" letter-spacing="1">${a.label}</text>
-      </g>
-    `;
+    return { ...a, x: cx + ringR * Math.cos(rad), y: cy + ringR * Math.sin(rad) };
   });
+
+  // Linhas finas ligando os hexágonos ao centro
+  const spokes = centers.map(c => `<line x1="${cx}" y1="${cy}" x2="${c.x.toFixed(1)}" y2="${c.y.toFixed(1)}" stroke="${strokeColor}" stroke-width="1.5" opacity="0.55"/>`).join('');
+
+  const hexes = centers.map(c => `
+      <polygon points="${hexPoints(c.x, c.y, hexR)}" fill="${hexFill}" stroke="${strokeColor}" stroke-width="2.5" stroke-linejoin="round"/>
+      <text x="${c.x.toFixed(1)}" y="${(c.y + 3).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-family="'Hanken Grotesk', sans-serif" font-size="23" font-weight="800">${c.val}</text>
+      <text x="${c.x.toFixed(1)}" y="${(c.y + 17).toFixed(1)}" text-anchor="middle" fill="#b9bcc8" font-family="'Hanken Grotesk', sans-serif" font-size="9" font-weight="700" letter-spacing="1">${c.label}</text>
+  `).join('');
 
   return `
     <svg class="threat-miro-pentagon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="${width}" height="${height}">
-      <polygon points="${centerPoly}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"/>
-      ${petalsSvg}
-      <text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="#ffffff" font-family="'Hanken Grotesk', sans-serif" font-size="8.5" font-weight="900" letter-spacing="0.5">ATRIBUTOS</text>
+      ${spokes}
+      <circle cx="${cx}" cy="${cy}" r="17" fill="${hexFill}" stroke="${strokeColor}" stroke-width="2"/>
+      ${hexes}
     </svg>
   `;
 }
