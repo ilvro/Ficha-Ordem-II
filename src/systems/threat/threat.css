@@ -285,16 +285,16 @@
 }
 
 .threat-banner-left.element-banner-sangue {
-  background: linear-gradient(90deg, #780a0a 0%, #9e1212 55%, #580404 100%);
+  background: #b01d22;
 }
 .threat-banner-left.element-banner-morte {
   background: linear-gradient(90deg, #07080b 0%, #111217 55%, #050608 100%);
 }
 .threat-banner-left.element-banner-energia {
-  background: linear-gradient(90deg, #741ca0 0%, #9226c7 55%, #59107e 100%);
+  background: #9419ff;
 }
 .threat-banner-left.element-banner-conhecimento {
-  background: linear-gradient(90deg, #b68722 0%, #cca02b 55%, #a8791c 100%);
+  background: #bf9410;
 }
 .threat-banner-left.element-banner-medo {
   background: linear-gradient(90deg, #16242c 0%, #253d4a 55%, #101a1f 100%);
@@ -316,7 +316,6 @@
   width: 44px;
   height: 44px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
   user-select: none;
   pointer-events: none;
 }
@@ -342,7 +341,6 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.1;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .threat-subtitle-row {
@@ -360,8 +358,8 @@
 
 /* ── Selo de VD (Valor de Desafio Oficial do Livro) ─────────────────────── */
 .threat-book-vd-stamp {
-  background: #ffffff;
-  color: #000000;
+  background: #151517;
+  color: #ffffff;
   padding: 4px 16px 4px 18px;
   clip-path: polygon(14px 0, calc(100% - 3px) 0, 100% 8px, calc(100% - 2px) 18px, 100% 28px, calc(100% - 3px) 38px, calc(100% - 5px) 100%, 0 100%);
   margin-left: -12px;
@@ -369,7 +367,6 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
   user-select: none;
 }
 
@@ -378,7 +375,7 @@
   font-weight: 700;
   font-size: 15px;
   letter-spacing: 0.5px;
-  color: #000000;
+  color: #ffffff;
 }
 
 .threat-book-vd-stamp .vd-number {
@@ -386,14 +383,14 @@
   font-weight: 700;
   font-size: 28px;
   line-height: 1;
-  color: #000000;
+  color: #ffffff;
   letter-spacing: -0.5px;
 }
 
 .threat-vd-input {
   background: transparent;
   border: none;
-  color: #000000;
+  color: #ffffff;
   font-family: Georgia, 'Times New Roman', serif;
   font-weight: 700;
   font-size: 26px;
@@ -726,7 +723,7 @@
 .threat-save-entry:hover .threat-die-token {
   background: rgba(255, 255, 255, 0.14);
   border-color: var(--threat-elem-color, #e0150d);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 6px var(--threat-elem-glow, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
 }
 
 .threat-sense-entry {
@@ -746,7 +743,7 @@
 .threat-sense-entry:hover .threat-die-token {
   background: rgba(255, 255, 255, 0.14);
   border-color: var(--threat-elem-color, #e0150d);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 6px var(--threat-elem-glow, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
 }
 
 /* ── Tokens de Rolagem (D20 / Tabletop RPG Oficial) ─────────────────────── */
@@ -773,7 +770,7 @@
   border-color: var(--threat-elem-color, #e0150d);
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px var(--threat-elem-glow, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
 }
 
 .threat-die-token:active {
@@ -807,59 +804,41 @@
   line-height: 1;
 }
 
-/* ── Dados Tabletop RPG 3D (Com Facetas, Sombras e Destaques) ─────────────── */
-.die-svg.threat-tabletop-die {
-  display: inline-flex !important;
-  width: 22px !important;
-  height: 23px !important;
-  min-width: 22px !important;
-  min-height: 23px !important;
-  vertical-align: -4.5px !important;
-  margin: 0 2px !important;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)) !important;
-  color: var(--threat-elem-color, #e0150d) !important;
-  transition: transform 0.12s ease;
+/* ── Dado d20 do livro: ícone chapado, sem brilho ou sombra ─────────────── */
+.threat-d20 {
+  display: inline-block;
+  width: 19px;
+  height: 19px;
+  vertical-align: -3px;
+  margin: 0 1px;
+  flex-shrink: 0;
+  overflow: visible;
 }
 
-.die-svg.threat-tabletop-die svg {
-  width: 100% !important;
-  height: 100% !important;
-  display: block !important;
-  overflow: visible !important;
-}
-
-.die-svg.threat-tabletop-die .die-face {
-  fill: var(--threat-elem-color, #e0150d) !important;
-  stroke: color-mix(in srgb, var(--threat-elem-color, #e0150d), #ffffff 40%) !important;
-  stroke-width: 2.2 !important;
-  stroke-linejoin: round !important;
-}
-
-.die-svg.threat-tabletop-die .die-highlight {
-  fill: #ffffff !important;
-  fill-opacity: 0.28 !important;
+.threat-d20,
+.threat-d20 path,
+.threat-d20 text {
   stroke: none !important;
 }
 
-.die-svg.threat-tabletop-die .die-shadow {
-  fill: #000000 !important;
-  fill-opacity: 0.38 !important;
-  stroke: none !important;
+.threat-d20 path {
+  fill: #151517;
 }
 
-.die-svg.threat-tabletop-die .die-facets {
-  stroke: color-mix(in srgb, var(--threat-elem-color, #e0150d), #ffffff 55%) !important;
-  stroke-width: 1.5 !important;
-  stroke-linejoin: round !important;
-  fill: none !important;
+.threat-d20 text {
+  font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  fill: #ffffff;
 }
 
-.die-svg.threat-tabletop-die text {
-  font-family: 'Hanken Grotesk', -apple-system, sans-serif !important;
-  font-weight: 900 !important;
-  font-size: 32px !important;
-  fill: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+/* Páginas escuras do livro (Energia, Conhecimento...) usam o dado claro */
+.threat-book-page[data-theme-light="false"] .threat-d20 path {
+  fill: #f1f1f1;
+}
+
+.threat-book-page[data-theme-light="false"] .threat-d20 text {
+  fill: #151517;
 }
 
 .threat-dice-badge {
@@ -1119,7 +1098,7 @@
 .threat-book-skill-chip:hover {
   background: rgba(255, 255, 255, 0.14);
   border-color: var(--threat-elem-color, #e0150d);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 6px var(--threat-elem-glow, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
@@ -1317,7 +1296,7 @@
   border-color: var(--threat-elem-color, #e0150d);
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 6px var(--threat-elem-glow, rgba(255, 255, 255, 0.2));
+  box-shadow: none;
 }
 
 .threat-chip-roll-test:active,
@@ -3363,8 +3342,8 @@
 .threat-book-page.theme-light .threat-die-token,
 .threat-book-page[data-theme-light="true"] .threat-die-token,
 .threat-page-mundana .threat-die-token {
-  background: rgba(0, 0, 0, 0.06) !important;
-  border-color: #111827 !important;
+  background: transparent !important;
+  border-color: transparent !important;
   color: #111827 !important;
 }
 
@@ -3421,17 +3400,17 @@
 .threat-book-page.theme-light .threat-chip-roll-test,
 .threat-book-page[data-theme-light="true"] .threat-chip-roll-test,
 .threat-page-mundana .threat-chip-roll-test {
-  background: #ffffff !important;
-  border-color: #111827 !important;
+  background: transparent !important;
+  border-color: transparent !important;
   color: #111827 !important;
 }
 
 .threat-book-page.theme-light .threat-chip-roll-dmg,
 .threat-book-page[data-theme-light="true"] .threat-chip-roll-dmg,
 .threat-page-mundana .threat-chip-roll-dmg {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border-color: #000000 !important;
+  background: transparent !important;
+  color: #111827 !important;
+  border-color: transparent !important;
 }
 
 .threat-book-page.theme-light .action-entry-text,
@@ -3655,3 +3634,72 @@
 }
 
 
+
+
+/* ── Controles de rolagem: sem brilho, sem sombra, sem levitar ───────────── */
+.threat-die-token:hover,
+.threat-die-token:focus-visible,
+.threat-chip-roll-test:hover,
+.threat-chip-roll-dmg:hover,
+.threat-chip-roll-test:focus-visible,
+.threat-chip-roll-dmg:focus-visible,
+.threat-save-entry:hover .threat-die-token,
+.threat-sense-entry:hover .threat-die-token {
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: transparent !important;
+  background: rgba(128, 128, 128, 0.16) !important;
+}
+
+.threat-die-token:active,
+.threat-chip-roll-test:active,
+.threat-chip-roll-dmg:active {
+  transform: none !important;
+  background: rgba(128, 128, 128, 0.28) !important;
+}
+
+/* ── Fundos do livro (extraídos de "Sobrevivendo ao Horror") ─────────────── */
+.threat-book-page.element-theme-sangue,
+.threat-book-page.threat-page-sangue,
+.threat-book-page.element-theme-energia,
+.threat-book-page.threat-page-energia,
+.threat-book-page.element-theme-conhecimento,
+.threat-book-page.threat-page-conhecimento,
+.threat-book-page.element-theme-mundana,
+.threat-book-page.threat-page-mundana {
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-attachment: local !important;
+}
+
+.threat-book-page.element-theme-sangue,
+.threat-book-page.threat-page-sangue {
+  background-color: #d9d8d5 !important;
+  background-image: url('/assets/threat-bg/sangue.webp') !important;
+}
+
+.threat-book-page.element-theme-energia,
+.threat-book-page.threat-page-energia {
+  background-color: #060807 !important;
+  background-image: url('/assets/threat-bg/energia.webp') !important;
+}
+
+.threat-book-page.element-theme-conhecimento,
+.threat-book-page.threat-page-conhecimento {
+  background-color: #050302 !important;
+  background-image: url('/assets/threat-bg/conhecimento.webp') !important;
+}
+
+.threat-book-page.element-theme-mundana,
+.threat-book-page.threat-page-mundana {
+  background-color: #f4f3f0 !important;
+  background-image: url('/assets/threat-bg/mundana.webp') !important;
+}
+
+/* Texto corrido nas páginas claras do livro */
+.threat-book-page[data-theme-light="true"] .threat-book-stat-line,
+.threat-book-page[data-theme-light="true"] .threat-book-prose,
+.threat-book-page[data-theme-light="true"] .defense-row span {
+  color: #111827 !important;
+}

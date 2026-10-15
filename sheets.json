@@ -2492,164 +2492,6 @@
     "favorite": false
   },
   {
-    "name": "O UIVAR",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": true,
-    "categoria": "paranormal",
-    "subtitulo": "ENERGIA",
-    "vd": 100,
-    "elementos": [
-      "energia"
-    ],
-    "elementoDestaque": "energia",
-    "tipo": "Criatura",
-    "tamanho": "Médio",
-    "sigiloId": "padrao-1",
-    "presenca": {
-      "ativa": true,
-      "dt": 20,
-      "dano": "4d6",
-      "tipoDano": "mental",
-      "imuneNex": 45,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 3,
-        "bonus": 10
-      },
-      "iniciativa": {
-        "dados": 3,
-        "bonus": 10
-      },
-      "extra": "PERCEPÇÃO ÀS CEGAS"
-    },
-    "defesa": 20,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 2,
-        "bonus": 5
-      },
-      "reflexos": {
-        "dados": 3,
-        "bonus": 10
-      },
-      "vontade": {
-        "dados": 3,
-        "bonus": 10
-      }
-    },
-    "pv": 11,
-    "pvMax": 100,
-    "pvTemp": 0,
-    "machucadoOverride": 50,
-    "imunidades": [
-      "Dano"
-    ],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 3,
-      "for": 0,
-      "int": 3,
-      "pre": 3,
-      "vig": 1
-    },
-    "deslocamento": {
-      "tipo": "Voo",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [
-      {
-        "id": "sec-alt-climaticas",
-        "titulo": "ALTERAÇÕES CLIMÁTICAS",
-        "corpo": "O Uivar constantemente altera o clima em um raio de 90m ao seu redor. A área afetada é tomada por frio extremo, além de ser afetada por neblina, neve e vento forte (*OPRPG*, p. 290).",
-        "estilo": "normal",
-        "coluna": "esquerda"
-      },
-      {
-        "id": "sec-vib-termicas",
-        "titulo": "VIBRAÇÕES TÉRMICAS",
-        "corpo": "O Uivar é invisível (veja p. 125) e incorpóreo, além de não emitir sons mais altos que o assovio trazido pelo vento gelado, horas parecendo gritos de horror, horas lembrando os ruídos emitidos por lousa sendo arranhada. Um ser que consiga ver a criatura testemunha em seu interior uma silhueta de tamanho Médio, “vazia”, distorcida, curvada e gélida.",
-        "estilo": "normal",
-        "coluna": "esquerda"
-      }
-    ],
-    "acoes": [
-      {
-        "id": "act-granizo",
-        "tipoAcao": "movimento",
-        "nome": "GRANIZO PERFURANTE",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "esquerda",
-        "usos": null,
-        "ataques": [],
-        "texto": "O Uivar começa a gerar granizo (*OPRPG*, p. 290). Se ele usar Congelar na mesma rodada, além dos efeitos normais, todos os seres sem cobertura na área sofrem 2d8 pontos de dano de perfuração (Reflexos DT 20 reduz à metade). Coberturas frágeis, como tendas ou toldos, são facilmente destruídas pelo granizo perfurante.",
-        "ativaQuando": null,
-        "fase": null
-      },
-      {
-        "id": "act-congelar",
-        "tipoAcao": "padrao",
-        "nome": "CONGELAR",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "direita",
-        "usos": null,
-        "ataques": [],
-        "texto": "A criatura emana ondas de frio que absorvem o calor e derrubam a temperatura em um raio de 90m ao seu redor. Qualquer ser dentro da área sofre 2d8 pontos de dano de frio (Fortitude DT 20 reduz à metade). Essa habilidade também afeta o cenário, cobrindo o céu de nuvens (se for dia, a iluminação fica como em penumbra; se for noite, fica como em escuridão), criando camadas de gelo sobre os objetos (a critério do mestre, testes envolvendo manipular itens sofrem -2d20) e gerando granizo, chuva e vendaval (*OPRPG*, p. 290). As alterações no cenário duram até o fim da cena ou até o fim da missão, a critério do mestre.",
-        "ativaQuando": null,
-        "fase": null
-      },
-      {
-        "id": "act-beijo-gelido",
-        "tipoAcao": "padrao",
-        "nome": "BEIJO GÉLIDO",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "direita",
-        "usos": null,
-        "ataques": [],
-        "texto": "O Uivar aproxima sua forma “vazia” de um ser em alcance corpo a corpo e suga sua temperatura; a vítima sofre 6d6 pontos de dano de Energia, e fica lenta (Fortitude DT 20 reduz à metade). Um ser reduzido a 0 PV por esta habilidade, ou que já esteja com 0 PV quando sofrer esse dano, se torna uma “estátua de gelo” deturpada. Em termos de jogo, ele fica petrificado até que a camada de gelo sobrenatural seja destruída (20 PV e RD 20/fogo). Um ser petrificado dessa forma não pode recuperar pontos de vida, mas não está morrendo. Entretanto, qualquer dano causado à camada de gelo que não seja de fogo também for morto, quem o matou sofre 6d6 pontos de dano mental (Vontade DT 20 reduz à metade).",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "livro",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "id": "threat-o-uivar-100",
-    "createdAt": 1791837704863,
-    "updatedAt": 1791837704863,
-    "sigilImage": ""
-  },
-  {
     "name": "ZUMBI DE SANGUE",
     "systemMode": "threat",
     "folderId": "folder-threats",
@@ -2797,652 +2639,6 @@
     "sigilImage": ""
   },
   {
-    "name": "AMEAÇA 3",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": false,
-    "categoria": "mundana",
-    "subtitulo": "",
-    "vd": 60,
-    "elementos": [],
-    "elementoDestaque": "mundana",
-    "tipo": "Humano",
-    "tamanho": "Médio",
-    "sigiloId": "",
-    "presenca": {
-      "ativa": true,
-      "dt": 19,
-      "dano": "3d6",
-      "tipoDano": "mental",
-      "imuneNex": 35,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "iniciativa": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "extra": ""
-    },
-    "defesa": 20,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "reflexos": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "vontade": {
-        "dados": 2,
-        "bonus": 0
-      }
-    },
-    "pv": 98,
-    "pvMax": 120,
-    "pvTemp": 0,
-    "machucadoOverride": null,
-    "imunidades": [],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 2,
-      "for": 2,
-      "int": 1,
-      "pre": 2,
-      "vig": 2
-    },
-    "deslocamento": {
-      "tipo": "",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [],
-    "acoes": [
-      {
-        "id": "act-1",
-        "tipoAcao": "padrao",
-        "nome": "Agredir",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "esquerda",
-        "usos": null,
-        "ataques": [
-          {
-            "id": "atk-1",
-            "nome": "Pancada",
-            "alcance": "corpo",
-            "multiplicador": 2,
-            "teste": {
-              "dados": 3,
-              "bonus": 10
-            },
-            "dano": "2d8+6",
-            "tipoDano": "Impacto",
-            "critico": "20/x2"
-          }
-        ],
-        "texto": "",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "livro",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "#ffffff",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "maxPv": 120,
-    "id": "threat-mv8mwd4y-0yd2",
-    "createdAt": 1792014053506,
-    "updatedAt": 1792014053506,
-    "sigilImage": ""
-  },
-  {
-    "name": "AMEAÇA 4",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": false,
-    "categoria": "paranormal",
-    "subtitulo": "",
-    "vd": 60,
-    "elementos": [
-      "sangue"
-    ],
-    "elementoDestaque": "sangue",
-    "tipo": "Criatura",
-    "tamanho": "Médio",
-    "sigiloId": "",
-    "presenca": {
-      "ativa": true,
-      "dt": 19,
-      "dano": "3d6",
-      "tipoDano": "mental",
-      "imuneNex": 35,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "iniciativa": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "extra": ""
-    },
-    "defesa": 20,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "reflexos": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "vontade": {
-        "dados": 2,
-        "bonus": 0
-      }
-    },
-    "pv": 120,
-    "pvMax": 120,
-    "pvTemp": 0,
-    "machucadoOverride": null,
-    "imunidades": [],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 2,
-      "for": 2,
-      "int": 1,
-      "pre": 2,
-      "vig": 2
-    },
-    "deslocamento": {
-      "tipo": "",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [],
-    "acoes": [
-      {
-        "id": "act-1",
-        "tipoAcao": "padrao",
-        "nome": "Agredir",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "esquerda",
-        "usos": null,
-        "ataques": [
-          {
-            "id": "atk-1",
-            "nome": "Pancada",
-            "alcance": "corpo",
-            "multiplicador": 2,
-            "teste": {
-              "dados": 3,
-              "bonus": 10
-            },
-            "dano": "2d8+6",
-            "tipoDano": "Impacto",
-            "critico": "20/x2"
-          }
-        ],
-        "texto": "",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "livro",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "maxPv": 120,
-    "id": "threat-mv8rne2j-9v9d",
-    "createdAt": 1792022032891,
-    "updatedAt": 1792022032891,
-    "sigilImage": ""
-  },
-  {
-    "name": "AMEAÇA 5",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": false,
-    "categoria": "mundana",
-    "subtitulo": "REALIDADE",
-    "vd": 60,
-    "elementos": [],
-    "elementoDestaque": "mundana",
-    "tipo": "Humano",
-    "tamanho": "Médio",
-    "sigiloId": "",
-    "presenca": {
-      "ativa": false,
-      "dt": 15,
-      "dano": "2d6",
-      "tipoDano": "mental",
-      "imuneNex": 35,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 2,
-        "bonus": 5
-      },
-      "iniciativa": {
-        "dados": 1,
-        "bonus": 5
-      },
-      "extra": "Visão normal"
-    },
-    "defesa": 17,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 3,
-        "bonus": 5
-      },
-      "reflexos": {
-        "dados": 2,
-        "bonus": 5
-      },
-      "vontade": {
-        "dados": 2,
-        "bonus": 0
-      }
-    },
-    "pv": 98,
-    "pvMax": 98,
-    "pvTemp": 0,
-    "machucadoOverride": null,
-    "imunidades": [],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 1,
-      "for": 4,
-      "int": 1,
-      "pre": 2,
-      "vig": 4
-    },
-    "deslocamento": {
-      "tipo": "",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [],
-    "acoes": [
-      {
-        "id": "act-wizard-1",
-        "tipoAcao": "padrao",
-        "nome": "Agredir",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "direita",
-        "usos": null,
-        "ataques": [
-          {
-            "id": "atk-wizard-1",
-            "nome": "Golpe Esmagador",
-            "alcance": "corpo",
-            "multiplicador": 1,
-            "teste": {
-              "dados": 4,
-              "bonus": 5
-            },
-            "dano": "5d6+3",
-            "tipoDano": "Impacto",
-            "critico": "20/x2"
-          }
-        ],
-        "texto": "",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "livro",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "#ffffff",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "maxPv": 120,
-    "id": "threat-mv8rnpz0-22mj",
-    "createdAt": 1792022048316,
-    "updatedAt": 1792022048316,
-    "sigilImage": ""
-  },
-  {
-    "name": "AMEAÇA 6",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": false,
-    "categoria": "paranormal",
-    "subtitulo": "",
-    "vd": 60,
-    "elementos": [
-      "sangue"
-    ],
-    "elementoDestaque": "sangue",
-    "tipo": "Criatura",
-    "tamanho": "Médio",
-    "sigiloId": "",
-    "presenca": {
-      "ativa": true,
-      "dt": 19,
-      "dano": "3d6",
-      "tipoDano": "mental",
-      "imuneNex": 35,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "iniciativa": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "extra": ""
-    },
-    "defesa": 20,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "reflexos": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "vontade": {
-        "dados": 2,
-        "bonus": 0
-      }
-    },
-    "pv": 120,
-    "pvMax": 120,
-    "pvTemp": 0,
-    "machucadoOverride": null,
-    "imunidades": [],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 2,
-      "for": 2,
-      "int": 1,
-      "pre": 2,
-      "vig": 2
-    },
-    "deslocamento": {
-      "tipo": "",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [],
-    "acoes": [
-      {
-        "id": "act-1",
-        "tipoAcao": "padrao",
-        "nome": "Agredir",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "esquerda",
-        "usos": null,
-        "ataques": [
-          {
-            "id": "atk-1",
-            "nome": "Pancada",
-            "alcance": "corpo",
-            "multiplicador": 2,
-            "teste": {
-              "dados": 3,
-              "bonus": 10
-            },
-            "dano": "2d8+6",
-            "tipoDano": "Impacto",
-            "critico": "20/x2"
-          }
-        ],
-        "texto": "",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "cinematic",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "maxPv": 120,
-    "id": "threat-mv8uns5h-b3zo",
-    "createdAt": 1792027089989,
-    "updatedAt": 1792027089989,
-    "sigilImage": ""
-  },
-  {
-    "name": "AMEAÇA 7",
-    "systemMode": "threat",
-    "folderId": "folder-threats",
-    "favorite": false,
-    "categoria": "paranormal",
-    "subtitulo": "",
-    "vd": 60,
-    "elementos": [
-      "sangue"
-    ],
-    "elementoDestaque": "sangue",
-    "tipo": "Criatura",
-    "tamanho": "Médio",
-    "sigiloId": "",
-    "presenca": {
-      "ativa": true,
-      "dt": 19,
-      "dano": "3d6",
-      "tipoDano": "mental",
-      "imuneNex": 35,
-      "texto": ""
-    },
-    "sentidos": {
-      "percepcao": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "iniciativa": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "extra": ""
-    },
-    "defesa": 20,
-    "salvaguardas": {
-      "fortitude": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "reflexos": {
-        "dados": 2,
-        "bonus": 0
-      },
-      "vontade": {
-        "dados": 2,
-        "bonus": 0
-      }
-    },
-    "pv": 120,
-    "pvMax": 120,
-    "pvTemp": 0,
-    "machucadoOverride": null,
-    "imunidades": [],
-    "resistencias": [],
-    "vulnerabilidades": [],
-    "atributos": {
-      "agi": 2,
-      "for": 2,
-      "int": 1,
-      "pre": 2,
-      "vig": 2
-    },
-    "deslocamento": {
-      "tipo": "",
-      "metros": 12,
-      "extras": []
-    },
-    "pericias": [],
-    "secoes": [],
-    "acoes": [
-      {
-        "id": "act-1",
-        "tipoAcao": "padrao",
-        "nome": "Agredir",
-        "gatilho": "",
-        "custo": "",
-        "coluna": "esquerda",
-        "usos": null,
-        "ataques": [
-          {
-            "id": "atk-1",
-            "nome": "Pancada",
-            "alcance": "corpo",
-            "multiplicador": 2,
-            "teste": {
-              "dados": 3,
-              "bonus": 10
-            },
-            "dano": "2d8+6",
-            "tipoDano": "Impacto",
-            "critico": "20/x2"
-          }
-        ],
-        "texto": "",
-        "ativaQuando": null,
-        "fase": null
-      }
-    ],
-    "viewMode": "cinematic",
-    "tokenImage": "",
-    "backgroundImage": "",
-    "backgroundBlur": 0,
-    "backgroundZoom": 100,
-    "cinematicTokenX": 50,
-    "cinematicTokenY": 52,
-    "cinematicTokenScale": 100,
-    "cinematicOutlineSide": "left",
-    "cinematicOutlineIntensity": 0.5,
-    "cinematicOutlineWidth": 1.8,
-    "cinematicOutlineFade": 1.5,
-    "themeColor": "",
-    "diceColor": "",
-    "hasIntro": false,
-    "introTitle": "",
-    "introText": "",
-    "introImage": "",
-    "introSide": "left",
-    "condicoesAtivas": [],
-    "notasMestre": "",
-    "tipografia": {
-      "escala": 100,
-      "alto_contraste": false
-    },
-    "maxPv": 120,
-    "id": "threat-mv8usxy3-1t5x",
-    "createdAt": 1792027330779,
-    "updatedAt": 1792027330779,
-    "sigilImage": ""
-  },
-  {
     "name": "AMEAÇA 8",
     "systemMode": "threat",
     "folderId": "folder-threats",
@@ -3460,7 +2656,7 @@
       "dt": 15,
       "dano": "2d6",
       "tipoDano": "mental",
-      "imuneNex": 0,
+      "imuneNex": 35,
       "texto": ""
     },
     "sentidos": {
@@ -3497,13 +2693,14 @@
     "resistencias": [],
     "vulnerabilidades": [],
     "atributos": {
-      "for": 4,
       "agi": 1,
+      "for": 4,
       "int": 1,
       "pre": 2,
       "vig": 4
     },
     "deslocamento": {
+      "tipo": "",
       "metros": 12,
       "extras": []
     },
@@ -3516,6 +2713,7 @@
         "nome": "Agredir",
         "gatilho": "",
         "custo": "",
+        "coluna": "direita",
         "usos": null,
         "ataques": [
           {
@@ -3533,12 +2731,11 @@
           }
         ],
         "texto": "",
-        "coluna": "direita",
         "ativaQuando": null,
         "fase": null
       }
     ],
-    "viewMode": "cinematic",
+    "viewMode": "livro",
     "tokenImage": "",
     "backgroundImage": "",
     "backgroundBlur": 0,
@@ -3567,6 +2764,1238 @@
     "id": "threat-mv8uyg38-nt4v",
     "createdAt": 1792027587572,
     "updatedAt": 1792027587572,
+    "sigilImage": ""
+  },
+  {
+    "name": "ARIRANHA",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 20,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 16,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 32,
+    "pvMax": 32,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 1,
+      "int": 0,
+      "pre": 1,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": [
+        {
+          "tipo": "Natação",
+          "metros": 9
+        }
+      ]
+    },
+    "pericias": [],
+    "secoes": [
+      {
+        "id": "sec-mv9kv91m-at43",
+        "titulo": "EVASÃO",
+        "corpo": "Quando sofre um ataque que permite um teste de Reflexos para reduzir o dano à metade, a ariranha não sofre dano algum se passar.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      },
+      {
+        "id": "sec-mv9kv91m-oki3",
+        "titulo": "TÁTICAS FAMILIARES",
+        "corpo": "A ariranha recebe +2 em testes de ataque e rolagens de dano para cada outra ariranha que esteja atacando o mesmo oponente na mesma rodada.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      }
+    ],
+    "acoes": [
+      {
+        "id": "action-mv9kv91m-ie3l",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91m-ae7v",
+            "nome": "MORDIDA",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 2,
+              "bonus": 5
+            },
+            "dano": "2d4+2",
+            "tipoDano": "Corte",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Característico do Pantanal e de partes do Rio Amazonas, este animal de comportamento brincalhão é um predador corajoso e habilidoso. Vive em bandos familiares, que se protegem mutuamente, sendo capazes de derrotar oponentes muito maiores.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-ariranha",
+    "createdAt": 1792071108489,
+    "updatedAt": 1792071108489,
+    "sigilImage": ""
+  },
+  {
+    "name": "CAVALO",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 10,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Grande",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 13,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 12,
+    "pvMax": 12,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 1,
+      "for": 3,
+      "int": 0,
+      "pre": 1,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 15,
+      "extras": []
+    },
+    "pericias": [],
+    "secoes": [
+      {
+        "id": "sec-mv9kv91m-s03r",
+        "titulo": "MONTARIA",
+        "corpo": "Um personagem treinado em Adestramento pode usar um cavalo como montaria. Ele conta como um aliado que aumenta seu deslocamento para 15m e fornece uma ação extra por rodada (apenas para se deslocar).",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      }
+    ],
+    "acoes": [
+      {
+        "id": "action-mv9kv91m-yuo6",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91m-lqdr",
+            "nome": "CASCOS",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 3,
+              "bonus": 5
+            },
+            "dano": "2d4+3",
+            "tipoDano": "Impacto",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Mesmo nos dias de hoje, cavalos são empregados em diversas situações. Na cidade, podem ser usados por forças policiais ou como animais de esportes e recreação. No campo, servem como meio de transporte e tração. Embora geralmente pacatos, são capazes de desferir chutes poderosos com seus cascos.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-cavalo",
+    "createdAt": 1792071108491,
+    "updatedAt": 1792071108491,
+    "sigilImage": ""
+  },
+  {
+    "name": "GORILA",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 40,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Grande",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 19,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 70,
+    "pvMax": 70,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 2,
+      "for": 3,
+      "int": 0,
+      "pre": 1,
+      "vig": 3
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 9,
+      "extras": [
+        {
+          "tipo": "Escalar",
+          "metros": 9
+        }
+      ]
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91n-tkq2",
+        "nome": "Atletismo",
+        "dados": 3,
+        "bonus": 5,
+        "condicional": null
+      }
+    ],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "action-mv9kv91n-586n",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91n-bscn",
+            "nome": "PANCADA",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 2,
+              "bonus": 10
+            },
+            "dano": "1d6+3",
+            "tipoDano": "Impacto",
+            "critico": "20/x2"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91n-ro1u",
+        "tipoAcao": "livre",
+        "nome": "Morder",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "Se o gorila acerta os dois ataques de pancada em um mesmo ser na mesma rodada, ele ataca este ser com sua mordida (teste 2d20+10, dano 1d6+4 corte).",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Territorialista e imponente, o gorila fará de tudo para proteger seu habitat.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-gorila",
+    "createdAt": 1792071108493,
+    "updatedAt": 1792071108493,
+    "sigilImage": ""
+  },
+  {
+    "name": "ENXAME DE TOCANDIRAS",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 20,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal (Enxame)",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "extra": "Visão na penumbra"
+    },
+    "defesa": 16,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 1,
+        "bonus": 0
+      },
+      "reflexos": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 22,
+    "pvMax": 22,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 1,
+      "for": 0,
+      "int": 0,
+      "pre": 1,
+      "vig": 0
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 6,
+      "extras": [
+        {
+          "tipo": "Escalar",
+          "metros": 6
+        }
+      ]
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91n-55y8",
+        "nome": "Atletismo",
+        "dados": 3,
+        "bonus": 5,
+        "condicional": null
+      }
+    ],
+    "secoes": [
+      {
+        "id": "sec-mv9kv91n-ssb6",
+        "titulo": "ENXAME",
+        "corpo": "Um enxame é uma aglomeração de criaturas que agem em conjunto. Em termos de regras, pode entrar no espaço ocupado por um ser. No fim do seu turno, o enxame causa 4d4 pontos de dano de perfuração a qualquer ser em seu espaço, automaticamente. Um enxame é imune a manobras de combate e efeitos que afetam apenas uma criatura e não causam dano e sofre apenas metade do dano de ataques com armas. Porém, sofre 50% a mais de dano por efeitos de área.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      },
+      {
+        "id": "sec-mv9kv91n-t4of",
+        "titulo": "DOR DEBILITANTE",
+        "corpo": "Um ser que sofra dano do enxame sofre –1d20 em todos os testes devido à dor profunda (Fortitude DT 20 evita). Essa penalidade só pode ser removida com uma ação de interlúdio dormir ou com a aplicação de uma dose de antídoto.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      },
+      {
+        "id": "sec-mv9kv91n-bpvv",
+        "titulo": "POR DENTRO DAS ROUPAS",
+        "corpo": "Quando um ser sai do espaço do enxame, leva consigo algumas formigas que entram em suas vestes. O ser continua sofrendo metade do dano de Enxame (2d4) até gastar uma ação de movimento para se livrar delas.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      }
+    ],
+    "acoes": [],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Também chamado de formiga-bala, este pequeno inseto típico da Amazônia é conhecido por sua mordida de dor intensa e debilitante. Encontrada principalmente na selva amazônica, está presente também em outras partes da América do Sul.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-enxame-de-tocandiras",
+    "createdAt": 1792071108494,
+    "updatedAt": 1792071108494,
+    "sigilImage": ""
+  },
+  {
+    "name": "LEÃO",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Grande",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 10
+      },
+      "iniciativa": {
+        "dados": 3,
+        "bonus": 10
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 18,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 3,
+        "bonus": 10
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 5
+      }
+    },
+    "pv": 80,
+    "pvMax": 80,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 3,
+      "for": 3,
+      "int": 0,
+      "pre": 2,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 15,
+      "extras": []
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91n-md0c",
+        "nome": "Atletismo",
+        "dados": 3,
+        "bonus": 10,
+        "condicional": null
+      },
+      {
+        "id": "pericia-mv9kv91n-jhjl",
+        "nome": "Furtividade",
+        "dados": 3,
+        "bonus": 8,
+        "condicional": null
+      }
+    ],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "action-mv9kv91n-nf8s",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91n-nkz2",
+            "nome": "GARRAS",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "1d6+4",
+            "tipoDano": "Corte",
+            "critico": "19/x2"
+          },
+          {
+            "id": "atk-mv9kv91n-xr87",
+            "nome": "MORDIDA",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "1d8+4",
+            "tipoDano": "Corte",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91n-xc13",
+        "tipoAcao": "livre",
+        "nome": "Agarrão",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "Se o leão acertar um ataque de mordida em um ser Médio ou menor, ele pode tentar agarrar o alvo (teste 3d20+12).",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91n-8zp0",
+        "tipoAcao": "completa",
+        "nome": "Bote",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "O leão faz uma investida e ataca com sua mordida e suas garras. Os três ataques recebem o bônus de +1d20 da investida, mas devem ser feitos contra o mesmo alvo.",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "O assim chamado “rei das selvas”, o leão é um dos maiores predadores das savanas africanas. Outrora comum em circos no Brasil, ainda pode ser encontrado em abrigos de animais selvagens ou em coleções (geralmente ilegais) de animais exóticos.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-leao",
+    "createdAt": 1792071108495,
+    "updatedAt": 1792071108495,
+    "sigilImage": ""
+  },
+  {
+    "name": "LOBO",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 20,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Médio",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 15,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 3,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 18,
+    "pvMax": 18,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 3,
+      "for": 3,
+      "int": 0,
+      "pre": 1,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91n-n1of",
+        "nome": "Sobrevivência",
+        "dados": 1,
+        "bonus": 10,
+        "condicional": null
+      }
+    ],
+    "secoes": [
+      {
+        "id": "sec-mv9kv91n-srgc",
+        "titulo": "TÁTICAS DE ALCATEIA",
+        "corpo": "Quando flanqueia um inimigo, o lobo recebe +1d20 no teste de ataque (além do bônus normal por flanquear, para um total de +2d20) e causa +1d6 pontos de dano com sua mordida.",
+        "estilo": "normal",
+        "coluna": "esquerda"
+      }
+    ],
+    "acoes": [
+      {
+        "id": "action-mv9kv91n-q3im",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91n-u0eg",
+            "nome": "MORDIDA",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 3,
+              "bonus": 5
+            },
+            "dano": "1d6+4",
+            "tipoDano": "Corte",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91n-6o5p",
+        "tipoAcao": "livre",
+        "nome": "Derrubar",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "Se o lobo acerta um ataque de mordida, pode fazer a manobra derrubar (teste 3d20+5).",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Hábeis caçadores em grupo. Ao ouvir seu uivo, saiba que ele nunca estará sozinho.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-lobo",
+    "createdAt": 1792071108496,
+    "updatedAt": 1792071108496,
+    "sigilImage": ""
+  },
+  {
+    "name": "TOURO",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 20,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Grande",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 0
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 15,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 2,
+        "bonus": 5
+      },
+      "reflexos": {
+        "dados": 1,
+        "bonus": 0
+      },
+      "vontade": {
+        "dados": 1,
+        "bonus": 0
+      }
+    },
+    "pv": 38,
+    "pvMax": 38,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 1,
+      "for": 3,
+      "int": 0,
+      "pre": 1,
+      "vig": 2
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91o-wsc9",
+        "nome": "Atletismo",
+        "dados": 3,
+        "bonus": 10,
+        "condicional": null
+      }
+    ],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "action-mv9kv91o-jt3o",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91o-5l4v",
+            "nome": "CHIFRES",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 3,
+              "bonus": 5
+            },
+            "dano": "2d6+6",
+            "tipoDano": "Perfuração",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91o-sokt",
+        "tipoAcao": "completa",
+        "nome": "Atropelamento",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "O touro percorre até o dobro de seu deslocamento em linha reta. Quando se move dessa forma, o touro pode passar pelo espaço ocupado de quaisquer seres menores que ele. Seres nessa linha sofrem 2d6+6 pontos de dano de impacto e ficam caídos (Reflexos DT 15 reduz à metade e evita a condição). Recarga (movimento).",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Essa montanha de músculos é famosa pelo seu temperamento imprevisível.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-touro",
+    "createdAt": 1792071108497,
+    "updatedAt": 1792071108497,
+    "sigilImage": ""
+  },
+  {
+    "name": "URSO PARDO",
+    "systemMode": "threat",
+    "folderId": "folder-threats",
+    "favorite": false,
+    "categoria": "mundana",
+    "subtitulo": "",
+    "vd": 60,
+    "elementos": [],
+    "elementoDestaque": "mundana",
+    "tipo": "Animal",
+    "tamanho": "Grande",
+    "sigiloId": "",
+    "presenca": {
+      "ativa": false,
+      "dt": 19,
+      "dano": "3d6",
+      "tipoDano": "mental",
+      "imuneNex": 35,
+      "texto": ""
+    },
+    "sentidos": {
+      "percepcao": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "iniciativa": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "extra": "Faro, visão na penumbra"
+    },
+    "defesa": 19,
+    "salvaguardas": {
+      "fortitude": {
+        "dados": 3,
+        "bonus": 10
+      },
+      "reflexos": {
+        "dados": 1,
+        "bonus": 5
+      },
+      "vontade": {
+        "dados": 2,
+        "bonus": 0
+      }
+    },
+    "pv": 90,
+    "pvMax": 90,
+    "pvTemp": 0,
+    "machucadoOverride": null,
+    "imunidades": [],
+    "resistencias": [
+      {
+        "tipo": "Balístico",
+        "valor": 2
+      },
+      {
+        "tipo": "Corte",
+        "valor": 2
+      },
+      {
+        "tipo": "Impacto",
+        "valor": 2
+      },
+      {
+        "tipo": "Perfuração",
+        "valor": 2
+      }
+    ],
+    "vulnerabilidades": [],
+    "atributos": {
+      "agi": 1,
+      "for": 3,
+      "int": 0,
+      "pre": 2,
+      "vig": 3
+    },
+    "deslocamento": {
+      "tipo": "",
+      "metros": 12,
+      "extras": []
+    },
+    "pericias": [
+      {
+        "id": "pericia-mv9kv91o-vndy",
+        "nome": "Atletismo",
+        "dados": 3,
+        "bonus": 10,
+        "condicional": null
+      }
+    ],
+    "secoes": [],
+    "acoes": [
+      {
+        "id": "action-mv9kv91o-ha4g",
+        "tipoAcao": "padrao",
+        "nome": "Agredir",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [
+          {
+            "id": "atk-mv9kv91o-3dx4",
+            "nome": "GARRAS",
+            "alcance": "corpo",
+            "multiplicador": 2,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "1d6+4",
+            "tipoDano": "Corte",
+            "critico": "19/x2"
+          },
+          {
+            "id": "atk-mv9kv91o-cp3b",
+            "nome": "MORDIDA",
+            "alcance": "corpo",
+            "multiplicador": 1,
+            "teste": {
+              "dados": 3,
+              "bonus": 10
+            },
+            "dano": "1d8+4",
+            "tipoDano": "Corte",
+            "critico": "20/x1"
+          }
+        ],
+        "texto": "",
+        "ativaQuando": null,
+        "fase": null
+      },
+      {
+        "id": "action-mv9kv91o-jr4z",
+        "tipoAcao": "livre",
+        "nome": "Agarrão",
+        "gatilho": "",
+        "custo": "",
+        "coluna": "direita",
+        "usos": null,
+        "ataques": [],
+        "texto": "Se o urso acertar um ataque de mordida em um ser Médio ou menor, ele pode tentar agarrar o alvo (teste 3d20+12).",
+        "ativaQuando": null,
+        "fase": null
+      }
+    ],
+    "viewMode": "livro",
+    "tokenImage": "",
+    "backgroundImage": "",
+    "backgroundBlur": 0,
+    "backgroundZoom": 100,
+    "cinematicTokenX": 50,
+    "cinematicTokenY": 52,
+    "cinematicTokenScale": 100,
+    "cinematicOutlineSide": "left",
+    "cinematicOutlineIntensity": 0.5,
+    "cinematicOutlineWidth": 1.8,
+    "cinematicOutlineFade": 1.5,
+    "themeColor": "#ffffff",
+    "diceColor": "",
+    "hasIntro": true,
+    "introTitle": "",
+    "introText": "Um dos mais perigosos ursos, o pardo é um predador imponente e poderoso.",
+    "introImage": "",
+    "introSide": "top",
+    "condicoesAtivas": [],
+    "notasMestre": "",
+    "tipografia": {
+      "escala": 100,
+      "alto_contraste": false
+    },
+    "id": "threat-livro-urso-pardo",
+    "createdAt": 1792071108499,
+    "updatedAt": 1792071108499,
     "sigilImage": ""
   }
 ]

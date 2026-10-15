@@ -27,12 +27,17 @@ import {
   ELEMENT_VULNERABILITY_HINTS
 } from './threat-balance.js';
 
+/** Ícone de d20 chapado como no livro (preto com "20" em branco) */
+function d20Icon() {
+  return '<svg class="threat-d20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.2 21.6 6.6v10.8L12 22.8 2.4 17.4V6.6z"/><text x="12" y="15.4" text-anchor="middle">20</text></svg>';
+}
+
 function formatDiePool(pool) {
-  if (!pool) return `<span class="threat-pool-group"><b>1</b>${die(20, 'threat-tabletop-die')}</span>`;
+  if (!pool) return `<span class="threat-pool-group"><b>1</b>${d20Icon()}</span>`;
   const d = Math.max(1, Number(pool.dados) || 1);
   const b = Number(pool.bonus) || 0;
   const bStr = b > 0 ? `+${b}` : (b < 0 ? `${b}` : '');
-  return `<span class="threat-pool-group"><b>${d}</b>${die(20, 'threat-tabletop-die')}${bStr ? `<b class="threat-bonus-val">${bStr}</b>` : ''}</span>`;
+  return `<span class="threat-pool-group"><b>${d}</b>${d20Icon()}${bStr ? `<b class="threat-bonus-val">${bStr}</b>` : ''}</span>`;
 }
 
 function formatDamageFormula(formula) {
@@ -85,7 +90,8 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
   const elemInk = getInkColor(elemColor);
-  const isLightPage = isMundane || elemInk === '#0c0e14';
+  // Páginas claras no livro: Sangue e ameaças mundanas (as demais são escuras)
+  const isLightPage = isMundane || elemDestaqueKey === 'sangue' || elemInk === '#0c0e14';
   const elemDark = isMundane ? '#000000' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
@@ -672,7 +678,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <span class="threat-book-badge">PERÍCIAS</span>
                   <div class="threat-book-skills-inline">
                     ${(sheet.pericias || []).map(p => {
-                      const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${die(20, 'threat-tabletop-die')}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
+                      const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${d20Icon()}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
                       return `
                         <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
                           ${safe(p.nome)} <span class="die-token">${formatDiePool(p)}</span>${condHtml}
