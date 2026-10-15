@@ -149,7 +149,7 @@
 .threat-book-page.threat-page-conhecimento {
   background-color: #0c0903;
   background-image: 
-    radial-gradient(circle at 85% 15%, rgba(179, 132, 26, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(201, 162, 39, 0.28) 0%, transparent 55%),
     radial-gradient(circle at 15% 85%, rgba(175, 130, 25, 0.25) 0%, transparent 60%),
     radial-gradient(circle at 50% 50%, rgba(25, 19, 6, 0.6) 0%, rgba(8, 6, 2, 0.98) 100%),
     linear-gradient(135deg, rgba(255, 220, 120, 0.05) 0%, transparent 50%);
@@ -487,7 +487,7 @@
   pointer-events: none;
 }
 .element-pill-conhecimento {
-  background: #b3841a;
+  background: #c9a227;
   color: #ffffff;
   border: none;
 }
@@ -4322,3 +4322,60 @@ body.threat-exporting .modal {
   color: #f2f2f4 !important;
   text-align: left !important;
 }
+
+/* ── Fonte de máquina de escrever (Special Elite, Apache 2.0) para o Enigma de Medo ── */
+@font-face {
+  font-family: 'Special Elite';
+  src: url('/fonts/special-elite.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-badge.tag-enigma {
+  font-family: 'Special Elite', 'Courier New', monospace !important;
+  font-weight: 400 !important;
+  font-size: 24px !important;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  text-shadow: 1.5px 0 rgba(224, 21, 13, 0.75), -1.5px 0 rgba(60, 200, 255, 0.35), 0 0 14px rgba(255, 255, 255, 0.18);
+}
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body,
+.threat-book-page .threat-book-block.is-enigma-card .threat-book-text-body * {
+  font-size: 13px !important;
+  letter-spacing: 0.015em;
+  line-height: 1.65 !important;
+}
+
+/* ── Barras de rolagem personalizadas (cor do elemento, trilho fino, polegar arredondado) ── */
+.threat-book-page,
+.flow-intro {
+  --sb-thumb: color-mix(in srgb, var(--threat-elem-color, #8a8fa8) 78%, #000);
+  --sb-thumb-hover: color-mix(in srgb, var(--threat-elem-color, #8a8fa8) 100%, #fff 12%);
+  scrollbar-width: thin;
+  scrollbar-color: var(--sb-thumb) transparent;
+}
+.threat-book-page.element-theme-sangue { --sb-thumb: #8f1218; --sb-thumb-hover: #c4151c; }
+.threat-book-page.threat-page-mundana,
+.threat-book-page.element-theme-mundana { --sb-thumb: #2b2e3a; --sb-thumb-hover: #000; }
+.threat-book-page::-webkit-scrollbar,
+.flow-intro::-webkit-scrollbar { width: 12px; height: 12px; }
+.threat-book-page::-webkit-scrollbar-track,
+.flow-intro::-webkit-scrollbar-track {
+  background: linear-gradient(90deg, transparent 5px, rgba(128, 128, 128, 0.28) 5px, rgba(128, 128, 128, 0.28) 6px, transparent 6px);
+}
+.threat-book-page::-webkit-scrollbar-thumb,
+.flow-intro::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb) !important;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 8px;
+  min-height: 48px;
+}
+.threat-book-page::-webkit-scrollbar-thumb:hover,
+.flow-intro::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-thumb-hover) !important;
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+.threat-book-page::-webkit-scrollbar-button,
+.flow-intro::-webkit-scrollbar-button { display: none; height: 0; }

@@ -89,7 +89,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const availableComplementary = Object.keys(THREAT_ELEMENTS).filter(e => e !== elemDestaqueKey && e !== 'mundana' && !secondaryElements.includes(e));
 
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
-  const elemInk = getInkColor(elemColor);
+  const elemInk = (elemDestaqueKey === 'conhecimento' && !sheet.themeColor) ? '#ffffff' : getInkColor(elemColor);
   // Páginas claras no livro: Sangue e ameaças mundanas (as demais são escuras)
   const isLightPage = isMundane || elemDestaqueKey === 'sangue';
   const elemDark = isMundane ? '#000000' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
@@ -134,11 +134,6 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
         <!-- ── BARRA BRANCA DECORATIVA SUPERIOR DO LIVRO ── -->
         <div class="threat-book-top-bar" aria-hidden="true"></div>
 
-        <!-- BOTÃO DE EXPORTAR IMAGEM (COMPLETO OU MIRO) -->
-        <button type="button" class="threat-export-trigger-btn" data-threat-open-export title="Exportar imagem da ficha (Completo ou Miro)">
-          ${icon('camera', 13)}
-          <span>EXPORTAR FOTO</span>
-        </button>
 
         ${editMode ? `
           <!-- ── BARRA DO ASSISTENTE DE BALANCEAMENTO E WIZARD (MODO EDIÇÃO) ── -->
@@ -801,7 +796,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
     let head = cardHtml.slice(iArt, iA);
     // O botão de exportar fica no canto do spread, acima da introdução
     const expRe = /<button type="button" class="threat-export-trigger-btn"[\s\S]*?<\/button>/;
-    const exportBtn = (head.match(expRe) || [''])[0];
+    const exportBtn = '';
     head = head.replace(expRe, '').replace(/<div class="threat-book-columns-layout">\s*$/, '');
     const colsOpen = '<div class="threat-book-columns-layout flow-single">';
     // Seções livres (O Sino, Enigma de Medo...) vão para a coluna da direita, antes das ações
@@ -943,6 +938,8 @@ function formatCardText(val) {
   let str = safe(val);
   str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  // Notação de dados de d20 nos textos (ex.: 3d20+5, –1d20, d20) vira o ícone de dado do livro
+  str = str.replace(/(\d*)d20(?![\w])/gi, (m, n) => `${n || '1'}${d20Icon()}`);
   str = str.replace(/\n/g, '<br>');
   return str;
 }
@@ -1150,7 +1147,7 @@ function renderThreatModals(sheet) {
               <button type="button" data-threat-format="italic" title="Itálico"><i>I</i></button>
               <button type="button" data-threat-format="underline" title="Sublinhado"><u>U</u></button>
               <span class="color-picker" title="Cor do texto">
-                <input id="threat-action-color" type="color" value="#b3841a">
+                <input id="threat-action-color" type="color" value="#c9a227">
                 <span>A</span>
               </span>
               <button type="button" data-threat-format="color">APLICAR COR</button>
