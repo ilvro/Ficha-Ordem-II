@@ -208,12 +208,6 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   ` : `
                     <h1 class="threat-mundane-title">${safe(sheet.name)}</h1>
                   `}
-                  ${isOfficialThreat(sheet) && isBestiaryUnlocked() ? `
-                    <button type="button" class="threat-official-license-pill" data-open-bestiary-license-modal title="Criatura oficial do Livro · Desbloqueada via licença digital. Clique para ver detalhes da licença.">
-                      ${icon('check-circle', 11)}
-                      <span>OFICIAL JAMBÔ</span>
-                    </button>
-                  ` : ''}
                 </div>
               </div>
               <div class="threat-mundane-vd-wrap" title="Valor de Desafio: ${sheet.vd}">
@@ -258,12 +252,6 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     <input type="text" class="threat-editable-input threat-subtitle-tag" 
                       data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
                   ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(elemDestaque.nome.toUpperCase())}</span>`)}
-                  ${isOfficialThreat(sheet) && isBestiaryUnlocked() ? `
-                    <button type="button" class="threat-official-license-pill" data-open-bestiary-license-modal title="Criatura oficial do Livro · Desbloqueada via licença digital. Clique para ver detalhes da licença.">
-                      ${icon('check-circle', 11)}
-                      <span>OFICIAL JAMBÔ</span>
-                    </button>
-                  ` : ''}
                 </div>
               </div>
             </div>

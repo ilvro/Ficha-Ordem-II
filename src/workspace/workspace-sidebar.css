@@ -812,7 +812,6 @@
   font-size: 9px;
   font-weight: 800;
   transition: all 0.15s ease;
-  box-shadow: 0 0 8px rgba(153, 60, 232, 0.35);
 }
 
 .rail-threat-filter-pill:hover {
@@ -995,13 +994,11 @@
   background: #2a1f3d;
   border-color: #993ce8;
   color: #fff;
-  box-shadow: 0 0 8px rgba(153, 60, 232, 0.3);
 }
 
 .nav-threat-chip.chip-sangue.active {
   background: #311316;
   border-color: #e0150d;
-  box-shadow: 0 0 8px rgba(224, 21, 13, 0.35);
 }
 
 .nav-threat-chip.chip-mundana.active {
