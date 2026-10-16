@@ -2496,6 +2496,7 @@
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "paranormal",
     "subtitulo": "SANGUE",
     "vd": 20,
@@ -2516,12 +2517,14 @@
     },
     "sentidos": {
       "percepcao": {
-        "dados": 3,
-        "bonus": 5
+        "dados": 1,
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
-        "dados": 3,
-        "bonus": 5
+        "dados": 2,
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Percepção às cegas"
     },
@@ -2529,15 +2532,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "reflexos": {
-        "dados": 1,
-        "bonus": 5
+        "dados": 2,
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 45,
@@ -2636,13 +2642,16 @@
     "id": "threat-mv8mkgff-k582",
     "createdAt": 1792013497899,
     "updatedAt": 1792013497899,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "ARIRANHA",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 20,
@@ -2662,11 +2671,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -2674,15 +2685,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       },
       "reflexos": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 32,
@@ -2783,13 +2797,16 @@
     "id": "threat-livro-ariranha",
     "createdAt": 1792071108489,
     "updatedAt": 1792071108489,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "CAVALO",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 10,
@@ -2809,11 +2826,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -2821,15 +2840,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       },
       "reflexos": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 12,
@@ -2918,13 +2940,16 @@
     "id": "threat-livro-cavalo",
     "createdAt": 1792071108491,
     "updatedAt": 1792071108491,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "GORILA",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 40,
@@ -2944,11 +2969,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -2956,15 +2983,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 3,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "reflexos": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 70,
@@ -3071,13 +3101,16 @@
     "id": "threat-livro-gorila",
     "createdAt": 1792071108493,
     "updatedAt": 1792071108493,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "ENXAME DE TOCANDIRAS",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 20,
@@ -3097,11 +3130,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Visão na penumbra"
     },
@@ -3109,15 +3144,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       },
       "reflexos": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 22,
@@ -3205,13 +3243,16 @@
     "id": "threat-livro-enxame-de-tocandiras",
     "createdAt": 1792071108494,
     "updatedAt": 1792071108494,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "LEÃO",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 60,
@@ -3230,12 +3271,14 @@
     },
     "sentidos": {
       "percepcao": {
-        "dados": 1,
-        "bonus": 10
+        "dados": 2,
+        "bonus": 10,
+        "manual": false
       },
       "iniciativa": {
         "dados": 3,
-        "bonus": 10
+        "bonus": 10,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -3243,15 +3286,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "reflexos": {
         "dados": 3,
-        "bonus": 10
+        "bonus": 10,
+        "manual": false
       },
       "vontade": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       }
     },
     "pv": 80,
@@ -3386,13 +3432,16 @@
     "id": "threat-livro-leao",
     "createdAt": 1792071108495,
     "updatedAt": 1792071108495,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "LOBO",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 20,
@@ -3412,11 +3461,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 3,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -3424,15 +3475,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "reflexos": {
         "dados": 3,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 18,
@@ -3542,13 +3596,16 @@
     "id": "threat-livro-lobo",
     "createdAt": 1792071108496,
     "updatedAt": 1792071108496,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "TOURO",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 20,
@@ -3568,11 +3625,13 @@
     "sentidos": {
       "percepcao": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -3580,15 +3639,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 2,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "reflexos": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       },
       "vontade": {
         "dados": 1,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 38,
@@ -3690,13 +3752,16 @@
     "id": "threat-livro-touro",
     "createdAt": 1792071108497,
     "updatedAt": 1792071108497,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   },
   {
     "name": "URSO PARDO",
     "systemMode": "threat",
     "folderId": "folder-threats",
     "favorite": false,
+    "fonte": "homebrew",
     "categoria": "mundana",
     "subtitulo": "",
     "vd": 60,
@@ -3715,12 +3780,14 @@
     },
     "sentidos": {
       "percepcao": {
-        "dados": 1,
-        "bonus": 5
+        "dados": 2,
+        "bonus": 5,
+        "manual": false
       },
       "iniciativa": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "extra": "Faro, visão na penumbra"
     },
@@ -3728,15 +3795,18 @@
     "salvaguardas": {
       "fortitude": {
         "dados": 3,
-        "bonus": 10
+        "bonus": 10,
+        "manual": false
       },
       "reflexos": {
         "dados": 1,
-        "bonus": 5
+        "bonus": 5,
+        "manual": false
       },
       "vontade": {
         "dados": 2,
-        "bonus": 0
+        "bonus": 0,
+        "manual": false
       }
     },
     "pv": 90,
@@ -3868,6 +3938,8 @@
     "id": "threat-livro-urso-pardo",
     "createdAt": 1792071108499,
     "updatedAt": 1792071108499,
-    "sigilImage": ""
+    "sigilImage": "",
+    "balanco": null,
+    "isCustom": false
   }
 ]

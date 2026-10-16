@@ -1,3 +1,22 @@
+// Polyfill para ambientes onde Uint8Array.prototype.toHex ainda não está nativo (pdfjs-dist v6)
+if (typeof Uint8Array !== 'undefined') {
+  if (typeof Uint8Array.prototype.toHex !== 'function') {
+    Uint8Array.prototype.toHex = function () {
+      return Array.from(this, b => b.toString(16).padStart(2, '0')).join('');
+    };
+  }
+  if (typeof Uint8Array.fromHex !== 'function') {
+    Uint8Array.fromHex = function (hexString) {
+      const clean = (hexString || '').trim();
+      const bytes = new Uint8Array(Math.floor(clean.length / 2));
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(clean.substr(i * 2, 2), 16);
+      }
+      return bytes;
+    };
+  }
+}
+
 import { DEFAULT_SHEETS } from './default-sheets.js';
 import {
   DEFAULT_ORIGINAL_SHEET,
@@ -107,6 +126,16 @@ import { renderThreatBook } from './systems/threat/threat-views.js';
 import { abrirThreatWizard, fecharThreatWizard } from './systems/threat/threat-wizard.js';
 import { getBalance, evaluateSheet } from './systems/threat/threat-balance.js';
 import { openThreatExportModal, exportThreatFullImage, exportThreatMiroCard } from './systems/threat/threat-export.js';
+import {
+  getBestiaryLicense,
+  isBestiaryUnlocked,
+  revokeBestiaryLicense,
+  verifyPdfFile
+} from './services/bestiary-license.js';
+import {
+  renderBestiaryUnlockModalHtml,
+  renderBestiaryManageModalHtml
+} from './systems/threat/threat-license-ui.js';
 import {
   DEFAULT_FOLDERS,
   normalizeFolders,
@@ -1068,6 +1097,8 @@ function render(){syncDraftBaseline();syncUnsavedBar();document.querySelectorAll
   ${renderMobileSheetDrawer(sheets,folders,state.id,{open:sheetDrawerOpen,searchQuery:mobileSearchQuery,rollLogCount:rollLog.length,safeUrl})}
   ${renderRollLogDrawer()}
   ${isCinematic?renderMobileOrientationPrompt():''}
+  ${renderBestiaryUnlockModalHtml()}
+  ${renderBestiaryManageModalHtml(getBestiaryLicense())}
 	 `;bind();syncMobilePresentationViewport();syncCriticalAtmosphere();const bgVideoEl=app.querySelector('.bg-video');if(bgVideoEl&&state.backgroundImage){if(!bgVideoEl.src)bgVideoEl.src=state.backgroundImage;bgVideoEl.play().catch(()=>{})}const sheetMain=app.querySelector('.sheet-main'),rightPanel=app.querySelector('.right-panel'),traditionalPage=app.querySelector('.traditional-dossier-page'),threatPage=app.querySelector('.threat-book-page'),cinematicRight=app.querySelector('.cinematic-scroll'),cinematicSkills=app.querySelector('.cinematic-skills>div'),sheetSwitcher=app.querySelector('.sheet-switcher');if(sheetMain)sheetMain.scrollTop=previousScroll.sheet;if(rightPanel)rightPanel.scrollTop=previousScroll.right;if(traditionalPage)traditionalPage.scrollTop=previousScroll.traditionalPage;if(threatPage)threatPage.scrollTop=previousScroll.threatPage;if(cinematicRight)cinematicRight.scrollTop=previousScroll.cinematicRight;if(cinematicSkills)cinematicSkills.scrollTop=previousScroll.cinematicSkills;if(sheetSwitcher)sheetSwitcher.scrollTop=previousScroll.sheetSwitcher;modeJustChanged=false;editTransitionMode=null}
 
 
@@ -3086,6 +3117,126 @@ function bindQuickSwitcherItemEvents() {
  });
 }
 
+function bindBestiaryLicenseEvents() {
+  document.querySelectorAll('[data-open-bestiary-unlock]').forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const modal = document.querySelector('#bestiary-unlock-modal');
+      if (modal) {
+        modal.style.display = 'grid';
+        const status = modal.querySelector('.dropzone-status');
+        if (status) status.style.display = 'none';
+      }
+    };
+  });
+
+  document.querySelectorAll('[data-close-bestiary-modal]').forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      const modal = document.querySelector('#bestiary-unlock-modal');
+      if (modal) modal.style.display = 'none';
+    };
+  });
+
+  document.querySelectorAll('[data-open-bestiary-license-modal]').forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const modal = document.querySelector('#bestiary-manage-modal');
+      if (modal) modal.style.display = 'grid';
+    };
+  });
+
+  document.querySelectorAll('[data-close-manage-modal]').forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      const modal = document.querySelector('#bestiary-manage-modal');
+      if (modal) modal.style.display = 'none';
+    };
+  });
+
+  document.querySelectorAll('[data-revoke-bestiary-license]').forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      if (confirm('Deseja bloquear o bestiário oficial novamente? Para desbloquear depois, basta carregar seu PDF da Jambô Editora.')) {
+        revokeBestiaryLicense();
+        const modal = document.querySelector('#bestiary-manage-modal');
+        if (modal) modal.style.display = 'none';
+        save(false);
+        render();
+      }
+    };
+  });
+
+  async function handlePdfVerification(file, statusContainer) {
+    if (!file || !statusContainer) return;
+    statusContainer.className = 'dropzone-status loading';
+    statusContainer.innerHTML = '<span class="spinner"></span> <span>Carregando leitor seguro de PDF...</span>';
+    statusContainer.style.display = 'block';
+
+    try {
+      const res = await verifyPdfFile(file, ({ message }) => {
+        statusContainer.innerHTML = `<span class="spinner"></span> <span>${safe(message)}</span>`;
+      });
+
+      statusContainer.className = 'dropzone-status success';
+      statusContainer.innerHTML = `
+        <b>✓ Titularidade Validada com Sucesso!</b>
+        <span>Licenciado para: <b>${safe(res.license.buyerName)}</b> (${safe(res.license.buyerEmail)})<br>Obra: <b>${safe(res.license.detectedBook)}</b></span>
+      `;
+
+      setTimeout(() => {
+        const unlockModal = document.querySelector('#bestiary-unlock-modal');
+        if (unlockModal) unlockModal.style.display = 'none';
+        save(false);
+        render();
+      }, 1200);
+    } catch (err) {
+      statusContainer.className = 'dropzone-status error';
+      statusContainer.innerHTML = `
+        <b>✕ Falha na Verificação do Livro</b>
+        <span>${safe(err.message || 'Erro ao processar PDF.').replace(/\\n/g, '<br>')}</span>
+      `;
+    }
+  }
+
+  document.querySelectorAll('[data-bestiary-file-input]').forEach(input => {
+    input.onchange = (e) => {
+      const file = e.target.files?.[0];
+      const prefix = input.dataset.bestiaryFileInput || 'modal';
+      const statusContainer = document.querySelector(`[data-dropzone-status="${prefix}"]`) || input.closest('.bestiary-dropzone')?.querySelector('.dropzone-status');
+      if (file && statusContainer) {
+        handlePdfVerification(file, statusContainer);
+      }
+    };
+  });
+
+  document.querySelectorAll('[data-bestiary-dropzone]').forEach(zone => {
+    zone.ondragover = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.add('drag-active');
+    };
+    zone.ondragleave = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.remove('drag-active');
+    };
+    zone.ondrop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      zone.classList.remove('drag-active');
+      const file = e.dataTransfer?.files?.[0];
+      const prefix = zone.dataset.bestiaryDropzone || 'modal';
+      const statusContainer = zone.querySelector(`[data-dropzone-status="${prefix}"]`) || zone.querySelector('.dropzone-status');
+      if (file && statusContainer) {
+        handlePdfVerification(file, statusContainer);
+      }
+    };
+  });
+}
+
 function bindWorkspaceSidebarEvents() {
  document.querySelectorAll('[data-toggle-navigator]').forEach(btn => {
   btn.onclick = () => {
@@ -3943,7 +4094,7 @@ function bind(){
       targetFolderForNewSheet=null;
       const inicioOriginal=mode==='original'
         ?{classeId:'sobrevivente',nex:0,trilhaId:'durao',atributos:{for:1,agi:1,vig:1,int:1,pre:1}}
-        :(mode==='threat'?{vd:60,elementos:['sangue'],pv:120,maxPv:120}:{});
+        :(mode==='threat'?{vd:60,elementos:['sangue'],pv:120,maxPv:120,fonte:'homebrew',isCustom:true}:{});
       const sheetName=mode==='threat'
         ?`AMEAÇA ${sheets.filter(isThreatSheet).length+1}`
         :`AGENTE ${sheets.filter(isCharacterSheet).length+1}`;
@@ -3989,7 +4140,7 @@ function bind(){
   // ── Modo de Apresentação (Dossiês de Agentes) ───────────────────────────────
   bindPresentationEvents();
 
-  bindCinematicToken();bindSheetInteractions();bindWorkspaceSidebarEvents();bindThreatBookEvents();
+  bindCinematicToken();bindSheetInteractions();bindWorkspaceSidebarEvents();bindThreatBookEvents();bindBestiaryLicenseEvents();
 
   // ── Interações do Sistema Original (d20) ───────────────────────────────────
   document.querySelectorAll('[data-original-tab]').forEach(btn=>{
@@ -4440,6 +4591,10 @@ document.addEventListener('keydown',e=>{
   document.querySelector('#critical-settings-modal')?.classList.remove('open');
   const m=document.querySelector('#system-select-modal');
   if(m)m.style.display='none';
+  const bUnlock=document.querySelector('#bestiary-unlock-modal');
+  if(bUnlock)bUnlock.style.display='none';
+  const bManage=document.querySelector('#bestiary-manage-modal');
+  if(bManage)bManage.style.display='none';
   document.querySelectorAll('.threat-modal').forEach(modal=>modal.style.display='none');
  }
  if((e.key==='h'||e.key==='H')&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){toggleRollLog()}

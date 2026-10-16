@@ -1,0 +1,807 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BLOQUEIO E VALIDAÇÃO DE TITULARIDADE DO BESTIÁRIO (Jambô Editora)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Pills de Licença na Sidebar / Cabeçalhos ── */
+.nav-license-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.nav-license-pill.locked {
+  background: rgba(224, 21, 13, 0.12);
+  color: #ff5555;
+  border-color: rgba(224, 21, 13, 0.35);
+}
+
+.nav-license-pill.locked:hover {
+  background: rgba(224, 21, 13, 0.22);
+  border-color: #ff5555;
+  color: #fff;
+}
+
+.nav-license-pill.unlocked {
+  background: rgba(24, 211, 112, 0.12);
+  color: #4ade80;
+  border-color: rgba(24, 211, 112, 0.3);
+}
+
+.nav-license-pill.unlocked:hover {
+  background: rgba(24, 211, 112, 0.2);
+  border-color: #4ade80;
+  color: #fff;
+}
+
+.nav-license-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+}
+
+/* Badge discreto de Criatura Oficial Validada na barra da ficha */
+.threat-official-license-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.55);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  vertical-align: middle;
+}
+
+.threat-official-license-pill:hover {
+  background: rgba(74, 222, 128, 0.18);
+  border-color: #4ade80;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.35);
+}
+
+/* ── 2. Banner no Navegador de Fichas ── */
+.nav-threat-lock-banner {
+  margin: 6px 8px 10px 8px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(38, 6, 8, 0.8) 0%, rgba(18, 19, 30, 0.9) 100%);
+  border: 1px solid rgba(224, 21, 13, 0.4);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.nav-threat-lock-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nav-threat-lock-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(224, 21, 13, 0.2);
+  color: #ff4d4d;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.nav-threat-lock-texts b {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ff6b6b;
+  text-transform: uppercase;
+}
+
+.nav-threat-lock-texts p {
+  margin: 2px 0 0 0;
+  font-size: 10px;
+  color: #a6abbf;
+  line-height: 1.25;
+}
+
+.nav-threat-unlock-action-btn {
+  background: #e0150d;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease, transform 0.1s ease;
+}
+
+.nav-threat-unlock-action-btn:hover {
+  background: #ff2a22;
+  transform: translateY(-1px);
+}
+
+/* Indicador de cadeado na aba de ameaças e rail */
+.nav-scope-lock {
+  display: inline-flex;
+  align-items: center;
+  color: #ff5555;
+  margin-left: 3px;
+}
+
+.rail-scope-btn.is-locked {
+  position: relative;
+}
+
+.rail-threat-lock-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e0150d;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 8px;
+}
+
+.nav-sheet-item.is-locked-threat {
+  opacity: 0.75;
+}
+
+.nav-sheet-lock-tag {
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(224, 21, 13, 0.2);
+  border: 1px solid rgba(224, 21, 13, 0.5);
+  color: #ff6b6b;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── 3. Drag & Dropzone de PDF ── */
+.bestiary-dropzone {
+  margin: 14px 0;
+  border: 2px dashed #3a3e5c;
+  border-radius: 10px;
+  background: rgba(16, 18, 30, 0.6);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.bestiary-dropzone:hover,
+.bestiary-dropzone.drag-active {
+  border-color: #e0150d;
+  background: rgba(224, 21, 13, 0.08);
+}
+
+.bestiary-dropzone.drag-active {
+  box-shadow: 0 0 20px rgba(224, 21, 13, 0.3);
+  transform: scale(1.01);
+}
+
+.dropzone-icon {
+  color: #8388a6;
+  margin-bottom: 8px;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.bestiary-dropzone:hover .dropzone-icon,
+.bestiary-dropzone.drag-active .dropzone-icon {
+  color: #ff4d4d;
+  transform: translateY(-2px);
+}
+
+.dropzone-titles h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e5e7f2;
+}
+
+.dropzone-titles p {
+  margin: 4px 0 12px 0;
+  font-size: 11px;
+  color: #7b809d;
+}
+
+.dropzone-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #24273e;
+  border: 1px solid #43486b;
+  color: #d8dcf0;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.dropzone-browse-btn:hover {
+  background: #e0150d;
+  border-color: #e0150d;
+  color: #fff;
+}
+
+/* Status dentro da Dropzone */
+.dropzone-status {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.dropzone-status.loading {
+  background: rgba(30, 34, 56, 0.8);
+  border: 1px solid #444a72;
+  color: #d1d6ef;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropzone-status.loading .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #e0150d;
+  border-radius: 50%;
+  animation: bestiary-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes bestiary-spin {
+  to { transform: rotate(360deg); }
+}
+
+.dropzone-status.error {
+  background: rgba(60, 10, 15, 0.8);
+  border: 1px solid #e0150d;
+  color: #ff9999;
+}
+
+.dropzone-status.error b {
+  display: block;
+  color: #ff5555;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.dropzone-status.success {
+  background: rgba(10, 45, 25, 0.85);
+  border: 1px solid #18d370;
+  color: #d5ffe5;
+}
+
+.dropzone-status.success b {
+  display: block;
+  color: #4ade80;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* ── 4. Tela de Dossiê Censurado (Ameaça Bloqueada) ── */
+.threat-locked-page {
+  padding-bottom: 80px;
+}
+
+.threat-locked-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(20, 10, 15, 0.85) 0%, rgba(10, 11, 18, 0.95) 100%);
+  border: 1px solid #3d151c;
+  border-radius: 8px;
+  padding: 36px 32px;
+  margin-top: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.threat-censored-stamp {
+  position: absolute;
+  top: 34px;
+  right: 36px;
+  border: 3px solid #e0150d;
+  border-radius: 6px;
+  padding: 6px 14px;
+  transform: rotate(7deg);
+  opacity: 0.85;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(224, 21, 13, 0.4);
+}
+
+.threat-censored-stamp span {
+  display: block;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #e0150d;
+}
+
+.threat-censored-stamp small {
+  display: block;
+  font-family: monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #ff6b6b;
+}
+
+.threat-locked-header {
+  margin-bottom: 24px;
+}
+
+.threat-locked-tag {
+  display: inline-block;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #e0150d;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.threat-locked-name {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.threat-locked-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+}
+
+.threat-locked-vd {
+  background: #e0150d;
+  color: #fff;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.threat-locked-origin {
+  color: #8c90aa;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* Caixa central de liberação */
+.threat-locked-clearance-box {
+  background: rgba(22, 14, 22, 0.85);
+  border: 1px solid #4a1f26;
+  border-radius: 8px;
+  padding: 28px 24px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.clearance-badge-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(224, 21, 13, 0.15);
+  border: 1px solid rgba(224, 21, 13, 0.4);
+  color: #ff4d4d;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px auto;
+  box-shadow: 0 0 16px rgba(224, 21, 13, 0.25);
+}
+
+.clearance-title {
+  margin: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.clearance-desc {
+  margin: 10px auto 16px auto;
+  max-width: 650px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #c0c5dc;
+}
+
+.clearance-books-accepted {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.accepted-badge {
+  background: #18192a;
+  border: 1px solid #333856;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #d1d6ef;
+}
+
+.clearance-privacy-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  background: rgba(14, 16, 26, 0.7);
+  border: 1px solid #282b42;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 14px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  color: #8c92b0;
+  line-height: 1.4;
+}
+
+.clearance-privacy-notice svg {
+  color: #4ade80;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Tarjas simulando dados confidenciais */
+.threat-redacted-preview {
+  opacity: 0.25;
+  pointer-events: none;
+  filter: blur(1.5px);
+  user-select: none;
+}
+
+.redacted-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.redacted-bar {
+  display: inline-block;
+  height: 14px;
+  background: #000;
+  border-radius: 2px;
+}
+
+.redacted-block {
+  display: inline-block;
+  flex: 1;
+  background: #000;
+  border-radius: 4px;
+}
+
+.w-80 { width: 80px; }
+.w-120 { width: 120px; }
+.w-140 { width: 140px; }
+.w-160 { width: 160px; }
+.w-200 { width: 200px; }
+.w-full { width: 100%; }
+.h-60 { height: 60px; }
+
+/* ── 5. Modais de Desbloqueio e Gerenciamento ── */
+.bestiary-modal-container {
+  width: 92%;
+  max-width: 560px;
+  background: #111320;
+  border: 1px solid #2f3452;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+  position: relative;
+  z-index: 1001;
+  box-sizing: border-box;
+}
+
+.bestiary-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #22263d;
+  margin-bottom: 16px;
+}
+
+.bestiary-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(224, 21, 13, 0.15);
+  border: 1px solid rgba(224, 21, 13, 0.35);
+  color: #ff4d4d;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.bestiary-modal-icon.verified {
+  background: rgba(24, 211, 112, 0.15);
+  border-color: rgba(24, 211, 112, 0.35);
+  color: #4ade80;
+}
+
+.bestiary-modal-headings h2 {
+  margin: 2px 0 0 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+
+.bestiary-modal-eyebrow {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #e0150d;
+}
+
+.bestiary-modal-eyebrow.text-success {
+  color: #4ade80;
+}
+
+.bestiary-modal-headings p {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #8c91af;
+}
+
+.bestiary-modal-intro {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #b2b7d4;
+  margin: 0 0 14px 0;
+}
+
+.bestiary-books-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.book-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #17192c;
+  border: 1px solid #2c3150;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.book-pill-icon {
+  font-size: 20px;
+}
+
+.book-pill-text b {
+  display: block;
+  font-size: 11.5px;
+  color: #fff;
+}
+
+.book-pill-text small {
+  display: block;
+  font-size: 10px;
+  color: #7d83a4;
+}
+
+.bestiary-modal-security {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(14, 16, 28, 0.6);
+  border: 1px solid #22263d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 14px;
+  font-size: 11px;
+  color: #8c91af;
+  line-height: 1.4;
+}
+
+.bestiary-modal-security svg {
+  color: #4ade80;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bestiary-modal-security b {
+  display: block;
+  color: #c9cde6;
+  margin-bottom: 2px;
+}
+
+.bestiary-modal-footer {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #20243a;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.bestiary-modal-footer.space-between {
+  justify-content: space-between;
+}
+
+.bestiary-btn-secondary {
+  background: transparent;
+  border: 1px solid #3c4266;
+  color: #a4a9c8;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.bestiary-btn-secondary:hover {
+  background: #20243a;
+  color: #fff;
+}
+
+.bestiary-btn-primary {
+  background: #e0150d;
+  border: none;
+  color: #fff;
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.bestiary-btn-primary:hover {
+  background: #ff2820;
+}
+
+.bestiary-btn-danger {
+  background: rgba(220, 30, 45, 0.15);
+  border: 1px solid rgba(220, 30, 45, 0.4);
+  color: #ff6b6b;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.bestiary-btn-danger:hover {
+  background: #e0150d;
+  color: #fff;
+  border-color: #e0150d;
+}
+
+/* Card de informações da licença */
+.license-info-card {
+  background: #17192a;
+  border: 1px solid #2b304c;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.license-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #21253a;
+  font-size: 12px;
+}
+
+.license-info-row:last-child {
+  border-bottom: none;
+}
+
+.license-info-row .label {
+  color: #7b81a2;
+}
+
+.license-info-row .value {
+  color: #e3e6f5;
+  text-align: right;
+}
+
+.license-info-row .value.font-bold {
+  font-weight: 700;
+  color: #fff;
+}
+
+.license-info-row .value.text-accent {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.license-info-row .value.text-muted {
+  font-size: 11px;
+  color: #9297b4;
+}
+
+.bestiary-manage-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(24, 211, 112, 0.08);
+  border: 1px solid rgba(24, 211, 112, 0.25);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #bbf7d0;
+  font-size: 11.5px;
+}
+
+.bestiary-manage-notice svg {
+  color: #4ade80;
+  flex-shrink: 0;
+}

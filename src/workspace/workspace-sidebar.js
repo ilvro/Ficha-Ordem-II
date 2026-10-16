@@ -17,6 +17,8 @@ import {
   THREAT_VD_TIERS
 } from './selectors.js';
 import { THREAT_ELEMENTS } from '../systems/threat/threat-data.js';
+import { isBestiaryUnlocked, isOfficialThreat } from '../services/bestiary-license.js';
+import { renderLicenseStatusPill, renderNavigatorLockBanner } from '../systems/threat/threat-license-ui.js';
 
 function safe(str) {
   if (str === null || str === undefined) return '';
@@ -35,6 +37,7 @@ export function renderRailScopePills(activeScope = 'all', sheets = []) {
   const charsCount = sheets.filter(isCharacterSheet).length;
   const threatsCount = sheets.filter(isThreatSheet).length;
   const totalCount = sheets.length;
+  const bestiaryUnlocked = isBestiaryUnlocked();
 
   return `
     <div class="rail-scope-pills" role="tablist" aria-label="Escopo de fichas">
@@ -55,12 +58,13 @@ export function renderRailScopePills(activeScope = 'all', sheets = []) {
         <span class="rail-scope-badge">${charsCount}</span>
       </button>
       <button type="button" 
-        class="rail-scope-btn scope-threats ${activeScope === 'threats' ? 'active' : ''}" 
+        class="rail-scope-btn scope-threats ${activeScope === 'threats' ? 'active' : ''} ${!bestiaryUnlocked ? 'is-locked' : ''}" 
         data-sidebar-scope="threats" 
-        title="Apenas Ameaças (${threatsCount})"
+        title="${!bestiaryUnlocked ? 'Ameaças (Bestiário Protegido — Valide seu PDF oficial)' : 'Apenas Ameaças (' + threatsCount + ')'}"
         aria-label="Ameaças">
-        ${icon('skull', 15)}
+        ${icon(!bestiaryUnlocked ? 'lock' : 'skull', 15)}
         <span class="rail-scope-badge">${threatsCount}</span>
+        ${!bestiaryUnlocked ? `<span class="rail-threat-lock-badge" title="Conteúdo oficial protegido">${icon('lock', 8)}</span>` : ''}
       </button>
     </div>
   `;
@@ -218,6 +222,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
         <div class="nav-threat-header-left">
           ${icon('filter', 13)}
           <span class="nav-threat-filter-title">FILTRAR AMEAÇAS</span>
+          ${renderLicenseStatusPill()}
           ${hasActiveFilters 
             ? `<span class="nav-threat-active-badge">${matchingCount}/${totalThreats}</span>` 
             : `<span class="nav-threat-total-badge">${totalThreats}</span>`}
@@ -434,10 +439,12 @@ export function renderWorkspaceNavigator(folders = [], sheets = [], activeSheetI
         </button>
         <button type="button" class="nav-scope-tab tab-threats ${scope === 'threats' ? 'active' : ''}" data-nav-scope-tab="threats">
           <span>AMEAÇAS</span>
+          ${!isBestiaryUnlocked() ? `<span class="nav-scope-lock" title="Conteúdo oficial protegido">${icon('lock', 10)}</span>` : ''}
           <span class="nav-scope-count">(${threatsCount})</span>
         </button>
       </nav>
 
+      ${scope === 'threats' && !isBestiaryUnlocked() ? renderNavigatorLockBanner() : ''}
       ${scope === 'threats' ? renderThreatFilterPanel(sheets, options) : ''}
 
       <div class="nav-toolbar">
@@ -755,6 +762,8 @@ function renderSheetRow(sheet, isActive, safeUrl, folderBreadcrumb = '') {
   if (!sheet) return '';
   const isThreat = sheet.systemMode === 'threat';
   const isOriginal = sheet.systemMode === 'original';
+  const isOfficial = isOfficialThreat(sheet);
+  const isLocked = isThreat && isOfficial && !isBestiaryUnlocked();
 
   let badge = '<span class="nav-sheet-badge badge-ordem2">ORDEM II</span>';
   if (isOriginal) {
@@ -767,6 +776,7 @@ function renderSheetRow(sheet, isActive, safeUrl, folderBreadcrumb = '') {
 
     badge = `
       <div class="nav-sheet-threat-meta">
+        ${isLocked ? `<span class="nav-sheet-lock-tag" title="Criatura oficial protegida (valide seu PDF para desbloquear)">${icon('lock', 9)}</span>` : ''}
         <span class="nav-sheet-elem-tag" style="border-color:${elemColor};color:${elemId === 'morte' ? '#abb0cb' : elemColor};">${elemLabel.toUpperCase()}</span>
         <span class="nav-sheet-badge badge-threat">VD ${sheet.vd || 60}</span>
       </div>
@@ -778,10 +788,10 @@ function renderSheetRow(sheet, isActive, safeUrl, folderBreadcrumb = '') {
     : safe((sheet.name || '?').slice(0, 1).toUpperCase());
 
   return `
-    <div class="nav-sheet-item ${isActive ? 'active' : ''} ${isThreat ? 'threat-sheet-item' : ''}" 
+    <div class="nav-sheet-item ${isActive ? 'active' : ''} ${isThreat ? 'threat-sheet-item' : ''} ${isLocked ? 'is-locked-threat' : ''}" 
       data-nav-sheet-row="${sheet.id}" 
       draggable="true" 
-      title="${safe(sheet.name)}">
+      title="${isLocked ? safe(sheet.name) + ' (Oficial - Requer Validação do PDF)' : safe(sheet.name)}">
       <div class="nav-sheet-main" data-select-sheet-id="${sheet.id}">
         <div class="nav-sheet-avatar">
           ${avatar}

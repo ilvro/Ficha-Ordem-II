@@ -27,6 +27,8 @@ import {
   evaluateSheet,
   ELEMENT_VULNERABILITY_HINTS
 } from './threat-balance.js';
+import { isBestiaryUnlocked, isOfficialThreat } from '../../services/bestiary-license.js';
+import { renderLockedThreatDossier } from './threat-license-ui.js';
 
 /** Ícone de d20 chapado como no livro (preto com "20" em branco) */
 function d20Icon() {
@@ -81,6 +83,13 @@ function getInkColor(hex) {
  */
 export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const sheet = normalizeThreatSheet(rawSheet);
+  const isOfficial = isOfficialThreat(sheet);
+  const unlocked = isBestiaryUnlocked();
+
+  if (isOfficial && !unlocked) {
+    return renderLockedThreatDossier(sheet, options);
+  }
+
   const { safeUrl = s => s, renderBackgroundLayer } = options;
 
   const isMundane = sheet.categoria === 'mundana';
@@ -199,6 +208,12 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   ` : `
                     <h1 class="threat-mundane-title">${safe(sheet.name)}</h1>
                   `}
+                  ${isOfficialThreat(sheet) && isBestiaryUnlocked() ? `
+                    <button type="button" class="threat-official-license-pill" data-open-bestiary-license-modal title="Criatura oficial do Livro · Desbloqueada via licença digital. Clique para ver detalhes da licença.">
+                      ${icon('check-circle', 11)}
+                      <span>OFICIAL JAMBÔ</span>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
               <div class="threat-mundane-vd-wrap" title="Valor de Desafio: ${sheet.vd}">
@@ -243,6 +258,12 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     <input type="text" class="threat-editable-input threat-subtitle-tag" 
                       data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
                   ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(elemDestaque.nome.toUpperCase())}</span>`)}
+                  ${isOfficialThreat(sheet) && isBestiaryUnlocked() ? `
+                    <button type="button" class="threat-official-license-pill" data-open-bestiary-license-modal title="Criatura oficial do Livro · Desbloqueada via licença digital. Clique para ver detalhes da licença.">
+                      ${icon('check-circle', 11)}
+                      <span>OFICIAL JAMBÔ</span>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             </div>

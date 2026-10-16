@@ -16,6 +16,10 @@ export default defineConfig({
     }
   },
 
+  optimizeDeps: {
+    include: ['pdfjs-dist/build/pdf.mjs']
+  },
+
   plugins: [
     // Plugin de API local: só ativo em dev (npm run dev).
     // Em produção (GitHub Pages) o front usa IndexedDB/localStorage.
