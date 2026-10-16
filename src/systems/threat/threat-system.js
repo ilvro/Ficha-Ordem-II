@@ -129,7 +129,8 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.systemMode = 'threat';
   sheet.folderId = String(raw.folderId || 'folder-threats');
   sheet.favorite = Boolean(raw.favorite);
-  const isDefaultOfficial = raw.id && (String(raw.id).startsWith('threat-livro-') || raw.id === 'threat-mv8mkgff-k582' || raw.id === 'threat-o-uivar-100');
+  const isDefaultOfficial = (raw.fonte === 'livro-de-regras' || raw.fonte === 'sobrevivendo-ao-horror') ||
+    (raw.id && (/^threat-(livro|lr|sh)-/.test(String(raw.id)) || raw.id === 'threat-mv8mkgff-k582' || raw.id === 'threat-o-uivar-100'));
   sheet.fonte = THREAT_SOURCES.includes(raw.fonte) ? raw.fonte : (isDefaultOfficial ? 'livro-de-regras' : 'homebrew');
   sheet.isCustom = raw.isCustom !== undefined ? Boolean(raw.isCustom) : !isDefaultOfficial;
   sheet.createdAt = raw.createdAt || Date.now();

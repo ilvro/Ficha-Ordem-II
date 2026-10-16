@@ -354,6 +354,14 @@ async function loadInitialSheets(){
  // Fallback: fichas padrão embutidas no bundle (primeira visita ao site estático)
  if(!loaded||!loaded.length){
   loaded=DEFAULT_SHEETS.map(normalizeSheet);
+ }else if(Array.isArray(DEFAULT_SHEETS)){
+  const existingIds=new Set(loaded.map(s=>s.id));
+  for(const defSheet of DEFAULT_SHEETS){
+   if(!existingIds.has(defSheet.id)){
+    loaded.push(normalizeSheet(defSheet));
+    existingIds.add(defSheet.id);
+   }
+  }
  }
  sheets=migrateSheetsFolders(loaded.map(normalizeSheet));
  let storedActiveId=null;

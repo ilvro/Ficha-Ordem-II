@@ -55,7 +55,8 @@ export function isBestiaryUnlocked() {
 export function isOfficialThreat(sheet) {
   if (!sheet || sheet.systemMode !== 'threat') return false;
   if (sheet.isCustom === true) return false;
-  if (sheet.id && (sheet.id.startsWith('threat-livro-') || sheet.id === 'threat-mv8mkgff-k582')) return true;
+  if (sheet.fonte === 'livro-de-regras' || sheet.fonte === 'sobrevivendo-ao-horror') return true;
+  if (sheet.id && (sheet.id.startsWith('threat-livro-') || sheet.id.startsWith('threat-lr-') || sheet.id.startsWith('threat-sh-') || sheet.id === 'threat-mv8mkgff-k582')) return true;
   if (sheet.isOfficial === true) return true;
   if (sheet.fonte === 'homebrew') return false;
   return true;
