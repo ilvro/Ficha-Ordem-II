@@ -120,9 +120,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
   let activeSigilSrc = '';
+  const isCustomSigil = Boolean(sheet.sigilImage);
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
-  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId] && sheet.sigiloId !== 'mundana') {
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
     activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
     activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
@@ -176,7 +177,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 ${icon('book', 13)}<span>${sheet.hasIntro ? 'INTRODUÇÃO ATIVA' : 'INTRODUÇÃO'}</span>
               </button>
               <button type="button" class="threat-tool-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
-                ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-tool-sigil" alt="">` : icon('shield', 13)}<span>SÍMBOLO</span>
+                ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-tool-sigil ${isCustomSigil ? 'is-custom' : 'is-official-sigil'}" alt="">` : icon('shield', 13)}<span>SÍMBOLO</span>
               </button>
               <button type="button" class="threat-tool-btn" data-threat-open-export title="Exportar imagem (Completo ou Miro)">
                 ${icon('camera', 13)}<span>EXPORTAR</span>
@@ -269,7 +270,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                    ${editMode ? 'data-threat-open-sigil-modal' : ''} 
                    title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(elemDestaque.nome)}">
                 ${activeSigilSrc ? `
-                  <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img" alt="${safe(elemDestaque.nome)}" draggable="false">
+                  <img src="${safeUrl(activeSigilSrc)}" class="threat-element-sigil-img ${isCustomSigil ? 'is-custom' : 'is-official-sigil'}" alt="${safe(elemDestaque.nome)}" draggable="false">
                 ` : icon('shield', 36)}
                 ${editMode ? `
                   <div class="threat-sigil-edit-overlay">
@@ -361,6 +362,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                       if (!el) return '';
                       return `
                         <span class="threat-comp-active-pill" style="--elem-color:${el.cor};" title="Elemento complementar ativo">
+                          <img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
                           ${safe(el.nome.toUpperCase())}
                           <button type="button" class="threat-comp-remove-btn" data-threat-del-comp="${el.id}" title="Remover complemento ${el.nome}">×</button>
                         </span>
@@ -373,6 +375,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                       if (!el) return '';
                       return `
                         <button type="button" class="threat-comp-add-pill" style="--elem-color:${el.cor};" data-threat-add-comp="${el.id}" title="Adicionar ${el.nome} como elemento complementar">
+                          <img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
                           + ${safe(el.nome.toUpperCase())}
                         </button>
                       `;
@@ -399,7 +402,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <!-- Botão de Símbolo da Ameaça -->
                   <div class="threat-sigil-btn-wrap">
                     <button type="button" class="threat-mini-sigil-btn" data-threat-open-sigil-modal title="Alterar o símbolo da Ameaça">
-                      ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil" alt="">` : icon('shield', 12)}
+                      ${activeSigilSrc ? `<img src="${safeUrl(activeSigilSrc)}" class="threat-mini-sigil ${isCustomSigil ? 'is-custom' : 'is-official-sigil'}" alt="">` : icon('shield', 12)}
                       <span>SÍMBOLO</span>
                       ${sheet.sigilImage || (sheet.sigiloId && sheet.sigiloId !== elemDestaqueKey) ? `
                         <span class="threat-custom-badge" title="Símbolo personalizado">${icon('star-filled', 9)}</span>
@@ -409,13 +412,18 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                 </div>
                 <span class="tag-bullet">•</span>
               ` : `
-                ${secondaryElements.map(elKey => {
-                  const el = THREAT_ELEMENTS[elKey];
-                  if (!el) return '';
-                  const isMedo = el.id === 'medo';
-                  return `<span class="threat-meta-elem-pill element-pill-${el.id}">${isMedo ? `<img src="/assets/elements/medo.png" class="threat-pill-sigil-icon" alt="" draggable="false">` : ''}${safe(el.nome.toUpperCase())}</span>`;
-                }).join('')}
-                ${secondaryElements.length ? `<span class="tag-bullet">•</span>` : ''}
+                ${(() => {
+                  const elementsToRender = (!sheet.subtitulo && !secondaryElements.includes(elemDestaqueKey) && elemDestaqueKey !== 'mundana')
+                    ? [elemDestaqueKey, ...secondaryElements]
+                    : secondaryElements;
+
+                  return elementsToRender.map(elKey => {
+                    const el = THREAT_ELEMENTS[elKey];
+                    if (!el) return '';
+                    return `<span class="threat-meta-elem-pill element-pill-${el.id}"><img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false"><span>${safe(el.nome.toUpperCase())}</span></span>`;
+                  }).join('');
+                })()}
+                ${(!sheet.subtitulo || secondaryElements.length) ? `<span class="tag-bullet">•</span>` : ''}
               `}
             ` : `
               <!-- Ameaça Mundana: estilo limpo do livro (ex: ANIMAL • MÉDIO) -->
@@ -1148,7 +1156,7 @@ function renderThreatModals(sheet) {
   let activeSigilSrc = '';
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
-  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
     activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
     activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
@@ -1465,7 +1473,7 @@ function renderBalanceModal(sheet) {
   let activeSigilSrc = '';
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
-  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && THREAT_ELEMENTS[sheet.sigiloId]) {
+  } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
     activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
     activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
@@ -1807,15 +1815,19 @@ function renderBalanceModal(sheet) {
               SÍMBOLOS OFICIAIS DO OUTRO LADO
             </label>
             <div class="threat-sigils-grid">
-              ${Object.values(THREAT_ELEMENTS).map(el => {
+              ${Object.values(THREAT_ELEMENTS).filter(el => el.id !== 'mundana').map(el => {
                 const isSelected = !sheet.sigilImage && (sheet.sigiloId === el.id || (!sheet.sigiloId && elemDestaqueKey === el.id));
                 return `
                   <button type="button" class="threat-sigil-choice-btn ${isSelected ? 'active' : ''}" data-threat-pick-sigil="${el.id}" style="--sigil-color:${el.cor};">
-                    <img src="/assets/elements/${el.id}.png" alt="${safe(el.nome)}" draggable="false">
+                    <img src="/assets/elements/${el.id}.png" class="threat-sigil-modal-img" alt="${safe(el.nome)}" draggable="false">
                     <span>${safe(el.nome.toUpperCase())}</span>
                   </button>
                 `;
               }).join('')}
+              <button type="button" class="threat-sigil-choice-btn ${(!sheet.sigilImage && (sheet.sigiloId === 'tenebris' || (!sheet.sigiloId && elemDestaqueKey === 'tenebris'))) ? 'active' : ''}" data-threat-pick-sigil="tenebris" style="--sigil-color:#5a3825;">
+                <img src="/assets/elements/tenebris.png" class="threat-sigil-modal-img" alt="Tenebris" draggable="false">
+                <span>TENEBRIS</span>
+              </button>
               <button type="button" class="threat-sigil-choice-btn ${(!sheet.sigilImage && sheet.sigiloId === 'escudo') ? 'active' : ''}" data-threat-pick-sigil="escudo" style="--sigil-color:#ffffff;">
                 <div style="width:36px;height:36px;display:grid;place-items:center;">${icon('shield', 28)}</div>
                 <span>ESCUDO</span>

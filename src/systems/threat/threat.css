@@ -460,6 +460,19 @@ body.navigator-pinned .threat-book-page .sheet-background-layer {
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+  transition: transform 0.15s ease;
+}
+
+.threat-element-sigil-img.is-official-sigil {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.threat-sigil-modal-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  transition: transform 0.15s ease;
 }
 
 .threat-name-wrap {
@@ -2197,6 +2210,7 @@ body.navigator-pinned .threat-book-page .sheet-background-layer {
   width: 38px;
   height: 38px;
   object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .threat-wiz-elem-card small {
@@ -2442,6 +2456,7 @@ body.navigator-pinned .threat-book-page .sheet-background-layer {
   width: 18px;
   height: 18px;
   object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .threat-comp-pill:hover {
@@ -2664,6 +2679,10 @@ body.navigator-pinned .threat-book-page .sheet-background-layer {
   height: 14px;
   object-fit: contain;
   pointer-events: none;
+}
+
+.threat-mini-sigil:not(.is-custom) {
+  filter: brightness(0) invert(1);
 }
 
 .threat-ghost-select {
@@ -4552,6 +4571,7 @@ body.threat-exporting .modal {
 .threat-tool-btn.active { border-color: #d98b19; color: #ffd08a; background: #2a2217; }
 .threat-tool-btn svg { flex: none; }
 .threat-tool-sigil { width: 13px; height: 13px; object-fit: contain; }
+.threat-tool-sigil:not(.is-custom) { filter: brightness(0) invert(1); }
 .threat-tool-color .chip-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid #ffffff55; }
 .threat-tool-color input[type="color"] { width: 26px; height: 21px; border: 0; padding: 0; background: transparent; cursor: pointer; }
 .threat-edit-tools > small { color: #747783; font-size: 7px; letter-spacing: 0.08em; text-align: center; }

@@ -1188,10 +1188,42 @@
   letter-spacing: 0.04em;
   line-height: 1.1;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.nav-chip-elem-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.nav-group-elem-icon {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+  margin-right: 4px;
+  pointer-events: none;
+}
+
+.nav-tag-elem-icon {
+  width: 9px;
+  height: 9px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .nav-sheet-item.threat-sheet-item:hover {
   background: #18192a;
 }
+
 
 

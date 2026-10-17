@@ -1475,6 +1475,9 @@ function bindThreatBookEvents() {
    e.stopPropagation();
    const newElem = select.value;
    state.elementoDestaque = newElem;
+   if (!state.sigilImage) {
+    state.sigiloId = newElem;
+   }
    if (!Array.isArray(state.elementos)) state.elementos = [];
    if (!state.elementos.includes(newElem)) {
     state.elementos.unshift(newElem);
