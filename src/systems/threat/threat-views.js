@@ -100,8 +100,22 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
 
   const elemColor = sheet.themeColor || (isMundane ? '#ffffff' : elemDestaque.cor);
   const elemInk = (elemDestaqueKey === 'conhecimento' && !sheet.themeColor) ? '#ffffff' : getInkColor(elemColor);
-  // Páginas claras no livro: Sangue e ameaças mundanas (as demais são escuras)
-  const isLightPage = isMundane || elemDestaqueKey === 'sangue';
+
+  // Modo de contraste e tema da página (claro ou escuro)
+  const defaultPageTheme = (isMundane || elemDestaqueKey === 'sangue') ? 'light' : 'dark';
+  let effectiveTheme = defaultPageTheme;
+  if (sheet.contrast === 'light') effectiveTheme = 'light';
+  else if (sheet.contrast === 'dark') effectiveTheme = 'dark';
+  else if (sheet.backgroundImage) effectiveTheme = 'dark'; // Fundo personalizado escuro por padrão
+  const isLightPage = effectiveTheme === 'light';
+
+  // Cor dos textos da ficha (definida pelo usuário ou padrão de alto contraste)
+  const defaultTextColor = isLightPage ? '#111827' : '#f1f2f8';
+  const activeTextColor = sheet.textColor || defaultTextColor;
+
+  // Cor do card/banner do elemento (definida especificamente, herdada do tema, ou padrão do elemento)
+  const activeBannerColor = sheet.bannerColor || sheet.themeColor || (isMundane ? '#181b26' : elemDestaque.cor);
+
   const elemDark = isMundane ? '#000000' : (elemDestaqueKey === 'morte' ? '#08080c' : (elemDestaqueKey === 'sangue' ? '#260608' : (elemDestaqueKey === 'energia' ? '#1d082c' : '#2b2108')));
   const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
@@ -167,7 +181,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               <button type="button" class="threat-tool-btn" data-threat-open-export title="Exportar imagem (Completo ou Miro)">
                 ${icon('camera', 13)}<span>EXPORTAR</span>
               </button>
-              <label class="threat-tool-btn threat-tool-color" title="Cor tema da ficha">
+              <label class="threat-tool-btn threat-tool-color" title="Cor tema geral da ficha e detalhes">
                 <span class="chip-dot" style="background:${elemColor};"></span>
                 <span>COR TEMA</span>
                 <input type="color" data-threat-theme-color value="${elemColor}">
@@ -175,6 +189,32 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
               ${sheet.themeColor ? `
                 <button type="button" class="threat-tool-btn" data-threat-reset-theme-color title="Restaurar cor padrão do elemento"><span>TEMA PADRÃO</span></button>
               ` : ''}
+
+              <!-- COR DO CARD / BANNER -->
+              <label class="threat-tool-btn threat-tool-color" title="Cor do Card/Banner do Elemento (cabeçalho)">
+                <span class="chip-dot" style="background:${activeBannerColor};"></span>
+                <span>COR DO CARD</span>
+                <input type="color" data-threat-banner-color value="${activeBannerColor}">
+              </label>
+              ${sheet.bannerColor ? `
+                <button type="button" class="threat-tool-btn" data-threat-reset-banner-color title="Restaurar cor do card para o padrão do tema"><span>CARD PADRÃO</span></button>
+              ` : ''}
+
+              <!-- COR DO TEXTO -->
+              <label class="threat-tool-btn threat-tool-color" title="Cor dos textos da ficha">
+                <span class="chip-dot" style="background:${activeTextColor};"></span>
+                <span>COR TEXTO</span>
+                <input type="color" data-threat-text-color value="${activeTextColor}">
+              </label>
+              ${sheet.textColor ? `
+                <button type="button" class="threat-tool-btn" data-threat-reset-text-color title="Restaurar cor de texto padrão"><span>TEXTO PADRÃO</span></button>
+              ` : ''}
+
+              <!-- MODO DE CONTRASTE -->
+              <button type="button" class="threat-tool-btn ${sheet.contrast && sheet.contrast !== 'auto' ? 'active' : ''}" data-threat-toggle-contrast title="Alternar entre tema claro (livro) ou escuro">
+                ${icon(isLightPage ? 'sun' : 'moon', 13)}
+                <span>${sheet.contrast === 'light' ? 'TEMA: CLARO' : (sheet.contrast === 'dark' ? 'TEMA: ESCURO' : (isLightPage ? 'TEMA: AUTO (CLARO)' : 'TEMA: AUTO (ESCURO)'))}</span>
+              </button>
             </div>
             <small>REFERÊNCIA PARA 4 AGENTES NEX ~${Math.max(5, Math.round(sheet.vd / 4))}% · PV ${balSug.pv} · DEFESA ${balSug.defesa} · DT ${balSug.dt}</small>
           </div>
@@ -224,7 +264,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
           </header>
         ` : `
           <header class="threat-banner-header">
-            <div class="threat-banner-left element-banner-${elemDestaqueKey}">
+            <div class="threat-banner-left element-banner-${elemDestaqueKey}" style="${(sheet.bannerColor || sheet.themeColor) ? `background: ${activeBannerColor} !important;` : ''}">
               <div class="threat-sigil-icon ${editMode ? 'editable' : ''}" 
                    ${editMode ? 'data-threat-open-sigil-modal' : ''} 
                    title="${editMode ? 'Clique para alterar o símbolo ou enviar um personalizado' : safe(elemDestaque.nome)}">
@@ -247,13 +287,30 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     <h1 class="threat-name-title">${safe(sheet.name)}</h1>
                   `}
                 </div>
-                <div class="threat-subtitle-row">
-                  ${editMode ? `
+                ${editMode ? `
+                  <div class="threat-subtitle-row">
                     <input type="text" class="threat-editable-input threat-subtitle-tag" 
-                      data-threat-field="subtitulo" value="${safe(sheet.subtitulo)}" placeholder="SUBTÍTULO (EX: ENERGIA)">
-                  ` : (sheet.subtitulo ? `<span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>` : `<span class="threat-subtitle-tag">${safe(elemDestaque.nome.toUpperCase())}</span>`)}
-                </div>
+                      data-threat-field="subtitulo" value="${safe(sheet.subtitulo || '')}" placeholder="SUBTÍTULO (DEIXE VAZIO P/ NENHUM)">
+                    ${sheet.subtitulo ? `
+                      <button type="button" class="threat-subtitle-action-btn clear" data-threat-clear-subtitle title="Remover subtítulo">×</button>
+                    ` : `
+                      <button type="button" class="threat-subtitle-action-btn set-elem" data-threat-set-elem-subtitle title="Usar elemento como subtítulo">+ ${safe(elemDestaque.nome.toUpperCase())}</button>
+                    `}
+                  </div>
+                ` : (sheet.subtitulo ? `
+                  <div class="threat-subtitle-row">
+                    <span class="threat-subtitle-tag">${safe(sheet.subtitulo)}</span>
+                  </div>
+                ` : '')}
               </div>
+              ${editMode ? `
+                <div class="threat-banner-quick-color-wrap" title="Mudar cor deste card">
+                  <label class="threat-banner-quick-color-label" title="Escolher cor personalizada para este card">
+                    <input type="color" data-threat-banner-color value="${activeBannerColor}">
+                    ${icon('sparkles', 12)}
+                  </label>
+                </div>
+              ` : ''}
             </div>
 
             <!-- VD STAMP DO LIVRO (SEM CÍRCULO ESTRANHO) -->
@@ -840,10 +897,10 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   }
 
   return `
-    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''} ${isLightPage ? 'theme-light' : 'theme-dark'}" 
+    <main class="threat-book-page threat-page-${elemDestaqueKey} element-theme-${elemDestaqueKey} ${editMode ? 'mode-edit' : ''} ${sheet.hasIntro ? 'has-intro' : ''} ${isLightPage ? 'theme-light' : 'theme-dark'} ${sheet.backgroundImage ? 'has-custom-bg' : ''}" 
       data-element="${elemDestaqueKey}"
       data-theme-light="${isLightPage ? 'true' : 'false'}"
-      style="--threat-elem-color:${elemColor};--threat-elem-ink:${elemInk};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};">
+      style="--threat-elem-color:${elemColor};--threat-elem-ink:${elemInk};--threat-elem-dark:${elemDark};--threat-elem-glow:${elemGlow};--threat-text-color:${activeTextColor};--threat-banner-bg:${activeBannerColor};">
       
       ${typeof renderBackgroundLayer === 'function' ? renderBackgroundLayer() : ''}
 

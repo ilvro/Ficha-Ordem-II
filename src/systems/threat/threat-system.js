@@ -320,6 +320,9 @@ export function normalizeThreatSheet(raw = {}) {
   sheet.cinematicOutlineWidth = Math.max(0, Math.min(10, Number(raw.cinematicOutlineWidth ?? 1.8)));
   sheet.cinematicOutlineFade = Math.max(0, Math.min(10, Number(raw.cinematicOutlineFade ?? 1.5)));
   sheet.themeColor = raw.themeColor || (sheet.categoria === 'mundana' ? '#ffffff' : '');
+  sheet.textColor = raw.textColor || '';
+  sheet.bannerColor = raw.bannerColor || '';
+  sheet.contrast = ['auto', 'light', 'dark'].includes(raw.contrast) ? raw.contrast : 'auto';
   sheet.diceColor = raw.diceColor || '';
 
   // Introdução & Arte Narrativa do Livro

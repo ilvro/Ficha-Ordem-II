@@ -2644,7 +2644,10 @@
     "updatedAt": 1792013497899,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ARIRANHA",
@@ -2799,7 +2802,10 @@
     "updatedAt": 1792071108489,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CAVALO",
@@ -2942,7 +2948,10 @@
     "updatedAt": 1792071108491,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "GORILA",
@@ -3103,7 +3112,10 @@
     "updatedAt": 1792071108493,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ENXAME DE TOCANDIRAS",
@@ -3245,7 +3257,10 @@
     "updatedAt": 1792071108494,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "LEÃO",
@@ -3434,7 +3449,10 @@
     "updatedAt": 1792071108495,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "LOBO",
@@ -3598,7 +3616,10 @@
     "updatedAt": 1792071108496,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "TOURO",
@@ -3754,7 +3775,10 @@
     "updatedAt": 1792071108497,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "URSO PARDO",
@@ -3940,7 +3964,10 @@
     "updatedAt": 1792071108499,
     "sigilImage": "",
     "balanco": null,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ABERRAÇÃO DE CARNE",
@@ -4126,7 +4153,10 @@
     "createdAt": 1792115712917,
     "updatedAt": 1792115712917,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANIQUILAÇÃO",
@@ -4408,7 +4438,10 @@
     "createdAt": 1792115712918,
     "updatedAt": 1792115712918,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CARENTE",
@@ -4677,7 +4710,10 @@
     "createdAt": 1792115712919,
     "updatedAt": 1792115712919,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "DAMA DE SANGUE",
@@ -4944,7 +4980,10 @@
     "createdAt": 1792115712920,
     "updatedAt": 1792115712920,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ENPAP-X",
@@ -5192,7 +5231,10 @@
     "createdAt": 1792115712921,
     "updatedAt": 1792115712921,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "KERBEROS",
@@ -5421,7 +5463,10 @@
     "createdAt": 1792115712922,
     "updatedAt": 1792115712922,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MINOTAURO",
@@ -5615,7 +5660,10 @@
     "createdAt": 1792115712923,
     "updatedAt": 1792115712923,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MULHER AFOGADA",
@@ -5887,7 +5935,10 @@
     "createdAt": 1792115712924,
     "updatedAt": 1792115712924,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "TITÃ DE SANGUE",
@@ -6081,7 +6132,10 @@
     "createdAt": 1792115712925,
     "updatedAt": 1792115712925,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ZUMBI DE SANGUE",
@@ -6241,7 +6295,10 @@
     "createdAt": 1792115712926,
     "updatedAt": 1792115712926,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ZUMBI DE SANGUE BESTIAL",
@@ -6437,7 +6494,10 @@
     "createdAt": 1792115712927,
     "updatedAt": 1792115712927,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "O DIABO",
@@ -6746,7 +6806,10 @@
     "createdAt": 1792115712928,
     "updatedAt": 1792115712928,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ARACNASITA",
@@ -6953,7 +7016,10 @@
     "createdAt": 1792115712929,
     "updatedAt": 1792115712929,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CARNIÇAL PRETO DA MORTE",
@@ -7198,7 +7264,10 @@
     "createdAt": 1792115712930,
     "updatedAt": 1792115712930,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CEIFADOR ESPIRAL",
@@ -7404,7 +7473,10 @@
     "createdAt": 1792115712931,
     "updatedAt": 1792115712931,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ENRAIZADO",
@@ -7587,7 +7659,10 @@
     "createdAt": 1792115712932,
     "updatedAt": 1792115712932,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ESCUTADO",
@@ -7786,7 +7861,10 @@
     "createdAt": 1792115712933,
     "updatedAt": 1792115712933,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ESQUELETO DE LODO",
@@ -7967,7 +8045,10 @@
     "createdAt": 1792115712934,
     "updatedAt": 1792115712934,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MARIONETE",
@@ -8161,7 +8242,10 @@
     "createdAt": 1792115712935,
     "updatedAt": 1792115712935,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MÚMIA XIPÓFAGA",
@@ -8383,7 +8467,10 @@
     "createdAt": 1792115712936,
     "updatedAt": 1792115712936,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "NIDERE",
@@ -8627,7 +8714,10 @@
     "createdAt": 1792115712937,
     "updatedAt": 1792115712937,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SEMPITERNAL",
@@ -8808,7 +8898,10 @@
     "createdAt": 1792115712938,
     "updatedAt": 1792115712938,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SUCC",
@@ -8982,7 +9075,10 @@
     "createdAt": 1792115712939,
     "updatedAt": 1792115712939,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "O DEUS DA MORTE",
@@ -9245,7 +9341,10 @@
     "createdAt": 1792115712940,
     "updatedAt": 1792115712940,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANJO",
@@ -9458,7 +9557,10 @@
     "createdAt": 1792115712941,
     "updatedAt": 1792115712941,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "BICHO-PAPÃO",
@@ -9681,7 +9783,10 @@
     "createdAt": 1792115712942,
     "updatedAt": 1792115712942,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ESPREITADOR",
@@ -9881,7 +9986,10 @@
     "createdAt": 1792115712943,
     "updatedAt": 1792115712943,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ESTRANGEIRO",
@@ -10136,7 +10244,10 @@
     "createdAt": 1792115712944,
     "updatedAt": 1792115712944,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "EXISTIDO",
@@ -10332,7 +10443,10 @@
     "createdAt": 1792115712945,
     "updatedAt": 1792115712945,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "LEMBRADO",
@@ -10528,7 +10642,10 @@
     "createdAt": 1792115712946,
     "updatedAt": 1792115712946,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "OCIOSO",
@@ -10708,7 +10825,10 @@
     "createdAt": 1792115712947,
     "updatedAt": 1792115712947,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "PARASITA DE CULPA",
@@ -10907,7 +11027,10 @@
     "createdAt": 1792115712948,
     "updatedAt": 1792115712948,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "RASTEJADOR SOMBRIO",
@@ -11130,7 +11253,10 @@
     "createdAt": 1792115712949,
     "updatedAt": 1792115712949,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SILHUETA",
@@ -11297,7 +11423,10 @@
     "createdAt": 1792115712950,
     "updatedAt": 1792115712950,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "VULTO",
@@ -11486,7 +11615,10 @@
     "createdAt": 1792115712951,
     "updatedAt": 1792115712951,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MÁSCARA DO DESESPERO",
@@ -11688,7 +11820,10 @@
     "createdAt": 1792115712952,
     "updatedAt": 1792115712952,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANÁRQUICO",
@@ -11844,7 +11979,10 @@
     "createdAt": 1792115712953,
     "updatedAt": 1792115712953,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANÁRQUICO DESCONTROLADO",
@@ -12030,7 +12168,10 @@
     "createdAt": 1792115712954,
     "updatedAt": 1792115712954,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANOMALIA",
@@ -12210,7 +12351,10 @@
     "createdAt": 1792115712955,
     "updatedAt": 1792115712955,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANOMIÁTICO",
@@ -12383,7 +12527,10 @@
     "createdAt": 1792115712956,
     "updatedAt": 1792115712956,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CIBORGUE",
@@ -12701,7 +12848,10 @@
     "createdAt": 1792115712957,
     "updatedAt": 1792115712957,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "INFECTICÍDIO",
@@ -12909,7 +13059,10 @@
     "createdAt": 1792115712958,
     "updatedAt": 1792115712958,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "PERTURBADO DE ENERGIA",
@@ -13082,7 +13235,10 @@
     "createdAt": 1792115712959,
     "updatedAt": 1792115712959,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SUKKALGIR",
@@ -13280,7 +13436,10 @@
     "createdAt": 1792115712960,
     "updatedAt": 1792115712960,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "TELOPSIA",
@@ -13498,7 +13657,10 @@
     "createdAt": 1792115712961,
     "updatedAt": 1792115712961,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "TEMPESTUOSO",
@@ -13701,7 +13863,10 @@
     "createdAt": 1792115712962,
     "updatedAt": 1792115712962,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "VIAJANTE",
@@ -13903,7 +14068,10 @@
     "createdAt": 1792115712963,
     "updatedAt": 1792115712963,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ANFITRIÃO",
@@ -14233,7 +14401,10 @@
     "createdAt": 1792115712964,
     "updatedAt": 1792115712964,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "DEGOLIFICADA",
@@ -14434,7 +14605,10 @@
     "createdAt": 1792115712965,
     "updatedAt": 1792115712965,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SEPULTADO",
@@ -14665,7 +14839,10 @@
     "createdAt": 1792115712966,
     "updatedAt": 1792115712966,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MESCLA",
@@ -14967,7 +15144,10 @@
     "createdAt": 1792115712967,
     "updatedAt": 1792115712967,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ESPECTRO INESQUECIDO",
@@ -15357,7 +15537,10 @@
     "createdAt": 1792115712968,
     "updatedAt": 1792115712968,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "DERRETIDO",
@@ -15593,7 +15776,10 @@
     "createdAt": 1792115712969,
     "updatedAt": 1792115712969,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "UIVAR",
@@ -15763,7 +15949,10 @@
     "createdAt": 1792115712970,
     "updatedAt": 1792115712970,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MELANCOLIA",
@@ -15917,7 +16106,10 @@
     "createdAt": 1792115712971,
     "updatedAt": 1792115712971,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "QUIBUNGO",
@@ -16201,7 +16393,10 @@
     "createdAt": 1792115712972,
     "updatedAt": 1792115712972,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "PROFUNDO",
@@ -16463,7 +16658,10 @@
     "createdAt": 1792115712973,
     "updatedAt": 1792115712973,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MEMENTO MORI",
@@ -16717,7 +16915,10 @@
     "createdAt": 1792115712974,
     "updatedAt": 1792115712974,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "RASCUNHO",
@@ -16913,7 +17114,10 @@
     "createdAt": 1792115712975,
     "updatedAt": 1792115712975,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MEDUSA",
@@ -17226,7 +17430,10 @@
     "createdAt": 1792115712976,
     "updatedAt": 1792115712976,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "AMIGO IMAGINÁRIO",
@@ -17476,7 +17683,10 @@
     },
     "createdAt": 1792115712977,
     "updatedAt": 1792115712977,
-    "isCustom": false
+    "isCustom": false,
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "BANDIDO",
@@ -17643,7 +17853,10 @@
     "createdAt": 1792115712978,
     "updatedAt": 1792115712978,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CAPANGA",
@@ -17830,7 +18043,10 @@
     "createdAt": 1792115712979,
     "updatedAt": 1792115712979,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SOLDADO DE ALUGUEL",
@@ -18009,7 +18225,10 @@
     "createdAt": 1792115712980,
     "updatedAt": 1792115712980,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ASSASSINO",
@@ -18244,7 +18463,10 @@
     "createdAt": 1792115712981,
     "updatedAt": 1792115712981,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "COMANDANTE MERCENÁRIO",
@@ -18476,7 +18698,10 @@
     "createdAt": 1792115712982,
     "updatedAt": 1792115712982,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "INICIADO",
@@ -18638,7 +18863,10 @@
     "createdAt": 1792115712983,
     "updatedAt": 1792115712983,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "INVESTIDO",
@@ -18827,7 +19055,10 @@
     "createdAt": 1792115712984,
     "updatedAt": 1792115712984,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "LÍDER DE CULTO",
@@ -19016,7 +19247,10 @@
     "createdAt": 1792115712985,
     "updatedAt": 1792115712985,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "POLICIAL",
@@ -19182,7 +19416,10 @@
     "createdAt": 1792115712986,
     "updatedAt": 1792115712986,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "POLICIAL DE ELITE",
@@ -19399,7 +19636,10 @@
     "createdAt": 1792115712987,
     "updatedAt": 1792115712987,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CHEFE DE POLÍCIA",
@@ -19578,7 +19818,10 @@
     "createdAt": 1792115712988,
     "updatedAt": 1792115712988,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CÃO DE GUARDA",
@@ -19738,7 +19981,10 @@
     "createdAt": 1792115712989,
     "updatedAt": 1792115712989,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ENXAME DE ABELHAS",
@@ -19869,7 +20115,10 @@
     "createdAt": 1792115712990,
     "updatedAt": 1792115712990,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ENXAME DE RATOS",
@@ -20000,7 +20249,10 @@
     "createdAt": 1792115712991,
     "updatedAt": 1792115712991,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "JACARÉ",
@@ -20186,7 +20438,10 @@
     "createdAt": 1792115712992,
     "updatedAt": 1792115712992,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "JAVAPORCO",
@@ -20346,7 +20601,10 @@
     "createdAt": 1792115712993,
     "updatedAt": 1792115712993,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ONÇA-PINTADA",
@@ -20537,7 +20795,10 @@
     "createdAt": 1792115712994,
     "updatedAt": 1792115712994,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "SUCURI",
@@ -20715,7 +20976,10 @@
     "createdAt": 1792115712995,
     "updatedAt": 1792115712995,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "BÊBADO LOCAL",
@@ -20889,7 +21153,10 @@
     "createdAt": 1792115712996,
     "updatedAt": 1792115712996,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "BUROCRATA",
@@ -21072,7 +21339,10 @@
     "createdAt": 1792115712997,
     "updatedAt": 1792115712997,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "FAZENDEIRO ISOLADO",
@@ -21281,7 +21551,10 @@
     "createdAt": 1792115712998,
     "updatedAt": 1792115712998,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "INVESTIGADOR",
@@ -21483,7 +21756,10 @@
     "createdAt": 1792115712999,
     "updatedAt": 1792115712999,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "MÉDICO",
@@ -21658,7 +21934,10 @@
     "createdAt": 1792115713000,
     "updatedAt": 1792115713000,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "RELIGIOSO",
@@ -21873,7 +22152,10 @@
     "createdAt": 1792115713001,
     "updatedAt": 1792115713001,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "PREDADOR SOFISTICADO",
@@ -22129,7 +22411,10 @@
     "createdAt": 1792115713002,
     "updatedAt": 1792115713002,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "CAÇADOR DE GENTE",
@@ -22411,7 +22696,10 @@
     "createdAt": 1792115713003,
     "updatedAt": 1792115713003,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   },
   {
     "name": "ARTISTA DA MORTE",
@@ -22606,6 +22894,9 @@
     "createdAt": 1792115713004,
     "updatedAt": 1792115713004,
     "isCustom": false,
-    "sigilImage": ""
+    "sigilImage": "",
+    "textColor": "",
+    "bannerColor": "",
+    "contrast": "auto"
   }
 ]

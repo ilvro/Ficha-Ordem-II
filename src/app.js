@@ -125,6 +125,7 @@ import { normalizeThreatSheet, applyDerivedDice } from './systems/threat/threat-
 import { renderThreatBook } from './systems/threat/threat-views.js';
 import { abrirThreatWizard, fecharThreatWizard } from './systems/threat/threat-wizard.js';
 import { getBalance, evaluateSheet } from './systems/threat/threat-balance.js';
+import { THREAT_ELEMENTS } from './systems/threat/threat-data.js';
 import { openThreatExportModal, exportThreatFullImage, exportThreatMiroCard } from './systems/threat/threat-export.js';
 import {
   getBestiaryLicense,
@@ -1619,6 +1620,10 @@ function bindThreatBookEvents() {
     page.style.setProperty('--threat-elem-color', col);
     page.style.setProperty('--threat-elem-ink', ink);
     page.style.setProperty('--threat-elem-glow', `rgba(${r}, ${g}, ${b}, 0.35)`);
+    if (!state.bannerColor) {
+     page.style.setProperty('--threat-banner-bg', col);
+     page.querySelectorAll('.threat-banner-left').forEach(el => el.style.setProperty('background', col, 'important'));
+    }
    });
   };
   input.onchange = () => {
@@ -1632,6 +1637,94 @@ function bindThreatBookEvents() {
   btn.onclick = (e) => {
    e.stopPropagation();
    state.themeColor = '';
+   save(false);
+   render();
+  };
+ });
+
+ // ── COR DO CARD / BANNER DO ELEMENTO ──
+ document.querySelectorAll('[data-threat-banner-color]').forEach(input => {
+  input.oninput = () => {
+   const col = input.value;
+   state.bannerColor = col;
+   document.querySelectorAll('.threat-book-page').forEach(page => {
+    page.style.setProperty('--threat-banner-bg', col);
+    page.querySelectorAll('.threat-banner-left').forEach(el => el.style.setProperty('background', col, 'important'));
+   });
+  };
+  input.onchange = () => {
+   state.bannerColor = input.value;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-reset-banner-color]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.bannerColor = '';
+   save(false);
+   render();
+  };
+ });
+
+ // ── COR DO TEXTO DA FICHA ──
+ document.querySelectorAll('[data-threat-text-color]').forEach(input => {
+  input.oninput = () => {
+   const col = input.value;
+   state.textColor = col;
+   document.querySelectorAll('.threat-book-page').forEach(page => {
+    page.style.setProperty('--threat-text-color', col);
+   });
+  };
+  input.onchange = () => {
+   state.textColor = input.value;
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-reset-text-color]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.textColor = '';
+   save(false);
+   render();
+  };
+ });
+
+ // ── MODO DE CONTRASTE (AUTO / ESCURO / CLARO) ──
+ document.querySelectorAll('[data-threat-toggle-contrast]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   if (!state.contrast || state.contrast === 'auto') {
+    state.contrast = 'dark';
+   } else if (state.contrast === 'dark') {
+    state.contrast = 'light';
+   } else {
+    state.contrast = 'auto';
+   }
+   save(false);
+   render();
+  };
+ });
+
+ // ── SUBTÍTULO DO CABEÇALHO ──
+ document.querySelectorAll('[data-threat-clear-subtitle]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   state.subtitulo = '';
+   save(false);
+   render();
+  };
+ });
+
+ document.querySelectorAll('[data-threat-set-elem-subtitle]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const elemKey = state.elementoDestaque || 'sangue';
+   const elemObj = THREAT_ELEMENTS[elemKey] || THREAT_ELEMENTS.sangue;
+   state.subtitulo = elemObj ? elemObj.nome.toUpperCase() : 'SANGUE';
    save(false);
    render();
   };
