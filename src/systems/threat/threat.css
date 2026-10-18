@@ -1234,6 +1234,12 @@ body.navigator-pinned .threat-book-page .sheet-background-layer {
   flex-wrap: wrap;
 }
 
+.threat-book-skill-chip-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .threat-book-skill-chip {
   background: transparent;
   border: 1px solid transparent;

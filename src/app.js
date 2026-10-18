@@ -2581,6 +2581,102 @@ function bindThreatBookEvents() {
    render();
   };
  }
+
+ // ── PERÍCIAS MODAL ──
+ function openThreatSkillModal(skill = null) {
+  const modal = document.querySelector('#threat-skill-modal');
+  if (!modal) return;
+  const form = modal.querySelector('#threat-skill-form');
+  modal.querySelector('#threat-skill-modal-title').textContent = skill ? 'EDITAR PERÍCIA' : 'NOVA PERÍCIA';
+  form.querySelector('#threat-skill-id').value = skill ? skill.id : '';
+  form.querySelector('#threat-skill-name-input').value = skill ? skill.nome : '';
+  form.querySelector('#threat-skill-dados-input').value = skill ? (skill.dados || 2) : 2;
+  form.querySelector('#threat-skill-bonus-input').value = skill ? (skill.bonus ?? 5) : 5;
+
+  const hasCond = !!skill?.condicional;
+  const condCheck = form.querySelector('#threat-skill-has-cond');
+  condCheck.checked = hasCond;
+  const condFields = form.querySelector('#threat-skill-cond-fields');
+  condFields.style.display = hasCond ? 'block' : 'none';
+  form.querySelector('#threat-skill-cond-text').value = skill?.condicional?.texto || '';
+  form.querySelector('#threat-skill-cond-dados').value = skill?.condicional?.dados || '';
+  form.querySelector('#threat-skill-cond-bonus').value = (skill?.condicional?.bonus !== undefined && skill?.condicional?.bonus !== null) ? skill.condicional.bonus : '';
+
+  modal.style.display = 'grid';
+  form.querySelector('#threat-skill-name-input').focus();
+ }
+
+ document.querySelectorAll('[data-threat-add-skill]').forEach(btn => {
+  btn.onclick = () => openThreatSkillModal(null);
+ });
+
+ document.querySelectorAll('[data-threat-edit-skill]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const skillId = btn.dataset.threatEditSkill;
+   const skill = (state.pericias || []).find(p => p.id === skillId);
+   if (skill) openThreatSkillModal(skill);
+  };
+ });
+
+ document.querySelectorAll('[data-threat-del-skill]').forEach(btn => {
+  btn.onclick = (e) => {
+   e.stopPropagation();
+   const skillId = btn.dataset.threatDelSkill;
+   if (confirm('Excluir esta perícia?')) {
+    state.pericias = (state.pericias || []).filter(p => p.id !== skillId);
+    save(false);
+    render();
+   }
+  };
+ });
+
+ const skillForm = document.querySelector('#threat-skill-form');
+ if (skillForm) {
+  skillForm.onsubmit = (e) => {
+   e.preventDefault();
+   const skillId = skillForm.querySelector('#threat-skill-id').value;
+   const nome = skillForm.querySelector('#threat-skill-name-input').value.trim() || 'Perícia';
+   const dados = Math.max(1, Number(skillForm.querySelector('#threat-skill-dados-input').value) || 1);
+   const bonus = Number(skillForm.querySelector('#threat-skill-bonus-input').value) || 0;
+
+   const hasCond = skillForm.querySelector('#threat-skill-has-cond').checked;
+   let condicional = null;
+   if (hasCond) {
+    const condText = skillForm.querySelector('#threat-skill-cond-text').value.trim();
+    const condDadosRaw = skillForm.querySelector('#threat-skill-cond-dados').value;
+    const condBonus = Number(skillForm.querySelector('#threat-skill-cond-bonus').value) || 0;
+    condicional = {
+     texto: condText || 'Condicional',
+     bonus: condBonus
+    };
+    if (condDadosRaw !== '' && !isNaN(Number(condDadosRaw))) {
+     condicional.dados = Math.max(1, Number(condDadosRaw));
+    }
+   }
+
+   if (!Array.isArray(state.pericias)) state.pericias = [];
+   const skillObj = {
+    id: skillId || `pericia-${Date.now()}`,
+    nome,
+    dados,
+    bonus,
+    condicional
+   };
+
+   const existingIdx = state.pericias.findIndex(p => p.id === skillId);
+   if (existingIdx >= 0) {
+    state.pericias[existingIdx] = skillObj;
+   } else {
+    state.pericias.push(skillObj);
+   }
+
+   const modal = document.querySelector('#threat-skill-modal');
+   if (modal) modal.style.display = 'none';
+   save(false);
+   render();
+  };
+ }
 }
 
 

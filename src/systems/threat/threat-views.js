@@ -753,11 +753,17 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                     ${(sheet.pericias || []).map(p => {
                       const condHtml = p.condicional ? ` <small class="threat-skill-cond">(${p.condicional.dados || p.dados}${d20Icon()}+${(p.bonus || 0) + (p.condicional.bonus || 0)} ${safe(p.condicional.texto)})</small>` : '';
                       return `
-                        <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
-                          ${safe(p.nome)} <span class="die-token">${formatDiePool(p)}</span>${condHtml}
-                        </button>
+                        <div class="threat-book-skill-chip-wrap">
+                          <button type="button" class="threat-book-skill-chip" data-threat-roll-pericia="${p.id}" title="${p.condicional ? safe(p.condicional.texto) : ''}">
+                            ${safe(p.nome)} <span class="die-token">${formatDiePool(p)}</span>${condHtml}
+                          </button>
+                          ${editMode ? `
+                            <button type="button" class="threat-mini-btn" data-threat-edit-skill="${p.id}" title="Editar perícia">${icon('edit', 10)}</button>
+                            <button type="button" class="threat-mini-btn danger" data-threat-del-skill="${p.id}" title="Excluir perícia">${icon('trash', 10)}</button>
+                          ` : ''}
+                        </div>
                       `;
-                    }).join(', ')}
+                    }).join('')}
                     ${sheet.pericias?.length === 0 ? `<em style="color:#777;font-size:12px;">Nenhuma</em>` : ''}
                     ${editMode ? `<button type="button" class="threat-mini-btn" data-threat-add-skill>+ ADICIONAR</button>` : ''}
                   </div>
@@ -1451,6 +1457,68 @@ function renderThreatModals(sheet) {
           <footer class="threat-modal-footer">
             <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
             <button type="submit" class="threat-edit-btn">SALVAR</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Perícia de Ameaça -->
+    <div class="threat-modal" id="threat-skill-modal" style="display:none;">
+      <div class="threat-modal-backdrop" data-close-threat-modal></div>
+      <div class="threat-modal-card" style="max-width:480px;">
+        <header class="threat-modal-header">
+          <div>
+            <small>PERÍCIA · AMEAÇA</small>
+            <h2 id="threat-skill-modal-title">NOVA PERÍCIA</h2>
+          </div>
+          <button type="button" class="threat-modal-close-btn" data-close-threat-modal title="Fechar">${icon('close', 14)}</button>
+        </header>
+        <form id="threat-skill-form" class="threat-modal-body">
+          <input type="hidden" id="threat-skill-id">
+          
+          <div class="threat-form-group">
+            <label>NOME DA PERÍCIA</label>
+            <input type="text" id="threat-skill-name-input" required placeholder="Ex: Luta, Furtividade, Ocultismo, Sobrevivência...">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="threat-form-group">
+              <label>DADOS (D20)</label>
+              <input type="number" id="threat-skill-dados-input" min="1" max="15" value="2" required>
+            </div>
+            <div class="threat-form-group">
+              <label>BÔNUS TOTAL (+)</label>
+              <input type="number" id="threat-skill-bonus-input" value="5" required>
+            </div>
+          </div>
+
+          <hr class="threat-modal-divider" style="margin:6px 0 2px;border:0;border-top:1px solid #282a3c;">
+
+          <label class="threat-roll-manual" style="align-self:flex-start;cursor:pointer;">
+            <input type="checkbox" id="threat-skill-has-cond" onchange="document.querySelector('#threat-skill-cond-fields').style.display=this.checked?'block':'none'">
+            <span>BÔNUS OU DADO CONDICIONAL</span>
+          </label>
+
+          <div id="threat-skill-cond-fields" style="display:none;">
+            <div class="threat-form-group" style="margin-bottom:8px;">
+              <label>CONDIÇÃO / GATILHO</label>
+              <input type="text" id="threat-skill-cond-text" placeholder="Ex: se estiver em terreno difícil, em ambientes escuros...">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="threat-form-group">
+                <label>DADOS ESPECIAIS (OPCIONAL)</label>
+                <input type="number" id="threat-skill-cond-dados" min="1" max="15" placeholder="Mesmo">
+              </div>
+              <div class="threat-form-group">
+                <label>BÔNUS ADICIONAL (+)</label>
+                <input type="number" id="threat-skill-cond-bonus" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <footer class="threat-modal-footer">
+            <button type="button" class="threat-edit-btn" data-close-threat-modal>CANCELAR</button>
+            <button type="submit" class="threat-edit-btn" style="background:var(--threat-elem-color,#e0150d);color:#fff;border-color:transparent;">SALVAR</button>
           </footer>
         </form>
       </div>
