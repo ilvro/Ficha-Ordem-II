@@ -60,7 +60,9 @@ function safe(str) {
 
 function safeUrl(str) {
   if (!str) return '';
-  return String(str).replace(/[<>"']/g, '');
+  let s = String(str).replace(/[<>"']/g, '');
+  if (s.startsWith('/assets/')) s = '.' + s;
+  return s;
 }
 
 /**
@@ -120,13 +122,13 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
   const elemGlow = isMundane ? 'rgba(0,0,0,0.1)' : `rgba(${hexToRgb(elemColor)}, 0.3)`;
 
   let activeSigilSrc = '';
-  const isCustomSigil = Boolean(sheet.sigilImage);
+  const isCustomSigil = Boolean(sheet.sigilImage && !sheet.sigilImage.includes('elements/'));
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
   } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
-    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+    activeSigilSrc = `./assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
-    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+    activeSigilSrc = `./assets/elements/${elemDestaqueKey}.png`;
   }
 
   const machucado = calcMachucado(sheet);
@@ -340,7 +342,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   <div class="threat-primary-badge-wrap" title="Elemento Principal (determina a cor do tema, fraqueza e sigilo)">
                     <span class="threat-element-role-label">PRINCIPAL:</span>
                     <label class="threat-primary-elem-select-btn" style="--elem-color:${elemDestaque.cor};">
-                      <img src="/assets/elements/${elemDestaqueKey}.png" class="threat-mini-sigil" alt="" draggable="false">
+                      <img src="./assets/elements/${elemDestaqueKey}.png" class="threat-mini-sigil" alt="" draggable="false">
                       <span>${safe(elemDestaque.nome.toUpperCase())}</span>
                       <select class="threat-ghost-select" data-threat-select-primary-elem title="Mudar Elemento Principal">
                         ${Object.values(THREAT_ELEMENTS).filter(el => el.id !== 'mundana').map(el => `
@@ -362,7 +364,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                       if (!el) return '';
                       return `
                         <span class="threat-comp-active-pill" style="--elem-color:${el.cor};" title="Elemento complementar ativo">
-                          <img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
+                          <img src="./assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
                           ${safe(el.nome.toUpperCase())}
                           <button type="button" class="threat-comp-remove-btn" data-threat-del-comp="${el.id}" title="Remover complemento ${el.nome}">×</button>
                         </span>
@@ -375,7 +377,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                       if (!el) return '';
                       return `
                         <button type="button" class="threat-comp-add-pill" style="--elem-color:${el.cor};" data-threat-add-comp="${el.id}" title="Adicionar ${el.nome} como elemento complementar">
-                          <img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
+                          <img src="./assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false">
                           + ${safe(el.nome.toUpperCase())}
                         </button>
                       `;
@@ -420,7 +422,7 @@ export function renderThreatBook(rawSheet, editMode = false, options = {}) {
                   return elementsToRender.map(elKey => {
                     const el = THREAT_ELEMENTS[elKey];
                     if (!el) return '';
-                    return `<span class="threat-meta-elem-pill element-pill-${el.id}"><img src="/assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false"><span>${safe(el.nome.toUpperCase())}</span></span>`;
+                    return `<span class="threat-meta-elem-pill element-pill-${el.id}"><img src="./assets/elements/${el.id}.png" class="threat-pill-sigil-icon" alt="" draggable="false"><span>${safe(el.nome.toUpperCase())}</span></span>`;
                   }).join('');
                 })()}
                 ${(!sheet.subtitulo || secondaryElements.length) ? `<span class="tag-bullet">•</span>` : ''}
@@ -1157,9 +1159,9 @@ function renderThreatModals(sheet) {
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
   } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
-    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+    activeSigilSrc = `./assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
-    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+    activeSigilSrc = `./assets/elements/${elemDestaqueKey}.png`;
   }
 
   return `
@@ -1474,9 +1476,9 @@ function renderBalanceModal(sheet) {
   if (sheet.sigilImage) {
     activeSigilSrc = sheet.sigilImage;
   } else if (sheet.sigiloId && sheet.sigiloId !== 'escudo' && (THREAT_ELEMENTS[sheet.sigiloId] || sheet.sigiloId === 'tenebris') && sheet.sigiloId !== 'mundana') {
-    activeSigilSrc = `/assets/elements/${sheet.sigiloId}.png`;
+    activeSigilSrc = `./assets/elements/${sheet.sigiloId}.png`;
   } else if (!isMundane && sheet.sigiloId !== 'escudo') {
-    activeSigilSrc = `/assets/elements/${elemDestaqueKey}.png`;
+    activeSigilSrc = `./assets/elements/${elemDestaqueKey}.png`;
   }
 
   return `
@@ -1695,7 +1697,7 @@ function renderBalanceModal(sheet) {
                 ${icon('history', 13)} RESTAURAR PADRÃO DO ELEMENTO
               </button>
 
-              <button type="button" class="threat-action-pill-btn preset" data-threat-preset-bg="/assets/ordem2-bg.webp" title="Aplicar textura de pergaminho oficial do livro">
+              <button type="button" class="threat-action-pill-btn preset" data-threat-preset-bg="./assets/ordem2-bg.webp" title="Aplicar textura de pergaminho oficial do livro">
                 ${icon('book', 13)} TEXTURA DO LIVRO
               </button>
             </div>
@@ -1819,13 +1821,13 @@ function renderBalanceModal(sheet) {
                 const isSelected = !sheet.sigilImage && (sheet.sigiloId === el.id || (!sheet.sigiloId && elemDestaqueKey === el.id));
                 return `
                   <button type="button" class="threat-sigil-choice-btn ${isSelected ? 'active' : ''}" data-threat-pick-sigil="${el.id}" style="--sigil-color:${el.cor};">
-                    <img src="/assets/elements/${el.id}.png" class="threat-sigil-modal-img" alt="${safe(el.nome)}" draggable="false">
+                    <img src="./assets/elements/${el.id}.png" class="threat-sigil-modal-img" alt="${safe(el.nome)}" draggable="false">
                     <span>${safe(el.nome.toUpperCase())}</span>
                   </button>
                 `;
               }).join('')}
               <button type="button" class="threat-sigil-choice-btn ${(!sheet.sigilImage && (sheet.sigiloId === 'tenebris' || (!sheet.sigiloId && elemDestaqueKey === 'tenebris'))) ? 'active' : ''}" data-threat-pick-sigil="tenebris" style="--sigil-color:#5a3825;">
-                <img src="/assets/elements/tenebris.png" class="threat-sigil-modal-img" alt="Tenebris" draggable="false">
+                <img src="./assets/elements/tenebris.png" class="threat-sigil-modal-img" alt="Tenebris" draggable="false">
                 <span>TENEBRIS</span>
               </button>
               <button type="button" class="threat-sigil-choice-btn ${(!sheet.sigilImage && sheet.sigiloId === 'escudo') ? 'active' : ''}" data-threat-pick-sigil="escudo" style="--sigil-color:#ffffff;">

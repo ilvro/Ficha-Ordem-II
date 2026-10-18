@@ -415,7 +415,7 @@ function renderPasso1(d) {
             <button type="button" class="threat-wiz-elem-card ${isSelected ? 'selected' : ''}" 
               data-twiz-elem="${el.id}" style="--elem-border:${theme.cor}; --elem-bg:${theme.bg}; --elem-glow:${theme.glow};">
               <div class="elem-card-icon">
-                <img src="/assets/elements/${el.id}.png" alt="${el.nome}" draggable="false">
+                <img src="./assets/elements/${el.id}.png" alt="${el.nome}" draggable="false">
               </div>
               <strong style="color:${theme.cor};">${el.nome.toUpperCase()}</strong>
               <small style="color:${theme.corClara};">${theme.desc}</small>
@@ -434,7 +434,7 @@ function renderPasso1(d) {
             const eTheme = ELEMENT_THEMES[e.id] || { cor: e.cor };
             return `
               <button type="button" class="threat-comp-pill ${isCompSelected ? 'selected' : ''}" data-twiz-elem-comp="${e.id}" style="--elem-pill-color:${eTheme.cor};">
-                <img src="/assets/elements/${e.id}.png" alt="" draggable="false">
+                <img src="./assets/elements/${e.id}.png" alt="" draggable="false">
                 <span>${e.nome.toUpperCase()}</span>
               </button>
             `;
@@ -836,7 +836,7 @@ function renderPasso7(d) {
       <header class="threat-review-header">
         <div style="display:flex;align-items:center;gap:12px;">
           ${isParanormal ? `
-            <img src="/assets/elements/${d.elementoPrincipal}.png" style="width:42px;height:42px;object-fit:contain;" alt="">
+            <img src="./assets/elements/${d.elementoPrincipal}.png" style="width:42px;height:42px;object-fit:contain;" alt="">
           ` : icon('shield', 36)}
           <div>
             <h3 style="margin:0;font:700 20px Georgia,serif;color:#fff;">${safe(d.nome || 'Nova Ameaça')}</h3>

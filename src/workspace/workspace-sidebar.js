@@ -254,7 +254,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-sangue ${threatElement === 'sangue' ? 'active' : ''}" 
                 data-filter-threat-element="sangue" 
                 title="Elemento Sangue (${elemCounts.sangue})">
-                <img src="/assets/elements/sangue.png" class="nav-chip-elem-icon" alt="" draggable="false">
+                <img src="./assets/elements/sangue.png" class="nav-chip-elem-icon" alt="" draggable="false">
                 <span>SANGUE</span>
                 <span class="chip-count">${elemCounts.sangue}</span>
               </button>
@@ -262,7 +262,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-morte ${threatElement === 'morte' ? 'active' : ''}" 
                 data-filter-threat-element="morte" 
                 title="Elemento Morte (${elemCounts.morte})">
-                <img src="/assets/elements/morte.png" class="nav-chip-elem-icon" alt="" draggable="false">
+                <img src="./assets/elements/morte.png" class="nav-chip-elem-icon" alt="" draggable="false">
                 <span>MORTE</span>
                 <span class="chip-count">${elemCounts.morte}</span>
               </button>
@@ -270,7 +270,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-energia ${threatElement === 'energia' ? 'active' : ''}" 
                 data-filter-threat-element="energia" 
                 title="Elemento Energia (${elemCounts.energia})">
-                <img src="/assets/elements/energia.png" class="nav-chip-elem-icon" alt="" draggable="false">
+                <img src="./assets/elements/energia.png" class="nav-chip-elem-icon" alt="" draggable="false">
                 <span>ENERGIA</span>
                 <span class="chip-count">${elemCounts.energia}</span>
               </button>
@@ -278,7 +278,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-conhecimento ${threatElement === 'conhecimento' ? 'active' : ''}" 
                 data-filter-threat-element="conhecimento" 
                 title="Elemento Conhecimento (${elemCounts.conhecimento})">
-                <img src="/assets/elements/conhecimento.png" class="nav-chip-elem-icon" alt="" draggable="false">
+                <img src="./assets/elements/conhecimento.png" class="nav-chip-elem-icon" alt="" draggable="false">
                 <span>CONHEC.</span>
                 <span class="chip-count">${elemCounts.conhecimento}</span>
               </button>
@@ -286,7 +286,7 @@ export function renderThreatFilterPanel(sheets = [], options = {}) {
                 class="nav-threat-chip chip-elem chip-medo ${threatElement === 'medo' ? 'active' : ''}" 
                 data-filter-threat-element="medo" 
                 title="Elemento Medo (${elemCounts.medo})">
-                <img src="/assets/elements/medo.png" class="nav-chip-elem-icon" alt="" draggable="false">
+                <img src="./assets/elements/medo.png" class="nav-chip-elem-icon" alt="" draggable="false">
                 <span>MEDO</span>
                 <span class="chip-count">${elemCounts.medo}</span>
               </button>
@@ -595,7 +595,7 @@ function renderElementGroupedThreats(threats = [], activeSheetId = '', safeUrl =
             <button type="button" class="nav-folder-toggle ${!isCollapsed ? 'expanded' : ''}" data-toggle-virtual-group="${groupId}" aria-label="Expandir/recolher">
               ${icon('chevron-right', 11)}
             </button>
-            ${el.id !== 'mundana' ? `<img src="/assets/elements/${el.id}.png" class="nav-group-elem-icon" alt="" draggable="false">` : `<span class="nav-elem-dot" style="background:${el.cor};"></span>`}
+            ${el.id !== 'mundana' ? `<img src="./assets/elements/${el.id}.png" class="nav-group-elem-icon" alt="" draggable="false">` : `<span class="nav-elem-dot" style="background:${el.cor};"></span>`}
             <span class="nav-folder-name" style="color:${el.id === 'mundana' ? '#fff' : (el.textCor || el.cor)};font-weight:800;">${el.nome.toUpperCase()}</span>
             <span class="nav-folder-count">(${matching.length})</span>
           </div>
@@ -777,7 +777,7 @@ function renderSheetRow(sheet, isActive, safeUrl, folderBreadcrumb = '') {
     badge = `
       <div class="nav-sheet-threat-meta">
         ${isLocked ? `<span class="nav-sheet-lock-tag" title="Criatura oficial protegida (valide seu PDF para desbloquear)">${icon('lock', 9)}</span>` : ''}
-        <span class="nav-sheet-elem-tag" style="border-color:${elemColor};color:${elemId === 'morte' ? '#abb0cb' : elemColor};">${elemId !== 'mundana' ? `<img src="/assets/elements/${elemId}.png" class="nav-tag-elem-icon" alt="" draggable="false">` : ''}${elemLabel.toUpperCase()}</span>
+        <span class="nav-sheet-elem-tag" style="border-color:${elemColor};color:${elemId === 'morte' ? '#abb0cb' : elemColor};">${elemId !== 'mundana' ? `<img src="./assets/elements/${elemId}.png" class="nav-tag-elem-icon" alt="" draggable="false">` : ''}${elemLabel.toUpperCase()}</span>
         <span class="nav-sheet-badge badge-threat">VD ${sheet.vd || 60}</span>
       </div>
     `;

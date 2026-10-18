@@ -232,7 +232,7 @@ function dataUrlToBlobUrl(value){
  const head=/^data:(image\/[a-z0-9.+-]+);base64,/i.exec(value.slice(0,80));if(!head)return null;
  try{const bin=atob(value.slice(head[0].length)),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([bytes],{type:head[1]}));blobUrlCache.set(value,url);return url}catch{return null}
 }
-const safeUrl=value=>{const s=String(value||'');if(!/^(https?:\/\/|data:image\/|data:video\/|blob:|\/|\.\/)/i.test(s))return'';if(s.length>8192&&s.charCodeAt(5)===105){const blob=dataUrlToBlobUrl(s);if(blob)return blob}return safe(s)};
+const safeUrl=value=>{let s=String(value||'');if(!/^(https?:\/\/|data:image\/|data:video\/|blob:|\/|\.\/)/i.test(s))return'';if(s.startsWith('/assets/'))s='.'+s;if(s.length>8192&&s.charCodeAt(5)===105){const blob=dataUrlToBlobUrl(s);if(blob)return blob}return safe(s)};
 const clone=value=>structuredClone(value);
 const makeId=prefix=>`${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
 
@@ -527,7 +527,7 @@ function renderBackgroundLayer(bgIsVideo=false,isCinematic=false){
   return `<div class="sheet-background-layer"><div class="bg-image" style="background-image:url('${bgUrl}')"></div><div class="bg-overlay"></div></div>`;
  }
  if(state.systemMode === 'threat') return '';
- return `<div class="sheet-background-layer"><div class="bg-image" style="background-image:url('/assets/ordem2-bg.webp')"></div><div class="bg-overlay"></div></div>`;
+ return `<div class="sheet-background-layer"><div class="bg-image" style="background-image:url('./assets/ordem2-bg.webp')"></div><div class="bg-overlay"></div></div>`;
 }
 
 function renderCinematicMobileTabs(){if(presentationMode)return '';const tabs=[{id:'skills',label:'PERÍCIAS',svg:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h7m-3.5-3.5v7"/>'},{id:'abilities',label:'HABILIDADES',svg:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'},{id:'items',label:'ITENS',svg:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>'},{id:'history',label:'HISTÓRIA',svg:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'}];return `<nav class="cinematic-mobile-tabs" aria-label="Abas da ficha">${tabs.map(t=>`<button type="button" class="cinematic-mobile-tab ${cinematicMobileTab===t.id?'active':''}" data-cinematic-mobile-tab="${t.id}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${t.svg}</svg><span>${t.label}</span></button>`).join('')}</nav>`}

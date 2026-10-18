@@ -17452,7 +17452,7 @@
     "elementoDestaque": "morte",
     "tipo": "Criatura",
     "tamanho": "Grande",
-    "sigiloId": "",
+    "sigiloId": "tenebris",
     "presenca": {
       "ativa": true,
       "dt": 40,
@@ -17675,7 +17675,7 @@
       "alto_contraste": false
     },
     "id": "threat-sh-amigo-imaginario",
-    "sigilImage": "/assets/elements/tenebris.png",
+    "sigilImage": "./assets/elements/tenebris.png",
     "balanco": {
       "vd": 360,
       "preset": "editora",
